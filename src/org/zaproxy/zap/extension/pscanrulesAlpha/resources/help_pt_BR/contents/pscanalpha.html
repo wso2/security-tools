@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title>
+Passive Scan Rules - Alpha
+</title>
+</head>
+<body bgcolor="#ffffff">
+<h1>Regras de verificação passiva - alfa</h1>
+As seguintes regras de verificação passiva de qualidade alfa estão incluídas neste complemento:
+
+<h2>Exposição do ViewState do ASP.NET</h2>
+Um ViewState do ASP.NET foi exibido pelo servidor web/aplicativo
+
+<h2>Integridade do ViewState do ASP.NET</h2>
+O aplicativo não usa um código de autenticação de mensagem (MAC) para proteger a integridade do ASP.NET ViewState, que pode ser violado por um cliente malicioso
+
+<h2>Exposição de Base64</h2>
+Dados codificados em Base64 foram exibidos pelo servidor web/aplicativo
+
+<h2>Falta o cabeçalho/header da política de segurança de conteúdo</h2>
+Isto verifica os cabeçalhos de resposta para verificar a presença de um cabeçalho de política de segurança de conteúdo.
+
+<h2>Envenenamento de cookie</h2>
+Esta verificação confere a entrada fornecida pelo usuário nos parâmetros da string de query e nos dados de POST para identificar onde os parâmetros de cookie podem ser controlados. Isso é chamado ataque de cookie poisonining ou envenenamento de cookie e se torna explorável quando um atacante pode manipular o cookie de várias maneiras. Em alguns casos isso não vai ser explorável, mas permitir que parâmetros de URL definam valores de cookie é geralmente considerado um bug.
+
+<h2>Configuração incorreta de domínio cruzado</h2>
+Busca passivamente respostas contendo configurações incorretas de Domínio Cruzado, que relaxam a política de "mesma origem" no navegador da web, por exemplo.<br>
+A implementação atual verifica cabeçalhos CORS excessivamente permissivos.
+
+<h2>Pesquisa no diretório</h2>
+Busca passivamente assinaturas de respostas indicando de que a navegação em diretório é possível.
+
+<h2>Varredura passiva de arquivo-exemplo</h2>
+Este recurso implementa uma regra de varredura passiva que carrega strings de um arquivo que o usuário pode editar.<br>
+Para mais detalhes veja: http://zaproxy.blogspot.co.uk/2014/04/hacking-zap-3-passive-scan-rules.html
+
+<h2>Exemplo de varredura passiva simples</h2>
+Aqui implementamos um exemplo muito simples de regra de varredura passiva.<br>
+Para mais detalhes veja: http://zaproxy.blogspot.co.uk/2014/04/hacking-zap-3-passive-scan-rules.html
+
+<h2>Exposição de hash</h2>
+Vasculhar passivamente hashes de senhas exibidos pelo servidor web. <br>
+Estão incluídos vários formatos, inclusive alguns como MD4, MD5 e SHA *, às vezes usados para outros fins além de conter hashes de senhas. 
+
+<h2>HeartBleed</h2>
+Varreduras passivas à procura de respostas de cabeçalho HTTP indicando que o servidor está vulnerável à vulnerabilidade crítica  HeartBleed OpenSSL. 
+
+<h2>Transição insegura de HTTP para HTTPS em post de formulário</h2>
+Esta verificação procura páginas inseguras em HTTP que hospedam formulários HTTPS. A questão é que uma página HTTP insegura pode facilmente ser sequestrada por MITM-man-in-the-middle e o formulário seguro em HTTPS pode ser substituído ou falsificado.
+
+<h2>Transição insegura de HTTPS para HTTP em post de formulário</h2>
+Esta verificação procura páginas seguras em HTTPS que hospedam formulários inseguros HTTP. A questão é que uma página segura está em transição para uma página insegura enquanto dados são enviados através de um formulário. O usuário pode pensar que está enviando dados para uma página segura, quando na verdade eles não está.
+
+<h2>Componente Inseguro</h2>
+Esta checagem passivamente verifica os cabeçalhos de resposta do servidor e conteúdo do corpo gerador procurando versões de produtos, que são então comparados com uma lista de versões do produto conhecido por ser vulnerável a vários CVEs.<br>
+Uma lista de escores de gravidade de CVEs e CVSS é a saída para cada produto registrado como vulnerável.<br>
+Pelo lado do servidor, são registrados atualmente os seguintes produtos:<br>
+Apache Tomcat application server (funcionalidade limitada devido à limitação do vazamento de informações pelo Tomcat)<br>
+Apache web server<br>
+mod_auth_radius Apache module<br>
+mod_fcgid Apache module<br>
+mod_imap Apache module<br>
+mod_jk Apache module<br>
+mod_perl Apache module<br>
+mod_python Apache module<br>
+mod_ssl Apache module<br>
+OpenSSL Apache module<br>
+Perl Apache module<br>
+Python Apache module<br>
+IBM HTTP Server<br>
+JBoss application server<br>
+Jetty web server / application server<br>
+LiteSpeed web server<br>
+Lighttpd web server<br>
+Microsoft IIS web server<br>
+Netscape Enterprise web server<br>
+Nginx web server<br>
+OpenCMS<br>
+Oracle Application Server<br>
+Oracle Web Cache<br>
+PHP<br>
+Phusion_Passenger<br>
+Squid proxy server<br>
+Sun One web server<br>
+Sun Java System Web Server<br>
+TornadoServer web server<br>
+WordPress<br>
+
+<h2>Scanner de localização de imagem</h2>
+<p>Passively scans for GPS location exposure in images during normal security
+assessments of websites.  Image Location Scanner assists in situations where
+end users may post profile images and possibly give away their home location,
+e.g. a dating site or children's chatroom.  A whitepaper on this can be found
+at http://veggiespam.com/ils/</p>
+
+<p>Note: In order for this plug-in to operate, ZAP must be configured to
+receive and process images.  To do this, go to the ZAP Options panel (Tools
+&rarr; Options), choose Display, and enable the checkbox for "Process images in
+HTTP requests/responses".  In addition, ZAP images cannot be filtered out via
+the settings "Global Exclude URL" or the Session Properties for "Exclude from
+Proxy". </p>
+
+<h2>Open redirect</h2>
+Open redirects are one of the OWASP 2010 Top Ten vulnerabilities. This check looks at user-supplied input in query string parameters and POST data to identify where open redirects might be possible. Open redirects occur when an application allows user-supplied input (e.g. http://nottrusted.com) to control an offsite redirect. This is generally a pretty accurate way to find where 301 or 302 redirects could be exploited by spammers or phishing attacks
+
+<h2>Server Header Version Information Leak</h2>
+This checks response headers for the presence of a server header that contains version details.
+
+<h2>Source Code Disclosure</h2>
+Application Source Code was disclosed by the web server
+
+<h2>Missing Strict Transport Security Header</h2>
+This checks HTTPS response headers for the presence of a HTTP Strict Transport Security header.
+
+<h2>Timestamp Disclosure</h2>
+A timestamp was disclosed by the application/web server
+
+<h2>User controllable HTML element attribute (potential XSS)</h2>
+This check looks at user-supplied input in query string parameters and POST data to identify where certain HTML attribute values might be controlled. This provides hot-spot detection for XSS (cross-site scripting) that will require further review by a security analyst to determine exploitability.
+
+<h2>User controllable charset</h2>
+This check looks at user-supplied input in query string parameters and POST data to identify where Content-Type or meta tag charset declarations might be user-controlled. Such charset declarations should always be declared by the application. If an attacker can control the response charset, they could manipulate the HTML to perform XSS or other attacks.
+
+<h2>User controllable javascript event (XSS)</h2>
+This check looks at user-supplied input in query string parameters and POST data to identify where certain HTML attribute values might be controlled. This provides hot-spot detection for XSS (cross-site scripting) that will require further review by a security analyst to determine exploitability.            
+
+<h2>User controllable javascript property (XSS)</h2>
+This check looks at user-supplied input in query string parameters and POST data to identify where URL's in certain javascript properties (e.g. createElement src) might becontrolled. This provides hot-spot detection for XSS (cross-site scripting) that will require further review by a security analyst to determine exploitability.            
+
+<h2>X-Powered-By Header Information Leak</h2>
+This checks response headers for the presence of X-Powered-By details.
+
+<h2>X-Backend-Server Header Information Leak</h2>
+This checks response headers for the presence of X-Backend-Server details.
+
+<h2>Big Redirect</h2>
+This check predicts the size of various redirect type responses and generates an alert if the response is greater than the predicted size. 
+A large redirect response may indicate that although a redirect has taken place the page actually contained content (which may reveal sensitive information, PII, etc).
+
+</body>
+</html>

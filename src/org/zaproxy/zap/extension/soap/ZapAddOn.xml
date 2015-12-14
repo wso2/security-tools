@@ -1,0 +1,22 @@
+<zapaddon>
+	<name>SOAP Scanner</name>
+	<version>2</version>
+	<description>Imports and scans WSDL files containing SOAP endpoints.</description>
+	<author>Alberto (albertov91)</author>
+	<url></url>
+	<changes> Fixes a problem where operations under the same location were overwritten. Other minor fixes.</changes>
+	<extensions>
+	    <extension>org.zaproxy.zap.extension.soap.ExtensionImportWSDL</extension>
+	</extensions>
+	<ascanrules>
+	  	<ascanrule>org.zaproxy.zap.extension.soap.SOAPActionSpoofingActiveScanner</ascanrule>
+	  	<ascanrule>org.zaproxy.zap.extension.soap.SOAPXMLInjectionActiveScanner</ascanrule>
+	</ascanrules>
+	<pscanrules>
+	    <pscanrule>org.zaproxy.zap.extension.soap.WSDLFilePassiveScanner</pscanrule>
+	</pscanrules>
+	<filters/>
+	<files/>
+	<not-before-version>2.4.0</not-before-version>
+	<not-from-version></not-from-version>
+</zapaddon>

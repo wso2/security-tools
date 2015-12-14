@@ -1,0 +1,18 @@
+<zapaddon>
+	<name>HttpsInfo</name>
+	<version>6</version>
+	<description>Adds Https status information</description>
+	<author>ZAP Dev Team</author>
+	<url></url>
+	<changes>Issue 1978 Uncaught NPE - Fixed.</changes>
+	<extensions>
+	    <extension>org.zaproxy.zap.extension.httpsInfo.RightClickMenu</extension>
+	</extensions>
+	<ascanrules/>
+	<pscanrules/>
+	<filters/>
+	<files/>
+	<not-before-version>2.4.0</not-before-version>
+	<not-from-version></not-from-version>
+</zapaddon>
+
