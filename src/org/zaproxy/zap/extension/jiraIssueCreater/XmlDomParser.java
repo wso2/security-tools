@@ -233,7 +233,7 @@ public class XmlDomParser{
     private JSONObject getAllOpenIssues(String projectkey){
         JiraRestClient jiraRest=new JiraRestClient();
         String responseIssues;
-        JSONObject allOpenIssues=null;
+        JSONObject allOpenIssues=null,tempJSON;
         try {
             String[] creds=this.loginUser();
             String auth=creds[1];
@@ -242,6 +242,19 @@ public class XmlDomParser{
                     "(status=%22Open%22OR%20status=%22In%20Progress%22%20OR%20status=%22To%20Do%22)" +
                     "+order+by+id&fields=key,summary,description,status&maxResults=1000");
             allOpenIssues=new JSONObject(responseIssues);
+            int totalNumberOfIssues=Integer.parseInt(allOpenIssues.getString("total"));
+
+            if(totalNumberOfIssues>1000){
+                for (int start=1000;start<totalNumberOfIssues;start+=totalNumberOfIssues%1000){
+                    responseIssues=jiraRest.invokeGetMethod(auth, BASE_URL + "/rest/api/2/search?jql=project="+projectkey+"%20AND%20" +
+                            "(status=%22Open%22OR%20status=%22In%20Progress%22%20OR%20status=%22To%20Do%22)" +
+                            "+order+by+id&fields=key,summary,description,status&startAt="+start+"&maxResults=1000");
+                    tempJSON=new JSONObject(responseIssues);
+                    allOpenIssues.append("issues",tempJSON.getJSONArray("issues"));
+                }
+
+            }
+
 
         } catch (IOException e) {
             log.error(e.getMessage(),e);
