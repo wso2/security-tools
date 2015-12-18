@@ -198,7 +198,7 @@ public class JiraIssueCreaterForm extends javax.swing.JFrame {
                 XmlDomParser xmlParser = new XmlDomParser();
                 if(cbHigh.isSelected()|| cbMedium.isSelected()|| cbLow.isSelected()) {
                         issueList = xmlParser.parseXmlDoc(project_key, cbSelectAssignee.getSelectedItem().toString(),
-                                cbHigh.isSelected(), cbMedium.isSelected(), cbLow.isSelected()); // parse xml report with filters
+                                cbHigh.isSelected(), cbMedium.isSelected(), cbLow.isSelected(),Boolean.FALSE); // parse xml report with filters  TODO: change the bool for filers
                         issueCount = issueList.length; //get the issue count from the preset last index
 
                     if (issueCount != 0) { //proceed if the issue count is > 1

@@ -7,6 +7,7 @@ package org.zaproxy.zap.extension.jiraIssueCreater;
 
 
 import com.sun.jersey.core.util.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -51,7 +52,8 @@ public class XmlDomParser{
 
 
 
-    public String[] parseXmlDoc(String projectKey, String assignee, Boolean alertHigh, Boolean alertMedium, Boolean alertLow) {  //parse the xml document or file
+    public String[] parseXmlDoc(String projectKey, String assignee, Boolean alertHigh,
+                                Boolean alertMedium, Boolean alertLow, Boolean filterByFileName) {  //parse the xml document or file
 
         String[] returnIssueList;
         try {
@@ -69,7 +71,7 @@ public class XmlDomParser{
 
             if(dropIssues.length!=0) { //if there are issues to be dropped
 
-                String[] allIssues=createIssueList(doc, projectKey, assignee); //creates the issue list
+                String[] allIssues=createIssueList(doc, projectKey, assignee,filterByFileName); //creates the issue list
                 int allIssueCount=allIssues.length;
                 int exportIssueCount = dropIssues.length;
                 List<String> list = new ArrayList<>(Arrays.asList(allIssues));
@@ -91,7 +93,7 @@ public class XmlDomParser{
                 returnIssueList=list.toArray(new String[list.size()]); //return the remaining issues
 
             }else{
-                returnIssueList=createIssueList(doc, projectKey, assignee); //if no issues are dropped
+                returnIssueList=createIssueList(doc, projectKey, assignee,filterByFileName); //if no issues are dropped
             }
 
         } catch (ParserConfigurationException e) {
@@ -113,13 +115,14 @@ public class XmlDomParser{
         return returnIssueList;
     }
 
-    String[][] issueURLS;
+    String[][] issueURLS; //publicly declared array to check url's against  existing url's in a issue (during update)
 
-    private String[] createIssueList(Document doc,String projectKey, String assignee) throws SessionNotFoundException{
+    private String[] createIssueList (Document doc,String projectKey, String assignee, Boolean filterByResourceType) throws SessionNotFoundException{
         doc.getDocumentElement().normalize();
         NodeList session=doc.getElementsByTagName("alerts"); //to check wheter alerts exist
         String[] issueList;
-        String tempIssueURLS;
+        String tempIssueURLS,baseName;
+        List<String> alertURLS=null;
 
 
         if(session.getLength()!=0) { // if alerts exist
@@ -147,15 +150,25 @@ public class XmlDomParser{
 
                 for (int i = 0; i < instances.getLength(); i++) { //loop through instances
 
-                    if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                        Element eElement = (Element) nNode;
-                        tempIssueURLS=eElement.getElementsByTagName("uri").item(i).getTextContent();
-                        description +=StringEscapeUtils.escapeHtml("| URL | " +tempIssueURLS+ " | \\n");
-                        issueURLS[temp][i]=tempIssueURLS;
-                    }
+                       if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
-                    type = "Bug"; //issue type set to BUG
+                           Element eElement = (Element) nNode;
+                           tempIssueURLS = eElement.getElementsByTagName("uri").item(i).getTextContent();
 
+                           if(!filterByResourceType) {
+                               description += StringEscapeUtils.escapeHtml("| URL | " + tempIssueURLS + " | \\n");
+                           }
+
+                           issueURLS[temp][i] = tempIssueURLS;
+                           alertURLS.add(tempIssueURLS);
+                       }
+
+                       type = "Bug"; //issue type set to BUG
+
+                }
+
+                if(filterByResourceType) {
+                    description+=this.sortURLSbyResourceType(alertURLS);
                 }
 
                 createIssueData = "{\"fields\": {\"project\": {\"key\":\"" + projectKey + "\"}," +
@@ -172,6 +185,9 @@ public class XmlDomParser{
         }
         return issueList;
     }
+
+
+
 
     private String[] dropIssueList(Boolean high,Boolean medium, Boolean low){ //get the filters into an array
 
@@ -255,7 +271,6 @@ public class XmlDomParser{
 
             }
 
-
         } catch (IOException e) {
             log.error(e.getMessage(),e);
         } catch (AuthenticationException e) {
@@ -307,7 +322,7 @@ public class XmlDomParser{
         String updatedDescription=description;
 
         for(int i=0;i<issueURLS[issueIndex].length;i++) {
-            if (!(description.toLowerCase().contains(issueURLS[issueIndex][i].toLowerCase()))) {
+            if (!(description.toLowerCase().contains(issueURLS[issueIndex][i].toLowerCase()))) { //if the current url is not in the URL table
                 updatedDescription += "| URL | " + issueURLS[issueIndex][i] + " | \n";
             }
         }
@@ -316,7 +331,7 @@ public class XmlDomParser{
     }
 
 
-    public boolean checkForIssueExistence(String issue, String projectKey){
+    public boolean checkForIssueExistence(String issue, String projectKey){ //checks for an open issue
 
         Boolean existance=false;
         JSONObject currentIssue=new JSONObject(issue);
@@ -339,6 +354,18 @@ public class XmlDomParser{
 
         return existance;
     }
+
+
+    public String sortURLSbyResourceType(List<String> alertURLS){
+        String sortedUrls=null;
+
+        for(String url:alertURLS){
+           System.out.println(url);
+        }
+
+        return sortedUrls;
+    }
+
 
 
 
