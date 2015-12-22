@@ -32,7 +32,7 @@ public class JiraIssueCreaterAPI extends ApiImplementor {
     private static final String ACTION_PARAM_MEDIUM = "medium";
     private static final String ACTION_PARAM_LOW = "low";
 
-    private static final String ACTION_PARAM_FILTER_BY_FILE_TYPE = "filterByFileName";
+    private static final String ACTION_PARAM_FILTER_BY_FILE_TYPE = "filterIssuesByResourceType";
 
 
     private static final String PREFIX = "jiraIssueCreater";
@@ -44,7 +44,8 @@ public class JiraIssueCreaterAPI extends ApiImplementor {
 
         this.addApiAction(new ApiAction(ACTION_CREATE_JIRA_ISSUE, new String[] { ACTION_PARAM_BASEURL,ACTION_PARAM_JIRAUSERNAME,
                 ACTION_PARAM_JIRAPASSWORD, ACTION_PARAM_PROJECTKEY,ACTION_PARAM_ASSIGNEE,
-                ACTION_PARAM_HIGH,ACTION_PARAM_MEDIUM,ACTION_PARAM_LOW , ACTION_PARAM_FILTER_BY_FILE_TYPE}));
+                ACTION_PARAM_HIGH,ACTION_PARAM_MEDIUM,ACTION_PARAM_LOW},
+                new String[] { ACTION_PARAM_FILTER_BY_FILE_TYPE }));
     }
 
     @Override
@@ -64,7 +65,7 @@ public class JiraIssueCreaterAPI extends ApiImplementor {
                 extension.createJiraIssues(params.getString(ACTION_PARAM_BASEURL),params.getString(ACTION_PARAM_JIRAUSERNAME),
                         params.getString(ACTION_PARAM_JIRAPASSWORD),params.getString(ACTION_PARAM_PROJECTKEY),
                         params.getString(ACTION_PARAM_ASSIGNEE), params.getString(ACTION_PARAM_HIGH), params.getString(ACTION_PARAM_MEDIUM),
-                        params.getString(ACTION_PARAM_LOW),params.getString(ACTION_PARAM_FILTER_BY_FILE_TYPE)); //TODO move filter by type to optional params
+                        params.getString(ACTION_PARAM_LOW),params.getString(ACTION_PARAM_FILTER_BY_FILE_TYPE));
         }
         return new ApiResponseElement(name,params.toString());
     }

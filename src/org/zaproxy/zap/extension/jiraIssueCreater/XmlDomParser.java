@@ -37,11 +37,10 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+
 
 public class XmlDomParser{
 
@@ -53,7 +52,7 @@ public class XmlDomParser{
 
 
     public String[] parseXmlDoc(String projectKey, String assignee, Boolean alertHigh,
-                                Boolean alertMedium, Boolean alertLow, Boolean filterByFileName) {  //parse the xml document or file
+                                Boolean alertMedium, Boolean alertLow , Boolean filterIssuesByResourceType) {  //parse the xml document or file
 
         String[] returnIssueList;
         try {
@@ -71,7 +70,7 @@ public class XmlDomParser{
 
             if(dropIssues.length!=0) { //if there are issues to be dropped
 
-                String[] allIssues=createIssueList(doc, projectKey, assignee,filterByFileName); //creates the issue list
+                String[] allIssues=createIssueList(doc, projectKey, assignee,filterIssuesByResourceType); //creates the issue list
                 int allIssueCount=allIssues.length;
                 int exportIssueCount = dropIssues.length;
                 List<String> list = new ArrayList<>(Arrays.asList(allIssues));
@@ -93,7 +92,7 @@ public class XmlDomParser{
                 returnIssueList=list.toArray(new String[list.size()]); //return the remaining issues
 
             }else{
-                returnIssueList=createIssueList(doc, projectKey, assignee,filterByFileName); //if no issues are dropped
+                returnIssueList=createIssueList(doc, projectKey, assignee, filterIssuesByResourceType); //if no issues are dropped
             }
 
         } catch (ParserConfigurationException e) {
@@ -117,12 +116,12 @@ public class XmlDomParser{
 
     String[][] issueURLS; //publicly declared array to check url's against  existing url's in a issue (during update)
 
-    private String[] createIssueList (Document doc,String projectKey, String assignee, Boolean filterByResourceType) throws SessionNotFoundException{
+    private String[] createIssueList (Document doc,String projectKey, String assignee, Boolean filterIssuesByResourceType) throws SessionNotFoundException{
         doc.getDocumentElement().normalize();
         NodeList session=doc.getElementsByTagName("alerts"); //to check wheter alerts exist
         String[] issueList;
-        String tempIssueURLS,baseName;
-        List<String> alertURLS=null;
+        String tempIssueURLS;
+        ArrayList <String> urlList = new ArrayList<>();
 
 
         if(session.getLength()!=0) { // if alerts exist
@@ -148,27 +147,28 @@ public class XmlDomParser{
                 description += StringEscapeUtils.escapeJava("| Solution        | " + alert.getElementsByTagName("solution").item(0).getTextContent() + " | \n");
                 description += StringEscapeUtils.escapeJava("| Reference       | " + alert.getElementsByTagName("reference").item(0).getTextContent() + " | \n");
 
+
                 for (int i = 0; i < instances.getLength(); i++) { //loop through instances
 
                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
                            Element eElement = (Element) nNode;
                            tempIssueURLS = eElement.getElementsByTagName("uri").item(i).getTextContent();
+                           issueURLS[temp][i] = tempIssueURLS;
 
-                           if(!filterByResourceType) {
-                               description += StringEscapeUtils.escapeHtml("| URL | " + tempIssueURLS + " | \\n");
+                           if(!filterIssuesByResourceType) {
+                           description += StringEscapeUtils.escapeHtml("| URL | " + tempIssueURLS + " | \\n");
+                           }else {
+                               urlList.add(tempIssueURLS);
                            }
 
-                           issueURLS[temp][i] = tempIssueURLS;
-                           alertURLS.add(tempIssueURLS);
                        }
 
                        type = "Bug"; //issue type set to BUG
-
                 }
 
-                if(filterByResourceType) {
-                    description+=this.sortURLSbyResourceType(alertURLS);
+                if(filterIssuesByResourceType){
+                    description+=sortIssueURLS(urlList);
                 }
 
                 createIssueData = "{\"fields\": {\"project\": {\"key\":\"" + projectKey + "\"}," +
@@ -185,6 +185,74 @@ public class XmlDomParser{
         }
         return issueList;
     }
+
+    private String sortIssueURLS(List <String> urlsOfCurrentIssue){ //filter issues by files
+        String urlsSortedByResourceName="\\n",extension="",currentURL;
+        LinkedHashMap<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+
+        List<String> jspFiles = new ArrayList<String>();
+        List<String> htmlFiles = new ArrayList<String>();
+        List<String> cssFiles = new ArrayList<String>();
+        List<String> jsFiles = new ArrayList<String>();
+        List<String> xmlFiles = new ArrayList<String>();
+        List<String> jsonFiles = new ArrayList<String>();
+        List<String> otherFiles = new ArrayList<String>();
+
+        for(int i=0;i<urlsOfCurrentIssue.size();i++) {
+            currentURL=urlsOfCurrentIssue.get(i);
+            extension=FilenameUtils.getExtension(currentURL);
+//            System.out.println(extension);
+            switch (extension){
+                case "jsp":
+                    jspFiles.add(currentURL);
+                    break;
+
+                case "html":
+                    htmlFiles.add(currentURL);
+                    break;
+
+                case "css":
+                    cssFiles.add(currentURL);
+                    break;
+
+                case "js":
+                    jsFiles.add(currentURL);
+                    break;
+
+                case "xml":
+                    xmlFiles.add(currentURL);
+                    break;
+
+                case "json":
+                    jsonFiles.add(currentURL);
+                    break;
+
+                default:
+                    otherFiles.add(currentURL);
+                    break;
+
+            }
+        }
+
+        map.put("jsp",jspFiles);
+        map.put("html",htmlFiles);
+        map.put("js",jsFiles);
+        map.put("xml",xmlFiles);
+        map.put("css",cssFiles);
+        map.put("json",jsonFiles);
+        map.put("other",otherFiles);
+
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            List<String> URLS = entry.getValue();
+            for(int i=0; i<URLS.size();i++){
+//                System.out.println(URLS.get(i));
+                urlsSortedByResourceName+=StringEscapeUtils.escapeHtml("| URL | " + URLS.get(i) + " | \\n");
+            }
+            urlsSortedByResourceName+="\\n";
+        }
+        return urlsSortedByResourceName;
+    }
+
 
 
 
@@ -355,16 +423,6 @@ public class XmlDomParser{
         return existance;
     }
 
-
-    public String sortURLSbyResourceType(List<String> alertURLS){
-        String sortedUrls=null;
-
-        for(String url:alertURLS){
-           System.out.println(url);
-        }
-
-        return sortedUrls;
-    }
 
 
 

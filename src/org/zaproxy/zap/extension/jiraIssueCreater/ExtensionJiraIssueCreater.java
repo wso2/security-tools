@@ -210,7 +210,7 @@ public class ExtensionJiraIssueCreater extends ExtensionAdaptor {
     }
 
     public void createJiraIssues(String jiraBaseURL, String jiraUserName, String jiraPassword,
-                                 String projectKey,String asssignee, String high, String medium, String low , String filterByFileName){
+                                 String projectKey,String asssignee, String high, String medium, String low, String filterIssuesByResourceType){
 
         String project_key = projectKey;
         String issueList[];
@@ -227,7 +227,8 @@ public class ExtensionJiraIssueCreater extends ExtensionAdaptor {
                 XmlDomParser xmlParser = new XmlDomParser();
                 if(high.equals("1")|| medium.equals("1")|| low.equals("1")) {
                     issueList = xmlParser.parseXmlDoc(project_key, asssignee,
-                            stringToBool(high), stringToBool(medium), stringToBool(low),stringToBool(filterByFileName)); // parse xml report with filters
+                            stringToBool(high), stringToBool(medium), stringToBool(low),
+                            stringToBool(filterIssuesByResourceType));
                     issueCount = issueList.length; //get the issue count from the preset last index
 
                     if (issueCount != 0) { //proceed if the issue count is > 1
