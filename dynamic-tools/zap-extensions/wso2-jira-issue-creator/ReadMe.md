@@ -15,4 +15,4 @@ Steps to configure the zapwso2jiraplugin from the source
 
 6. Find the zapwso2jiraplugin-alpha-1.zap inside the build/zap-exts folder after the ant-build
 
-7. Copy the zapwso2jiraplugin-alpha-1.zap to the /home/<NAME>/.ZAP/plugin/ folder
+7. Copy the zapwso2jiraplugin-alpha-1.zap to the /home/NAME/.ZAP/plugin/ folder
