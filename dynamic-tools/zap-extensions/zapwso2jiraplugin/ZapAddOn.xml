@@ -1,0 +1,19 @@
+<zapaddon>
+	<name>Jira Issue Creater</name>
+	<version>1</version>
+	<description>An extension to export alerts created by ZAP as issues to JIRA</description>
+	<author>WSO2 Inc</author>
+	<url></url>
+	<changes>First version</changes>
+	<extensions>
+		<extension>org.zaproxy.zap.extension.zapwso2jiraplugin.ExtensionJiraIssueCreater</extension>
+	</extensions>
+	<ascanrules/>
+	<pscanrules/>
+	<filters/>
+	<!--<files>-->
+	<!--<file>files.example/ExampleFile.txt</file>-->
+	<!--</files>-->
+	<not-before-version>2.4.1</not-before-version>
+	<not-from-version></not-from-version>
+</zapaddon>
