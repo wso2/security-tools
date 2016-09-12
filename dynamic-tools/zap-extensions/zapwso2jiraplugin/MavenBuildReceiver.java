@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *  *
  *  * WSO2 Inc. licenses this file to you under the Apache License,
  *  * Version 2.0 (the "License"); you may not use this file except
@@ -40,16 +40,15 @@ import org.xml.sax.SAXException;
 
 public class MavenBuildReceiver {
 
-    private static final Logger log= Logger.getRootLogger();
+    private static final Logger log = Logger.getRootLogger();
 
-    public static String getPomVersion(File file)
-    {
+    public static String getPomVersion(File file) {
 
-        String version="";
+        String version = "";
 
         try {
-            DocumentBuilderFactory dbFactory
-                    = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory dbFactory = XmlDomParser.getSecuredDocumentBuilderFactory();
+
             DocumentBuilder dBuilder;
 
             dBuilder = dbFactory.newDocumentBuilder();
@@ -57,14 +56,14 @@ public class MavenBuildReceiver {
             Document doc = dBuilder.parse(file);
             doc.getDocumentElement().normalize();
 
-            XPath xPath =  XPathFactory.newInstance().newXPath();
+            XPath xPath = XPathFactory.newInstance().newXPath();
 
             String expression = "/project/version";
             NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
 
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node nNode = nodeList.item(i);
-                version=nNode.getTextContent();
+                version = nNode.getTextContent();
             }
         } catch (ParserConfigurationException e) {
             log.error("Error occered when parsing the pom.xml file to retrive the pom version");

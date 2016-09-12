@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *  *
  *  * WSO2 Inc. licenses this file to you under the Apache License,
  *  * Version 2.0 (the "License"); you may not use this file except
@@ -33,7 +33,7 @@ public class UpdateJiraAttachments {
 
     JiraRestClient jiraRest;
     Map<String, String> attachments = new HashMap<String, String>();
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = Logger.getRootLogger();
 
     public void modifyJiraContents(String auth, String BASE_URL, String jiraKey) {
 

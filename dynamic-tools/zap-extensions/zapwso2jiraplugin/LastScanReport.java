@@ -51,7 +51,7 @@ public class LastScanReport {
         return instance;
     }
 
-    public String generate(StringBuilder report) throws Exception {
+    public String generateReport(StringBuilder report) throws Exception {
         report.append("<?xml version=\"1.0\"?>");
         report.append("<OWASPZAPReport version=\"").append(Constant.PROGRAM_VERSION).append("\" generated=\"")
                 .append(ReportGenerator.getCurrentDateTimeString()).append("\">\r\n");

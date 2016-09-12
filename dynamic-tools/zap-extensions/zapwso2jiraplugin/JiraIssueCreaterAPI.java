@@ -45,8 +45,7 @@ public class JiraIssueCreaterAPI extends ApiImplementor {
                         IssueCreatorConstants.ACTION_PARAM_JIRAPASSWORD, IssueCreatorConstants.ACTION_PARAM_PROJECT_KEY,
                         IssueCreatorConstants.ACTION_PARAM_ASSIGNEE, IssueCreatorConstants.ACTION_PARAM_PRODUCT,
                         IssueCreatorConstants.ACTION_PARAM_LABEL, IssueCreatorConstants.ACTION_PARAM_PATH,
-                        IssueCreatorConstants.ACTION_PARAM_WORKSPACE,
-                        IssueCreatorConstants.ACTION_PARAM_FOLDER }));
+                        IssueCreatorConstants.ACTION_PARAM_WORKSPACE, IssueCreatorConstants.ACTION_PARAM_FOLDER }));
     }
 
     @Override public String getPrefix() {

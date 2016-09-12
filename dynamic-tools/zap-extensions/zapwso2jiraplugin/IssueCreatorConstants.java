@@ -60,8 +60,25 @@ public class IssueCreatorConstants {
     // filePath- This is the file path where ZAP generates its report. This includes file name too.
     public static final String ACTION_PARAM_PATH = "filePath";
 
-    public static final String ACTION_PARAM_WORKSPACE="workspace";
+    public static final String ACTION_PARAM_WORKSPACE = "workspace";
 
-    public static final String ACTION_PARAM_FOLDER="backupPlace";
+    public static final String ACTION_PARAM_FOLDER = "backupPlace";
 
+    public static final String SAX_FEATURE_PREFIX = "http://xml.org/sax/features/";
+
+    public static final String EXTERNAL_GENERAL_ENTITIES_FEATURE = "external-general-entities";
+
+    public static final String XERCES_FEATURE_PREFIX = "http://apache.org/xml/features/";
+
+    public static final String LOAD_EXTERNAL_DTD_FEATURE = "nonvalidating/load-external-dtd";
+
+    public static final String FEATURE_SECURE_PROCESSING = "http://javax.xml.XMLConstants/feature/secure-processing";
+
+    public static final String EXTERNAL_PARAMETER_ENTITIES_FEATURE = "external-parameter-entities";
+
+    public static final int ENTITY_EXPANSION_LIMIT = 0;
+
+    public static final java.lang.String XERCES_PROPERTY_PREFIX = "http://apache.org/xml/properties/";
+
+    public static final java.lang.String SECURITY_MANAGER_PROPERTY = "security-manager";
 }

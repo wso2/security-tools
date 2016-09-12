@@ -26,8 +26,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import javax.naming.AuthenticationException;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,6 +44,7 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.xerces.util.SecurityManager;
 
 public class XmlDomParser {
 
@@ -49,19 +52,21 @@ public class XmlDomParser {
     String description = "";
     JiraRestClient jiraRest;
 
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = Logger.getRootLogger();
 
     /**
      * Checking if there is any issue reported during the scan
+     *
      * @return return TRUE if any issues are reported in the report
      */
     public boolean isIssueExistsInReport() {
         try {
 
             StringBuilder currentSession = new StringBuilder();
-            String report = LastScanReport.getInstance().generate(currentSession);
+            String report = LastScanReport.getInstance().generateReport(currentSession);
             InputStream stream = new ByteArrayInputStream(report.getBytes(StandardCharsets.UTF_8));
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory dbFactory = getSecuredDocumentBuilderFactory();
+
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(stream);
             doc.getDocumentElement().normalize();
@@ -83,6 +88,7 @@ public class XmlDomParser {
 
     /**
      * Creating new Jira issue Json object String is generated from here
+     *
      * @param projectKey JIRA project key, under which ticket needs to be created
      * @param assignee   to whom ticket need to be assigned
      * @param issueLabel custom object which used to identify the project
@@ -122,13 +128,14 @@ public class XmlDomParser {
 
     /**
      * Checking if there is any issues already reported in the Jira with the samw topic
+     *
      * @param auth     Base64 encoded authorization paramters
      * @param BASE_URL Jira base URL
      * @param summary  JIRA heading which used to find the JIRA existance
      * @return returning the JIRA key, if already jira is created else return an empty String
      */
 
-    public String checkForIssueExistence(String auth, String BASE_URL, String summary,String projectKey) {
+    public String checkForIssueExistence(String auth, String BASE_URL, String summary, String projectKey) {
 
         String responseIssuue;
         String key = "";
@@ -138,9 +145,10 @@ public class XmlDomParser {
         summary = summary.replace("]", "");
 
         try {
-//            String URL = BASE_URL + "/rest/api/2/search?jql=summary%20~%20%20%22" + summary + "%22" + "&fields="+"SECINTDEV";
+            //            String URL = BASE_URL + "/rest/api/2/search?jql=summary%20~%20%20%22" + summary + "%22" + "&fields="+"SECINTDEV";
 
-            String URL = BASE_URL + "/rest/api/2/search?jql=project+%3d+"+projectKey+"+AND+text+%7e+%22" + summary + "%22" + "&fields="+"";
+            String URL = BASE_URL + "/rest/api/2/search?jql=project+%3d+" + projectKey + "+AND+text+%7e+%22" + summary
+                    + "%22" + "&fields=" + "";
             responseIssuue = jiraRest.invokeGetMethod(auth, URL);
             availableIssue = new JSONObject(responseIssuue);
         } catch (AuthenticationException e) {
@@ -158,33 +166,31 @@ public class XmlDomParser {
 
     /**
      * Compressing the file generatated during the zap scan
+     *
      * @param path file path in the server
      * @return new file path for the compressed file
      */
-
     public String compressFile(String path) {
 
         byte[] buffer = new byte[1024];
 
+        FileOutputStream fos = null;
+        ZipOutputStream zos = null;
+        FileInputStream in = null;
+
         try {
-            FileOutputStream fos = new FileOutputStream(path.concat(".zip"));
-            ZipOutputStream zos = new ZipOutputStream(fos);
+            fos = new FileOutputStream(path.concat(".zip"));
+            zos = new ZipOutputStream(fos);
 
             String[] directories = path.split("/");
             ZipEntry ze = new ZipEntry(directories[directories.length - 1]);
             zos.putNextEntry(ze);
-            FileInputStream in = new FileInputStream(path);
+            in = new FileInputStream(path);
 
             int len;
             while ((len = in.read(buffer)) > 0) {
                 zos.write(buffer, 0, len);
             }
-
-            in.close();
-            zos.closeEntry();
-
-            //remember close it
-            zos.close();
 
             log.info("ZIP file is successfully created");
 
@@ -192,6 +198,14 @@ public class XmlDomParser {
             log.info("File need to be compressed is not found ", e);
         } catch (IOException e) {
             log.info("Exception occured during the file compression", e);
+        } finally {
+            try {
+                in.close();
+                zos.closeEntry();
+                zos.close();
+            } catch (IOException e) {
+                log.error("Error while closing the Stream");
+            }
         }
 
         return path.concat(".zip");
@@ -199,6 +213,7 @@ public class XmlDomParser {
 
     /**
      * Renaming the file according to the allowed format in jira
+     *
      * @param product  product that get scanned
      * @param filePath file path of the report generated
      * @return filepath after renaming the file
@@ -224,6 +239,45 @@ public class XmlDomParser {
         boolean success = file.renameTo(file2);
 
         return fileNewPath;
+    }
+
+    /**
+     * Create DocumentBuilderFactory with the XXE and XEE prevention measurements.
+     *
+     * @return DocumentBuilderFactory instance
+     */
+    public static DocumentBuilderFactory getSecuredDocumentBuilderFactory() {
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+
+        try {
+            dbf.setFeature(
+                    IssueCreatorConstants.SAX_FEATURE_PREFIX + IssueCreatorConstants.EXTERNAL_GENERAL_ENTITIES_FEATURE,
+                    false);
+            dbf.setFeature(IssueCreatorConstants.SAX_FEATURE_PREFIX
+                    + IssueCreatorConstants.EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+            dbf.setFeature(
+                    IssueCreatorConstants.XERCES_FEATURE_PREFIX + IssueCreatorConstants.LOAD_EXTERNAL_DTD_FEATURE,
+                    false);
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            log.error("Failed to load XML Processor Feature " + IssueCreatorConstants.EXTERNAL_GENERAL_ENTITIES_FEATURE
+                    + " or " +
+                    IssueCreatorConstants.EXTERNAL_PARAMETER_ENTITIES_FEATURE + " or "
+                    + IssueCreatorConstants.LOAD_EXTERNAL_DTD_FEATURE +
+                    " or secure-processing.");
+        }
+
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(IssueCreatorConstants.ENTITY_EXPANSION_LIMIT);
+        dbf.setAttribute(IssueCreatorConstants.XERCES_PROPERTY_PREFIX + IssueCreatorConstants.SECURITY_MANAGER_PROPERTY,
+                securityManager);
+
+        return dbf;
     }
 
 }

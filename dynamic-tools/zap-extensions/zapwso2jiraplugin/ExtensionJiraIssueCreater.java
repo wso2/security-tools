@@ -128,7 +128,7 @@ public class ExtensionJiraIssueCreater extends ExtensionAdaptor {
 
         String version = MavenBuildReceiver.getPomVersion(new File(workspace + "/pom.xml"));
 
-        String summary = "[JENKINS][" + product +"-"+version+"][DynamicScan-Nightly-Build-Report]";
+        String summary = "[JENKINS][" + product + "-" + version + "][DynamicScan-Nightly-Build-Report]";
 
         //String summary = "[JENKINS][" + product + "][DynamicScan-Nightly-Build-Report]";
 

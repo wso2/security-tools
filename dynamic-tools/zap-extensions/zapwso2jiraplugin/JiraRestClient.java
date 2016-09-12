@@ -37,11 +37,12 @@ import org.apache.log4j.Logger;
 import javax.naming.AuthenticationException;
 import java.io.File;
 import java.io.IOException;
+
 import org.apache.http.HttpStatus;
 
 public class JiraRestClient {
 
-    private static final Logger log= Logger.getRootLogger();
+    private static final Logger log = Logger.getRootLogger();
 
     public static String invokeGetMethod(String auth, String url)
             throws AuthenticationException, ClientHandlerException {
@@ -136,7 +137,7 @@ public class JiraRestClient {
             response = httpclient.execute(httppost);
         } catch (Exception e) {
             log.error("File upload failed when involing the update method with file ");
-        }finally {
+        } finally {
             try {
                 httpclient.close();
             } catch (IOException e) {
