@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+
 public class XmlDomParser {
 
     String createIssueData, type;
@@ -127,17 +128,19 @@ public class XmlDomParser {
      * @return returning the JIRA key, if already jira is created else return an empty String
      */
 
-    public String checkForIssueExistence(String auth, String BASE_URL, String summary) {
+    public String checkForIssueExistence(String auth, String BASE_URL, String summary,String projectKey) {
 
         String responseIssuue;
         String key = "";
         JSONObject availableIssue = null;
-        summary = summary.replace("][", "%20");
+        summary = summary.replace("][", "+");
         summary = summary.replace("[", "");
         summary = summary.replace("]", "");
 
         try {
-            String URL = BASE_URL + "/rest/api/2/search?jql=summary%20~%20%20%22" + summary + "%22" + "&fields=key";
+//            String URL = BASE_URL + "/rest/api/2/search?jql=summary%20~%20%20%22" + summary + "%22" + "&fields="+"SECINTDEV";
+
+            String URL = BASE_URL + "/rest/api/2/search?jql=project+%3d+"+projectKey+"+AND+text+%7e+%22" + summary + "%22" + "&fields="+"";
             responseIssuue = jiraRest.invokeGetMethod(auth, URL);
             availableIssue = new JSONObject(responseIssuue);
         } catch (AuthenticationException e) {

@@ -44,7 +44,9 @@ public class JiraIssueCreaterAPI extends ApiImplementor {
                         IssueCreatorConstants.ACTION_PARAM_JIRAUSERNAME,
                         IssueCreatorConstants.ACTION_PARAM_JIRAPASSWORD, IssueCreatorConstants.ACTION_PARAM_PROJECT_KEY,
                         IssueCreatorConstants.ACTION_PARAM_ASSIGNEE, IssueCreatorConstants.ACTION_PARAM_PRODUCT,
-                        IssueCreatorConstants.ACTION_PARAM_LABEL, IssueCreatorConstants.ACTION_PARAM_PATH }));
+                        IssueCreatorConstants.ACTION_PARAM_LABEL, IssueCreatorConstants.ACTION_PARAM_PATH,
+                        IssueCreatorConstants.ACTION_PARAM_WORKSPACE,
+                        IssueCreatorConstants.ACTION_PARAM_FOLDER }));
     }
 
     @Override public String getPrefix() {
@@ -66,7 +68,9 @@ public class JiraIssueCreaterAPI extends ApiImplementor {
                     params.getString(IssueCreatorConstants.ACTION_PARAM_ASSIGNEE),
                     params.getString(IssueCreatorConstants.ACTION_PARAM_PRODUCT),
                     params.getString(IssueCreatorConstants.ACTION_PARAM_LABEL),
-                    params.getString(IssueCreatorConstants.ACTION_PARAM_PATH));
+                    params.getString(IssueCreatorConstants.ACTION_PARAM_PATH),
+                    params.getString(IssueCreatorConstants.ACTION_PARAM_WORKSPACE),
+                    params.getString(IssueCreatorConstants.ACTION_PARAM_FOLDER));
         }
         return new ApiResponseElement(name, params.toString());
     }

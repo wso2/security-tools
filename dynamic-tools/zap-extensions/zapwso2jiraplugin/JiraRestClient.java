@@ -32,6 +32,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.log4j.Logger;
 
 import javax.naming.AuthenticationException;
 import java.io.File;
@@ -40,8 +41,11 @@ import org.apache.http.HttpStatus;
 
 public class JiraRestClient {
 
+    private static final Logger log= Logger.getRootLogger();
+
     public static String invokeGetMethod(String auth, String url)
             throws AuthenticationException, ClientHandlerException {
+
         Client client = Client.create();
         WebResource webResource = client.resource(url);
         ClientResponse response = webResource.header("Authorization", "Basic " + auth).type("application/json")
@@ -95,7 +99,7 @@ public class JiraRestClient {
         }
     }
 
-    private static void invokeDeleteMethod(String auth, String url)
+    public static void invokeDeleteMethod(String auth, String url)
             throws AuthenticationException, ClientHandlerException {
         Client client = Client.create();
         WebResource webResource = client.resource(url);
@@ -130,15 +134,13 @@ public class JiraRestClient {
 
         try {
             response = httpclient.execute(httppost);
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
+        } catch (Exception e) {
+            log.error("File upload failed when involing the update method with file ");
+        }finally {
             try {
                 httpclient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Exception occered when closing the connection");
             }
         }
     }

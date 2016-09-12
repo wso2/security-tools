@@ -60,4 +60,8 @@ public class IssueCreatorConstants {
     // filePath- This is the file path where ZAP generates its report. This includes file name too.
     public static final String ACTION_PARAM_PATH = "filePath";
 
+    public static final String ACTION_PARAM_WORKSPACE="workspace";
+
+    public static final String ACTION_PARAM_FOLDER="backupPlace";
+
 }

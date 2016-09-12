@@ -21,6 +21,7 @@
 package org.zaproxy.zap.extension.zapwso2jiraplugin;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.parosproxy.paros.Constant;
@@ -32,8 +33,11 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 import javax.naming.AuthenticationException;
 import javax.swing.ImageIcon;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.jar.Manifest;
 
 /*
  * An extension to create jira issues from alerts from the current session.
@@ -42,13 +46,14 @@ import java.net.URL;
 public class ExtensionJiraIssueCreater extends ExtensionAdaptor {
 
     JiraRestClient jira = new JiraRestClient();
+    UpdateJiraAttachments updateJiraAttachments = new UpdateJiraAttachments();
 
     private static final ImageIcon ICON = new ImageIcon(
             ExtensionJiraIssueCreater.class.getResource(IssueCreatorConstants.RESOURCE + "/cake.png"));
     private JiraIssueCreaterAPI api = null;
     private ZapMenuItem menuExample = null;
     private AbstractPanel statusPanel = null;
-    private Logger log = Logger.getLogger(this.getClass());
+    private static final Logger log = Logger.getRootLogger();
 
     /**
      *
@@ -98,32 +103,42 @@ public class ExtensionJiraIssueCreater extends ExtensionAdaptor {
     }
 
     /**
-    createJiraIssues will be called when API action is executed
+     * createJiraIssues will be called when API action is executed
+     *
      * @param jiraBaseURL  is URL upto the jira Login window, in WSO2 it is upto <URL>/jira
-     * @param jiraUserName  username of JIRA user
+     * @param jiraUserName username of JIRA user
      * @param jiraPassword Password of the JIRA user
-     * @param projectKey- is defined under every Jira project, when browsing an issue it will be the last parameter without the issue number
-     * @param product - You can define a product name, which will be used in the summary to Identify the Issue clearly
-     * @param issueLabel This is a custom feild defined in wso2 jira
-     * @param filePath- This is the file path where ZAP generates its report. This includes file name too.
+     * @param projectKey-  is defined under every Jira project, when browsing an issue it will be the last parameter without the issue number
+     * @param product      - You can define a product name, which will be used in the summary to Identify the Issue clearly
+     * @param issueLabel   This is a custom feild defined in wso2 jira
+     * @param filePath-    This is the file path where ZAP generates its report. This includes file name too.
      * @return
      */
 
     public void createJiraIssues(String jiraBaseURL, String jiraUserName, String jiraPassword, String projectKey,
-            String asssignee, String product, String issueLabel, String filePath) {
+            String asssignee, String product, String issueLabel, String filePath, String workspace,
+            String backupFolder) {
 
         String issue;
         String credentials = jiraUserName + ":" + jiraPassword;
         String auth = new String(Base64.encodeBase64(credentials.getBytes()));
         String BASE_URL = jiraBaseURL;
-        String summary = "[JENKINS][" + product + "][DynamicScan-Nightly-Build-Report]";
+
+        log.info("Backup Folder Path" + backupFolder);
+
+        String version = MavenBuildReceiver.getPomVersion(new File(workspace + "/pom.xml"));
+
+        String summary = "[JENKINS][" + product +"-"+version+"][DynamicScan-Nightly-Build-Report]";
+
+        //String summary = "[JENKINS][" + product + "][DynamicScan-Nightly-Build-Report]";
+
         XmlDomParser xmlParser = new XmlDomParser();
 
         //Checking if there is any issues exists in the ZAP report generated after the scan
         boolean issueExist = xmlParser.isIssueExistsInReport();
 
         //Checking if there is any already available issues reported in the jira
-        String issueKey = xmlParser.checkForIssueExistence(auth, BASE_URL, summary);
+        String issueKey = xmlParser.checkForIssueExistence(auth, BASE_URL, summary, projectKey);
 
         String fileNewPath = xmlParser.reNameFile(product, filePath);
 
@@ -145,18 +160,40 @@ public class ExtensionJiraIssueCreater extends ExtensionAdaptor {
                             xmlParser.compressFile(fileNewPath));
                     log.info("Issue " + issueKey + " is updated with an attachment");
                 } else {
+
+                    updateJiraAttachments.modifyJiraContents(auth, BASE_URL, issueKey);
+
                     jira.invokePostComment(auth, BASE_URL + "/rest/api/2/issue/" + issueKey + "/comment",
                             xmlParser.createComment());
                     log.info("Issue " + issueKey + " is updated with an attachment");
 
                     jira.invokePutMethodWithFile(auth, BASE_URL + "/rest/api/2/issue/" + issueKey + "/attachments",
                             xmlParser.compressFile(fileNewPath));
+
                 }
             } catch (AuthenticationException e) {
                 log.info("Authentication failed");
             }
+
+            if (!(" ".equals(backupFolder)))
+                this.moveAttachmentToBackupFolder(backupFolder, xmlParser.compressFile(fileNewPath));
+            else
+                log.info("Back up location is unspecified");
+
         } else {
             log.info("There are no issues exists in the report");
+        }
+    }
+
+    public void moveAttachmentToBackupFolder(String path, String filePath) {
+
+        File source = new File(filePath);
+        File dest = new File(path.trim());
+        try {
+            FileUtils.copyFileToDirectory(source, dest);
+            log.info("Moved the file " + source + " to backup folder " + dest);
+        } catch (IOException e) {
+            log.error("File not found in the specified path");
         }
     }
 }
