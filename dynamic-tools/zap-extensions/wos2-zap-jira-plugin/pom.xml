@@ -68,26 +68,12 @@
                 <version>2.4</version>
                 <classifier>jdk15</classifier>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/xerces/xercesImpl -->
-            <!-- https://mvnrepository.com/artifact/xerces/xerces -->
-            <!--dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xerces</artifactId>
-                <version>2.4.0</version>
-            </dependency-->
 
             <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>2.11.0</version>
             </dependency>
-
-            <!-- https://mvnrepository.com/artifact/xerces/xercesImpl -->
-            <!--dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>2.10.0</version>
-            </dependency-->
 
 
             <dependency>
@@ -155,14 +141,6 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>3.0.1</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
-            <!--<dependency>-->
-                <!--<groupId>org.apache.httpcomponents</groupId>-->
-                <!--<artifactId>httpmime</artifactId>-->
-                <!--<version>4.3.1</version>-->
-            <!--</dependency>-->
-
-
 
         </dependencies>
 </project>

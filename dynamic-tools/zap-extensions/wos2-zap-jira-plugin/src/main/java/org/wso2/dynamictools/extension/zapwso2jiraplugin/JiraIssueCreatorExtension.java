@@ -25,11 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.view.ZapMenuItem;
 
 import javax.naming.AuthenticationException;
 import java.io.File;
@@ -43,14 +41,8 @@ import java.net.URL;
 public class JiraIssueCreatorExtension extends ExtensionAdaptor {
 
 
-    UpdateJiraAttachments updateJiraAttachments = new UpdateJiraAttachments();
-    //JiraRestClient jira = new JiraRestClient();
-
-//    private static final ImageIcon ICON = new ImageIcon(
-//            JiraIssueCreatorExtension.class.getResource(IssueCreatorConstants.RESOURCE + "/cake.png"));
+    JiraAttachmentUpdater updateJiraAttachments = new JiraAttachmentUpdater();
     private JiraIssueCreatorAPI jiraIssueCreatorAPI = null;
-    private ZapMenuItem menuExample = null;
-    private AbstractPanel statusPanel = null;
     private static final Logger log = Logger.getRootLogger();
 
     public JiraIssueCreatorExtension() {
@@ -65,9 +57,6 @@ public class JiraIssueCreatorExtension extends ExtensionAdaptor {
         super(name);
     }
 
-    /**
-     * This method initializes this
-     */
     private void initialize() {
         this.setName(IssueCreatorConstants.NAME);
     }

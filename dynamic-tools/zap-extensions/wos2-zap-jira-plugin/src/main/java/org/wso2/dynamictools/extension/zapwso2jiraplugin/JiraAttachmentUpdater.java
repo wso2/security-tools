@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *  *
  *  * WSO2 Inc. licenses this file to you under the Apache License,
  *  * Version 2.0 (the "License"); you may not use this file except
@@ -29,7 +29,7 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
-public class UpdateJiraAttachments {
+public class JiraAttachmentUpdater {
 
     JiraRestClient jiraRest;
     Map<String, String> attachments = new HashMap<String, String>();
@@ -37,7 +37,7 @@ public class UpdateJiraAttachments {
 
     public void modifyJiraContents(String auth, String BASE_URL, String jiraKey) {
 
-        String URL = BASE_URL + "/rest/api/2/issue/" + jiraKey;
+        String URL = BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT + jiraKey;
         String responseIssuue;
         JSONObject availableIssue = null;
         HashMap<String, Date> jiraAttachments = new HashMap<>();
@@ -91,19 +91,19 @@ public class UpdateJiraAttachments {
                 }
             }
         }  catch (ParseException e) {
-            log.error("Failed to parse the json object");
+            log.error("Failed to parse the json object",e);
         }
     }
 
     public void deleteAttachment(String auth, String BASE_URL, String id) {
 
-        String URL = BASE_URL + "/rest/api/2/attachment/" + id;
+        String url = BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ATTACHMENT_ENDPOINT + id;
         String responseIssuue;
 
         try {
-            jiraRest.invokeDeleteMethod(auth, URL);
+            jiraRest.invokeDeleteMethod(auth, url);
         } catch (AuthenticationException e) {
-            log.error("Authentation parameters are invalid");
+            log.error("Authentation parameters are invalid",e);
         }
 
     }

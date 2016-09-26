@@ -79,7 +79,7 @@ public class XmlDomParser {
                     return true;
             }
         } catch (Exception e) {
-            log.info("Exception occured when generating the report from scan");
+            log.error("Exception occured when generating the report from scan",e);
         }
 
         return false;
