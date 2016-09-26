@@ -142,8 +142,6 @@ public class XmlDomParser {
         summary = summary.replace("]", "");
 
         try {
-            //            String URL = BASE_URL + "/rest/api/2/search?jql=summary%20~%20%20%22" + summary + "%22" + "&fields="+"SECINTDEV";
-
             String URL = BASE_URL + "/rest/api/2/search?jql=project+%3d+"+projectKey+"+AND+text+%7e+%22" + summary + "%22" + "&fields="+"";
             responseIssuue = jiraRest.invokeGetMethod(auth, URL);
             availableIssue = new JSONObject(responseIssuue);

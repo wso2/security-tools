@@ -49,7 +49,7 @@ public class MavenBuildReceiver {
 
         try {
             DocumentBuilderFactory dbFactory
-                    = DocumentBuilderFactory.newInstance();
+                    = XmlDomParser.getSecuredDocumentBuilderFactory();
             DocumentBuilder dBuilder;
 
             dBuilder = dbFactory.newDocumentBuilder();

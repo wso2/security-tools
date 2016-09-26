@@ -34,9 +34,9 @@ public class FileHandleUtill {
 
         File source = new File(filePath);
         File dest = new File(path.trim());
+
         try {
             FileUtils.copyFileToDirectory(source, dest);
-            log.info("Moved the file " + source + " to backup folder " + dest);
         } catch (IOException e) {
             log.error("File not found in the specified path");
         }
