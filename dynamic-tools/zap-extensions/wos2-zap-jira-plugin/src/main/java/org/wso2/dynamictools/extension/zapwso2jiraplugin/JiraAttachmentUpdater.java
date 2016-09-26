@@ -46,7 +46,7 @@ public class JiraAttachmentUpdater {
             responseIssuue = jiraRest.invokeGetMethod(auth, URL);
             availableIssue = new JSONObject(responseIssuue);
         } catch (AuthenticationException e) {
-            log.info("Authentation parameters are invalid");
+            log.error("Authentation parameters are invalid",e);
         }
 
         try {
@@ -55,7 +55,6 @@ public class JiraAttachmentUpdater {
                 int length = availableIssue.getJSONObject("fields").getJSONArray("attachment").length();
 
                 for (int i = 0; i < length; i++) {
-
                     String key = availableIssue.getJSONObject("fields").getJSONArray("attachment").getJSONObject(i)
                             .getString("id");
                     String dateValue = availableIssue.getJSONObject("fields").getJSONArray("attachment")
@@ -66,7 +65,6 @@ public class JiraAttachmentUpdater {
 
                     SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date createdDate = fmt.parse(dateValue);
-
                     jiraAttachments.put(key, createdDate);
                 }
 
@@ -76,11 +74,11 @@ public class JiraAttachmentUpdater {
                 int count = length;
 
                 while (jiraAttachment.hasNext()) {
-
                     count--;
-
                     String key = jiraAttachment.next().getKey();
 
+                    //This code segment is to maintain only 5 attachments in the jira. Delete the attachments from jira
+                    //which takes the count more than 4, the new attachment will be assigned as the 5th one
                     if (count >= 4) {
                         deleteAttachment(auth, BASE_URL, key);
                         jiraAttachment.remove();
