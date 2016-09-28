@@ -40,7 +40,6 @@ import java.net.URL;
  */
 public class JiraIssueCreatorExtension extends ExtensionAdaptor {
 
-
     JiraAttachmentUpdater updateJiraAttachments = new JiraAttachmentUpdater();
     private JiraIssueCreatorAPI jiraIssueCreatorAPI = null;
     private static final Logger log = Logger.getRootLogger();
@@ -112,7 +111,7 @@ public class JiraIssueCreatorExtension extends ExtensionAdaptor {
 
         String pattern = "[JENKINS][%s-%s][DynamicScan-Nightly-Build-Report]";
 
-        String summary = String.format(pattern,product,version);
+        String summary = String.format(pattern, product, version);
 
         //String summary = "[JENKINS][" + product + "][DynamicScan-Nightly-Build-Report]";
 
@@ -122,16 +121,17 @@ public class JiraIssueCreatorExtension extends ExtensionAdaptor {
         boolean issueExist = xmlParser.isIssueExistsInReport();
 
         //Checking if there is any already available issues reported in the jira
-        String issueKey = xmlParser.checkForIssueExistence(auth, BASE_URL, summary, projectKey);
-
-        String fileNewPath = xmlParser.renameFile(product, filePath);
 
         if (issueExist) {
+            String fileNewPath = xmlParser.renameFile(product, filePath);
+            String issueKey = xmlParser.getIssueKeyIfExists(auth, BASE_URL, summary, projectKey);
             try {
                 if (StringUtils.isBlank(issueKey)) {
                     String issueToBeCreated = xmlParser
                             .createNewTicket(projectKey, asssignee, issueLabel, summary, product);
-                    issue = new JiraRestClient().invokePostMethod(auth, BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT, issueToBeCreated);
+                    issue = new JiraRestClient()
+                            .invokePostMethod(auth, BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT,
+                                    issueToBeCreated);
 
                     JSONObject createdIssue = new JSONObject(issue);
                     issueKey = createdIssue.getString("key");
@@ -146,10 +146,12 @@ public class JiraIssueCreatorExtension extends ExtensionAdaptor {
             }
 
             try {
-                new JiraRestClient().invokePostComment(auth, BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT + issueKey + "/comment",
+                new JiraRestClient().invokePostComment(auth,
+                        BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT + issueKey + "/comment",
                         xmlParser.createComment());
 
-                new JiraRestClient().invokePutMethodWithFile(auth, BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT + issueKey + "/attachments",
+                new JiraRestClient().invokePutMethodWithFile(auth,
+                        BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT + issueKey + "/attachments",
                         xmlParser.compressFile(fileNewPath));
 
             } catch (AuthenticationException e) {

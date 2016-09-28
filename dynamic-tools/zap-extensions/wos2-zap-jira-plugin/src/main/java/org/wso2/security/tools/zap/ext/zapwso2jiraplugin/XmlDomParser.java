@@ -56,13 +56,14 @@ public class XmlDomParser {
 
     /**
      * Checking if there is any issue reported during the scan
+     *
      * @return return TRUE if any issues are reported in the report
      */
     public boolean isIssueExistsInReport() {
         try {
 
             StringBuilder currentSession = new StringBuilder();
-            LastScanReport lastScanReport=new LastScanReport();
+            LastScanReport lastScanReport = new LastScanReport();
             String report = lastScanReport.generateReport(currentSession);
             InputStream stream = new ByteArrayInputStream(report.getBytes(StandardCharsets.UTF_8));
             DocumentBuilderFactory dbFactory = getSecuredDocumentBuilderFactory();
@@ -79,7 +80,7 @@ public class XmlDomParser {
                     return true;
             }
         } catch (Exception e) {
-            log.error("Exception occured when generating the report from scan",e);
+            log.error("Exception occured when generating the report from scan", e);
         }
 
         return false;
@@ -87,6 +88,7 @@ public class XmlDomParser {
 
     /**
      * Creating new Jira issue Json object String is generated from here
+     *
      * @param projectKey JIRA project key, under which ticket needs to be created
      * @param assignee   to whom ticket need to be assigned
      * @param issueLabel custom object which used to identify the project
@@ -126,13 +128,14 @@ public class XmlDomParser {
 
     /**
      * Checking if there is any issues already reported in the Jira with the samw topic
+     *
      * @param auth     Base64 encoded authorization paramters
      * @param BASE_URL Jira base URL
      * @param summary  JIRA heading which used to find the JIRA existance
      * @return returning the JIRA key, if already jira is created else return an empty String
      */
 
-    public String checkForIssueExistence(String auth, String BASE_URL, String summary,String projectKey) {
+    public String getIssueKeyIfExists(String auth, String BASE_URL, String summary, String projectKey) {
 
         String responseIssuue;
         String key = "";
@@ -142,7 +145,8 @@ public class XmlDomParser {
         summary = summary.replace("]", "");
 
         try {
-            String URL = BASE_URL + "/rest/api/2/search?jql=project+%3d+"+projectKey+"+AND+text+%7e+%22" + summary + "%22" + "&fields="+"";
+            String URL = BASE_URL + "/rest/api/2/search?jql=project+%3d+" + projectKey + "+AND+text+%7e+%22" + summary
+                    + "%22" + "&fields=" + "";
             responseIssuue = jiraRest.invokeGetMethod(auth, URL);
             availableIssue = new JSONObject(responseIssuue);
         } catch (AuthenticationException e) {
@@ -202,7 +206,6 @@ public class XmlDomParser {
         return path.concat(".zip");
     }
 
-
     /**
      * Renaming the file according to the allowed format in jira
      *
@@ -213,7 +216,7 @@ public class XmlDomParser {
     public String renameFile(String product, String filePath) {
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String fileNewPath="";
+        String fileNewPath = "";
         Date date = new Date();
         String newFileName = product + "-" + dateFormat.format(date).toString().substring(0, 10);
         log.info(newFileName);
@@ -222,11 +225,10 @@ public class XmlDomParser {
         // File (or directory) with old name
         File file = new File(filePath);
 
-
-        if(filePath.contains(".xml"))
+        if (filePath.contains(".xml"))
             fileNewPath = filePath
                     .replace(filePathDirectories[filePathDirectories.length - 1], newFileName.concat(".xml"));
-        else if(filePath.contains(".html"))
+        else if (filePath.contains(".html"))
             fileNewPath = filePath
                     .replace(filePathDirectories[filePathDirectories.length - 1], newFileName.concat(".html"));
 
@@ -238,7 +240,6 @@ public class XmlDomParser {
 
         return fileNewPath;
     }
-
 
     /**
      * Create DocumentBuilderFactory with the XXE and XEE prevention measurements.
@@ -278,6 +279,5 @@ public class XmlDomParser {
 
         return dbf;
     }
-
 
 }

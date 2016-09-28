@@ -58,9 +58,9 @@ public class IssueCreatorConstants {
     // filePath- This is the file path where ZAP generates its report. This includes file name too.
     public static final String ACTION_PARAM_PATH = "filePath";
 
-    public static final String ACTION_PARAM_WORKSPACE="workspace";
+    public static final String ACTION_PARAM_WORKSPACE = "workspace";
 
-    public static final String ACTION_PARAM_FOLDER="backupPlace";
+    public static final String ACTION_PARAM_FOLDER = "backupPlace";
 
     public static final String SAX_FEATURE_PREFIX = "http://xml.org/sax/features/";
 
@@ -79,7 +79,6 @@ public class IssueCreatorConstants {
     public static final java.lang.String XERCES_PROPERTY_PREFIX = "http://apache.org/xml/properties/";
 
     public static final java.lang.String SECURITY_MANAGER_PROPERTY = "security-manager";
-
 
     public static final java.lang.String ATLASSIAN_TOKEN = "X-Atlassian-Token";
 
