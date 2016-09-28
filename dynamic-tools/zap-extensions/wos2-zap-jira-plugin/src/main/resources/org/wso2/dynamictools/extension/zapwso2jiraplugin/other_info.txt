@@ -1,1 +1,0 @@
-The vulnerability is affecting all versions prior {{belowVersion}} (between {{aboveVersion}} and {{belowVersion}})
