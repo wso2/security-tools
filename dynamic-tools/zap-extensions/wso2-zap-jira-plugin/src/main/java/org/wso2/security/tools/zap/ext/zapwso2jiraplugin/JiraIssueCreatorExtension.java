@@ -1,21 +1,20 @@
+
 /*
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *  *
- *  * WSO2 Inc. licenses this file to you under the Apache License,
- *  * Version 2.0 (the "License"); you may not use this file except
- *  * in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  * http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing,
- *  * software distributed under the License is distributed on an
- *  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  * KIND, either express or implied.  See the License for the
- *  * specific language governing permissions and limitations
- *  * under the License.
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
  *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
  */
 
 package org.wso2.security.tools.zap.ext.zapwso2jiraplugin;
@@ -40,7 +39,7 @@ import java.net.URL;
  */
 public class JiraIssueCreatorExtension extends ExtensionAdaptor {
 
-    JiraAttachmentUpdater updateJiraAttachments = new JiraAttachmentUpdater();
+    JiraContentHandler updateJiraAttachments = new JiraContentHandler();
     private JiraIssueCreatorAPI jiraIssueCreatorAPI = null;
     private static final Logger log = Logger.getRootLogger();
 
@@ -100,6 +99,9 @@ public class JiraIssueCreatorExtension extends ExtensionAdaptor {
             String asssignee, String product, String issueLabel, String filePath, String workspace,
             String backupFolder) {
 
+
+        FileHandleUtill fileHandleUtill=new FileHandleUtill();
+
         String issue;
         String credentials = jiraUserName + ":" + jiraPassword;
         String auth = new String(Base64.encodeBase64(credentials.getBytes()));
@@ -113,19 +115,19 @@ public class JiraIssueCreatorExtension extends ExtensionAdaptor {
 
         String summary = String.format(pattern, product, version);
 
-        XmlDomParser xmlParser = new XmlDomParser();
+        JiraTaskHandler jiraTaskHandler = new JiraTaskHandler();
+        JiraContentHandler jiraContentHandler=new JiraContentHandler();
 
         //Checking if there is any issues exists in the ZAP report generated after the scan
-        boolean issueExist = xmlParser.isIssueExistsInReport();
+        boolean issueExist = jiraContentHandler.isIssueExistsInReport();
 
         //Checking if there is any already available issues reported in the jira
-
         if (issueExist) {
-            String fileNewPath = xmlParser.renameFile(product, filePath);
-            String issueKey = xmlParser.getIssueKeyIfExists(auth, BASE_URL, summary, projectKey);
+            String fileNewPath = fileHandleUtill.renameFile(product, filePath);
+            String issueKey = jiraContentHandler.getIssueKeyIfExists(auth, BASE_URL, summary, projectKey);
             try {
                 if (StringUtils.isBlank(issueKey)) {
-                    String issueToBeCreated = xmlParser
+                    String issueToBeCreated = jiraTaskHandler
                             .createNewTicket(projectKey, asssignee, issueLabel, summary, product);
                     issue = new JiraRestClient()
                             .invokePostMethod(auth, BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT,
@@ -146,18 +148,18 @@ public class JiraIssueCreatorExtension extends ExtensionAdaptor {
             try {
                 new JiraRestClient().invokePutMethod(auth,
                         BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT + issueKey + "/comment",
-                        xmlParser.createComment());
+                        jiraTaskHandler.createComment());
 
                 new JiraRestClient().invokePutMethodWithFile(auth,
                         BASE_URL + IssueCreatorConstants.ACCESS_JIRA_ISSUES_ENDPOINT + issueKey + "/attachments",
-                        xmlParser.compressFile(fileNewPath));
+                        fileHandleUtill.compressFile(fileNewPath));
 
             } catch (AuthenticationException e) {
                 log.warn("Authenticated details provided are not valid");
             }
 
             if (!(" ".equals(backupFolder)))
-                new FileHandleUtill().moveAttachmentToBackupFolder(backupFolder, xmlParser.compressFile(fileNewPath));
+                fileHandleUtill.moveAttachmentToBackupFolder(backupFolder, fileHandleUtill.compressFile(fileNewPath));
             else
                 log.warn("Back up location is unspecified");
 
