@@ -73,7 +73,7 @@
         <body>
             <div id="front-page">
                 <div id="logo">
-                    <img src="https://raw.githubusercontent.com/ayomawdb/security-report-styles-test/master/wso2-logo.jpg" width="400px" alt="WSO2"/>
+                    <img src="https://raw.githubusercontent.com/wso2/security-tools/style-sheets/resources/images/wso2-logo.jpg" width="400px" alt="WSO2"/>
                 </div>
                 <div id="head">
                     <h2>FindSecurityBugs Static Scan Report for <xsl:value-of select="/BugCollection/Project/@projectName"/> </h2>
