@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.4.xsd">
-
   <xsl:template match="/">
     <html>
         <head>
@@ -79,8 +78,7 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.4.xsd"
     background-color: #f5f5f5;
 		}
             </style>
-
-                       <script>
+             <script>
                 var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
                 var reportDate = new Date(<xsl:value-of select="/dc:analysis/dc:projectInfo/dc:reportDate"/>);
                 var reportDateElement = document.getElementById('report-date');
@@ -146,11 +144,9 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.4.xsd"
 						<td><xsl:value-of select="dc:cvssScore"/></td>
 						<td><xsl:value-of select="dc:severity"/></td>
 						<td>
-				
 						<xsl:value-of select="dc:description"/>
 						
    						<xsl:variable name="cpe" select="dc:vulnerableSoftware/dc:software"/> 						 
-						   
 
 						    <div class="cpe">
 								<span onclick="openDetailed(this)" class="sum"><xsl:value-of select="$cpe"/></span>
@@ -160,11 +156,9 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.4.xsd"
 								</xsl:for-each>
 								 </span>
 						    </div>
-
 						</td>
 						</tr>
 		 		</xsl:for-each>
-	
 	</table>
 	</div>
 			</xsl:if>
@@ -174,46 +168,37 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.4.xsd"
 	<h4>Suppressed Vulnerabilities</h4>
 
 	<table>
-
 					    <tr bgcolor="#4682b4">    
 					    <td style="width: 115px;"> CVE </td>
 						<td style="width: 115px;"> CVE Score </td>
 						<td style="width: 115px;"> Severity </td>
 						<td>Description </td>
 					    </tr>
-					<xsl:for-each select="dc:vulnerabilities/dc:suppressedVulnerability">
-					<xsl:sort select="dc:cvssScore" order="descending"/>
-					<xsl:variable name="mappingNodeSupVul" select="concat('https://cve.mitre.org/cgi-bin/cvename.cgi?name=',dc:name)"/>	
+    					<xsl:for-each select="dc:vulnerabilities/dc:suppressedVulnerability">
+    					<xsl:sort select="dc:cvssScore" order="descending"/>
+    					<xsl:variable name="mappingNodeSupVul" select="concat('https://cve.mitre.org/cgi-bin/cvename.cgi?name=',dc:name)"/>	
 
- 						<tr>    
-					    <td><a href="{$mappingNodeSupVul}"><xsl:value-of select="dc:name"/></a></td>
-						<td><xsl:value-of select="dc:cvssScore"/></td>
-						<td><xsl:value-of select="dc:severity"/></td>
-												<td>
-				
-						<xsl:value-of select="dc:description"/>
-						
-   						<xsl:variable name="cpe" select="dc:vulnerableSoftware/dc:software"/> 						 
-						   
-
-						    <div class="cpe">
-								<span onclick="openDetailed(this)" class="sum"><xsl:value-of select="$cpe"/></span>
-								<span class="detailed hidden">
-								<xsl:for-each select="dc:vulnerableSoftware/dc:software">
-									<xsl:value-of select="."/> <xsl:text> , </xsl:text>
-								</xsl:for-each>
-								 </span>
-						    </div>
-
-						</td>
-						
+     						<tr>    
+    					    <td><a href="{$mappingNodeSupVul}"><xsl:value-of select="dc:name"/></a></td>
+    						<td><xsl:value-of select="dc:cvssScore"/></td>
+    						<td><xsl:value-of select="dc:severity"/></td>
+    					    <td>
+    						<xsl:value-of select="dc:description"/>
+       						<xsl:variable name="cpe" select="dc:vulnerableSoftware/dc:software"/> 						 
+    						    <div class="cpe">
+    								<span onclick="openDetailed(this)" class="sum"><xsl:value-of select="$cpe"/></span>
+    								<span class="detailed hidden">
+    								<xsl:for-each select="dc:vulnerableSoftware/dc:software">
+    									<xsl:value-of select="."/> <xsl:text> , </xsl:text>
+    								</xsl:for-each>
+    								 </span>
+    						    </div>
+    						</td>
 					    </tr>	
 					</xsl:for-each>
 	</table>
 	</div>
 						</xsl:if>
-			
-
 	  </xsl:for-each>
         </body>
     </html>

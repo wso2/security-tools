@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd">
-
   <xsl:template match="/">
     <html>
         <head>
@@ -79,8 +78,7 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd"
     background-color: #f5f5f5;
 		}
             </style>
-
-                       <script>
+            <script>
                 var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
                 var reportDate = new Date(<xsl:value-of select="/dc:analysis/dc:projectInfo/dc:reportDate"/>);
                 var reportDateElement = document.getElementById('report-date');
@@ -130,7 +128,6 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd"
 	<div>
 		<h4>Vulnerabilities Found   </h4>
 	<table>
-
 					    <tr bgcolor="#4682b4">    
 					    <td style="width: 115px;"> CVE </td>
 						<td style="width: 115px;"> CVE Score </td>
@@ -145,12 +142,8 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd"
 						<td><xsl:value-of select="dc:cvssScore"/></td>
 						<td><xsl:value-of select="dc:severity"/></td>
 						<td>
-				
-						<xsl:value-of select="dc:description"/>
-						
-   						<xsl:variable name="cpe" select="dc:vulnerableSoftware/dc:software"/> 						 
-						   
-
+						<xsl:value-of select="dc:description"/>						
+   						<xsl:variable name="cpe" select="dc:vulnerableSoftware/dc:software"/> 	
 						    <div class="cpe">
 								<span onclick="openDetailed(this)" class="sum"><xsl:value-of select="$cpe"/></span>
 								<span class="detailed hidden">
@@ -159,11 +152,9 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd"
 								</xsl:for-each>
 								 </span>
 						    </div>
-
 						</td>
 						</tr>
 		 		</xsl:for-each>
-	
 	</table>
 	</div>
 			</xsl:if>
@@ -171,5 +162,4 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd"
         </body>
     </html>
   </xsl:template>
-
 </xsl:stylesheet>
