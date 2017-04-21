@@ -107,7 +107,7 @@ xmlns:dc="https://jeremylong.github.io/DependencyCheck/dependency-check.1.3.xsd"
         <body>
            <div id="front-page">
                 <div id="logo">
-                    <img src="https://raw.githubusercontent.com/wso2/security-tools/style-sheets/resources/images/wso2-logo.jpg" width="400px" alt="WSO2"/>
+                    <img src="https://raw.githubusercontent.com/wso2/security-tools/master/resources/images/wso2-logo.jpg" width="400px" alt="WSO2"/>
                 </div>
                 <div id="head">
                     <h2>Dependency check Report for <br/><br/> <xsl:value-of select="/dc:analysis/dc:projectInfo/dc:name"/></h2>
