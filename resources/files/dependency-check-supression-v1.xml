@@ -14,7 +14,7 @@
     </suppress>
         <suppress>
        <notes><![CDATA[
-       Issue is sssssssssssssssssssss
+       This is a sample description for the suppression
        ]]></notes>
        <cve>CVE-2019-5426</cve>
     </suppress>
