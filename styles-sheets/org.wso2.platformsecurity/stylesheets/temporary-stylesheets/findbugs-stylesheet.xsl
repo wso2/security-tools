@@ -157,19 +157,16 @@
                     reportDate.getFullYear() + ' ' + reportDate.getHours() + ':' + reportDate.getMinutes() + ':' +
                     reportDate.getSeconds() ;
 
-                    var ele=[].slice.call(document.getElementById('item-array').getElementsByClassName('item')).sort(sortMe);
-                    console.log(document.getElementById('item-array'));
-                    var newDoc;
+                    var
+                    ele=[].slice.call(document.getElementById('item-array').getElementsByClassName('item')).sort(sortMe);
                     document.getElementById('item-array').innerHTML="";
                     var div = document.getElementById('item-array');
-
                     for(var i = 0; i &lt; ele.length; i++){
-                    div.innerHTML = div.innerHTML + ele[i].innerHTML;
-                    console.log("ele"+ele[i]);
+                    document.getElementById('item-array').innerHTML = document.getElementById('item-array').innerHTML +
+                    ele[i].innerHTML;
                     }
-                    document.getElementById('item-array').innerHTML=div.innerHTML;
                     function sortMe(a, b) {
-                        return a.className > b.className;
+                    return a.className > b.className;
                     }
 
                     var titles = document.getElementsByClassName('item-title');
