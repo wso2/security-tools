@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Security Update for Multiple WSO2 Products</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+          @font-face { font-family: Arial Unicode MS;}
+          div.header {
+              display: block;
+              height: 60px ;
+              margin-bottom: 20px;
+              position: running(header);
+          }
+          @page {
+              @top-right { content: element(header) }
+          }
+          @media print {
+              .break-page {
+                  page-break-after: always;
+                  page-break-inside: avoid;
+                  -webkit-region-break-inside: avoid;
+              }
+
+              #front-page #info {
+                  margin-top: 100px;
+              }
+              #front-page #affected-products {
+                  margin-top: 20px;
+              }
+              #front-page #overview {
+                  margin-top: 20px;
+              }
+              #front-page #description {
+                  margin-top: 20px;
+              }
+              #content-page #impact {
+                  margin-top: 40px;
+              }
+              #content-page #solution {
+                  margin-top: 20px;
+              }
+              #content-page #solution-table {
+                  margin-top: 20px;
+              }
+              #content-page #patch-list {
+                  margin-top: 50px;
+              }
+              #content-page #patch-table {
+                  margin-top: 5px;
+              }
+              #content-page #public-disclosure {
+                  margin-top: 20px;
+              }
+              #content-page #notes {
+                  margin-top: 10px;
+              }
+              #content-page #thanks {
+                  margin-top: 10px;
+              }
+          }
+
+
+    </style>
+</head>
+<body>
+<div class='header'>
+    <tr style="margin-bottom: 5px;">
+        <td valign="center"
+            style="text-align: right; width: 800px; background: #ffffff; margin-bottom: 20px"
+            colspan="2">
+            <img style="height: 45px; width: 100%; margin-top: 5px;"
+                 src="http://b.content.wso2.com/sites/all/wum/wso2-logo-w.png"/>
+        </td>
+    </tr>
+</div>
+<div style="width: 100%; margin: auto; background-color: #ffffff;">
+    <table id="content-page" style="padding: 0 0; width: 100%; background: #ffffff;">
+        <tr>
+            <td colspan="2"
+                style="padding: 30px 7% 30px 7%; font-family: arial; font-size: 16px; line-height: 24px; color: #676767; border-top: 1px solid #cccccc;">
+                <table id="info" style="width: 100%;line-height: 50px">
+                    <tr>
+                        <span style="font-weight: 600; font-size: 34px; width: 200%; margin-bottom: 20px; color: #272727;">{{pdf-title}}</span><br/>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 24px; width: 100%; margin-bottom: 20px; color: #4a4a4a;">{{pdf-name}}</span>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 24px; width: 100%; margin-bottom: 20px; color: #4a4a4a;">{{pdf-date}}</span>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #5e5e5e;">Severity : </span>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #2f2f2f;">{{severity}}</span>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #5e5e5e;">CVSS Score : </span>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #2f2f2f;">{{score}}</span>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2"
+                style="padding: 5% 7%; font-family: arial; font-size: 16px; line-height: 30px; color: #676767; border-top: 1px solid #cccccc; padding-top: 15px; padding-bottom: 15px;">
+                <table id="affected-products" style="width: 100%;">
+                    <span style="font-weight: bold;font-size: 20px; width: 100%; margin-bottom: 20px; color: #212121;">AFFECTED PRODUCTS </span><br/>
+                    <ul style="padding-top: 10px;line-height: 10px; font-size: 18px;">
+                        {{#all-affected-products}}
+                            <li style="padding: 10px 0;color: #3a3a3a; list-style: none">
+                                {{product-name}}
+                                {{#product-versions}}
+                                    {{#version}}
+                                            {{.}}
+                                    {{/version}}
+                                    <span > , </span>
+                                {{/product-versions}}
+                            </li>
+                        {{/all-affected-products}}
+                    </ul>
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2"
+                style="padding: 5% 7%; font-family: arial; font-size: 16px; line-height: 30px; color: #676767; border-top: 1px solid #cccccc; padding-top: 15px; padding-bottom: 15px;">
+                <table id="overview" style="width: 100%;">
+                    <tr>
+                        <span style="font-weight:bold;font-size: 20px; width: 100%; margin-bottom: 20px; color: #262626;">OVERVIEW </span><br/>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #3e3e3e;">{{overview}} </span>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2"
+                style="padding: 5% 7%; font-family: arial; font-size: 16px; line-height: 20px; color: #676767; border-top: 1px solid #cccccc; padding-top: 15px; padding-bottom: 15px;">
+                <table id="description" style="width: 100%; line-height: 30px">
+                    <tr>
+                        <span style="font-weight: bold;font-size: 20px; width: 100%; margin-bottom: 20px; color: #262626;">DESCRIPTION  </span><br/>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #3e3e3e;">{{description}} </span>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2"
+                style="padding: 5% 7%; font-family: arial; font-size: 16px; line-height: 30px; color: #676767; border-top: 1px solid #cccccc; padding-top: 15px; padding-bottom: 15px;">
+                <table id="impact" style="width: 100%;">
+                    <tr>
+                        <span style="font-weight: bold;font-size: 20px; width: 100%; margin-bottom: 20px; color: #262626;">IMPACT  </span><br/>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #3e3e3e;">{{impact}} </span>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2"
+                style="padding: 5% 7%; font-family: arial; font-size: 16px; line-height: 30px; color: #676767; border-top: 1px solid #cccccc; padding-top: 15px; padding-bottom: 15px;">
+                <table id="solution" style="width: 100%;">
+                    <tr>
+                        <span style="font-weight: bold;font-size: 20px; width: 100%; margin-bottom: 20px; color: #262626;">SOLUTION  </span><br/>
+                    </tr>
+                    <tr>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #3e3e3e;">{{solution}} </span>
+                    </tr>
+                    <span class="break-page"></span>
+                    <table id="solution-table"
+                           style="border-collapse: collapse; border:1px solid black;line-height: 40px; align-content: center; margin-top: 20px">
+                        <tr style="border-collapse: collapse; border:0.5px solid black;font-weight: bold">
+                            <th style="background-color: #cccccc;color: #232323; width: 80px; border-collapse: collapse; border:0.5px solid black; margin-left: 10px; margin-right: 4px">
+                                Code
+                            </th>
+                            <th style="background-color: #cccccc;color: #232323; width: 200px; border-collapse: collapse; border:0.5px solid black; margin-left: 10px; margin-right: 4px">
+                                Product
+                            </th>
+                            <th style="background-color: #cccccc;color: #232323; width: 100px; border-collapse: collapse; border:0.5px solid black; margin-left: 10px; margin-right: 4px">
+                                Version
+                            </th>
+                        </tr>
+                        {{#affected-wum-products}}
+                            <tr style="border-collapse: collapse; border:1px solid black">
+                                <td style=" border-collapse: collapse; border: 0.5px solid black"> {{product-code}}</td>
+                                <td style=" border-collapse: collapse; border: 0.5px solid black">  {{product-name}}</td>
+                                <td style=" border-collapse: collapse; border: 0.5px solid black">
+                                    {{#product-versions}}
+                                    {{#version}}
+                                        <li style=" border-collapse: collapse; align-content: center; border: 0.5px solid black;list-style: none">
+                                            {{.}}
+                                        </li>
+                                    {{/version}}
+                                    {{/product-versions}}
+                                </td>
+                            </tr>
+                        {{/affected-wum-products}}
+                    </table>
+                    <span class="break-page"></span>
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td id="patch-list">
+                {{#patch-list}}
+                    <li style="padding: 10px 0; color: #3e3e3e">
+                        {{.}}
+                    </li>
+                {{/patch-list}}
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2" style="padding: 7% 7%; font-family: arial; font-size: 18px; line-height: 30px;">
+                <table id="patch-table" style="border-collapse: collapse;border:1px solid black; line-height: 40px;vertical-align: top;">
+                    <tr>
+                        <th style="background-color: #cccccc;color: #232323; border-collapse: collapse; align-content: center; border: 0.5px solid black;width: 60px">
+                            Code
+                        </th>
+                        <th style="background-color: #cccccc;color: #232323; border-collapse: collapse; align-content: center; border: 0.5px solid black;width: 200px">
+                            Product
+                        </th>
+                        <th style="background-color: #cccccc;color: #232323; border-collapse: collapse; align-content: center; border: 0.5px solid black;width: 80px">
+                            Version
+                        </th>
+                        <th style="background-color: #cccccc;color: #232323; border-collapse: collapse; align-content: center; border: 0.5px solid black;width: 300px">
+                            Patch
+                        </th>
+                    </tr>
+                    {{#affected-products}}
+                        <tr>
+                            <td style=" border-collapse: collapse; align-content: center; border: 0.5px solid black"> {{product-code}}</td>
+                            <td style=" border-collapse: collapse; align-content: center; border: 0.5px solid black">  {{product-name}}</td>
+                            <!--<td style=" border-collapse: collapse; align-content:center; vertical-align: top; border: 0.5px solid black;list-style: none">-->
+                               <td>
+                                {{#product-versions}}
+                                    <li style=" border-collapse: collapse; border: 0.5px solid black;list-style: none">
+                                <!--<li>-->
+                                    {{#version-patch}}
+                                <tr>
+                                    {{#version_state}}
+                                    {{version}}
+                                    {{/version_state}}
+                                    {{^version_state}}
+                                        {{state}}
+                                    {{/version_state}}
+                                        <!--version[0]-->
+                                </tr>
+                                {{/version-patch}}
+                                    </li>
+                                        <!--<li style=" border-collapse: collapse; border: 1px solid black;list-style: none; width: 80px">-->
+                                    <!--&lt;!&ndash;&lt;!&ndash;<tr style=" border-collapse: collapse; border: 1px solid black;list-style: none">&ndash;&gt;&ndash;&gt;-->
+                                            <!--{{.}}-->
+                                        <!--</li>-->
+                                {{/product-versions}}
+                            </td>
+                            <!--<td style=" border-collapse: collapse; align-content: center; vertical-align: top; border:0.5px solid black;list-style: none">-->
+                        <td>
+                                    {{#product-versions}}
+                                    <li style=" border-collapse: collapse; align-content: center; border: 0.5px solid black;list-style: none">
+                                    <!--<li>-->
+                                            {{#version-patch}}
+                                            <tr>
+                                                {{patch-name}}
+                                                        <!--{{.}}-->
+                                            </tr>
+                                            {{/version-patch}}
+                                    </li>
+                                    {{/product-versions}}
+                            </td>
+                        </tr>
+                    {{/affected-products}}
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2"
+                style="padding: 5% 7%; font-family: arial; font-size: 16px; line-height: 30px; color: #676767; border-top: 1px solid #cccccc; padding-top: 15px; padding-bottom: 15px;">
+                <table id="public-disclosure" style="width: 100%;">
+                    <tr>
+                        <span style="font-weight: bold;font-size: 20px; width: 100%; margin-bottom: 20px; color: #262626;">PUBLIC DISCLOSURE</span><br/>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #3e3e3e;">{{public-disclosure}}</span><br/>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr>
+            <td colspan="2"
+                style="padding: 5% 7%; font-family: arial; line-height: 30px; font-size: 16px; color: #676767; border-top: 1px solid #cccccc; padding-top: 15px; padding-bottom: 15px;">
+                <table id="notes" style="width: 100%;">
+                    <tr>
+                        <span style="font-weight: bold;font-size: 20px; width: 100%; line-height: 20px; margin-bottom: 20px; color: #262626;">NOTES </span><br/>
+                        <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #3e3e3e;">{{notes}}</span><br/>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <span class="break-page"></span>
+        <tr id="thanks" style="line-height: 30px">
+            <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #5e5e5e;">Thanks, </span><br/>
+            <span style="font-weight: 400;font-size: 18px; width: 100%; margin-bottom: 20px; color: #5e5e5e;">WSO2 Team.</span><br/>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
