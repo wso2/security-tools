@@ -221,6 +221,13 @@
         <notes><![CDATA[
            Issue is not relevant to CXF XJC toString Plugin. This issue is applicable only for Apache CXF core.
         ]]></notes>
+        <filePath regex="true">.*\bcxf-xjc-bug.*\.jar</filePath>
+        <cpe>cpe:/a:apache:cxf</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+           Issue is not relevant to CXF XJC toString Plugin. This issue is applicable only for Apache CXF core.
+        ]]></notes>
         <filePath regex="true">.*\bcxf-xjc-ts-.*\.jar</filePath>
         <cpe>cpe:/a:apache:cxf</cpe>
     </suppress>
@@ -236,7 +243,7 @@
             OWASP Dependency Check has only flagged pom.xml file from the dependency. Relevant library is not actually packed into the product
             as a result of this dependency.  
         ]]></notes>
-        <filePath regex="true">.*\b.*\.jar/META-INF/maven/.*\.xml</filePath>
+        <filePath regex="true">.*/META-INF/maven/.*\.xml</filePath>
         <cpe>cpe:/a:apache:cxf</cpe>
     </suppress>
 
