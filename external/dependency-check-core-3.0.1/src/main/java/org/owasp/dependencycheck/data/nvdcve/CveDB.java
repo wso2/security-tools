@@ -957,7 +957,7 @@ public final class CveDB implements AutoCloseable {
                 versionText = cpe.getVersion();
             }
             if(versionText.contains(".wso2")) {
-                versionText = versionText.substring(0, versionText.indexOf(".wso2") - 1);
+                versionText = versionText.substring(0, versionText.indexOf(".wso2"));
             }
             cpeVersion = DependencyVersionUtil.parseVersion(versionText);
         } else {
