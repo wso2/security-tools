@@ -2,14 +2,14 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
     <suppress>
         <notes><![CDATA[
-            Eclipse IDE related issues are not relevant to WSO2 Products
+            Eclipse IDE related issues are not relevant to WSO2 products
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            NTP (Network Time Protocol) daemon related issues are not relevant to WSO2 Products
+            NTP (Network Time Protocol) daemon related issues are not relevant to WSO2 products
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cpe>cpe:/a:ntp:ntp</cpe>
@@ -23,6 +23,13 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+            Issue is not relevant to Axis2 JMS Transport. This issue is applicable only for Axis2 core.
+        ]]></notes>
+        <filePath regex="true">.*\baxis2-transport-jms_.*\.jar</filePath>
+        <cpe>cpe:/a:apache:axis2</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
             Issue is not relevant to Geronimo SAAJ library. This issue is applicable only for Geranimo core.
         ]]></notes>
         <filePath regex="true">.*\bgeronimo-saaj_1.3_spec_.*\.jar</filePath>
@@ -30,9 +37,162 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to JDBC Pool library. This issue is applicable only for Apache Tomcat.
+            Issue is not relevant to JDBC Pool library. This issue is applicable only for Apache Tomcat servlet container.
         ]]></notes>
         <filePath regex="true">.*\bjdbc-pool_.*\.jar</filePath>
         <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is only applicable for the init script for Apache Geronimo on SUSE Linux (when performing a chown operation).
+            Not applirable for WSO2 products. 
+        ]]></notes>
+        <cve>CVE-2008-0732</cve>
+        <cpe>cpe:/a:apache:geronimo</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to Tomcat Annotations API library. This issue is applicable only for Apache Tomcat servlet container.
+        ]]></notes>
+        <filePath regex="true">.*\btomcat-annotations-api-.*\.jar</filePath>
+        <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to Hadoop Client library. This issue is only applicable for authentication in Apache Hadoop server.
+        ]]></notes>
+        <filePath regex="true">.*\bhadoop-client_.*\.jar</filePath>
+        <cve>CVE-2016-5393</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to Hadoop Client library. This issue is only applicable for YARN NodeManager in Apache Hadoop server.
+        ]]></notes>
+        <filePath regex="true">.*\bhadoop-client_.*\.jar</filePath>
+        <cve>CVE-2016-3086</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to Hadoop Client library. This issue is only applicable for Hadoop connector 
+            for IBM Spectrum Scale and General Parallel File System.
+        ]]></notes>
+        <filePath regex="true">.*\bhadoop-client_.*\.jar</filePath>
+        <cve>CVE-2015-7430</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            This is an issue with MyOpenID server. The issue is not applicable for openid4java library or WSO2 products. 
+            DependencyCheck team has fixed misidentification and fix is pending-release. [1] 
+            [1] https://github.com/jeremylong/DependencyCheck/issues/713
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2007-1652</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            This is an issue with MyOpenID server. The issue is not applicable for openid4java library or WSO2 products.  
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2007-1651</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            This is a WSO2 maintained library and issue is not relevant to org.wso2.am.styles library. In addition, CVE-2017-14651
+            has been patched by WSO2 and relevant fixes are available through update channels. 
+        ]]></notes>
+        <filePath regex="true">.*\borg.wso2.am.styles_.*\.jar</filePath>
+        <cve>CVE-2017-14651</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is reported on "Apache Geronimo 2.2.1" server runtime. WSO2 products are not using Geronimo runtime.
+            Hence, this issue is not applicable for WSO2 products. 
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2011-5034</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is reported on "Apache Geronimo" server runtime init script for "SUSE Linux". WSO2 products are only using "geronimo-stax-api_1.0".
+            Hence, this issue is not applicable for WSO2 products.
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2008-0732</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            This issue is related to how Apache Struts 1 uses comons-beanutil [1]. CVE is basically for Struts. 
+            There is no impact on usage pattern of Apache Tiles JSP. 
+            
+            [1] http://mail-archives.apache.org/mod_mbox/struts-announcements/201404.mbox/%3C535F5F52.4040108%40apache.org%3E
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2014-0114</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Axis 2 host name verification happens at HttpClient level. Relevant HttpClient version used in Axis2 has been patched by 
+            WSO2 to perform required host name verification. Please refer to [1] for the fork history of HttpClient. 
+
+            [1] https://github.com/wso2/wso2-commons-httpclient/commits/master?after=e6b98d752b17b8c772ce421bae47e1bd15e8cf6c+34
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2012-5785</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            This issue was fixed in 1.5 branch of Axis 2 as per [1]. Relevant commit is [2]. WSO2 has this fix in the fork maintained by WSO2 team [3].
+
+            [1] https://issues.apache.org/jira/browse/AXIS2-4450
+            [2] https://www.mail-archive.com/java-commits@axis.apache.org/msg00173.html
+            [2] https://github.com/wso2/wso2-axis2/blob/ed28141af150914bb24e83b349aaa1eaa082cbb1/modules/kernel/src/org/apache/axis2/builder/BuilderUtil.java#L234
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2010-1632</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Per Apache: "Having reviewed your report we have concluded that it does not represent a valid vulnerability in Apache Commons File Upload. 
+            If an application deserializes data from an untrusted source without filtering and/or validation that is an application vulnerability not
+            a vulnerability in the library a potential attacker might leverage.
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2016-1000031</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to EL API library. This issue is applicable only for Apache Tomcat servlet container.
+        ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:el-api:.*$</gav>
+        <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to Jasper EL library. This issue is applicable only for Apache Tomcat servlet container.
+        ]]></notes>
+        <gav regex="true">^org\.apache\.tomcat:jasper-el:.*$</gav>
+        <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            This is a disputed issue related to Apache Tomcat servlet and JSP engine  and JBoss
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cpe>CVE-2013-2185</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Only  the POM file "jetty-http/pom.xml" exists in storm-core_0.10.1.wso2v1.jar. 
+            jerry-http is not included in storm-core JAR or not shipped with product. 
+        ]]></notes>
+        <gav regex="true">^org\.eclipse\.jetty:jetty-client:.*$</gav>
+        <cve>CVE-2017-9735</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is relevant to C cli shell in Apache Zookeeper which is not used in WSO2 products.
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cve>CVE-2016-5017</cve>
     </suppress>
 </suppressions>
