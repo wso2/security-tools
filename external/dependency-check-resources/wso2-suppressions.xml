@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+    <suppress>
+        <notes><![CDATA[
+            Eclipse IDE related issues are not relevant to WSO2 Products
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            NTP (Network Time Protocol) daemon related issues are not relevant to WSO2 Products
+        ]]></notes>
+        <filePath regex="true">.*\.jar</filePath>
+        <cpe>cpe:/a:ntp:ntp</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to Axis2 Mail Transport. This issue is applicable only for Axis2 core.
+        ]]></notes>
+        <filePath regex="true">.*\baxis2-transport-mail_.*\.jar</filePath>
+        <cpe>cpe:/a:apache:axis2</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to Geronimo SAAJ library. This issue is applicable only for Geranimo core.
+        ]]></notes>
+        <filePath regex="true">.*\bgeronimo-saaj_1.3_spec_.*\.jar</filePath>
+        <cpe>cpe:/a:apache:geronimo</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            Issue is not relevant to JDBC Pool library. This issue is applicable only for Apache Tomcat.
+        ]]></notes>
+        <filePath regex="true">.*\bjdbc-pool_.*\.jar</filePath>
+        <cpe>cpe:/a:apache:tomcat</cpe>
+    </suppress>
+</suppressions>
