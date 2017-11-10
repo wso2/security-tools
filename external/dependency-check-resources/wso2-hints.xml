@@ -317,11 +317,20 @@
     </hint>
     <hint>
         <given>
-            <fileName contains="xmlbeans-.*\.jar" regex="true" caseSensitive="true"/>
+            <fileName contains=".*xmlbeans-.*\.jar" regex="true" caseSensitive="true"/>
         </given>
         <add>
             <evidence type="product" source="hint analyzer" name="product" value="xmlbeans" confidence="HIGHEST"/>
             <evidence type="vendor" source="hint analyzer" name="vendor" value="apache" confidence="HIGHEST"/>
+        </add>
+    </hint>
+    <hint>
+        <given>
+            <fileName contains=".*esapi-.*\.jar" regex="true" caseSensitive="true"/>
+        </given>
+        <add>
+            <evidence type="product" source="hint analyzer" name="product" value="enterprise_security_api" confidence="HIGHEST"/>
+            <evidence type="vendor" source="hint analyzer" name="vendor" value="owasp" confidence="HIGHEST"/>
         </add>
     </hint>
 </hints>
