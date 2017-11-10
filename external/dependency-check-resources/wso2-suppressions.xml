@@ -237,5 +237,6 @@
             This is a WSO2 maintained component. Relevant issue has been patched by WSO2 and fixes are available through update channels. 
         ]]></notes>
         <filePath regex="true">.*\borg\.wso2\..*\.jar</filePath>
+        <cpe>cpe:/a:wso2:api_manager</cpe>
     </suppress>
 </suppressions>
