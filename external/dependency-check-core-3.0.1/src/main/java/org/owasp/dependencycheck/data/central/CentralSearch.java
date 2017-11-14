@@ -117,7 +117,7 @@ public class CentralSearch {
         // 2) Otherwise, don't use the proxy (either the proxy isn't configured,
         // or proxy is specifically set to false)
         final URLConnectionFactory factory = new URLConnectionFactory(settings);
-        final HttpURLConnection conn = factory.createHttpURLConnection(url, useProxy);
+        HttpURLConnection conn = factory.createHttpURLConnection(url, useProxy);
 
         conn.setDoOutput(true);
 
@@ -125,6 +125,23 @@ public class CentralSearch {
         // on JSON, so don't want to add one just for this
         conn.addRequestProperty("Accept", "application/xml");
         conn.connect();
+
+        // Central search syntax seems to have changed, not to accept quotes.
+        // Since the format might change back to original, adding only a fallback here.
+        if (conn.getResponseCode() == 400) {
+            final URL newUrl = new URL(String.format("%s?q=1:%s&wt=xml", rootURL, sha1));
+
+            LOGGER.debug("Searching Central url {}", url);
+
+            conn = factory.createHttpURLConnection(newUrl, useProxy);
+
+            conn.setDoOutput(true);
+
+            // JSON would be more elegant, but there's not currently a dependency
+            // on JSON, so don't want to add one just for this
+            conn.addRequestProperty("Accept", "application/xml");
+            conn.connect();
+        }
 
         if (conn.getResponseCode() == 200) {
             boolean missing = false;
