@@ -12,7 +12,7 @@
             Eclipse Business Intelligence and Reporting Tools (BIRT) related issues are not relevant to WSO2 products.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
-        <cve>CVE-2009-4521</cve>
+        <cpe>cpe:/a:eclipse:birt</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -231,27 +231,12 @@
         <filePath regex="true">.*\bcxf-xjc-ts-.*\.jar</filePath>
         <cpe>cpe:/a:apache:cxf</cpe>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-           Issue is relevant to Apache CXF core only.
-        ]]></notes>
-        <filePath regex="true">.*\bcxf-bundle-.*\.jar/META-INF/maven/.*\.xml</filePath>
-        <cpe>cpe:/a:apache:cxf</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            OWASP Dependency Check has only flagged pom.xml file from the dependency. Relevant library is not actually packed into the product
-            as a result of this dependency.  
-        ]]></notes>
-        <filePath regex="true">.*/META-INF/maven/.*\.xml</filePath>
-        <cpe>cpe:/a:.*</cpe>
-    </suppress>
 
     <suppress>
         <notes><![CDATA[
             This is a WSO2 maintained component. Relevant issue has been patched by WSO2 and fixes are available through update channels. 
         ]]></notes>
         <filePath regex="true">.*\borg\.wso2\..*\.jar</filePath>
-        <cpe>cpe:/a:wso2:api_manager</cpe>
+        <cpe>cpe:/a:wso2:.*</cpe>
     </suppress>
 </suppressions>
