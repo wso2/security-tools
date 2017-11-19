@@ -1,0 +1,39 @@
+<ServiceProvider>
+    <ApplicationID>5</ApplicationID>
+    <ApplicationName>am-publisher</ApplicationName>
+    <Description>APIM Publisher Service Provider</Description>
+    <IsSaaSApp>true</IsSaaSApp>
+    <InboundAuthenticationConfig>
+        <InboundAuthenticationRequestConfigs>
+            <InboundAuthenticationRequestConfig>
+                <InboundAuthKey>API_PUBLISHER</InboundAuthKey>
+                <InboundAuthType>samlsso</InboundAuthType>
+                <Properties></Properties>
+            </InboundAuthenticationRequestConfig>
+        </InboundAuthenticationRequestConfigs>
+    </InboundAuthenticationConfig>
+   
+    <LocalAndOutBoundAuthenticationConfig>
+    <AuthenticationSteps>
+        <AuthenticationStep>
+            <StepOrder>1</StepOrder>
+            <LocalAuthenticatorConfigs>
+                <LocalAuthenticatorConfig>
+                    <Name>BasicAuthenticator</Name>
+                    <DisplayName>basicauth</DisplayName>
+                    <IsEnabled>true</IsEnabled>
+                </LocalAuthenticatorConfig>
+            </LocalAuthenticatorConfigs>>
+            <SubjectStep>true</SubjectStep>
+            <AttributeStep>true</AttributeStep>
+        </AuthenticationStep>
+    </AuthenticationSteps>
+</LocalAndOutBoundAuthenticationConfig>
+    <RequestPathAuthenticatorConfigs></RequestPathAuthenticatorConfigs>
+    <InboundProvisioningConfig></InboundProvisioningConfig>
+    <OutboundProvisioningConfig></OutboundProvisioningConfig>
+    <ClaimConfig>
+        <AlwaysSendMappedLocalSubjectId>true</AlwaysSendMappedLocalSubjectId>
+        <LocalClaimDialect>true</LocalClaimDialect><ClaimMappings><ClaimMapping><LocalClaim><ClaimUri>http://wso2.org/claims/givenname</ClaimUri></LocalClaim><RemoteClaim><ClaimUri>http://wso2.org/claims/givenName</ClaimUri>ClaimUri></RemoteClaim><RequestClaim>true</RequestClaim></ClaimMapping></ClaimMappings></ClaimConfig>   
+    <PermissionAndRoleConfig></PermissionAndRoleConfig>
+</ServiceProvider>
