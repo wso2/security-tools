@@ -114,63 +114,63 @@ do
 
 	elif [[ $product == *"wso2is"* ]]; then
 
-		if [[ $product == "wso2is"* ]]; then
+        #
+        # Start of Creating SSO IDP for WSO2 API Manager Setup
+        #
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP in: $DYNAMIC_HOME/$product-AM-SSO"
-			cp -R $DYNAMIC_HOME/$product $DYNAMIC_HOME/$product-AM-SSO
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP in: $DYNAMIC_HOME/$product-AM-SSO"
+		cp -R $DYNAMIC_HOME/$product $DYNAMIC_HOME/$product-AM-SSO
 
-			CARBON_XML_PATH_IS_AM=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "carbon.xml")
-			echo "$SCRIPT_TAG carbon.xml path $CARBON_XML_PATH_IS_AM"
+		CARBON_XML_PATH_IS_AM=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "carbon.xml")
+		echo "$SCRIPT_TAG carbon.xml path $CARBON_XML_PATH_IS_AM"
 
-			USERMGT_XML_PATH_IS_AM=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "user-mgt.xml")
-			echo "$SCRIPT_TAG user-mgt.xml path $USERMGT_XML_PATH_IS_AM"
+		USERMGT_XML_PATH_IS_AM=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "user-mgt.xml")
+		echo "$SCRIPT_TAG user-mgt.xml path $USERMGT_XML_PATH_IS_AM"
 
-			CATALINA_XML_PATH_IS_AM=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "catalina-server.xml")
-			echo "$SCRIPT_TAG catalina-server.xml path $CATALINA_XML_PATH_IS_AM"
+		CATALINA_XML_PATH_IS_AM=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "catalina-server.xml")
+		echo "$SCRIPT_TAG catalina-server.xml path $CATALINA_XML_PATH_IS_AM"
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Proxy Configuration"
-			sed -i -e "s/<.*HostName>.*<\/HostName.*>/<HostName>$HOST_NAME_APIM<\/HostName>/g" $CARBON_XML_PATH_IS_AM
-			sed -i -e "s/<.*MgtHostName>.*<\/MgtHostName.*>/<MgtHostName>$HOST_NAME_APIM<\/MgtHostName>/g" $CARBON_XML_PATH_IS_AM
-			sed -i -e "s/port=\"9443\"/port=\"9443\" proxyPort=\"443\"/g" $CATALINA_XML_PATH_IS_AM
-			sed -i -e "s/port=\"9763\"/port=\"9763\" proxyPort=\"80\"/g" $CATALINA_XML_PATH_IS_AM
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Proxy Configuration"
+		sed -i -e "s/<.*HostName>.*<\/HostName.*>/<HostName>$HOST_NAME_APIM<\/HostName>/g" $CARBON_XML_PATH_IS_AM
+		sed -i -e "s/<.*MgtHostName>.*<\/MgtHostName.*>/<MgtHostName>$HOST_NAME_APIM<\/MgtHostName>/g" $CARBON_XML_PATH_IS_AM
+		sed -i -e "s/port=\"9443\"/port=\"9443\" proxyPort=\"443\"/g" $CATALINA_XML_PATH_IS_AM
+		sed -i -e "s/port=\"9763\"/port=\"9763\" proxyPort=\"80\"/g" $CATALINA_XML_PATH_IS_AM
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Offset Configuration (Offset is set to 100)"
-			sed -i -e "s/<Offset>0<\/Offset>/<Offset>100<\/Offset>/g" $CARBON_XML_PATH_IS_AM
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Offset Configuration (Offset is set to 100)"
+		sed -i -e "s/<Offset>0<\/Offset>/<Offset>100<\/Offset>/g" $CARBON_XML_PATH_IS_AM
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Password and Compression Configuration"
-			sed -i -e "s/<Password>admin<\/Password>/<Password>$ADMIN_PASSWORD<\/Password>/g" $USERMGT_XML_PATH_IS_AM
-			sed -i -e "s/compression=\"on\"/compression=\"off\"/g" $CATALINA_XML_PATH_IS_AM
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Password and Compression Configuration"
+		sed -i -e "s/<Password>admin<\/Password>/<Password>$ADMIN_PASSWORD<\/Password>/g" $USERMGT_XML_PATH_IS_AM
+		sed -i -e "s/compression=\"on\"/compression=\"off\"/g" $CATALINA_XML_PATH_IS_AM
 
-			sed -i -e "s/<UserStoreManager class=\"org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager\">/<!--UserStoreManager class=\"org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager\">/g" $USERMGT_XML_PATH_IS_AM
-			tac $USERMGT_XML_PATH_IS_AM > $USERMGT_XML_PATH_IS_AM-tmp
-			sed -i "0,/<\/UserStoreManager>/s//<\/UserStoreManager-->/" $USERMGT_XML_PATH_IS_AM-tmp
-			tac $USERMGT_XML_PATH_IS_AM-tmp > $USERMGT_XML_PATH_IS_AM
-			rm  $USERMGT_XML_PATH_IS_AM-tmp
-			sed -i -e "s/<!--UserStoreManager class=\"org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager\">/<UserStoreManager class=\"org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager\">/g" $USERMGT_XML_PATH_IS_AM
-			sed -i "0,/<\/UserStoreManager-->/s//<\/UserStoreManager>/" $USERMGT_XML_PATH_IS_AM
+		sed -i -e "s/<UserStoreManager class=\"org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager\">/<!--UserStoreManager class=\"org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager\">/g" $USERMGT_XML_PATH_IS_AM
+		tac $USERMGT_XML_PATH_IS_AM > $USERMGT_XML_PATH_IS_AM-tmp
+		sed -i "0,/<\/UserStoreManager>/s//<\/UserStoreManager-->/" $USERMGT_XML_PATH_IS_AM-tmp
+		tac $USERMGT_XML_PATH_IS_AM-tmp > $USERMGT_XML_PATH_IS_AM
+		rm  $USERMGT_XML_PATH_IS_AM-tmp
+		sed -i -e "s/<!--UserStoreManager class=\"org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager\">/<UserStoreManager class=\"org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager\">/g" $USERMGT_XML_PATH_IS_AM
+		sed -i "0,/<\/UserStoreManager-->/s//<\/UserStoreManager>/" $USERMGT_XML_PATH_IS_AM
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Copying file based service providers"
-			cp $HOME/scripts/am-sso-config/am-sp-*.xml $DYNAMIC_HOME/$product-AM-SSO/repository/conf/identity/service-providers
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Copying file based service providers"
+		cp $HOME/scripts/am-sso-config/am-sp-*.xml $DYNAMIC_HOME/$product-AM-SSO/repository/conf/identity/service-providers
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Copying sso-idp-config"
-			cp -rf $HOME/scripts/am-sso-config/am-sso-idp-config.xml $DYNAMIC_HOME/$product-AM-SSO/repository/conf/identity/sso-idp-config.xml
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Copying sso-idp-config"
+		cp -rf $HOME/scripts/am-sso-config/am-sso-idp-config.xml $DYNAMIC_HOME/$product-AM-SSO/repository/conf/identity/sso-idp-config.xml
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Updating sso-idp-config with hostname"
-			sed -i -e "s/localhost:9443/$HOST_NAME_APIM/g" $DYNAMIC_HOME/$product-AM-SSO/repository/conf/identity/sso-idp-config.xml
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Updating sso-idp-config with hostname"
+		sed -i -e "s/localhost:9443/$HOST_NAME_APIM/g" $DYNAMIC_HOME/$product-AM-SSO/repository/conf/identity/sso-idp-config.xml
 
-			echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Importing Certs"
-			keytool -import -trustcacerts -alias is -file /etc/nginx/ssl/nginx-is.crt -keystore $DYNAMIC_HOME/$product-AM-SSO/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
-			keytool -import -trustcacerts -alias apim -file /etc/nginx/ssl/nginx.crt -keystore $DYNAMIC_HOME/$product-AM-SSO/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
+		echo "$SCRIPT_TAG Configuration API Manager - SSO IDP - Importing Certs"
+		keytool -import -trustcacerts -alias is -file /etc/nginx/ssl/nginx-is.crt -keystore $DYNAMIC_HOME/$product-AM-SSO/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
+		keytool -import -trustcacerts -alias apim -file /etc/nginx/ssl/nginx.crt -keystore $DYNAMIC_HOME/$product-AM-SSO/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
 
-			CARBON_START_SCRIPT_PATH=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "wso2server.sh")
-			echo "$SCRIPT_TAG Starting WSO2 Server at $CARBON_START_SCRIPT_PATH"
-			nohup bash $CARBON_START_SCRIPT_PATH >/dev/null 2>&1 &
-		else
-			echo "$SCRIPT_TAG [ERROR] Unknown product, skipping configuration"
-			rm -rf $DYNAMIC_HOME/$product
-			continue
-			echo "$SCRIPT_TAG [ERROR] THIS SHOULD NOT PRINT"
-		fi
+		CARBON_START_SCRIPT_PATH=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "wso2server.sh")
+		echo "$SCRIPT_TAG Starting WSO2 Server at $CARBON_START_SCRIPT_PATH"
+		nohup bash $CARBON_START_SCRIPT_PATH >/dev/null 2>&1 &
+        
+        #
+        # End of Creating SSO IDP for WSO2 API Manager Setup
+        #
 
 		OFFSET=1
 
@@ -205,6 +205,11 @@ do
 
 		echo "$SCRIPT_TAG Configuration IS - SSO - Updating sso-idp-config with hostname"
 		sed -i -e "s/localhost:9443/$HOST_NAME_IS/g" $DYNAMIC_HOME/$product/repository/conf/identity/sso-idp-config.xml
+	else
+		echo "$SCRIPT_TAG [ERROR] Unknown product, skipping configuration"
+		rm -rf $DYNAMIC_HOME/$product
+		continue
+		echo "$SCRIPT_TAG [ERROR] THIS SHOULD NOT PRINT"
 	fi
 
 	echo "$SCRIPT_TAG Configuration WSO2 Server - Importing Certs"
