@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+TOOL_VERSION="3.0.2"
 DEPENDENCY_HOME="$HOME/env-dependency-check"
 PRODUCT_HOME="$HOME/products"
 LOG_HOME="$HOME/outputs"
 OUTPUT_HOME="$HOME/outputs"
-TOOL_SCRIPT="$HOME/tools/dependency-check-3.0.1/bin/dependency-check.sh"
+TOOL_SCRIPT="$HOME/tools/dependency-check-$TOOL_VERSION/bin/dependency-check.sh"
 SCRIPT_TAG="[SEC_AUTOMATION_DEPENDENCY_CHECK]"
 
 DEBUG=true

@@ -15,9 +15,10 @@
 # limitations under the License.
 
 TOOL_HOME="$HOME/tools"
-TOOL_NAME="dependency-check-3.0.1"
+TOOL_VERSION="3.0.2"
+TOOL_NAME="dependency-check-$TOOL_VERSION"
 TOOL_DOWNLOAD_URL_FOLDER="http://dl.bintray.com/jeremy-long/owasp"
-TOOL_DOWNLOAD_URL_FILE="dependency-check-3.0.1-release.zip"
+TOOL_DOWNLOAD_URL_FILE="dependency-check-$TOOL_VERSION-release.zip"
 SCRIPT_TAG="[SEC_AUTOMATION_UPDATE_PRODUCTS]"
 
 echo "$SCRIPT_TAG [START]"
@@ -63,12 +64,12 @@ echo "$SCRIPT_TAG Removed /tmp/$TOOL_NAME"
 echo "$SCRIPT_TAG Downloading Security-Tools repo to /tmp/$TOOL_NAME"
 wget -q --show-progress https://github.com/wso2/security-tools/archive/master.zip -P /tmp/$TOOL_NAME
 unzip -q /tmp/$TOOL_NAME/master.zip -d /tmp/$TOOL_NAME
-cd /tmp/$TOOL_NAME/security-tools-master/external/dependency-check-core-3.0.1
+cd /tmp/$TOOL_NAME/security-tools-master/external/dependency-check-core-$TOOL_VERSION
 mvn clean install -DskipTests=true
 
-rm $TOOL_HOME/$TOOL_NAME/repo/org/owasp/dependency-check-core/3.0.1/dependency-check-core-3.0.1.jar
-cp /tmp/$TOOL_NAME/security-tools-master/external/dependency-check-core-3.0.1/target/dependency-check-core-3.0.1.jar $TOOL_HOME/$TOOL_NAME/repo/org/owasp/dependency-check-core/3.0.1/
-echo "$SCRIPT_TAG Replaced modification in $TOOL_HOME/$TOOL_NAME/repo/org/owasp/dependency-check-core/3.0.1/dependency-check-core-3.0.1.jar"
+rm $TOOL_HOME/$TOOL_NAME/repo/org/owasp/dependency-check-core/$TOOL_VERSION/dependency-check-core-$TOOL_VERSION.jar
+cp /tmp/$TOOL_NAME/security-tools-master/external/dependency-check-core-$TOOL_VERSION/target/dependency-check-core-$TOOL_VERSION.jar $TOOL_HOME/$TOOL_NAME/repo/org/owasp/dependency-check-core/$TOOL_VERSION/
+echo "$SCRIPT_TAG Replaced modification in $TOOL_HOME/$TOOL_NAME/repo/org/owasp/dependency-check-core/$TOOL_VERSION/dependency-check-core-$TOOL_VERSION.jar"
 
 # Clean the temp folder
 rm -rf /tmp/$TOOL_NAME
