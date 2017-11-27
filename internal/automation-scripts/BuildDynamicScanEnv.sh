@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
@@ -167,7 +167,7 @@ do
 		CARBON_START_SCRIPT_PATH=$(find $DYNAMIC_HOME/$product-AM-SSO | grep "wso2server.sh")
 		echo "$SCRIPT_TAG Starting WSO2 Server at $CARBON_START_SCRIPT_PATH"
 		nohup bash $CARBON_START_SCRIPT_PATH >/dev/null 2>&1 &
-        
+
         #
         # End of Creating SSO IDP for WSO2 API Manager Setup
         #

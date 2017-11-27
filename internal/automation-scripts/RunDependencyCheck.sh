@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
@@ -22,7 +22,7 @@ OUTPUT_HOME="$HOME/outputs"
 TOOL_SCRIPT="$HOME/tools/dependency-check-$TOOL_VERSION/bin/dependency-check.sh"
 SCRIPT_TAG="[SEC_AUTOMATION_DEPENDENCY_CHECK]"
 
-DEBUG=true
+DEBUG="true"
 
 echo "$SCRIPT_TAG [START]"
 
@@ -61,7 +61,7 @@ for product in $(ls -l $DEPENDENCY_HOME | tr -s ' ' | cut -d ' ' -f9 |  grep -v 
 
 	echo "$SCRIPT_TAG Starting Dependency Check for: $PRODUCT_HOME/$product"
 
-	if [[ DEBUG == true ]]; then
+	if [ "$DEBUG" == "true" ]; then
 		read -r -d '' TOOL_ARG <<- EOM
 		-l $LOG_HOME/$date/$product-dependency-check-$timestamp.log
 		-o $OUTPUT_HOME/$date/$product-$timestamp
