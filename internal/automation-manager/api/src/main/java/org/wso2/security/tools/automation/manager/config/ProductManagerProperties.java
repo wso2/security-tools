@@ -49,7 +49,6 @@ public class ProductManagerProperties {
             productManagerProductPort = Integer.parseInt(properties.getProperty("product.manager.product-port"));
         } catch (IOException e) {
             e.printStackTrace();
-
         }
     }
 

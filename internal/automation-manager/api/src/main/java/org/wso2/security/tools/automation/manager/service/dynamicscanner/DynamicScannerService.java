@@ -108,7 +108,6 @@ public class DynamicScannerService {
                           boolean productUploadAsZipFile, MultipartFile zipFile, MultipartFile urlListFile, String
                                   wso2ServerHost, int wso2ServerPort) throws
             AutomationManagerException {
-
         try {
             String fileUploadLocation = AutomationManagerProperties.getTempFolderPath() + File.separator + userId + new
                     SimpleDateFormat(AutomationManagerProperties.getDatePattern()).format(new Date());
@@ -153,7 +152,6 @@ public class DynamicScannerService {
     private void uploadFileToTempDirectory(String fileUploadLocation, MultipartFile file) throws IOException {
         File tempDirectory = new File(AutomationManagerProperties.getTempFolderPath());
         File uploadDirectory = new File(fileUploadLocation);
-
         if (tempDirectory.exists() || tempDirectory.mkdir()) {
             if (uploadDirectory.exists() || uploadDirectory.mkdir()) {
                 String filename = file.getOriginalFilename();

@@ -69,7 +69,6 @@ public class AutomationManagerProperties {
             containerBasedScannerType = properties.getProperty("scanner.type.container.based");
             gitUsername = properties.getProperty("app.git.username");
             gitPassword = properties.getProperty("app.git.password");
-
         } catch (IOException e) {
             e.printStackTrace();
         }

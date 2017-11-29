@@ -75,5 +75,4 @@ public class CloudBasedDynamicScannerService {
     public CloudBasedDynamicScannerEntity save(CloudBasedDynamicScannerEntity dynamicScannerEntity) {
         return dynamicScannerRepository.save(dynamicScannerEntity);
     }
-
 }

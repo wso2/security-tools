@@ -131,11 +131,9 @@ public class StaticScannerService {
                         uploadLocation,
                         zipFileName, gitUrl, gitUsername, gitPassword);
             }
-
             if (staticScanner == null) {
                 throw new AutomationManagerException("Error occurred while creating static scanner");
             }
-
             StaticScannerExecutor staticScannerExecutor = new StaticScannerExecutor(staticScanner);
             new Thread(staticScannerExecutor).start();
         } catch (IOException e) {
@@ -146,7 +144,6 @@ public class StaticScannerService {
     private void uploadFileToTempDirectory(String fileUploadLocation, MultipartFile file) throws IOException {
         File tempDirectory = new File(AutomationManagerProperties.getTempFolderPath());
         File uploadDirectory = new File(fileUploadLocation);
-
         if (tempDirectory.exists() || tempDirectory.mkdir()) {
             if (uploadDirectory.exists() || uploadDirectory.mkdir()) {
                 String filename = file.getOriginalFilename();
@@ -192,7 +189,6 @@ public class StaticScannerService {
         staticScanner.init();
         return staticScanner;
     }
-
 
     private ContainerBasedStaticScanner createAndInitContainerBasedStaticScanner(String scanType, String userId,
                                                                                  String testName, String ipAddress,

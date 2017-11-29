@@ -36,5 +36,4 @@ public class DependencyCheckScanner extends AbstractContainerBasedStaticScanner 
         super(new DependencyCheckEntity(), StaticScannerProperties.getDependencyCheckScannerContextPath(),
                 StaticScannerProperties.getDependencyCheckDockerImage());
     }
-
 }

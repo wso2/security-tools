@@ -22,8 +22,6 @@ import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.utils.URIBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.wso2.security.tools.automation.manager.config.AutomationManagerProperties;
@@ -216,8 +214,7 @@ public class ContainerBasedStaticScannerService {
                 URI uri = (new URIBuilder()).setHost(staticScannerEntity.getIpAddress())
                         .setPort(staticScannerEntity.getHostPort()).setScheme("http")
                         .setPath(staticScannerEntity.getContextPath() + StaticScannerProperties
-                                .getStaticScannerGetReport())
-                        .build();
+                                .getStaticScannerGetReport()).build();
                 HttpResponse response = HttpRequestHandler.sendGetRequest(uri);
 
                 if (response != null && response.getEntity() != null) {
@@ -226,8 +223,7 @@ public class ContainerBasedStaticScannerService {
                             response.getEntity().getContent(), "Reports.zip");
                     staticScannerEntity.setReportSent(true);
                     staticScannerEntity.setReportSentTime(new SimpleDateFormat(AutomationManagerProperties
-                            .getDatePattern())
-                            .format(new Date()));
+                            .getDatePattern()).format(new Date()));
                     kill(containerId);
                 }
             }

@@ -211,7 +211,6 @@ public class ZapScanner extends AbstractContainerBasedDynamicScanner {
             ajaxSpiderStatusResponse = zapClient.ajaxSpiderStatus(false);
             Thread.sleep(3000);
         }
-
     }
 
     private void runActiveScan(ZapClient zapClient) throws IOException, URISyntaxException, InterruptedException {

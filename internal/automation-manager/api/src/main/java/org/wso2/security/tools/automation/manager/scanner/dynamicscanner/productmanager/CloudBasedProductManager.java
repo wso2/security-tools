@@ -41,7 +41,6 @@ public class CloudBasedProductManager implements ProductManager {
 
     public void init(String userId, String testName, String ipAddress, String productName, String wumLevel, String
             wso2ServerHost, int wso2ServerPort) {
-
         this.userId = userId;
         this.testName = testName;
         this.ipAddress = ipAddress;

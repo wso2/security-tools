@@ -108,8 +108,7 @@ public class ContainerBasedProductManagerService {
         ContainerBasedProductManagerEntity productManagerEntity = findOneByContainerId(containerId);
         productManagerEntity.setFileUploaded(status);
         productManagerEntity.setFileUploadedTime(new SimpleDateFormat(AutomationManagerProperties.getDatePattern())
-                .format(new
-                Date()));
+                .format(new Date()));
         save(productManagerEntity);
     }
 
@@ -123,8 +122,7 @@ public class ContainerBasedProductManagerService {
         ContainerBasedProductManagerEntity productManagerEntity = findOneByContainerId(containerId);
         productManagerEntity.setFileExtracted(status);
         productManagerEntity.setFileExtractedTime(new SimpleDateFormat(AutomationManagerProperties.getDatePattern())
-                .format(new
-                Date()));
+                .format(new Date()));
         save(productManagerEntity);
     }
 
@@ -138,8 +136,7 @@ public class ContainerBasedProductManagerService {
         ContainerBasedProductManagerEntity productManagerEntity = findOneByContainerId(containerId);
         productManagerEntity.setServerStarted(status);
         productManagerEntity.setServerStartedTime(new SimpleDateFormat(AutomationManagerProperties.getDatePattern())
-                .format(new
-                Date()));
+                .format(new Date()));
         save(productManagerEntity);
     }
 
@@ -158,7 +155,6 @@ public class ContainerBasedProductManagerService {
             save(productManagerEntity);
         } catch (InterruptedException | DockerCertificateException | DockerException e) {
             throw new AutomationManagerException("Error occurred while removing product manager container");
-
         }
     }
 }
