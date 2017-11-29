@@ -29,6 +29,7 @@ import java.util.Properties;
  */
 @SuppressWarnings("unused")
 public class AutomationManagerProperties {
+
     private static String ipAddress;
     private static String automationManagerHostRelativeToContainers;
     private static String automationManagerPort;

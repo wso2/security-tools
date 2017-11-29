@@ -29,6 +29,7 @@ import java.util.Properties;
  */
 @SuppressWarnings("unused")
 public class DynamicScannerProperties {
+
     private static String zapDockerImage;
     private static String zapReport;
     private static String zapScannerType;

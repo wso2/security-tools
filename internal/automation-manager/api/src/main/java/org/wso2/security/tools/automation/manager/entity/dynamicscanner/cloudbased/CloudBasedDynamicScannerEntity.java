@@ -32,5 +32,4 @@ import javax.persistence.InheritanceType;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class CloudBasedDynamicScannerEntity extends DynamicScannerEntity {
-
 }

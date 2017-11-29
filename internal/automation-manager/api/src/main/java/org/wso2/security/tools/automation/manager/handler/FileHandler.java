@@ -20,8 +20,6 @@ package org.wso2.security.tools.automation.manager.handler;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -35,7 +33,6 @@ import java.io.IOException;
  */
 @SuppressWarnings("unused")
 public class FileHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
 
     /**
      * Upload a file to a given location

@@ -32,6 +32,7 @@ import org.wso2.security.tools.automation.manager.service.dynamicscanner.Contain
  * scans asynchronously.
  */
 public class DynamicScannerExecutor implements Runnable {
+
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     private ProductManager productManager;
     private DynamicScanner dynamicScanner;

@@ -29,8 +29,8 @@ import java.util.Properties;
  */
 @SuppressWarnings("unused")
 public class ProductManagerProperties {
-    private static String productManagerDockerImage;
 
+    private static String productManagerDockerImage;
     private static String productManagerIsReady;
     private static String productManagerStartServer;
     private static int productManagerProductPort;

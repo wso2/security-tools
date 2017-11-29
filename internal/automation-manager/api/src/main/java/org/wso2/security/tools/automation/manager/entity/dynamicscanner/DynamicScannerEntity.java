@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class DynamicScannerEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected int id;

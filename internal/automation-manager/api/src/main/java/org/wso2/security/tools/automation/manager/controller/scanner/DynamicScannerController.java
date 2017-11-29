@@ -97,6 +97,5 @@ public class DynamicScannerController {
     public @ResponseBody
     void kill(@RequestParam String containerId) throws AutomationManagerException {
         containerBasedDynamicScannerService.kill(containerId);
-
     }
 }

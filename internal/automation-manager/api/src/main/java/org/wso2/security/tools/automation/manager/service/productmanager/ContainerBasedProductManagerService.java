@@ -40,6 +40,7 @@ import java.util.Date;
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 @Service
 public class ContainerBasedProductManagerService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ContainerBasedProductManagerService.class);
     private final ContainerBasedProductManagerRepository productManagerRepository;
 

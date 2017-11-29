@@ -56,6 +56,7 @@ import java.util.*;
  * calling {@link ZapClient} methods </p>
  */
 public class ZapScanner extends AbstractContainerBasedDynamicScanner {
+
     private static final String HTTP_SCHEME = "http";
     private static final String HTTPS_SCHEME = "https";
     private static final String POST = "POST";
@@ -126,7 +127,6 @@ public class ZapScanner extends AbstractContainerBasedDynamicScanner {
             throw new DynamicScannerException("Exception occurs when starting dynamic scan", e);
         }
     }
-
 
     private void createAndInitContext(ZapClient zapClient) throws IOException, URISyntaxException {
         HttpResponse createNewContextResponse = zapClient.createNewContext(CONTEXT_NAME, false);

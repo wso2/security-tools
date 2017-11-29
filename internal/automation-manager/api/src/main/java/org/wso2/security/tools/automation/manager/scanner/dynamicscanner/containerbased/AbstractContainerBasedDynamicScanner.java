@@ -39,6 +39,7 @@ import java.util.Date;
  * {@link ContainerBasedDynamicScanner} to implement common methods for container based dynamic scanners
  */
 public abstract class AbstractContainerBasedDynamicScanner implements ContainerBasedDynamicScanner {
+
     protected String userId;
     protected String ipAddress;
     protected String fileUploadLocation;

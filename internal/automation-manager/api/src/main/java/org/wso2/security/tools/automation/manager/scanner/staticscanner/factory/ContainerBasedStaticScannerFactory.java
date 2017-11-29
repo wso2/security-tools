@@ -30,6 +30,7 @@ import org.wso2.security.tools.automation.manager.scanner.staticscanner.containe
  * {@link AbstractStaticScannerFactory} to create instances of {@link ContainerBasedStaticScanner}
  */
 public class ContainerBasedStaticScannerFactory extends AbstractStaticScannerFactory {
+
     /**
      * Check the scan type and return a scanner instance
      *

@@ -41,6 +41,7 @@ import org.wso2.security.tools.automation.manager.service.productmanager.Contain
 @Api(value = "productManagerNotifications", description = "Product Manager Docker container will use this API to " +
         "notify the status of the container such as file uploaded, file extracted and server started")
 public class ProductManagerNotificationController {
+
     private final ContainerBasedProductManagerService containerBasedProductManagerService;
 
     @Autowired

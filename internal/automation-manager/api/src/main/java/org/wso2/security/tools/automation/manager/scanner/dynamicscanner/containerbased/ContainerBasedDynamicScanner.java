@@ -26,6 +26,7 @@ import org.wso2.security.tools.automation.manager.scanner.dynamicscanner.Dynamic
  * specific to container based dynamic scanners
  */
 public interface ContainerBasedDynamicScanner extends DynamicScanner {
+
     /**
      * Calculate dynamic scanner container port
      *

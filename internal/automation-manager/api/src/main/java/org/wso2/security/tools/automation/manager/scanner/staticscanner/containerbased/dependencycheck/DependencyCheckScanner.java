@@ -28,6 +28,7 @@ import org.wso2.security.tools.automation.manager.scanner.staticscanner.containe
  * The class {@link DependencyCheckScanner} extends the abstract class {@link AbstractContainerBasedStaticScanner}
  */
 public class DependencyCheckScanner extends AbstractContainerBasedStaticScanner {
+
     /**
      * Calls the parent constructor with dependency check scanner specific data
      */

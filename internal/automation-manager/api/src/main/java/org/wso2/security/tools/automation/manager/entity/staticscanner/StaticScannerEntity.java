@@ -28,6 +28,7 @@ import javax.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class StaticScannerEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;

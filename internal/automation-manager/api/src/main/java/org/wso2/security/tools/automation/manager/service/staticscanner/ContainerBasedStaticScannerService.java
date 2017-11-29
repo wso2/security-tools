@@ -48,7 +48,6 @@ import java.util.Date;
 @Service
 public class ContainerBasedStaticScannerService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerBasedStaticScannerService.class);
     private final ContainerBasedStaticScannerRepository staticScannerRepository;
     private final MailHandler mailHandler;
 

@@ -29,6 +29,7 @@ import java.util.Properties;
  */
 @SuppressWarnings("unused")
 public class StaticScannerProperties {
+
     private static String staticScannerIsReady;
     private static String staticScannerStartScan;
     private static String staticScannerGetReport;

@@ -26,6 +26,7 @@ import org.wso2.security.tools.automation.manager.scanner.staticscanner.containe
  * {@link ContainerBasedStaticScanner} and {@link CloudBasedStaticScanner}
  */
 public abstract class AbstractStaticScannerFactory {
+
     /**
      * Abstract method to be implemented by a concrete factory class to generate {@link ContainerBasedStaticScanner}
      * instances

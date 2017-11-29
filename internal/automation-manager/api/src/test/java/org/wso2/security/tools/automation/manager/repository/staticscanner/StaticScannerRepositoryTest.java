@@ -39,6 +39,7 @@ import static org.junit.Assert.assertEquals;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class StaticScannerRepositoryTest {
+
     @Autowired
     private TestEntityManager entityManager;
 

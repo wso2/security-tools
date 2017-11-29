@@ -52,6 +52,7 @@ import java.util.Date;
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 @Service
 public class DynamicScannerService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicScannerService.class);
 
     private final DynamicScannerRepository dynamicScannerRepository;

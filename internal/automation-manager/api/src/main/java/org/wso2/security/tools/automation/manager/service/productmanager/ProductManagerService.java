@@ -31,6 +31,7 @@ import org.wso2.security.tools.automation.manager.repository.productmanager.Prod
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 @Service
 public class ProductManagerService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductManagerService.class);
     private final ProductManagerRepository productManagerRepository;
 

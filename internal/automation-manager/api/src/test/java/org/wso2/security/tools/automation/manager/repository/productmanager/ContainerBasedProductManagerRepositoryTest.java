@@ -42,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ContainerBasedProductManagerRepositoryTest {
+
     private DynamicScannerEntity dynamicScannerEntityMock;
     @Autowired
     private TestEntityManager entityManager;

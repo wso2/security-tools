@@ -30,6 +30,7 @@ import javax.persistence.Entity;
 @SuppressWarnings("unused")
 @Entity
 public class ContainerBasedProductManagerEntity extends ProductManagerEntity {
+
     @Column(unique = true)
     private String containerId;
     private String ipAddress;

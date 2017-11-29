@@ -28,6 +28,7 @@ import java.net.Socket;
  * Utility methods for handling server
  */
 public class ServerHandler {
+
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerHandler.class);
 
     /**

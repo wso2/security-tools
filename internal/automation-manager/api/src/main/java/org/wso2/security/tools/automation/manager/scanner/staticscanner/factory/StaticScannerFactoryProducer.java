@@ -25,6 +25,7 @@ import org.wso2.security.tools.automation.manager.config.AutomationManagerProper
  * factory type (eg: cloud based, container based)
  */
 public class StaticScannerFactoryProducer {
+
     /**
      * Check the factory type and returns a factory instance based on the type
      *

@@ -29,6 +29,7 @@ import javax.persistence.Entity;
 @SuppressWarnings("unused")
 @Entity
 public class CloudBasedProductManagerEntity extends ProductManagerEntity {
+
     private String host;
     private int port;
 

@@ -37,6 +37,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 public class MailHandlerTest {
+
     @MockBean
     private MailHandler mailHandler;
 

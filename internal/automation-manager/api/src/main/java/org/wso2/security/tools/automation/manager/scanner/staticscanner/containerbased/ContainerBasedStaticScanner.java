@@ -26,6 +26,7 @@ import org.wso2.security.tools.automation.manager.scanner.staticscanner.StaticSc
  * methods of container based static scanners
  */
 public interface ContainerBasedStaticScanner extends StaticScanner {
+
     /**
      * Calculate static scanner container port
      *

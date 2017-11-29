@@ -46,6 +46,7 @@ import java.util.Map;
  * {@link ContainerBasedStaticScanner} to implement common methods for container based static scanners
  */
 public abstract class AbstractContainerBasedStaticScanner implements ContainerBasedStaticScanner {
+
     private String userId;
     private String testName;
     private String ipAddress;

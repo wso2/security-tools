@@ -24,6 +24,7 @@ import org.wso2.security.tools.automation.manager.scanner.dynamicscanner.Dynamic
  * The interface {@code CloudBasedDynamicScanner} extends the interface {@link DynamicScanner} contains methods
  * specific to cloud based dynamic scanners
  */
+@SuppressWarnings("unused")
 public interface CloudBasedDynamicScanner extends DynamicScanner {
 
     /**

@@ -41,6 +41,7 @@ import java.util.Date;
 @SuppressWarnings("unused")
 @Service
 public class ContainerBasedDynamicScannerService {
+
     private final ContainerBasedDynamicScannerRepository dynamicScannerRepository;
     private final MailHandler mailHandler;
 

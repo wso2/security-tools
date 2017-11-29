@@ -50,7 +50,7 @@ import java.util.Map;
  * container based product managers
  */
 public class ContainerBasedProductManager implements ProductManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerBasedProductManager.class);
+
     private String userId;
     private String testName;
     private String ipAddress;

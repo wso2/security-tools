@@ -27,6 +27,7 @@ import org.wso2.security.tools.automation.manager.service.productmanager.Product
  */
 @SuppressWarnings("unused")
 public class CloudBasedProductManager implements ProductManager {
+
     private String userId;
     private String testName;
     private String ipAddress;

@@ -42,6 +42,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public class DockerHandler {
+
     private static DockerClient dockerClient;
 
     /**

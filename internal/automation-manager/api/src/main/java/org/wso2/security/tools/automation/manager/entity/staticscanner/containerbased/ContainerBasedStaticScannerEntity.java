@@ -33,6 +33,7 @@ import javax.persistence.InheritanceType;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public class ContainerBasedStaticScannerEntity extends StaticScannerEntity {
+
     @Column(unique = true)
     private String containerId;
     private String ipAddress;

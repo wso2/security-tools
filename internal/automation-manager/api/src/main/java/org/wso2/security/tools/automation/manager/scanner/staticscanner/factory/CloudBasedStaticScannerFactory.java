@@ -26,6 +26,7 @@ import org.wso2.security.tools.automation.manager.scanner.staticscanner.containe
  * {@link AbstractStaticScannerFactory} to create instances of {@link CloudBasedStaticScanner}
  */
 public class CloudBasedStaticScannerFactory extends AbstractStaticScannerFactory {
+
     @Override
     public ContainerBasedStaticScanner getContainerBasedStaticScanner(String type) {
         return null;

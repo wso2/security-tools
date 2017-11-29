@@ -27,6 +27,7 @@ import org.wso2.security.tools.automation.manager.scanner.staticscanner.containe
  * The class {@link FindSecBugsScanner} extends the abstract class {@link AbstractContainerBasedStaticScanner}
  */
 public class FindSecBugsScanner extends AbstractContainerBasedStaticScanner {
+
     /**
      * Calls the parent constructor with find sec bugs scanner specific data
      */

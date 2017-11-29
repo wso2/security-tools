@@ -32,6 +32,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ProductManagerEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;

@@ -24,6 +24,7 @@ import org.wso2.security.tools.automation.manager.exception.StaticScannerExcepti
  * The interface {@link StaticScanner} provides abstraction to static scanner related methods
  */
 public interface StaticScanner {
+
     /**
      * Start a static scanner
      *

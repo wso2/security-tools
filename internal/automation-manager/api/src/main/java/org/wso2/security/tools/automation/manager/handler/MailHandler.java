@@ -37,6 +37,7 @@ import java.io.InputStream;
  */
 @Component
 public class MailHandler {
+
     private final JavaMailSender mailSender;
     private Logger LOGGER = LoggerFactory.getLogger(MailHandler.class);
 

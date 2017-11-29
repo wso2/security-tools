@@ -24,6 +24,7 @@ import org.wso2.security.tools.automation.manager.exception.DynamicScannerExcept
  * The interface {@link DynamicScanner} provides abstraction to dynamic scanner related methods
  */
 public interface DynamicScanner {
+
     /**
      * Start a dynamic scanner
      *
