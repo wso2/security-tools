@@ -101,8 +101,7 @@ public class DependencyCheckExecutor extends Observable implements Runnable {
             String folderName;
             try {
                 folderName = FileHandler.extractZipFile(ScannerProperties.getDefaultProductFolderPath() + File
-                        .separator +
-                        zipFileName);
+                        .separator + zipFileName);
                 DependencyCheckExecutor.setProductPath(ScannerProperties.getDefaultProductFolderPath() + File
                         .separator + folderName);
                 isProductAvailable = true;
