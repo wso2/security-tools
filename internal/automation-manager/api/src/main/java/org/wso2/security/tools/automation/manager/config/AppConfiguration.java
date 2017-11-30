@@ -137,10 +137,4 @@ public class AppConfiguration extends WebMvcConfigurerAdapter {
                 new Contact("WSO2 Platform Security Team", "http://wso2.com/security", "security@wso2.com"),
                 "License of API", "API license URL", Collections.emptyList());
     }
-
-    @Bean
-    public MultipartResolver multipartResolver() {
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-        return multipartResolver;
-    }
 }
