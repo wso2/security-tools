@@ -41,6 +41,7 @@ import java.text.ParseException;
  */
 @SuppressWarnings("unused")
 public class JWTHandler {
+
     private final static Logger LOGGER = LoggerFactory.getLogger(JWTHandler.class);
 
     /**
@@ -58,7 +59,6 @@ public class JWTHandler {
      */
     public static boolean validateToken(String signedJWTAsString) throws IOException, CertificateException,
             NoSuchAlgorithmException, JOSEException, KeyStoreException, ParseException {
-
         RSAPublicKey publicKey;
         InputStream file = ClassLoader.getSystemResourceAsStream("wso2carbon.jks");
         KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -70,7 +70,6 @@ public class JWTHandler {
         publicKey = (RSAPublicKey) cert.getPublicKey();
         SignedJWT signedJWT = SignedJWT.parse(signedJWTAsString);
         JWSVerifier verifier = new RSASSAVerifier(publicKey);
-
         if (signedJWT.verify(verifier)) {
             LOGGER.info("Signature is Valid");
             return true;

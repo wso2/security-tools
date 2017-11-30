@@ -46,8 +46,7 @@ public class HttpsRequestHandler extends AbstractHttpsRequestHandler {
      * @throws IOException
      */
     public static HttpsURLConnection sendRequest(String link, Map<String, String> requestHeaders, Map<String, Object>
-            requestParams,
-                                                 String method, String accessToken) throws IOException {
+            requestParams, String method, String accessToken) throws IOException {
         if (!isInitialized) {
             init();
         }

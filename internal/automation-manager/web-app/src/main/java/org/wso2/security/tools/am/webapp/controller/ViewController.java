@@ -61,7 +61,6 @@ public class ViewController {
         return new User();
     }
 
-
     /**
      * Initiate a model attribute to keep dynamic scanner related user inputs
      *

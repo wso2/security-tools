@@ -128,7 +128,6 @@ public class MultipartRequestHandler extends AbstractHttpsRequestHandler {
         writer.flush();
     }
 
-
     /**
      * Completes the request and receives response from the server.
      *

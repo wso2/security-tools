@@ -101,6 +101,7 @@ public class StaticScanner {
     public void setFindSecBugs(boolean findSecBugs) {
         this.isFindSecBugs = findSecBugs;
     }
+
     /**
      * Set scan type to dependency check
      *
@@ -109,7 +110,6 @@ public class StaticScanner {
     public void setDependencyCheck(boolean dependencyCheck) {
         this.isDependencyCheck = dependencyCheck;
     }
-
 
     /**
      * @return Is find sec bugs scan initiated

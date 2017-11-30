@@ -25,6 +25,7 @@ package org.wso2.security.tools.am.webapp.exception;
  */
 @SuppressWarnings("unused")
 public class AutomationManagerWebException extends Exception {
+
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.

@@ -84,7 +84,6 @@ public class GlobalProperties {
         return accessTokenUri;
     }
 
-
     /**
      * @return Automation Manager host
      */
