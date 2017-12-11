@@ -1,18 +1,18 @@
 <ServiceProvider>
-    <ApplicationID>4</ApplicationID>
-    <ApplicationName>am-carbon</ApplicationName>
-    <Description>APIM Carbon Service Provider</Description>
+    <ApplicationID>2</ApplicationID>
+    <ApplicationName>das-portal</ApplicationName>
+    <Description>DAS Portal Service Provider</Description>
     <IsSaaSApp>true</IsSaaSApp>
     <InboundAuthenticationConfig>
         <InboundAuthenticationRequestConfigs>
             <InboundAuthenticationRequestConfig>
-                <InboundAuthKey>carbonServer</InboundAuthKey>
+                <InboundAuthKey>portal</InboundAuthKey>
                 <InboundAuthType>samlsso</InboundAuthType>
                 <Properties></Properties>
             </InboundAuthenticationRequestConfig>
         </InboundAuthenticationRequestConfigs>
     </InboundAuthenticationConfig>
-   
+
     <LocalAndOutBoundAuthenticationConfig>
     <AuthenticationSteps>
         <AuthenticationStep>
@@ -34,6 +34,6 @@
     <OutboundProvisioningConfig></OutboundProvisioningConfig>
     <ClaimConfig>
         <AlwaysSendMappedLocalSubjectId>true</AlwaysSendMappedLocalSubjectId>
-        <LocalClaimDialect>true</LocalClaimDialect><ClaimMappings><ClaimMapping><LocalClaim><ClaimUri>http://wso2.org/claims/givenname</ClaimUri></LocalClaim><RemoteClaim><ClaimUri>http://wso2.org/claims/givenName</ClaimUri>ClaimUri></RemoteClaim><RequestClaim>true</RequestClaim></ClaimMapping></ClaimMappings></ClaimConfig>   
+        <LocalClaimDialect>true</LocalClaimDialect><ClaimMappings><ClaimMapping><LocalClaim><ClaimUri>http://wso2.org/claims/givenname</ClaimUri></LocalClaim><RemoteClaim><ClaimUri>http://wso2.org/claims/givenName</ClaimUri>ClaimUri></RemoteClaim><RequestClaim>true</RequestClaim></ClaimMapping></ClaimMappings></ClaimConfig>
     <PermissionAndRoleConfig></PermissionAndRoleConfig>
 </ServiceProvider>
