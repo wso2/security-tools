@@ -19,7 +19,8 @@ DEPENDENCY_HOME="$HOME/env-dependency-check"
 PRODUCT_HOME="$HOME/products"
 LOG_HOME="$HOME/outputs"
 OUTPUT_HOME="$HOME/outputs"
-TOOL_SCRIPT="$HOME/tools/dependency-check-$TOOL_VERSION/bin/dependency-check.sh"
+TOOL_HOME="$HOME/tools"
+TOOL_SCRIPT="$TOOL_HOME/dependency-check-$TOOL_VERSION/bin/dependency-check.sh"
 SCRIPT_TAG="[SEC_AUTOMATION_DEPENDENCY_CHECK]"
 
 DEBUG="true"
@@ -42,9 +43,14 @@ bash $HOME/scripts/UpdateProducts.sh
 cp -R $PRODUCT_HOME $DEPENDENCY_HOME
 echo "$SCRIPT_TAG Copied $PRODUCT_HOME/$product to $DEPENDENCY_HOME"
 
-timestamp=$(date -d "today" +"%Y-%m-%d-%H.%M.%S")
+echo "$SCRIPT_TAG Cloning security-artifacts"
+rm -rf $TOOL_HOME/security-artifacts
+git clone --quiet --progress --depth 1 https://$(cat $HOME/scripts/config/GitLogin.conf):x-oauth-basic@github.com/wso2/security-artifacts.git $TOOL_HOME/security-artifacts
+
 for product in $(ls -l $DEPENDENCY_HOME | tr -s ' ' | cut -d ' ' -f9 |  grep -v -e '^$'); do
+	timestamp=$(date -d "today" +"%Y-%m-%d-%H.%M.%S")
 	date=$(date -d "today" +"%Y-%m-%d")
+
 	if [ ! -d "$OUTPUT_HOME/$date" ]; then
 		mkdir -p $OUTPUT_HOME/$date
 		echo "$SCRIPT_TAG Created $OUTPUT_HOME/$date"
@@ -83,6 +89,18 @@ for product in $(ls -l $DEPENDENCY_HOME | tr -s ' ' | cut -d ' ' -f9 |  grep -v 
 	fi
 
 	$TOOL_SCRIPT $TOOL_ARG
+
+	cd $TOOL_HOME/security-artifacts
+	echo "$SCRIPT_TAG Updating security-artifacts repo"
+	git pull
+	mkdir -p $TOOL_HOME/security-artifacts/dependency-analysis/internal/dependecy-check/scan-reports/$date/$product-$timestamp
+	cp -r $OUTPUT_HOME/$date/$product-$timestamp/* $TOOL_HOME/security-artifacts/dependency-analysis/internal/dependecy-check/scan-reports/$date/$product-$timestamp
+	git add dependency-analysis/internal/dependecy-check/scan-reports/$date/$product-$timestamp
+	git commit -m "Adding $product Dependency Check scan reports for $timestamp"
+	echo "$SCRIPT_TAG Pushing reports to security-artifacts repo"
+	git push origin master
+	cd -
+
 	echo "$SCRIPT_TAG Ending Dependency Check for: $PRODUCT_HOME/$product"
 done
 
