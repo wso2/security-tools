@@ -2,11 +2,22 @@
 #
 #-*- coding:utf-8 -*-
 
+import logging
 import argparse
 import csv
+import base64
+from django.conf import settings
 from dojo.models import Finding, Endpoint
 from urlparse import urlparse
 ################################################################
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] %(message)s',
+    datefmt='%d/%b/%Y %H:%M:%S',
+    filename=settings.DOJO_ROOT + '/../django_app_new.log',
+)
+logger = logging.getLogger(__name__)
 
 # Non-standard libraries
 try:
@@ -79,11 +90,19 @@ def issue_r(raw_row, vuln, test, issueType):
     param=None
     payload=None
 
+    id = raw_row.findtext('ID')
     if(issueType == "vul"):
         url=raw_row.findtext('URL')
         param=raw_row.findtext('PARAM')
         payload=raw_row.findtext('PAYLOADS/PAYLOAD/PAYLOAD')
+        response=raw_row.findtext('PAYLOADS/PAYLOAD/RESPONSE/CONTENTS')
+        response=base64.b64decode(response)
+
+        payload = payload + "\r\n\r\n" + response;
         parts = urlparse(url)
+
+        modified_url = url.split("?")[0].split("://")[1]
+        modified_url = modified_url[modified_url.index('/'):]
 
         ep=Endpoint(protocol=parts.scheme,
                  host=parts.netloc,
@@ -93,13 +112,19 @@ def issue_r(raw_row, vuln, test, issueType):
                  product=test.engagement.product)
 
     search = "//GLOSSARY/QID_LIST/QID"
-    r = vuln.xpath('/WAS_WEBAPP_REPORT/GLOSSARY/QID_LIST/QID')
+
+    if scan_type == "Webapp":
+        r = vuln.xpath('/WAS_WEBAPP_REPORT/GLOSSARY/QID_LIST/QID')
+    elif scan_type == "Scan":
+        r = vuln.xpath('/WAS_SCAN_REPORT/GLOSSARY/QID_LIST/QID')
+
 
     for vuln_item in r:
         if vuln_item is not None:
             if vuln_item.findtext('QID') == _gid:
                 finding = Finding()
 
+                #_temp['vuln_category'] = vuln_item.findtext('CATEGORY')
                 _temp['vuln_name'] = vuln_item.findtext('TITLE')
                 _temp['vuln_solution'] = vuln_item.findtext('SOLUTION')
                 _temp['vuln_description'] = htmltext(vuln_item.findtext('DESCRIPTION'))
@@ -118,18 +143,15 @@ def issue_r(raw_row, vuln, test, issueType):
                         _temp['Severity'] = "High"
                     else:
                         _temp['Severity'] = "Critical"
-                print "Finding None"
-
-                finding = None
 
                 if issueType=="vul":
-                    finding = Finding(title=_temp['vuln_name'], mitigation=_temp['vuln_solution'],
-                                         description=_temp['vuln_description'], param=param, payload=payload, severity=_temp['Severity'],impact=_temp['impact'])
+                    finding = Finding(issue_id=id, title=_temp['vuln_name'], mitigation=_temp['vuln_solution'],
+                                         description=_temp['vuln_description'], param=param, payload=payload, severity=_temp['Severity'],impact=_temp['impact'], url=modified_url)
 
                     finding.unsaved_endpoints = list()
                     finding.unsaved_endpoints.append(ep)
                 else:
-                    finding = Finding(title=_temp['vuln_name'], mitigation=_temp['vuln_solution'],
+                    finding = Finding(issue_id=id, title=_temp['vuln_name'], mitigation=_temp['vuln_solution'],
                                          description=_temp['vuln_description'], param=param, payload=payload,
                                          severity=_temp['Severity'],impact=_temp['impact'])
 
@@ -137,22 +159,34 @@ def issue_r(raw_row, vuln, test, issueType):
 
     return ret_rows
 
-def qualys_webapp_parser(qualys_xml_file,test):
+def qualys_webapp_parser(qualys_xml_file,test,scan_type):
     parser = etree.XMLParser(remove_blank_text=True, no_network=True, recover=True)
     d = etree.parse(qualys_xml_file, parser)
 
-    r = d.xpath('/WAS_WEBAPP_REPORT/RESULTS/WEB_APPLICATION/VULNERABILITY_LIST/VULNERABILITY')
-    # r = d.xpath('/WAS_SCAN_REPORT/RESULTS/VULNERABILITY_LIST/VULNERABILITY')
-    l = d.xpath('/WAS_WEBAPP_REPORT/RESULTS/WEB_APPLICATION/INFORMATION_GATHERED_LIST/INFORMATION_GATHERED')
-    # l = d.xpath('/WAS_SCAN_REPORT/RESULTS/INFORMATION_GATHERED_LIST/INFORMATION_GATHERED')
+    #r = d.xpath('/WAS_WEBAPP_REPORT/RESULTS/WEB_APPLICATION/VULNERABILITY_LIST/VULNERABILITY')
+    #l = d.xpath('/WAS_WEBAPP_REPORT/RESULTS/WEB_APPLICATION/INFORMATION_GATHERED_LIST/INFORMATION_GATHERED')
+
+    if scan_type == "Scan":
+        vulnerability = d.xpath('/WAS_SCAN_REPORT/RESULTS/VULNERABILITY_LIST/VULNERABILITY')
+        sensitive = d.xpath('/WAS_SCAN_REPORT/RESULTS/SENSITIVE_CONTENT_LIST/VULNERABILITY')
+    elif scan_type == "Webapp":
+        vulnerability = d.xpath('/WAS_WEBAPP_REPORT/RESULTS/WEB_APPLICATION/VULNERABILITY_LIST/VULNERABILITY')
+        sensitive = d.xpath('/WAS_WEBAPP_REPORT/RESULTS/WEB_APPLICATION/SENSITIVE_CONTENT_LIST/VULNERABILITY')
+
+    #Disabled by WSO2 since we won't be working on info level issues
+    #info = d.xpath('/WAS_SCAN_REPORT/RESULTS/INFORMATION_GATHERED_LIST/INFORMATION_GATHERED')
 
     master_list = []
 
-    for issue in r:
-        master_list += issue_r(issue, d,test,"vul")
+    logger.error('Processing')
+    for issue in vulnerability:
+        master_list += issue_r(issue, d,test,"vul", scan_type)
 
-    for issue in l:
-        master_list += issue_r(issue,d,test,"info")
+    for issue in sensitive:
+        master_list += issue_r(issue,d,test,"sensitive", scan_type)
+
+    #for issue in info:
+    #    master_list += issue_r(issue,d,test,"info")
 
     return master_list
 
@@ -169,14 +203,17 @@ if __name__ == "__main__":
     aparser.add_argument('qualys_xml_file',
                         type=str,
                         help='Qualys xml file.')
+    aparser.add_argument('scan_type',
+                        type=str,
+                        help='Scan type (Webapp/Scan).')
     args = aparser.parse_args()
 
     try:
-        qualys_parser(args.qualys_xml_file)
+        qualys_webapp_parser(args.qualys_xml_file,args.scan_type)
     except IOError:
         print "[!] Error processing file: {}".format(args.qualys_xml_file)
         exit()
 
 class QualysWebAppParser(object):
-    def __init__(self, file, test):
-        self.items = qualys_webapp_parser(file,test)
+    def __init__(self, file, test, scan_type):
+        self.items = qualys_webapp_parser(file,test,scan_type)

@@ -233,8 +233,9 @@ class ImportScanForm(forms.Form):
                          ("Arachni Scan", "Arachni Scan"), ("VCG Scan", "VCG Scan"),
                          ("Dependency Check Scan", "Dependency Check Scan"), ("Retire.js Scan", "Retire.js Scan"),
                          ("Node Security Platform Scan", "Node Security Platform Scan"),
-                         ("Qualys Scan", "Qualys Scan"),
-                         ("Qualys Webapp Scan", "Qualys Webapp Scan"),
+                         ("Qualys Host Scan", "Qualys Host Scan"),
+                         ("Qualys Scan (Webapp)", "Qualys Scan (Webapp)"),
+                         ("Qualys Scan (Single Scan)", "Qualys Scan (Single Scan)"),
                          ("OpenVAS CSV", "OpenVAS CSV"),
                          ("Snyk Scan", "Snyk Scan"),
                          ("Generic Findings Import", "Generic Findings Import"))

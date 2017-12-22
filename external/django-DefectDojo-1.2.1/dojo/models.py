@@ -639,12 +639,14 @@ class Finding(models.Model):
     last_reviewed_by = models.ForeignKey(User, null=True, editable=False, related_name='last_reviewed_by')
     images = models.ManyToManyField('FindingImage', blank=True)
 
-    line_number = models.CharField(null=True, blank=True, max_length=200)
-    sourcefilepath = models.TextField(null=True, blank=True, editable=False)
-    sourcefile = models.TextField(null=True, blank=True, editable=False)
-    param = models.TextField(null=True, blank=True, editable=False)
-    payload = models.TextField(null=True, blank=True, editable=False)
-    hash_code = models.TextField(null=True,blank=True,editable=False)
+    issue_id = models.TextField(null=True, blank=True)
+    line_number = models.TextField(null=True, blank=True)
+    sourcefilepath = models.TextField(null=True, blank=True)
+    sourcefile = models.TextField(null=True, blank=True)
+    param = models.TextField(null=True, blank=True)
+    payload = models.TextField(null=True, blank=True)
+    #alter table dojo_finding add column function longtext;
+    function = models.TextField(null=True, blank=True)
 
     SEVERITIES = {'Info': 4, 'Low': 3, 'Medium': 2,
                   'High': 1, 'Critical': 0}

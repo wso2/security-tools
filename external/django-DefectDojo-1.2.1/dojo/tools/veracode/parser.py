@@ -3,6 +3,7 @@ __author__ = 'jay7958'
 from xml.dom import NamespaceErr
 from defusedxml import ElementTree
 from datetime import datetime
+from random import randint
 
 from dojo.models import Finding
 
@@ -42,67 +43,97 @@ class VeracodeXMLParser(object):
                         mitigation += "    * " + bullet.attrib['text'] + '\n'
 
                 for flaw in category.iter('{https://www.veracode.com/schema/reports/export/1.0}flaw'):
-                    dupe_key = sev + flaw.attrib['cweid'] + flaw.attrib['module'] + flaw.attrib['type']
+                    mitigatedTest = 0
 
-                    if dupe_key in dupes:
-                        find = dupes[dupe_key]
-                    else:
-                        dupes[dupe_key] = True
-                        description = flaw.attrib['description'].replace('. ', '.\n')
-                        if 'References:' in description:
-                            references = description[description.index('References:') + 13:].replace(')  ', ')\n')
-                        else:
-                            references = 'None'
-			mitigatedTest = 0
-                        if 'date_first_occurrence' in flaw.attrib:
-                            find_date = datetime.strptime(flaw.attrib['date_first_occurrence'],
-                                                          '%Y-%m-%d %H:%M:%S %Z')
-                        else:
-                            find_date = test.target_start
-	   		if 'falsepositive' in flaw.attrib:
-				mitigatedTest = 1
-				for mitigations in flaw.iter('{https://www.veracode.com/schema/reports/export/1.0}mitigations'):
-					for mitigation in mitigations.iter('{https://www.veracode.com/schema/reports/export/1.0}mitigation'):
-						mitigated = datetime.strptime(mitigation.attrib.get('date'),'%Y-%m-%d %H:%M:%S %Z')
-				mitigated_by_id = 4
-			else:
-				pass
-			if mitigatedTest == 1:
-				find = Finding(title=flaw.attrib['categoryname'],
-                               line_number=flaw.attrib['line'],
-                               sourcefilepath=flaw.attrib['sourcefilepath'],
-                               sourcefile=flaw.attrib['sourcefile'],
-                                cwe=int(flaw.attrib['cweid']),
-                                test=test,
-                                active=False,
-                                verified=False,
-                                description=description + "\n\nVulnerable Module: " + flaw.attrib['module'] + ' Type: ' + flaw.attrib['type'],
-				mitigated = mitigated,
-				mitigated_by_id = mitigated_by_id,
-				severity=sev,
-                                numerical_severity=Finding.get_numerical_severity(sev),
-                                mitigation=mitigation,
-                                impact='CIA Impact: ' + flaw.attrib['cia_impact'].upper(),
-                                references=references,
-                                url='N/A',
-				date=find_date)
-			else:
-				find = Finding(title=flaw.attrib['categoryname'],
-                               line_number=flaw.attrib['line'],
-                               sourcefilepath=flaw.attrib['sourcefilepath'],
-                               sourcefile=flaw.attrib['sourcefile'],
-                                cwe=int(flaw.attrib['cweid']),
-                                test=test,
-                                active=False,
-                                verified=False,
-                                description=description + "\n\nVulnerable Module: " + flaw.attrib['module'] + ' Type: ' + flaw.attrib['type'],
-				severity=sev,
-                                numerical_severity=Finding.get_numerical_severity(sev),
-                                mitigation=mitigation,
-                                impact='CIA Impact: ' + flaw.attrib['cia_impact'].upper(),
-                                references=references,
-                                url='N/A',
-				date=find_date)
-	                dupes[dupe_key] = find
+                    issue_id = -1
+                    try:
+                        issue_id = flaw.attrib['issueid']
+                        flaw.attrib['description'] + flaw.attrib['categoryname'] + flaw.attrib['line'] + flaw.attrib['sourcefilepath'] + flaw.attrib['sourcefile'] + str(int(flaw.attrib['cweid'])) + flaw.attrib['issueid'] + flaw.attrib['module'] + flaw.attrib['type'] + flaw.attrib['functionprototype'] + flaw.attrib['cia_impact']
 
+                        # dupe_key = sev + flaw.attrib['cweid'] + flaw.attrib['module'] + flaw.attrib['type']
+                        # remove flaw.attrib['issueid'] to get rid of veracode duplicates
+                        dupe_key = sev + "-" + flaw.attrib['issueid']
+                        # + "-" + flaw.attrib['cweid'] + "-" + flaw.attrib['module'] + "-" + flaw.attrib['type'] + "-" + flaw.attrib['line'] + "-" + flaw.attrib['scope']
+
+                        if dupe_key in dupes:
+                            find = dupes[dupe_key]
+                        else:
+                            dupes[dupe_key] = True
+                            description = flaw.attrib['description'].replace('. ', '.\n')
+                            if 'References:' in description:
+                                references = description[description.index('References:') + 13:].replace(')  ', ')\n')
+                            else:
+                                references = 'None'
+                                mitigatedTest = 0
+
+                            if 'date_first_occurrence' in flaw.attrib:
+                                find_date = datetime.strptime(flaw.attrib['date_first_occurrence'],
+                                                              '%Y-%m-%d %H:%M:%S %Z')
+                            else:
+                                find_date = test.target_start
+
+                        if 'falsepositive' in flaw.attrib:
+                            mitigatedTest = 1
+                            for mitigations in flaw.iter('{https://www.veracode.com/schema/reports/export/1.0}mitigations'):
+                                for mitigation in mitigations.iter(
+                                        '{https://www.veracode.com/schema/reports/export/1.0}mitigation'):
+                                    mitigated = datetime.strptime(mitigation.attrib.get('date'), '%Y-%m-%d %H:%M:%S %Z')
+                            mitigated_by_id = 4
+                        else:
+                            pass
+
+
+                        if mitigatedTest == 1:
+                            try:
+                                issue_id = flaw.attrib['issueid']
+                                find = Finding(title=flaw.attrib['categoryname'],
+                                           line_number=flaw.attrib['line'],
+                                           sourcefilepath=flaw.attrib['sourcefilepath'],
+                                           sourcefile=flaw.attrib['sourcefile'],
+                                           cwe=int(flaw.attrib['cweid']),
+                                           test=test,
+                                           active=False,
+                                           verified=False,
+                                           issue_id=flaw.attrib['issueid'],
+                                           description=description + "\n\nVulnerable Module: " + flaw.attrib['module'] + ' Type: ' +
+                                                       flaw.attrib['type'],
+                                           function=flaw.attrib['functionprototype'],
+                                           mitigated=mitigated,
+                                           mitigated_by_id=mitigated_by_id,
+                                           severity=sev,
+                                           numerical_severity=Finding.get_numerical_severity(sev),
+                                           mitigation=mitigation,
+                                           impact='CIA Impact: ' + flaw.attrib['cia_impact'].upper(),
+                                           references=references,
+                                           url='N/A',
+                                           date=find_date)
+                            except KeyError:
+                                print("ERROR IN ADDING " + issue_id)
+                        else:
+                            try:
+                                issue_id = flaw.attrib['issueid']
+                                find = Finding(title=flaw.attrib['categoryname'],
+                                           line_number=flaw.attrib['line'],
+                                           sourcefilepath=flaw.attrib['sourcefilepath'],
+                                           sourcefile=flaw.attrib['sourcefile'],
+                                           cwe=int(flaw.attrib['cweid']),
+                                           test=test,
+                                           active=False,
+                                           verified=False,
+                                           issue_id=flaw.attrib['issueid'],
+                                           description=description + "\n\nVulnerable Module: " + flaw.attrib['module'] + ' Type: ' +
+                                                       flaw.attrib['type'],
+                                           function=flaw.attrib['functionprototype'],
+                                           severity=sev,
+                                           numerical_severity=Finding.get_numerical_severity(sev),
+                                           mitigation=mitigation,
+                                           impact='CIA Impact: ' + flaw.attrib['cia_impact'].upper(),
+                                           references=references,
+                                           url='N/A',
+                                           date=find_date)
+                                dupes[dupe_key] = find
+                            except KeyError:
+                                print("ERROR IN ADDING " + issue_id)
+                    except KeyError:
+                        print("ERROR IN ADDING " + issue_id)
         self.items = dupes.values()
