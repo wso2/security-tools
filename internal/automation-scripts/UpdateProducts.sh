@@ -19,6 +19,10 @@ SCRIPT_TAG="[SEC_AUTOMATION_UPDATE_PRODUCTS]"
 
 echo "$SCRIPT_TAG [START]"
 
+echo "$SCRIPT_TAG Cleaning WUM products and updates"
+rm -rf ~/.wum-wso2/products
+rm -rf ~/.wum-wso2/updates
+
 echo "$SCRIPT_TAG Cleaning product home: ($PRODUCT_HOME)"
 rm -rf $PRODUCT_HOME
 mkdir $PRODUCT_HOME
