@@ -42,8 +42,8 @@ fi
 echo "$SCRIPT_TAG Cleaning dynamic environment home: $DYNAMIC_HOME"
 rm -rf $DYNAMIC_HOME
 
-echo "$SCRIPT_TAG Calling WUM update process"
-bash $HOME/scripts/UpdateProducts.sh
+#echo "$SCRIPT_TAG Calling WUM update process"
+#bash $HOME/scripts/UpdateProducts.sh
 
 cp -R $PRODUCT_HOME $DYNAMIC_HOME
 echo "$SCRIPT_TAG Copied $PRODUCT_HOME to $DYNAMIC_HOME"
