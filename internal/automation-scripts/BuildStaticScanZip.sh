@@ -25,7 +25,7 @@ echo "$SCRIPT_TAG [START]"
 echo "$SCRIPT_TAG Cleaning static environment home: $STATIC_HOME"
 rm -rf $STATIC_HOME
 
-cp -R $STATIC_HOME
+cp -R $PRODUCT_HOME $STATIC_HOME
 echo "$SCRIPT_TAG Copied $PRODUCT_HOME to $STATIC_HOME"
 
 for product in $(cat $HOME/scripts/config/SupportedProductList.conf)
