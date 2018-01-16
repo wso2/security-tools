@@ -13,6 +13,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+########################################################################
+##   This script will set up the static environment(Veracode) for     ##
+##   scanning the products which are in the HOME/products folder.     ##
+########################################################################
+
 STATIC_HOME="$HOME/env-static"
 PRODUCT_HOME="$HOME/products"
 SCRIPT_TAG="[SEC_AUTOMATION_BUILD_STSTIC_ZIP]"
@@ -74,10 +80,12 @@ do
 			VERACODE_APP_ID=328089
 		elif [[ $product == *"wso2iot"* ]]; then
 			# <app app_id="392456" app_name="Application 06" policy_updated_date="2018-01-02T21&#x3a;37&#x3a;15-05&#x3a;00"/>
-			VERACODE_APP_ID=392456 #is master
+			# VERACODE_APP_ID=392456 #is master
+			echo "$SCRIPT_TAG IOTS Disabled"
 		elif [[ $product == *"wso2das"* ]]; then
 			# <app app_id="218676" app_name="veracode-carbon-data" policy_updated_date="2017-12-21T05&#x3a;13&#x3a;44-05&#x3a;00"/>
-			VERACODE_APP_ID=218676 #carbon
+			# VERACODE_APP_ID=218676 #carbon
+			echo "$SCRIPT_TAG DAS Disabled"
 		elif [[ $product == *"wso2ei"* ]]; then
 			# <app app_id="328373" app_name="Application 03" policy_updated_date="2017-12-21T04&#x3a;38&#x3a;33-05&#x3a;00"/>
 			VERACODE_APP_ID=328373

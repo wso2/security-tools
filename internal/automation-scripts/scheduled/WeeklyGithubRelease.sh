@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-##################################################################
-##      This script will run the dependency check scan daily.   ##
-##################################################################
+#######################################################################
+##   This script will run the dynamic(Qualys) and static(Veracode)   ##
+##         scans for weekly released products in every week.         ##
+#######################################################################
 
 LOG_HOME="$HOME/outputs"
 
@@ -27,4 +28,9 @@ fi
 
 timestamp=$(date -d "today" +"%Y-%m-%d-%H.%M.%S")
 
-bash $HOME/scripts/RunDependencyCheck.sh 2>&1 | tee -a $LOG_HOME/$date/daily-scan-dependency-check-$timestamp.log
+echo "$SCRIPT_TAG Calling Github product download process"
+bash $HOME/scripts/DownloadProductsZip.sh 2>&1 | tee -a $LOG_HOME/$date/product-zip-download-$timestamp.log
+
+echo "$SCRIPT_TAG Ending Github product download process"
+bash $HOME/scripts/BuildDynamicScanEnv.sh 2>&1 | tee -a $LOG_HOME/$date/weekly-scan-dynamic-$timestamp.log
+bash $HOME/scripts/BuildStaticScanZip.sh 2>&1 | tee -a $LOG_HOME/$date/weekly-scan-static-$timestamp.log
