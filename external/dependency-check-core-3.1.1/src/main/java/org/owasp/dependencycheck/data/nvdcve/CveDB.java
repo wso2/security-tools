@@ -1041,14 +1041,11 @@ public final class CveDB implements AutoCloseable {
     private DependencyVersion parseDependencyVersion(VulnerableSoftware cpe) {
         final DependencyVersion cpeVersion;
         if (cpe.getVersion() != null && !cpe.getVersion().isEmpty()) {
-            String versionText;
+            final String versionText;
             if (cpe.getUpdate() != null && !cpe.getUpdate().isEmpty()) {
                 versionText = String.format("%s.%s", cpe.getVersion(), cpe.getUpdate());
             } else {
                 versionText = cpe.getVersion();
-            }
-            if(versionText.contains(".wso2")) {
-                versionText = versionText.substring(0, versionText.indexOf(".wso2"));
             }
             cpeVersion = DependencyVersionUtil.parseVersion(versionText, true);
         } else {
