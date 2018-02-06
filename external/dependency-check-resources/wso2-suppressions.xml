@@ -259,7 +259,7 @@
         <notes><![CDATA[
             The issue is only applicable to "paxtar" tape archiver (linux tool). The flagged component is not used in this project. 
         ]]></notes>
-        <filePath regex="true">.*\pax-.*\.jar</filePath>
+        <filePath regex="true">.*\bpax-.*\.jar</filePath>
         <cpe>cpe:/a:pax_project:pax</cpe>
     </suppress>
     <suppress>
