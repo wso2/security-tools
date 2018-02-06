@@ -264,9 +264,15 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            The issue is only applicable to "Docker Engine" and does not apply to fabric8 docker library. 
+            The issue is only applicable to "Docker Engine". The flagged component is not bundled with this project. 
         ]]></notes>
         <gav regex="true">^io\.fabric8:docker-dsl:.*$</gav>
+        <cpe>cpe:/a:docker:docker</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            The issue is only applicable to "Docker Engine". The flagged component is not bundled with this project. 
+        ]]></notes>
         <cpe>cpe:/a:docker:docker</cpe>
     </suppress>
 
