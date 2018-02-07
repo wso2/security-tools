@@ -279,10 +279,11 @@
             BeanShell is only used in TestNG during test execution. The flagged component is not bundled with Ballerina. 
         ]]></notes>
         <gav regex="true">^org\.beanshell:bsh:.*$</gav>
+        <cpe>cpe:/a:beanshell_project:beanshell</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            commons_collections:3.2.1 is used in "io.fabric8:docker-client:1.2.1" as a transitive dependency of "org.apache.velocity:velocity:1.7". However, the flagged component is not bundled with Ballerina. 
+            commons_collections:3.2.1 is used in "io.fabric8:docker-client:1.2.1" as a transitive dependency of "io.sundr:builder-annotations:0.4.2". However, the flagged component is not bundled with Ballerina. 
         ]]></notes>
         <cpe>cpe:/a:apache:commons_collections:3.2.1</cpe>
     </suppress>
