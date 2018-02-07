@@ -259,21 +259,32 @@
         <notes><![CDATA[
             The issue is only applicable to "paxtar" tape archiver (linux tool). The flagged component is not used in this project. 
         ]]></notes>
-        <filePath regex="true">.*\bpax-.*\.jar</filePath>
         <cpe>cpe:/a:pax_project:pax</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
             The issue is only applicable to "Docker Engine". The flagged component is not bundled with this project. 
         ]]></notes>
-        <gav regex="true">^io\.fabric8:docker-dsl:.*$</gav>
         <cpe>cpe:/a:docker:docker</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            The issue is only applicable to "Docker Engine". The flagged component is not bundled with this project. 
+            The issue is only applicable to "Gradle" build automation tool. The flagged component is not bundled with this project. 
         ]]></notes>
-        <cpe>cpe:/a:docker:docker</cpe>
+        <cpe>cpe:/a:gradle:gradle</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+            BeanShell is only used in TestNG during test execution. The flagged component is not bundled with Ballerina. 
+        ]]></notes>
+        <gav regex="true">^org\.beanshell:bsh:.*$</gav>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            commons_collections:3.2.1 is used in "io.fabric8:docker-client:1.2.1" as a transitive dependency of "org.apache.velocity:velocity:1.7". However, the flagged component is not bundled with Ballerina. 
+        ]]></notes>
+        <cpe>cpe:/a:apache:commons_collections:3.2.1</cpe>
     </suppress>
 
     <suppress>
