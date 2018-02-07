@@ -287,6 +287,13 @@
         ]]></notes>
         <cpe>cpe:/a:apache:commons_collections:3.2.1</cpe>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: pax-logging-log4j2-1.9.0.jar/META-INF/maven/org.apache.logging.log4j/log4j-core/pom.xml
+        ]]></notes>
+        <gav regex="true">^org\.apache\.logging\.log4j:log4j-core:.*$</gav>
+        <cpe>cpe:/a:apache:log4j</cpe>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
