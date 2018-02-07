@@ -289,9 +289,9 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: pax-logging-log4j2-1.9.0.jar/META-INF/maven/org.apache.logging.log4j/log4j-core/pom.xml
+            log4j is used in "msf4j-core" as a transitive dependency of "org.wso2.carbon:org.wso2.carbon.runtime.feature". However, the flagged component is not bundled with Ballerina. 
         ]]></notes>
-        <gav regex="true">^org\.apache\.logging\.log4j:log4j-core:.*$</gav>
+        <gav regex="true">^org\.apache\.logging\.log4j:log4j-*:.*$</gav>
         <cpe>cpe:/a:apache:log4j</cpe>
     </suppress>
 
