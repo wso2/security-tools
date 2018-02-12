@@ -56,37 +56,41 @@ class UploadCVFFForm(forms.Form):
 def handle_uploaded_cvff(request, f):
     output = StringIO.StringIO()
     for chunk in f.chunks():
-       output.write(chunk)
+        output.write(chunk)
 
     csvString = output.getvalue().splitlines(True)[1:]
 
     inputCSV = csv.reader(csvString, quoting=csv.QUOTE_NONNUMERIC)
     logger.error('Before moving into loop')
-
-    isHeader = 1
-    indexOfResolution = 0
     for row in inputCSV:
-        if isHeader == 1:
-            for col in row:
-                if str(col) == "WSO2_resolution":
-                    isHeader = 0
-                    break
-                indexOfResolution = indexOfResolution + 1
         try:
             finding = Finding.objects.filter(pk=float(row[0]))[0];
             logger.error('Finding note count for id '+ str(row[0]) +' is : ' + str(finding.notes.count()))
-            status = str(row[indexOfResolution]).strip().split("(")[0]
+            status = str(row[13]).strip().split("(")[0]
             if finding.notes.count() == 0:
-                note = Notes(entry="[ " + status + " ] ~ " + row[indexOfResolution + 2], author=request.user)
-                note.save()
-                finding.notes.add(note);
-                logger.info('Adding new note')
+                if row[15] in (None, ""):
+                    note = Notes(entry= "[ " + status + " ] ~ : " + row[16] + " :- " + row[17] + " :: " + row[18] , author=request.user)
+                    note.save()
+                    finding.notes.add(note);
+                    logger.info('Adding new note')
+                else:
+                    note = Notes(entry= "[ " + status + " ] ~ " + row[15] , author=request.user)
+                    note.save()
+                    finding.notes.add(note);
+                    logger.info('Adding new note')
             else:
-                note = finding.notes.all()[0]
-                note.entry = "[ " + status + " ] ~ " + row[indexOfResolution + 2]
-                note.author=request.user
-                note.save()
-                logger.info('Updating existing note' + str(note.id))
+                if row[15] in (None, ""):
+                    note = finding.notes.all()[0]
+                    note.entry = "[ " + status + " ] ~ : " + row[16] + " :- " + row[17] + " :: " + row[18]
+                    note.author=request.user
+                    note.save()
+                    logger.info('Updating existing note' + str(note.id))
+                else:
+                    note = finding.notes.all()[0]
+                    note.entry = "[ " + status + " ] ~ " + row[15]
+                    note.author=request.user
+                    note.save()
+                    logger.info('Updating existing note' + str(note.id))
 
             status = status.replace('.','').replace(',','').replace(' ','').lower()
 
@@ -114,12 +118,6 @@ def handle_uploaded_cvff(request, f):
             elif status == 'alreadymitigated':
                 finding.out_of_scope = True
                 finding.save()
-            elif status == 'notapplicable':
-                finding.under_review = True
-                finding.save()
-            #elif status == 'cannotreproduce':
-            #    finding.under_review = True
-            #    finding.save()
             else:
                 logger.error('Unknown status for : ' + str(row[0]) + ". Status is : " + status)
         except Exception as e:
