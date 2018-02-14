@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package xxe.entity;
+package org.wso2.security.samples.xee.jaxb.entity;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;

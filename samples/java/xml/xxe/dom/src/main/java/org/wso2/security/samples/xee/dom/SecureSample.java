@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package xxe.dom;
+package org.wso2.security.samples.xee.dom;
 
 import com.sun.org.apache.xerces.internal.impl.Constants;
 import org.apache.commons.logging.Log;

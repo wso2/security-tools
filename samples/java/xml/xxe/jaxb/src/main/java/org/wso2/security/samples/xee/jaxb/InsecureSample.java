@@ -16,14 +16,14 @@
  *  under the License.
  */
 
-package xxe.jaxb;
+package org.wso2.security.samples.xee.jaxb;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.security.samples.xee.jaxb.entity.Foo;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import xxe.entity.Foo;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

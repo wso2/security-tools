@@ -16,13 +16,14 @@
  *  under the License.
  */
 
-package xxe.dom;
+package org.wso2.security.samples.xee.dom;
 
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
