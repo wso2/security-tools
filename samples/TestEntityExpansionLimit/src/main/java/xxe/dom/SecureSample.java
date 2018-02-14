@@ -33,11 +33,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * WSO2RecommendedImplementation to handle XXE
+ * SecureSample to handle XXE
  */
 
-public class WSO2RecommendedImplementation {
-    private static final Log log = LogFactory.getLog(WSO2RecommendedImplementation.class);
+public class SecureSample {
+    private static final Log log = LogFactory.getLog(SecureSample.class);
 
     private static final int ENTITY_EXPANSION_LIMIT = 0;
 
