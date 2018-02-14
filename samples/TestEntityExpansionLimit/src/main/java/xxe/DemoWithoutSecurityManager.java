@@ -23,11 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-
 import xxe.entity.Foo;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -35,6 +32,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 
 
@@ -46,6 +45,7 @@ import javax.xml.transform.sax.SAXSource;
 
 public class DemoWithoutSecurityManager {
     private static final Log log = LogFactory.getLog(DemoWithoutSecurityManager.class);
+    private XMLReader xmlReader;
 
     private static void loadAssociationConfig() {
 
