@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package xxe;
+package xxe.dom;
 
 import com.sun.org.apache.xerces.internal.impl.Constants;
 import org.apache.commons.logging.Log;
