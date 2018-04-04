@@ -25,7 +25,7 @@ from dojo.models import Finding, Test, Notes, \
     BurpRawRequestResponse, Endpoint, Stub_Finding, Finding_Template, JIRA_PKey, Cred_User, Cred_Mapping, Dojo_User
 from dojo.tools.factory import import_parser_factory
 from dojo.utils import get_page_items, add_breadcrumb, get_cal_event, message, \
-                       process_notifications, get_system_setting, create_notification
+    process_notifications, get_system_setting, create_notification
 from dojo.tasks import add_issue_task
 
 logging.basicConfig(
@@ -111,7 +111,6 @@ def edit_test(request, tid):
                    'form': form,
                    })
 
-
 @user_passes_test(lambda u: u.is_staff)
 def delete_test(request, tid):
     test = get_object_or_404(Test, pk=tid)
@@ -159,8 +158,6 @@ def delete_test_note(request, tid, nid):
                              extra_tags='alert-success')
         return view_test(request, tid)
     return HttpResponseForbidden()
-
-
 @user_passes_test(lambda u: u.is_staff)
 @cache_page(60 * 5)  # cache for 5 minutes
 def test_calendar(request):
@@ -315,8 +312,8 @@ def add_temp_finding(request, tid, fid):
             new_finding.endpoints = form.cleaned_data['endpoints']
             new_finding.save()
             if 'jiraform-push_to_jira' in request.POST:
-                    jform = JIRAFindingForm(request.POST, prefix='jiraform', enabled=True)
-                    add_issue_task.delay(new_finding, jform.cleaned_data.get('push_to_jira'))
+                jform = JIRAFindingForm(request.POST, prefix='jiraform', enabled=True)
+                add_issue_task.delay(new_finding, jform.cleaned_data.get('push_to_jira'))
             messages.add_message(request,
                                  messages.SUCCESS,
                                  'Finding from template added successfully.',
@@ -383,8 +380,6 @@ def add_temp_finding(request, tid, fid):
                    'tid': test.id,
                    'test': test,
                    })
-
-
 def search(request, tid):
     test = get_object_or_404(Test, id=tid)
     templates = Finding_Template.objects.all()
@@ -613,7 +608,7 @@ def download_cvffv1_test(request, tid):
 
     if str(test.test_type) == 'Veracode Scan':
         headings = ["finding_id", "issue_id", "title", "cwe", "url", "severity", "description", "mitigation", "impact",
-                    "line_number", "sourcefile", "sourcefilepath", "Function", "WSO2_resolution", "WSO2_offset", "WSO2_comment"]
+                    "line_number", "sourcefile", "sourcefilepath", "Function", "WSO2_resolution", "WSO2_offset", "WSO2_comment", "Use_Case" , "Vulnerability_Influence" , "Resolution"]
         wr.writerow(headings)
 
         offsets = [0, 10, 20, 50, 100, 150]
@@ -621,64 +616,45 @@ def download_cvffv1_test(request, tid):
         for finding in Finding.objects.filter(test_id=tid):
             data = [finding.id, finding.issue_id, finding.title, finding.cwe, finding.url, finding.severity,
                     finding.description, finding.mitigation, finding.impact, finding.line_number, finding.sourcefile,
-                    finding.sourcefilepath, finding.function]
+                    finding.sourcefilepath, finding.function ]
 
             comment_found = 0
 
-            for offset in offsets:
-                similarFindingsWithNotes = [];
-                if offset == 0:
-                    similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number).exclude(notes=None).order_by('-id')
-                else:
-                    similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function).filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
-
-                if similarFindingsWithNotes:
-                    note = similarFindingsWithNotes[0].notes.all()[0]
-                    if note.entry.find("] ~ ") > -1:
-                        if str(note.entry[1:note.entry.find("] ~ ")]).strip().replace(" ","") != "":
-                            data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
-                            data.append(str(offset))
-                            data.append(note.entry[note.entry.find("] ~ ") + 4:])
-                            comment_found = 1
-                            break
+            if int(finding.cwe) == 117:
+                data.append("Already Mitigated")
+                data.append("0");
+                data.append("CRLF prevention in HTTP headers is already handled in Tomcat level. "
+                            "Therefore  it is not required to do additional validation in applications. "
+                            "Please refer to CARBON-15811 (https://wso2.org/jira/browse/CARBON-15811) for details.")
+                comment_found = 1
 
             if comment_found == 0:
-                if int(finding.cwe) == 117:
-                    data.append("Already Mitigated")
-                    data.append("0");
-                    data.append("CRLF prevention in HTTP headers is already handled in Tomcat level. "
-                                "Therefore  it is not required to do additional validation in applications. "
-                                "Please refer to CARBON-15811 (https://wso2.org/jira/browse/CARBON-15811) for details.")
-                    comment_found = 1
+                for offset in offsets:
+                    similarFindingsWithNotes = [];
+                    if offset == 0:
+                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number).exclude(notes=None).order_by('-id')
+                    else:
+                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function).filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
 
-            wr.writerow(data)
-
-    elif str(test.test_type) == 'Qualys Scan (Webapp)' or str(test.test_type) == 'Qualys Scan (Single Scan)':
-        headings = ["finding_id", "issue_id", "title", "severity", "impact", "url", "param", "payload", "description", "mitigation",
-                    "WSO2_resolution", "WSO2_comment"]
-        wr.writerow(headings)
-
-        for finding in Finding.objects.filter(test_id=tid):
-            endpoint = ""
-            if finding.endpoints:
-                if finding.endpoints.all():
-                    endpoint = finding.endpoints.all()[0];
-
-            data = [finding.id, finding.issue_id, finding.title, finding.severity, finding.impact, str(endpoint) + "\r\n(" + finding.url + ")", finding.param,
-                    finding.payload, finding.description, finding.mitigation]
-
-            comment_found = 0
-            if finding.param:
-                similarFindingsWithNotes = Finding.objects.filter(title=finding.title,
-                                                              param=finding.param,
-                                                              url=finding.url).exclude(notes=None).order_by('-id')
-                if similarFindingsWithNotes:
-                    note = similarFindingsWithNotes[0].notes.all()[0]
-                    if note.entry.find("] ~ ") > -1:
-                        data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
-                        data.append("N/A");
-                        data.append(note.entry[note.entry.find("] ~ ") + 4:])
-                        comment_found = 1
+                    if similarFindingsWithNotes:
+                        note = similarFindingsWithNotes[0].notes.all()[0]
+                        if note.entry.find("] ~ ") > -1:
+                            if str(note.entry[1:note.entry.find("] ~ ")]).strip().replace(" ","") != "":
+                                if note.entry.find("] ~ : ") > -1:
+                                    data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
+                                    data.append(str(offset))
+                                    data.append("")
+                                    data.append(note.entry[note.entry.find("] ~ : ") + 5 : note.entry.find(":- ")])
+                                    data.append(note.entry[note.entry.find(":- ")  + 3 : note.entry.find(" :: ")])
+                                    data.append(note.entry[note.entry.find(" :: ") + 3 :])
+                                    comment_found = 1
+                                    break
+                                else:
+                                    data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
+                                    data.append(str(offset))
+                                    data.append(note.entry[note.entry.find("] ~ ") + 4:])
+                                    comment_found = 1
+                                    break
 
             wr.writerow(data)
 
