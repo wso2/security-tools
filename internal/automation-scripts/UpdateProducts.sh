@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
@@ -18,6 +18,10 @@ PRODUCT_HOME="$HOME/products"
 SCRIPT_TAG="[SEC_AUTOMATION_UPDATE_PRODUCTS]"
 
 echo "$SCRIPT_TAG [START]"
+
+echo "$SCRIPT_TAG Cleaning WUM products and updates"
+rm -rf ~/.wum-wso2/products
+rm -rf ~/.wum-wso2/updates
 
 echo "$SCRIPT_TAG Cleaning product home: ($PRODUCT_HOME)"
 rm -rf $PRODUCT_HOME

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
@@ -23,5 +23,7 @@ fi
 
 timestamp=$(date -d "today" +"%Y-%m-%d-%H.%M.%S")
 
+echo "$SCRIPT_TAG Calling WUM update process"
+bash $HOME/scripts/UpdateProducts.sh 2>&1 | tee -a $LOG_HOME/$date/wum-update-$timestamp.log
 bash $HOME/scripts/BuildDynamicScanEnv.sh 2>&1 | tee -a $LOG_HOME/$date/weekly-scan-dynamic-$timestamp.log
 bash $HOME/scripts/BuildStaticScanZip.sh 2>&1 | tee -a $LOG_HOME/$date/weekly-scan-static-$timestamp.log
