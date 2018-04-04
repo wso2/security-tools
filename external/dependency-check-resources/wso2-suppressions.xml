@@ -137,13 +137,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            This issue is related to how Apache Struts 1 uses comons-beanutil [1]. CVE is basically for Struts. The flagged component is not used in this project. 
-        ]]></notes>
-        <filePath regex="true">.*\.jar</filePath>
-        <cve>CVE-2014-0114</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
             Axis 2 host name verification happens at HttpClient level. Relevant HttpClient version used in Axis2 has been patched by WSO2 to perform required host name verification. Please refer to [1] for the fork history of HttpClient. 
 
             [1] https://github.com/wso2/wso2-commons-httpclient/commits/master?after=e6b98d752b17b8c772ce421bae47e1bd15e8cf6c+34
