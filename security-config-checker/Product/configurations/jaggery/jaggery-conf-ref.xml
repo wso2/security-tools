@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configurations>
+    <config id="HttpHeaderSecurityFilter">
+        <![CDATA[
+   {
+     "filters":[
+        {
+            "name":"HttpHeaderSecurityFilter",
+            "class":"org.apache.catalina.filters.HttpHeaderSecurityFilter",
+            "params" : [{"name" : "hstsEnabled", "value" : "false"}]
+        }
+        ]
+   }
+]]>
+    </config>
+</configurations>

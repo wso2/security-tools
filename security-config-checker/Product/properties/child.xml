@@ -1,0 +1,22 @@
+<?xml version="1.0"  ?>
+
+<!--Child properties file containing the reference product specific configuration file paths -->
+
+<child-properties>
+ <!--   <file type="web.xml">
+        <format>xml</format>
+        <reference-path>/Product/configurations/tomcat/web-xml-ref.xml</reference-path>
+        <product-path></product-path>
+        <exclude-configs>
+            <config></config>
+        </exclude-configs>
+    </file>
+    <file type="jaggery.conf">
+        <format>json</format>
+        <reference-path>/Product/configurations/jaggery/jaggery-conf-ref.xml</reference-path>
+        <product-path></product-path>
+    </file>
+    <exclude-paths>
+        <path></path>
+    </exclude-paths>-->
+</child-properties>

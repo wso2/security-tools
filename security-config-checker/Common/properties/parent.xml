@@ -1,0 +1,13 @@
+<?xml version="1.0"  ?>
+
+<!--Parent properties file containing the reference common configuration file paths -->
+<parent-properties>
+    <file type="web.xml">
+        <format>xml</format>
+        <reference-path>/Common/configurations/web-xml-ref.xml</reference-path>
+    </file>
+    <file type="jaggery.conf">
+        <format>json</format>
+        <reference-path>/Common/configurations/jaggery-conf-ref.xml</reference-path>
+    </file>
+</parent-properties>
