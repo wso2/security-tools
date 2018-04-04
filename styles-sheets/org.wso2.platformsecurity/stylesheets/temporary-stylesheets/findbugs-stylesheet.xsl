@@ -95,9 +95,9 @@
                     </div>
                 </div>
                 <span class="break-page"></span>
-
+                <div id="item-array" >
                 <xsl:for-each select="/BugCollection/BugInstance">
-                    <div>
+                    <div class="item {@type}">
                         <div class="item-title {@type}">
                             <h3>
                                 <xsl:value-of select="ShortMessage"/>
@@ -147,6 +147,7 @@
                         </table>
                     </div>
                 </xsl:for-each>
+                </div>
 
                 <script>
                     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -155,6 +156,18 @@
                     reportDateElement.innerHTML = reportDate.getDate() + ' ' + months[reportDate.getMonth()] + ' ' +
                     reportDate.getFullYear() + ' ' + reportDate.getHours() + ':' + reportDate.getMinutes() + ':' +
                     reportDate.getSeconds() ;
+
+                    var
+                    ele=[].slice.call(document.getElementById('item-array').getElementsByClassName('item')).sort(sortMe);
+                    document.getElementById('item-array').innerHTML="";
+                    var div = document.getElementById('item-array');
+                    for(var i = 0; i &lt; ele.length; i++){
+                    document.getElementById('item-array').innerHTML = document.getElementById('item-array').innerHTML +
+                    ele[i].innerHTML;
+                    }
+                    function sortMe(a, b) {
+                    return a.className > b.className;
+                    }
 
                     var titles = document.getElementsByClassName('item-title');
                     for(var x = 0; x &lt; titles.length; x++) {
