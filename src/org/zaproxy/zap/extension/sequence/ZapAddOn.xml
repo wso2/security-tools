@@ -1,0 +1,19 @@
+<zapaddon>
+	<name>Sequence</name>
+	<version>2</version>
+	<description>Gives the possibility of defining a sequence of requests to be scanned.</description>
+	<author>ZAP Dev Team</author>
+	<url></url>
+	<changes>Updated to latest core changes.</changes>
+	<extensions>
+	    <extension>org.zaproxy.zap.extension.sequence.ExtensionSequence</extension>
+	</extensions>
+	<ascanrules/>
+	<pscanrules/>
+	<filters/>
+	<files>
+		<file>scripts/templates/sequence/sequence.zst</file>
+	</files>
+	<not-before-version>2.4.1</not-before-version>
+	<not-from-version/>
+</zapaddon>
