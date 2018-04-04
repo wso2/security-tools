@@ -15,7 +15,8 @@
 # limitations under the License.
 
 ##################################################################
-##      This script will run the dependency check scan daily.   ##
+##      This script will run the dynamic(Qualys) and            ##
+##      static(Veracode) scans for WUM updates weekly.          ##
 ##################################################################
 
 LOG_HOME="$HOME/outputs"
@@ -27,4 +28,7 @@ fi
 
 timestamp=$(date -d "today" +"%Y-%m-%d-%H.%M.%S")
 
-bash $HOME/scripts/RunDependencyCheck.sh 2>&1 | tee -a $LOG_HOME/$date/daily-scan-dependency-check-$timestamp.log
+echo "$SCRIPT_TAG Calling WUM update process"
+bash $HOME/scripts/UpdateProducts.sh 2>&1 | tee -a $LOG_HOME/$date/wum-update-$timestamp.log
+bash $HOME/scripts/BuildDynamicScanEnv.sh 2>&1 | tee -a $LOG_HOME/$date/weekly-scan-dynamic-$timestamp.log
+bash $HOME/scripts/BuildStaticScanZip.sh 2>&1 | tee -a $LOG_HOME/$date/weekly-scan-static-$timestamp.log

@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+##########################################################################
+##   This script will set up the dynamic environment(Qualys) for      ##
+##   scanning the products which are in the HOME/products folder.      ##
+##########################################################################
+
 DYNAMIC_HOME="$HOME/env-dynamic"
 PRODUCT_HOME="$HOME/products"
 ADMIN_PASSWORD=$(head -n 1 $HOME/scripts/config/DynamicAdminUser.conf)
@@ -48,7 +53,7 @@ rm -rf $DYNAMIC_HOME
 cp -R $PRODUCT_HOME $DYNAMIC_HOME
 echo "$SCRIPT_TAG Copied $PRODUCT_HOME to $DYNAMIC_HOME"
 
-for product in $(cat $HOME/scripts/config/SupportedProductList.conf)
+for product in $(ls -l $DYNAMIC_HOME | tr -s ' ' | cut -d ' ' -f9 |  grep -v -e '^$');
 do
 
 	CARBON_XML_PATH=$(find $DYNAMIC_HOME/$product | grep "carbon.xml")
@@ -125,7 +130,7 @@ do
     # Start of Creating SSO IDP for WSO2 API Manager Setup
     #
 
-		if [[ $product == *"wso2is-5.3.0"* ]]; then
+		if [[ $product == *"wso2is"* ]]; then
 			for sso_product in $(cat $HOME/scripts/config/SSOProductList.conf)
 			do
 				SSO_HOST_NAME=""
