@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load navigation_tags %}
+{% block content %}
+    {% load display_tags %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading tight">
+                    <h3 class="has-filters">
+                        {{ name }}
+                        <div class="dropdown pull-right">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
+                                    data-toggle="dropdown" aria-expanded="true">
+                                <span class="fa fa-wrench"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu"
+                                aria-labelledby="dropdownMenu1">
+                                {% if request.user.is_staff %}
+                                    <li role="presentation">
+                                        <a href="{% url 'add_user' %}">
+                                            <i class="fa fa-plus"></i> New User
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </h3>
+                </div>
+                <div id="the-filters" class="panel-body collapse {% if request.META.QUERY_STRING %}in{% endif %}">
+                    {% include "dojo/filter_snippet.html" with form=filtered.form %}
+                </div>
+            </div>
+            {% if users %}
+                <div class="clearfix">
+                    {% include "dojo/paging_snippet.html" with page=users page_size=True %}
+                </div>
+                <div class="table-responsive panel panel-default">
+                    <table id="users"
+                           class="tablesorter-bootstrap table table-bordered table-condensed table-striped table-hover">
+                        <tr>
+                            <th class="nowrap">{% dojo_sort request 'First Name' 'first_name' %}</th>
+                            <th class="nowrap">{% dojo_sort request 'Last Name' 'last_name' %}</th>
+                            <th class="nowrap">{% dojo_sort request 'User Name' 'username' 'asc' %}</th>
+                            <th class="nowrap">{% dojo_sort request 'Email' 'email' %}</th>
+                            <th class="nowrap">Title</th>
+                            <th class="nowrap">Phone Number(s)</th>
+                            <th class="nowrap">{% dojo_sort request 'Active' 'is_active' %}</th>
+                            <th class="nowrap">{% dojo_sort request 'Staff' 'is_staff' %}</th>
+                            <th class="nowrap">{% dojo_sort request 'SuperUser' 'is_superuser' %}</th>
+                            <th class="nowrap">Actions</th>
+                        </tr>
+                        {% for u in users %}
+                            <tr>
+                                <td>{{ u.first_name }}</td>
+                                <td>{{ u.last_name }}</td>
+                                <td>{{ u.username }}</td>
+                                <td>{{ u.email }}</td>
+                                <td>{{ u.usercontactinfo.title }}</td>
+                                <td>
+                                    Phone: {{ u.usercontactinfo.phone_number }}<br/>
+                                    Cell: {{ u.usercontactinfo.cell_number }}
+                                </td>
+                                <td class="text-center">{% if u.is_active %}
+                                    <i class="text-success fa fa-check"></i>{% else %}
+                                    <i class="text-danger fa fa-times"></i>{% endif %}</td>
+                                <td class="text-center">{% if u.is_staff %}
+                                    <i class="text-success fa fa-check"></i>{% else %}
+                                    <i class="text-danger fa fa-times"></i>{% endif %}</td>
+                                <td class="text-center">{% if u.is_superuser %}
+                                    <i class="text-success fa fa-check"></i>{% else %}
+                                    <i class="text-danger fa fa-times"></i>{% endif %}</td>
+                                <td class="text-center">
+                                    <a class="btn btn-xs btn-primary" href="{% url 'edit_user' u.id %}">Edit</a>
+                                    <a class="btn btn-xs btn-primary"
+                                       href="{% url 'action_history' u|content_type u.id %}">View History</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="clearfix">
+                    {% include "dojo/paging_snippet.html" with page=users page_size=True %}
+                </div>
+            {% else %}
+                <h5> No Users </h5>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block postscript %}
+    {% include "dojo/filter_js_snippet.html" %}
+{% endblock %}

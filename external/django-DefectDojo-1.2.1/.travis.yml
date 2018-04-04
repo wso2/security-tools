@@ -1,0 +1,80 @@
+sudo: required
+language: python
+install: true
+
+env:
+  - TEST=integration-test
+  - TEST=sourceclear
+  - TEST=bandit
+  - TEST=docker-bench-security
+  - TEST=ansible
+  - TEST=pep8
+
+matrix:
+  allow_failures:
+    - env: TEST=bandit 
+    - env: TEST=sourceclear
+    - env: TEST=pep8
+
+services:
+  - docker
+
+before_script:
+  - export -f travis_fold
+  - export REPO=appsecpipeline/django-defectdojo
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+
+script:
+  - |
+    echo "Running test=$TEST"
+    case "$TEST" in
+      integration-test)
+        travis_fold start "integration-test"
+        ./scripts/travis-integration-test.sh 
+        travis_fold end "integration-test"
+        ;;
+      sourceclear)
+        ## Run the SRC:CLR Scan
+        curl -sSL https://download.sourceclear.com/ci.sh | bash
+        ;;
+      bandit)
+        # install bandit
+        pip install bandit
+  
+        ## Run Bandit python static code
+        bandit -r * -x venv,tests,ansible
+        ;;
+      docker-bench-security)
+        ## Run Docker Bench for Security
+        git clone https://github.com/docker/docker-bench-security.git
+        cd docker-bench-security
+        sh docker-bench-security.sh
+        ;;
+      ansible)
+        true
+        ;;
+      pep8)
+        pip install pep8
+        pep8 .
+    esac
+
+after_success:
+  #Push to docker repo
+  - docker tag $REPO $REPO:$TAG
+  - docker tag $REPO $REPO:travis-$TRAVIS_BUILD_NUMBER
+  - |
+    if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TEST" == "integration-test" ] && [ "$DOCKER_USER" != "" ] && [  "$DOCKER_PASS" != "" ]; then
+      docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
+      docker push $REPO ;
+    fi
+
+notifications:
+  slack:
+    rooms:
+      secure: nPXwHnPcf37yGkCkLimx5UmY9LTtOHL0lw88cAQeXCNNjeZuhS2jS5xGUOwwp3SrsYE4tZhD0WuVEHGDcyIhmBZh9Qqk3NHKz+tQDD/e0GE/8uTTfR1Eh+pq1YOIcLYzzKA2khmJSeHqqDriVZZoWpn67oHtrui9FYesapZ8AX0=
+    on_success: never
+    on_failure: never
+    on_start: never
+addons:
+  firefox: "45.0"
+  chrome: stable

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
@@ -13,6 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+##################################################################
+##      This script will run the dependency check scan daily.   ##
+##################################################################
 
 LOG_HOME="$HOME/outputs"
 

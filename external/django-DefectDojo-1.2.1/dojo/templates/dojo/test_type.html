@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load navigation_tags %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading tight">
+                    <h3 class="has-filters">
+                        Test Type List
+                        <div class="dropdown pull-right">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
+                                    data-toggle="dropdown" aria-expanded="true">
+                                <span class="fa fa-wrench"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu"
+                                aria-labelledby="dropdownMenu1">
+                                {% if request.user.is_staff %}
+                                    <li role="presentation">
+                                        <a href="{%  url 'add_test_type' %}">
+                                            <i class="fa fa-plus"></i> New Test Type </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </h3>
+                </div>
+                <div id="the-filters" class="panel-body collapse {% if request.META.QUERY_STRING %}in{% endif %}">
+                    {% include "dojo/filter_snippet.html" with form=test_types.form %}
+                </div>
+            </div>
+            {% if tts %}
+                <div class="clearfix">
+                    {% include "dojo/paging_snippet.html" with page=tts page_size=True %}
+                </div>
+                <div class="panel panel-default table-responsive">
+                    <table id="test_types"
+                           class="tablesorter-bootstrap table table-bordered table-condensed table-striped">
+                        <thead>
+                        <tr>
+                            <th>{% dojo_sort request 'Test Type' 'name' 'asc' %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for tt in tts %}
+                            <tr>
+                                {% if user.is_staff %}
+                                    <td><a href="{% url 'edit_test_type' tt.id %}"> {{ tt.name }} </a></td>
+                                {% else %}
+                                    <td> {{ tt.name }} </a> </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix">
+                    {% include "dojo/paging_snippet.html" with page=tts page_size=True %}
+                </div>
+            {% else %}
+                <p class="text-center">No test types found.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+{% block postscript %}
+    <script>
+        $(function () {
+            var availableTags = [
+                {% for word in name_words %}
+                    "{{word}}",
+                {% endfor %}
+            ];
+            $("#id_name").autocomplete({
+                source: availableTags
+            });
+        });
+    </script>
+    {% include "dojo/filter_js_snippet.html" %}
+{% endblock %}
+
+
+
+
+
+
+
