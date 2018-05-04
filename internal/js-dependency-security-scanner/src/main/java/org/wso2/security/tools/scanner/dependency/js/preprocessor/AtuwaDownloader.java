@@ -68,7 +68,7 @@ public class AtuwaDownloader extends ResourceDownloader {
             while ((line = reader.readLine()) != null) {
                 String element[] = line.split(":");
                 Long dateDiff = getDateDiffFromLastWeeklyRelease(element[1]);
-                if (dateDiff < 10) {
+                if (dateDiff < 8) {
                     if (isWeeklyRelease(element[0])) {
                         tarDir = new File(path + File.separator + "weeklyRelease");
                     } else if (isGARelease(element[0])) {

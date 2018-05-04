@@ -122,7 +122,7 @@ public class GitUploader extends ReportUploader {
     private void gitCommit() throws GitAPIException {
         // and then commit the changes.
         gitRepo.commit()
-                .setMessage("test commit: Added vulnerability report " + java.time.LocalDate.now().toString())
+                .setMessage("Added vulnerability report " + java.time.LocalDate.now().toString())
                 .call();
         log.info("[JS_SEC_DAILY_SCAN]  " + "Commit to Security artifact repo");
     }

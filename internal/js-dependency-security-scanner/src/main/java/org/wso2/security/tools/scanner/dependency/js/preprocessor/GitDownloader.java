@@ -70,7 +70,7 @@ public class GitDownloader extends ResourceDownloader {
                 String releaseDate = currentReleaseInfo.get("published_at").toString().substring(0, 10);
                 String version = currentReleaseInfo.getString("tag_name");
                 Long dateDiff = getDateDiffFromLastWeeklyRelease(releaseDate);
-                if (dateDiff <= 10) {
+                if (dateDiff <= 8) {
                     File tarDir = null;
                     JSONArray assetsArray = (JSONArray) currentReleaseInfo.get(JSScannerConstants.ASSETS);
                     String name;
