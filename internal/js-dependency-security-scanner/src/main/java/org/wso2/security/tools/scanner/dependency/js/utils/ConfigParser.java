@@ -1,0 +1,218 @@
+/*
+ *
+ *   Copyright (c) 2018, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ * /
+ */
+
+package org.wso2.security.tools.scanner.dependency.js.utils;
+
+
+import org.apache.log4j.Logger;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.wso2.security.tools.scanner.dependency.js.constants.IssueCreatorConstants;
+import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
+import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
+import org.wso2.security.tools.scanner.dependency.js.issuecreator.IssueCreator;
+import org.wso2.security.tools.scanner.dependency.js.issuecreator.JIRAIssueCreator;
+import org.wso2.security.tools.scanner.dependency.js.issuecreator.JIRARestClient;
+import org.wso2.security.tools.scanner.dependency.js.model.Product;
+import org.wso2.security.tools.scanner.dependency.js.reportpublisher.GitUploader;
+import org.wso2.security.tools.scanner.dependency.js.reportpublisher.ReportUploader;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+
+/**
+ * Util class to parse configuration properties. There are multiple configuration files related to each product and
+ * credentials related configuration files. Product related configuration files are parsed during preprocessing stage
+ * and credentials related config files are passed at the time where it is to be used.
+ */
+public class ConfigParser {
+
+    private static final Logger log = Logger.getLogger(ConfigParser.class);
+
+    private ConfigParser() {
+    }
+
+    /**
+     * Parse the list of products which supports for weekly scanning.
+     *
+     * @return list of product names.
+     * @throws ConfigParserException exception occurred while parsing configuration details.
+     */
+    public static List<String> parseProductList() throws ConfigParserException {
+
+        List<String> products;
+        Properties properties = new Properties();
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        //load a properties file from class path
+        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.PRODUCT_LIST_FILE)) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error occurred in parsing productList config file : " + e.getMessage());
+        }
+        products = Arrays.asList(properties.getProperty(JSScannerConstants.PRODUCTS).
+                split(JSScannerConstants.PROPERTIES_FILE_DELIMETER));
+        log.info("[JS_SEC_DAILY_SCAN] Supported products are : " + String.join(",", products));
+        return products;
+    }
+
+
+    /**
+     * Parse github credential details (Access-token, Username, Password).
+     *
+     * @throws ConfigParserException exception occurred while parsing configuration details.
+     */
+    public static ReportUploader parseGitCredentials() throws ConfigParserException, GitAPIException {
+
+        Properties properties = new Properties();
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.GIT_CONFIG_FILE)) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error occurred in parsing github credentials : " + e.getMessage());
+        }
+        ReportUploader reportUploader = new GitUploader(properties.getProperty(JSScannerConstants.USERNAME)
+                .toCharArray(), properties.getProperty(JSScannerConstants.PASSWORD).toCharArray());
+        return reportUploader;
+
+    }
+
+    /**
+     * Parse github credential details (Access-token, Username, Password).
+     *
+     * @throws ConfigParserException exception occurred while parsing configuration details.
+     */
+    public static void parseGitAccessToken() throws ConfigParserException {
+
+        Properties properties = new Properties();
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.GIT_ACCESS_TOKEN_CONFIG_FILE)) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error occurred in parsing github credentials : " + e.getMessage());
+        }
+        CommonApiInvoker.setGitToken(properties.getProperty(JSScannerConstants.ACCESSTOKEN).toCharArray());
+    }
+
+    /**
+     * Parse jira credential details (Username, Password).
+     *
+     * @throws ConfigParserException exception occurred while parsing configuration details.
+     */
+    public static IssueCreator parseIssueTicketCreatorCredentials() throws ConfigParserException {
+
+        Properties properties = new Properties();
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.ISSUECREATOR_CONFIG_FILE)) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e.getMessage());
+        }
+
+        IssueCreator issueCreatorAPI = new JIRAIssueCreator(new JIRARestClient(), properties.getProperty
+                (JSScannerConstants.USERNAME).toCharArray(),
+                properties.getProperty(JSScannerConstants.PASSWORD).toCharArray());
+//        issueCreatorAPI.setUserName(properties.getProperty(JSScannerConstants.USERNAME).toCharArray());
+//        issueCreatorAPI.setPassWord(properties.getProperty(JSScannerConstants.PASSWORD).toCharArray());
+        HashMap<String, String> ticketAssigneeMapper = new HashMap<>();
+        //assignees for each products
+        ticketAssigneeMapper.put(JSScannerConstants.AM, properties.getProperty(IssueCreatorConstants.APIM));
+        ticketAssigneeMapper.put(JSScannerConstants.IDENTITYSERVER, properties.getProperty(
+                IssueCreatorConstants.IDENTITYSERVER));
+        ticketAssigneeMapper.put(JSScannerConstants.INTEGRATION, properties.getProperty(IssueCreatorConstants
+                .INTEGRATION));
+        ticketAssigneeMapper.put(JSScannerConstants.STREAMPROCESSOR, properties.getProperty(IssueCreatorConstants
+                .STREAMPROCESSOR));
+        ticketAssigneeMapper.put(JSScannerConstants.OB, properties.getProperty(IssueCreatorConstants.OPENBANKING));
+        issueCreatorAPI.setAssigneeMapper(ticketAssigneeMapper);
+        return issueCreatorAPI;
+
+    }
+
+    /**
+     * parse JIRA ticket information.
+     *
+     * @throws ConfigParserException exception occurred while parsing configuration details.
+     */
+    public static void parseJIRATicketInfo() throws ConfigParserException {
+        Properties properties = new Properties();
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.JIRA_TICKET_INFO_FILE)) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e.getMessage());
+        }
+        JIRAIssueCreator.setTicketSubject(properties.getProperty(IssueCreatorConstants.TICKET_SUBJECT));
+        JIRAIssueCreator.setProjectKey(properties.getProperty(IssueCreatorConstants.PROJECT_KEY));
+        JIRAIssueCreator.setIssueLabel(properties.getProperty(IssueCreatorConstants.ISSUELABEL));
+        JIRAIssueCreator.setIssueType(properties.getProperty(IssueCreatorConstants.ISSUE_TYPE));
+    }
+
+    /**
+     * Parse each product configuration details.
+     *
+     * @param productName product name.
+     * @return Product
+     * @throws ConfigParserException exception occurred while parsing configuration details.
+     */
+    public static Product parseProductConfiguration(String productName) throws ConfigParserException {
+        String fileName = null;
+        if (productName.contains(JSScannerConstants.IDENTITYSERVER)) {
+            fileName = JSScannerConstants.IS_CONFIG_FILE;
+        } else if (productName.contains(JSScannerConstants.AM)) {
+            fileName = JSScannerConstants.APIM_CONFIG_FILE;
+        } else if (productName.contains(JSScannerConstants.INTEGRATION)) {
+            fileName = JSScannerConstants.EI_CONFIG_FILE;
+        } else if (productName.contains(JSScannerConstants.DAS)) {
+            fileName = JSScannerConstants.DAS_CONFIG_FILE;
+        } else if (productName.contains(JSScannerConstants.STREAMPROCESSOR)) {
+            fileName = JSScannerConstants.SP_CONFIG_FILE;
+        } else if (productName.contains(JSScannerConstants.OB)) {
+            fileName = JSScannerConstants.OB_CONFIG_FILE;
+        } else if (productName.contains(JSScannerConstants.APIM)) {
+            fileName = JSScannerConstants.APIM_CONFIG_FILE;
+        }
+        Properties properties = new Properties();
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        //load a properties file from class path
+        try (InputStream input = classLoader.getResourceAsStream(fileName)) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error occurred in parsing product configurations : " + e.getMessage());
+        }
+
+        Product productDto = new Product();
+        productDto.setProductRepoName(properties.getProperty(JSScannerConstants.GIT_REPO_NAME));
+        productDto.setInputSourceType(properties.getProperty(JSScannerConstants.INPUT_SOURCE_TYPE));
+        List<String> componentList = Arrays.asList(properties.getProperty(JSScannerConstants.COMPONENT_REPO).
+                split(JSScannerConstants.PROPERTIES_FILE_DELIMETER));
+        List<String> versionTagList = Arrays.asList(properties.getProperty(JSScannerConstants.VERSION_TAG_KEY_WORD).
+                split(JSScannerConstants.PROPERTIES_FILE_DELIMETER));
+        HashMap<String, String> repoVersionMapper = new HashMap<>();
+        for (int i = 0; i < componentList.size(); i++) {
+            repoVersionMapper.put(componentList.get(i), versionTagList.get(i));
+        }
+        productDto.setRepoVersionMapper(repoVersionMapper);
+        return productDto;
+    }
+
+}
