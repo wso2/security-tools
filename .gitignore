@@ -15,7 +15,8 @@ hs_err_pid*
 /dynamic-tools/zap-extensions/wos2-zap-jira-plugin/target
 
 #js-dependency-security-scanner-gitignore-properties
-internal/js-dependency-security-scanner/target
+/internal/js-dependency-security-scanner/target
+/internal/js-dependency-scanner/JsSecurityScanner.iml
 .idea
 pom.xml.tag
 pom.xml.releaseBackup
