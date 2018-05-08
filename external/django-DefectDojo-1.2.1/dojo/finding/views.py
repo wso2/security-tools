@@ -24,7 +24,7 @@ from django.utils import timezone
 
 from dojo.filters import OpenFindingFilter, \
     OpenFingingSuperFilter, AcceptedFingingSuperFilter, \
-    ClosedFingingSuperFilter, TemplateFindingFilter
+    ClosedFingingSuperFilter, TemplateFindingFilter, AllFindingFilter , AllFindingSuperFilter
 from dojo.forms import NoteForm, CloseFindingForm, FindingForm, PromoteFindingForm, FindingTemplateForm, \
     DeleteFindingTemplateForm, FindingImageFormSet, JIRAFindingForm, ReviewFindingForm, ClearFindingReviewForm, \
     DefectFindingForm, StubFindingForm
@@ -83,6 +83,44 @@ def open_findings(request):
 
     return render(request,
                   'dojo/open_findings.html',
+                  {"findings": paged_findings,
+                   "filtered": findings,
+                   "title_words": title_words,
+                   })
+
+"""
+Nadeeshani
+Status: in prod
+on the nav menu returns all the findings for a given
+engineer
+"""
+
+def all_findings(request):
+    findings = Finding.objects.filter()
+
+    if request.user.is_staff:
+        findings = AllFindingSuperFilter(request.GET, queryset=findings, user=request.user)
+    else:
+        findings = findings.filter(test__engagement__product__authorized_users__in=[request.user])
+        findings = AllFindingFilter(request.GET, queryset=findings, user=request.user)
+
+    title_words = [word
+                   for finding in findings.qs
+                   for word in finding.title.split() if len(word) > 2]
+
+    title_words = sorted(set(title_words))
+    paged_findings = get_page_items(request, findings.qs, 25)
+
+    product_type = None
+    if 'test__engagement__product__prod_type' in request.GET:
+        p = request.GET.getlist('test__engagement__product__prod_type', [])
+        if len(p) == 1:
+            product_type = get_object_or_404(Product_Type, id=p[0])
+
+    add_breadcrumb(title="All findings", top_level=not len(request.GET), request=request)
+
+    return render(request,
+                  'dojo/all_findings.html',
                   {"findings": paged_findings,
                    "filtered": findings,
                    "title_words": title_words,

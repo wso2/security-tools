@@ -384,6 +384,70 @@ class OpenFingingSuperFilter(OpenFindingFilter):
         label="Product Type")
 
 
+class AllFindingFilter(DojoFilter):
+    title = CharFilter(lookup_expr='icontains')
+    sourcefile = CharFilter(lookup_expr='icontains')
+    sourcefilepath = CharFilter(lookup_expr='icontains')
+    param = CharFilter(lookup_expr='icontains')
+    payload = CharFilter(lookup_expr='icontains')
+    date = DateRangeFilter()
+    last_reviewed = DateRangeFilter()
+    cwe = MultipleChoiceFilter(choices=[])
+    severity = MultipleChoiceFilter(choices=[])
+    test__test_type = ModelMultipleChoiceFilter(
+        queryset=Test_Type.objects.all())
+    test__engagement__product = ModelMultipleChoiceFilter(
+        queryset=Product.objects.all(),
+        label="Product")
+
+    o = OrderingFilter(
+        # tuple-mapping retains order
+        fields=(
+            ('numerical_severity', 'numerical_severity'),
+            ('date', 'date'),
+            ('last_reviewed', 'last_reviewed'),
+            ('title', 'title'),
+            ('test__engagement__product__name', 'test__engagement__product__name'),
+        ),
+
+    )
+
+    class Meta:
+        model = Finding
+        exclude = ['url', 'description', 'mitigation', 'impact',
+                   'endpoint', 'references', 'test', 'is_template',
+                   'active', 'verified', 'out_of_scope', 'false_p',
+                   'duplicate', 'thread_id', 'mitigated', 'notes',
+                   'numerical_severity', 'reporter', 'last_reviewed']
+
+    def __init__(self, *args, **kwargs):
+        self.user = None
+        if 'user' in kwargs:
+            self.user = kwargs.pop('user')
+        super(AllFindingFilter, self).__init__(*args, **kwargs)
+        cwe = dict()
+        cwe = dict([finding.cwe, finding.cwe]
+                   for finding in self.queryset.distinct()
+                   if finding.cwe > 0 and finding.cwe not in cwe)
+        cwe = collections.OrderedDict(sorted(cwe.items()))
+        self.form.fields['cwe'].choices = cwe.items()
+        sevs = dict()
+        sevs = dict([finding.severity, finding.severity]
+                    for finding in self.queryset.distinct()
+                    if finding.severity not in sevs)
+        self.form.fields['severity'].choices = sevs.items()
+        if self.user is not None and not self.user.is_staff:
+            self.form.fields['test__engagement__product'].queryset = Product.objects.filter(
+                authorized_users__in=[self.user])
+            self.form.fields['endpoints'].queryset = Endpoint.objects.filter(
+                product__authorized_users__in=[self.user]).distinct()
+
+
+class AllFindingSuperFilter(AllFindingFilter):
+    reporter = ModelMultipleChoiceFilter(
+        queryset=Dojo_User.objects.all())
+
+
 class ClosedFindingFilter(DojoFilter):
     title = CharFilter(lookup_expr='icontains')
     sourcefile = CharFilter(lookup_expr='icontains')
