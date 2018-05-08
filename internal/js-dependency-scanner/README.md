@@ -9,21 +9,23 @@ which helps to detect JS libraries with known vulnerabilities.
 *This tool generate a report for each product which includes retire.js result as json format.
 
 *This tool delivers the by fallowing ways : 
-        1. Upload reports to git repo : 
+        1. Upload reports to particular git repository.
         2. If the report contains any known vulnerability, Create issue ticket. Currently it supports JIRA.
-        3. Integrate with VMS.
+        3. Integrate with Vulnerability Management System (VMS).
         
 * Before you begin : 
 
     1. Install Oracle Java SE Development Kit (JDK) version 1.7* or 1.8 and set the JAVA_HOME environment variable.
 
     2. Install Maven
+    
+    3. Install Retire.Js (Please find instruction to install Retire.js : https://www.npmjs.com/package/retire)
 
-    3. Clone : https://github.com/wso2/security-tools
+    4. Clone : https://github.com/wso2/security-tools
     
-    4. Github credential details. (Username, password, github access token)
+    5. Github credential details. (Username, password, github access token)
     
-    5. JIRA credential details. (Username, password)
+    6. JIRA credential details. (Username, password)
     
     
 Note : Following configurations need to be done before executing this scan tool. 
