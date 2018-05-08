@@ -19,7 +19,7 @@ which helps to detect JS libraries with known vulnerabilities.
 
     2. Install Maven
 
-    3. Clone : https://github.com/mathuriga/WSO2-SecurityScanJsLibs.git
+    3. Clone : https://github.com/wso2/security-tools
     
     4. Github credential details. (Username, password, github access token)
     
@@ -30,9 +30,10 @@ Note : Following configurations need to be done before executing this scan tool.
 
    1. There are separate configurations for each product. Please check those configurations.
    2. Please provide github credential information in githubconfig.properties.
-   3. Please provide jira (any issue ticket manager) credential information in issuecreatorconfig.properties.
-   4. Please provide jira ticket default ticket parameter values in jiraticketinfo.properties.
-   5. Please check supported product list.
+   3. Please provide github accesstoken information in githubaccesstoken.properties.
+   4. Please provide jira (any issue ticket manager) credential information in issuecreatorconfig.properties.
+   5. Please provide jira ticket default ticket parameter values in jiraticketinfo.properties.
+   6. Please check supported product list.
     
 * How to use this tool?
 
@@ -43,6 +44,3 @@ Note : Following configurations need to be done before executing this scan tool.
     3. Run this command.
 `             java -jar target/JsSecurityScanner-1.0-SNAPSHOT.jar 
 `
-
-* Please find generated security scan reports from : https://github.com/mathuriga/Sample
-* Please find created issue tickets. 
