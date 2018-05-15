@@ -25,11 +25,13 @@ import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstant
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
 import org.wso2.security.tools.scanner.dependency.js.utils.HttpDownloadUtility;
+import org.wso2.security.tools.scanner.dependency.js.utils.UnZipper;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -42,53 +44,83 @@ import java.util.List;
 public class AtuwaDownloader extends ResourceDownloader {
 
     private static final Logger log = Logger.getLogger(PreProcessor.class);
+    private static String atuwaBaseURl;
 
+    public static void setAtuwaBaseURl(String atuwaBaseURl) {
+        AtuwaDownloader.atuwaBaseURl = atuwaBaseURl;
+    }
+
+    /**
+     * <p>
+     * This is an override method, so javadoc should be visible. This method responsible to download
+     * product packs from atuwa.
+     * </p>
+     * {@inheritDoc}
+     */
     @Override
-    public List<String> downloadProductPack(Product productDto, String path) {
+    public List<String> downloadProductPack(Product productDto, String path) throws DownloaderException {
         return download(path);
     }
 
-    private List<String> download(String path) {
+    /**
+     * Download product pack from atuwa url.
+     *
+     * @param path Root directory file path to store the downloaded file.
+     * @return list of downloaded weekly release zip file paths.
+     */
+    private List<String> download(String path) throws DownloaderException {
         BufferedReader reader = null;
-        List<String> zipFilePathList = null;
+        List<String> zipFilePathList;
         String name = null;
         try {
             zipFilePathList = new ArrayList<>();
-            String urlString = JSScannerConstants.ATUWA_BASE_URL + JSScannerConstants.OB_INDEX_FILE;
+            String urlString = atuwaBaseURl + File.separator + JSScannerConstants.OB_INDEX_FILE;
             String downloadUrl;
             // create the url
-            URL url = new URL(urlString);
-
-            // open the url stream, wrap it an a few "readers"
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
-
+            URL url;
+            try {
+                url = new URL(urlString);
+                // open the url stream, wrap it an a few "readers"
+                reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            } catch (MalformedURLException e) {
+                throw new DownloaderException("Malformed URL has occurred.", e);
+            } catch (IOException e) {
+                throw new DownloaderException("Unable to reach url.", e);
+            }
             // write the output to stdout
             String line;
             File tarDir = null;
-            while ((line = reader.readLine()) != null) {
-                String element[] = line.split(":");
-                Long dateDiff = getDateDiffFromLastWeeklyRelease(element[1]);
-                if (dateDiff < 8) {
-                    if (isWeeklyRelease(element[0])) {
-                        tarDir = new File(path + File.separator + "weeklyRelease");
-                    } else if (isGARelease(element[0])) {
-                        tarDir = new File(path + File.separator + "GARelease");
+            try {
+                while ((line = reader.readLine()) != null) {
+                    String element[] = line.split(":");
+                    Long dateDiff = getDateDiffFromLastWeeklyRelease(element[1]);
+                    if (dateDiff < 28) {
+                        if (isWeeklyRelease(element[0])) {
+                            tarDir = new File(path + File.separator + "weeklyRelease");
+                        } else if (isGARelease(element[0])) {
+                            tarDir = new File(path + File.separator + "GARelease");
+                        }
+                        if (tarDir != null) {
+                            createDirectory(tarDir);
+                        }
+                        name = element[0];
+                        downloadUrl = atuwaBaseURl + File.separator + element[0];
+                        if (path != null) {
+                            if (tarDir != null) {
+                                String filePath = HttpDownloadUtility.downloadFile(downloadUrl,
+                                        tarDir.getAbsolutePath());
+                                String unzippedDirPath = UnZipper.extractFolder(filePath);
+                                zipFilePathList.add(filePath);
+                            }
+                        }
+                        break;
                     }
-                    if (tarDir != null) {
-                        createDirectory(tarDir);
-                    }
-                    name = element[0];
-                    downloadUrl = JSScannerConstants.ATUWA_BASE_URL + element[0];
-                    if (path != null) {
-                        assert tarDir != null;
-                        zipFilePathList.add(HttpDownloadUtility.downloadFile(downloadUrl, tarDir.getAbsolutePath()));
-                    }
-                } else {
-                    break;
                 }
+            } catch (ParseException e) {
+                throw new DownloaderException("Error occurred while parsing Date.", e);
+            } catch (IOException e) {
+                throw new DownloaderException("Error occurred while creating directory :", e);
             }
-        } catch (ParseException | DownloaderException | IOException e) {
-            log.error("Unable to download : " + name + e.getMessage());
         } finally {
             if (reader != null) {
                 try {

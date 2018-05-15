@@ -21,12 +21,25 @@
 package org.wso2.security.tools.scanner.dependency.js.exception;
 
 /**
- * exception occurred unzipping downloaded products.
+ * The class {@code UnZipperException} wraps the Exceptions and return a new {@link Exception} with the
+ * type of {@code UnZipperException}.These exception occurred unzipping downloaded products.
  */
 public class UnZipperException extends Exception {
 
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message Message for the exception
+     */
     public UnZipperException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     */
+    public UnZipperException(String message, Throwable e) {
+        super(message, e);
     }
 
 }

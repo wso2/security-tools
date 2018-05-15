@@ -33,10 +33,12 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
+import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 import org.wso2.security.tools.scanner.dependency.js.utils.ReportWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,8 +53,18 @@ public class GitUploader extends ReportUploader {
     private char[] gitPassword;
     private Git gitRepo;
 
-
-    public GitUploader(char[] username, char[] password) throws GitAPIException {
+    /**
+     * Constructor to create GitUploader.
+     * In this call GitUploader instance created with username, password and artifact url.
+     * Meanwhile It clones the artifact repo from github. If the cloned repository exists in local directory
+     * pull command will execute.
+     *
+     * @param username Username
+     * @param password Password
+     * @param repoUrl  RepoUrl
+     * @throws GitAPIException Exception occurred when clone or pull action executed.
+     */
+    public GitUploader(char[] username, char[] password, String repoUrl) throws GitAPIException {
         super();
         this.gitUsername = username.clone();
         this.gitPassword = password.clone();
@@ -60,36 +72,35 @@ public class GitUploader extends ReportUploader {
         if (!artifactFile.exists()) {
             createDirectory(artifactFile);
             gitRepo = Git.cloneRepository()
-                    .setURI(JSScannerConstants.SECURITY_ARTIFACT_REPO)
+                    .setURI(repoUrl)
                     .setDirectory(new File(artifactFile.getAbsolutePath()))
                     .setCredentialsProvider(new UsernamePasswordCredentialsProvider(new String(gitUsername),
                             new String(gitPassword)))
                     .call();
             log.info("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo cloned successfully.");
         } else {
+            //If cloned repository exists in local directory, pull command will be executed,
             if (gitPull(artifactFile)) {
-                log.info("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo pull action performed successfully.");
-            } else {
-                log.error("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo pull action failed.");
+                log.error("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo pull action successful.");
             }
         }
     }
-
 
     /**
      * Publish report to any endpoint. currently it supports to github.
      *
      * @param productResponseMapper Mapper for product and scan result.
      * @throws GitAPIException      Exception occurred during github API call.
-     * @throws IOException          IO Exception.
      * @throws FileHandlerException Exception occurred during report generation.
      */
     @Override
-    public void publishReport(HashMap<String, String> productResponseMapper) throws GitAPIException, IOException,
+    public void publishReport(HashMap<String, String> productResponseMapper) throws GitAPIException,
             FileHandlerException {
         storeFiles(productResponseMapper);
         gitCommit();
         gitPush();
+        Arrays.fill(gitUsername, JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
+        Arrays.fill(gitPassword, JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
     }
 
     /**
@@ -97,21 +108,22 @@ public class GitUploader extends ReportUploader {
      *
      * @param productResponseMapper Mapper for product and scan result.
      * @throws GitAPIException      Exception occurred during github API call.
-     * @throws IOException          IO Exception.
+     * @throws GitAPIException      Exception occurred while add files.
      * @throws FileHandlerException Exception occurred during report generation.
      */
-    private void storeFiles(HashMap<String, String> productResponseMapper) throws GitAPIException, IOException,
+    private void storeFiles(HashMap<String, String> productResponseMapper) throws GitAPIException,
             FileHandlerException {
         Repository repository = gitRepo.getRepository();
 
         File targetDir = new File(repository.getDirectory().getParentFile().getAbsolutePath()
                 + JSScannerConstants.SCN_REPORT_DIRECTORY_PATH);
-        HashMap<String, String> fileMapper = ReportWriter.callWriter(productResponseMapper, targetDir);
+        HashMap<String, String> fileMapper;
+        fileMapper = ReportWriter.callWriter(productResponseMapper, targetDir);
+
         // Stage all files in the repo including new files
         gitRepo.add().addFilepattern(".").call();
         this.setReportFileMapper(fileMapper);
         log.info("[JS_SEC_DAILY_SCAN]  " + "Added files to Security artifact repo");
-
     }
 
     /**
@@ -122,7 +134,7 @@ public class GitUploader extends ReportUploader {
     private void gitCommit() throws GitAPIException {
         // and then commit the changes.
         gitRepo.commit()
-                .setMessage("Added vulnerability report " + java.time.LocalDate.now().toString())
+                .setMessage("Added Retire.js vulnerability report " + java.time.LocalDate.now().toString())
                 .call();
         log.info("[JS_SEC_DAILY_SCAN]  " + "Commit to Security artifact repo");
     }
@@ -146,7 +158,6 @@ public class GitUploader extends ReportUploader {
      * @param dir target directory.
      */
     private void createDirectory(File dir) {
-
         if (!dir.exists()) {
             boolean isDirCreated = dir.mkdir();
             if (!isDirCreated) {
@@ -166,18 +177,16 @@ public class GitUploader extends ReportUploader {
         try {
             Repository localRepo = new FileRepository(localPath.getAbsolutePath() + "/.git");
             gitRepo = new Git(localRepo);
-
-
             if (populateDiff()) {
                 PullCommand pullCmd = gitRepo.pull();
-                pullCmd.call();
+                pullCmd.setCredentialsProvider(new UsernamePasswordCredentialsProvider(new String(gitUsername),
+                        new String(gitPassword)))
+                        .call();
                 return true;
-            } else {
-                return false;
             }
-
-        } catch (GitAPIException | IOException ex) {
-            log.error("Failed to pull : " + localPath.getName());
+        } catch (GitAPIException | IOException e) {
+            log.error("Failed to pull : " + localPath.getName(), e);
+            return false;
         }
         return true;
     }
@@ -187,11 +196,11 @@ public class GitUploader extends ReportUploader {
      */
     private boolean populateDiff() {
         try {
-            gitRepo.fetch().call();
+            gitRepo.fetch().setCredentialsProvider(new UsernamePasswordCredentialsProvider(new String(gitUsername),
+                    new String(gitPassword))).call();
             Repository repo = gitRepo.getRepository();
             ObjectId fetchHead = repo.resolve("FETCH_HEAD^{tree}");
             ObjectId head = repo.resolve("HEAD^{tree}");
-
             ObjectReader reader = repo.newObjectReader();
             CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
             oldTreeIter.reset(reader, head);
@@ -201,10 +210,9 @@ public class GitUploader extends ReportUploader {
                     .setNewTree(newTreeIter)
                     .setOldTree(oldTreeIter)
                     .call();
-
             return !diffs.isEmpty();
-        } catch (GitAPIException | IOException ex) {
-            log.error("Unable to populate all the files to update.");
+        } catch (GitAPIException | IOException e) {
+            log.error("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo pull action failed.", e);
         }
         return true; //assume true
     }

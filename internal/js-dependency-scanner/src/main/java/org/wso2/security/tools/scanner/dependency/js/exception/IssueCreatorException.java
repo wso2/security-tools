@@ -21,12 +21,25 @@
 package org.wso2.security.tools.scanner.dependency.js.exception;
 
 /**
- * exception occurred while creating issue ticket.
+ * The class {@code IssueCreatorException} wraps the Exceptions and return a new {@link Exception} with the
+ * type of {@code IssueCreatorException}. These exception occurred while creating issue ticket.
  */
 public class IssueCreatorException extends Exception {
 
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message Message for the exception
+     */
     public IssueCreatorException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     */
+    public IssueCreatorException(String message, Throwable e) {
+        super(message, e);
     }
 
 }

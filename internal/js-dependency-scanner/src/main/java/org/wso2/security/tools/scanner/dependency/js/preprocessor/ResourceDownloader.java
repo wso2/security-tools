@@ -47,6 +47,15 @@ public abstract class ResourceDownloader {
 
     private static final Logger log = Logger.getLogger(ResourceDownloader.class);
 
+    /**
+     * This method calculate and returns the no of days between published date of particular weekly release
+     * and scan date (Current system date).
+     *
+     * @param releaseDate published date of particulae weekly release.
+     * @return no of days between published date of particular weekly release
+     * and scan date (Current system date)
+     * @throws ParseException Exception occurred parsing the string to date format.
+     */
     long getDateDiffFromLastWeeklyRelease(String releaseDate)
             throws ParseException {
 
@@ -55,10 +64,17 @@ public abstract class ResourceDownloader {
         Date firstDate = sdf.parse(releaseDate);
         Date secondDate = sdf.parse(now.toString());
 
-        long diffInMillies = Math.abs(secondDate.getTime() - firstDate.getTime());
-        return TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        long diffInMillis = Math.abs(secondDate.getTime() - firstDate.getTime());
+        return TimeUnit.DAYS.convert(diffInMillis, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Check whether the given asset name is weekly release or not. It checks with the regular expression
+     * which indicates the version pattern. (It checks whether the asset contains -x.x.x-).
+     *
+     * @param name Asset name
+     * @return True if it is weekly release, False if it is not a weekly release.
+     */
     boolean isWeeklyRelease(String name) {
         boolean isWeeklyRelease = false;
         Pattern pattern = Pattern.compile(JSScannerConstants.VERSION_REGEX);
@@ -69,6 +85,13 @@ public abstract class ResourceDownloader {
         return isWeeklyRelease;
     }
 
+    /**
+     * Check whether the given asset name is GA release or not. It checks with the regular expression
+     * which indicates the version pattern. (It checks whether the asset contains -x.x.x.).
+     *
+     * @param name asset name
+     * @return True if it is weekly release, False if it is not a weekly release.
+     */
     boolean isGARelease(String name) {
         boolean isGARelease = false;
         Pattern pattern = Pattern.compile((JSScannerConstants.GA_RELEASE_VERSION_REGEX));
@@ -78,7 +101,6 @@ public abstract class ResourceDownloader {
         }
         return isGARelease;
     }
-
 
     /**
      * Create Directory
@@ -104,19 +126,16 @@ public abstract class ResourceDownloader {
         }
     }
 
-
     /**
      * Download product pack.
      *
      * @param productDto Repository Name.
      * @param path       Path where the downloaded pack to be placed.
      * @return Path of the zip file.
-     * @throws IOException         IO exception.
      * @throws ApiInvokerException exception occurred while calling GIT API
      * @throws DownloaderException exception occurred while downloading files.
      */
-    public abstract List<String> downloadProductPack(Product productDto, String path) throws IOException,
-            ApiInvokerException,
-            DownloaderException, ParseException;
+    public abstract List<String> downloadProductPack(Product productDto, String path) throws ApiInvokerException,
+            DownloaderException;
 
 }

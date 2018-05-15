@@ -21,36 +21,38 @@
 package org.wso2.security.tools.scanner.dependency.js.issuecreator;
 
 
-import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
 import org.wso2.security.tools.scanner.dependency.js.exception.IssueCreatorException;
 
 import java.util.HashMap;
-import javax.naming.AuthenticationException;
 
 
 /**
  * Abstract Class for implementing issue creator API Endpoint.
  */
 public abstract class IssueCreator {
-    private char[] userName;
-    private char[] passWord;
+    private char[] username;
+    private char[] password;
+    private String endPointURL;
     private HashMap<String, String> assigneeMapper;
 
-    protected IssueCreator(char[] issueCreatorAPIUserName, char[] issueCreatorAPIpassWord) {
-        userName = issueCreatorAPIUserName.clone();
-        passWord = issueCreatorAPIpassWord.clone();
+    IssueCreator(char[] issueCreatorAPIUserName, char[] issueCreatorAPIPassWord,
+                 String url) {
+        username = issueCreatorAPIUserName.clone();
+        password = issueCreatorAPIPassWord.clone();
+        endPointURL = url;
     }
 
-
-    char[] getUserName() {
-        return userName;
+    public char[] getUsername() {
+        return username;
     }
 
-
-    char[] getPassWord() {
-        return passWord;
+    public char[] getPassword() {
+        return password;
     }
 
+    String getEndPointURL() {
+        return endPointURL;
+    }
 
     HashMap<String, String> getAssigneeMapper() {
         return assigneeMapper;
@@ -67,6 +69,6 @@ public abstract class IssueCreator {
      * @param fileMapper     Mapper which holds product name and it's report file path.
      */
     public abstract void handleIssueCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String>
-            fileMapper) throws AuthenticationException, ConfigParserException, IssueCreatorException;
+            fileMapper) throws IssueCreatorException;
 
 }

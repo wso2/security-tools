@@ -94,13 +94,11 @@ public class HttpDownloadUtility {
             httpConn.disconnect();
         } catch (MalformedURLException e) {
             throw new DownloaderException("Error occurred in downloading file : " + fileName + " malformed URL has " +
-                    "occurred");
+                    "occurred", e);
         } catch (FileNotFoundException e) {
-            throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message: " +
-                    e.getMessage());
+            throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message: ", e);
         } catch (IOException e) {
-            throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message:" +
-                    e.getMessage());
+            throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message:", e);
         } finally {
             if (outputStream != null) {
                 try {
@@ -108,7 +106,7 @@ public class HttpDownloadUtility {
                     outputStream.close();
                 } catch (IOException e) {
                     throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message:"
-                            + e.getMessage());
+                            , e);
                 }
             }
             if (inputStream != null) {
@@ -116,7 +114,7 @@ public class HttpDownloadUtility {
                     inputStream.close();
                 } catch (IOException e) {
                     throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message:"
-                            + e.getMessage());
+                            , e);
                 }
 
             }

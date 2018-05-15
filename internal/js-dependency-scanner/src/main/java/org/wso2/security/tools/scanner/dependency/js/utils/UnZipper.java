@@ -39,7 +39,6 @@ import java.util.zip.ZipFile;
  */
 public class UnZipper {
 
-
     /**
      * Extract zip directory.
      *

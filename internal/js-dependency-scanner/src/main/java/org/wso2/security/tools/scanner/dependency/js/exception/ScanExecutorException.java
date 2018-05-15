@@ -21,12 +21,24 @@
 package org.wso2.security.tools.scanner.dependency.js.exception;
 
 /**
- * exception occurred while executing particular scanning tool against products.
+ * The class {@code ScanExecutorException} wraps the Exceptions and return a new {@link Exception} with the
+ * type of {@code ScanExecutorException}. These exception occurred while executing particular scanning tool against
+ * products.
  */
 public class ScanExecutorException extends Exception {
-
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message Message for the exception
+     */
     public ScanExecutorException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     */
+    public ScanExecutorException(String message, Throwable e) {
+        super(message, e);
+    }
 }

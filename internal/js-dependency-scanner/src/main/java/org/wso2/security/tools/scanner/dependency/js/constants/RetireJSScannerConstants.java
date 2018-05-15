@@ -21,7 +21,7 @@
 package org.wso2.security.tools.scanner.dependency.js.constants;
 
 /**
- * Constants releated to Retire.js Scanner tool.
+ * Constants related to Retire.js Scanner tool.
  * Refer  : https://www.npmjs.com/package/retire
  */
 public class RetireJSScannerConstants {
@@ -32,4 +32,5 @@ public class RetireJSScannerConstants {
     public static final String OUTPUT_FORMAT = "--outputformat";
     public static final String JSON = "json";
 //    public static final String IGNOREFILE="--ignorefile";
+
 }

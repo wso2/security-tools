@@ -30,6 +30,7 @@ import org.wso2.security.tools.scanner.dependency.js.issuecreator.IssueCreator;
 import org.wso2.security.tools.scanner.dependency.js.issuecreator.JIRAIssueCreator;
 import org.wso2.security.tools.scanner.dependency.js.issuecreator.JIRARestClient;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
+import org.wso2.security.tools.scanner.dependency.js.preprocessor.AtuwaDownloader;
 import org.wso2.security.tools.scanner.dependency.js.reportpublisher.GitUploader;
 import org.wso2.security.tools.scanner.dependency.js.reportpublisher.ReportUploader;
 
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 /**
  * Util class to parse configuration properties. There are multiple configuration files related to each product and
@@ -48,6 +50,7 @@ import java.util.Properties;
 public class ConfigParser {
 
     private static final Logger log = Logger.getLogger(ConfigParser.class);
+    private static Random random = new Random();
 
     private ConfigParser() {
     }
@@ -59,7 +62,6 @@ public class ConfigParser {
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
     public static List<String> parseProductList() throws ConfigParserException {
-
         List<String> products;
         Properties properties = new Properties();
         ClassLoader classLoader = ConfigParser.class.getClassLoader();
@@ -67,7 +69,7 @@ public class ConfigParser {
         try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.PRODUCT_LIST_FILE)) {
             properties.load(input);
         } catch (IOException e) {
-            throw new ConfigParserException("Error occurred in parsing productList config file : " + e.getMessage());
+            throw new ConfigParserException("Error occurred in parsing productList config file : " + e);
         }
         products = Arrays.asList(properties.getProperty(JSScannerConstants.PRODUCTS).
                 split(JSScannerConstants.PROPERTIES_FILE_DELIMETER));
@@ -77,21 +79,25 @@ public class ConfigParser {
 
 
     /**
-     * Parse github credential details (Access-token, Username, Password).
+     * This method is responsible to parse properties regarding to upload scan reports into particular github
+     * repository. THe following properties are read from config file.
+     * 1.Username
+     * 2.Password
+     * 3.Repository url where the reports should be uploaded.
      *
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
-    public static ReportUploader parseGitCredentials() throws ConfigParserException, GitAPIException {
-
+    public static ReportUploader parseGitUploaderConfigProperties() throws GitAPIException, ConfigParserException {
         Properties properties = new Properties();
         ClassLoader classLoader = ConfigParser.class.getClassLoader();
         try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.GIT_CONFIG_FILE)) {
             properties.load(input);
         } catch (IOException e) {
-            throw new ConfigParserException("Error occurred in parsing github credentials : " + e.getMessage());
+            throw new ConfigParserException("Error occurred in parsing github credentials : " + e);
         }
         ReportUploader reportUploader = new GitUploader(properties.getProperty(JSScannerConstants.USERNAME)
-                .toCharArray(), properties.getProperty(JSScannerConstants.PASSWORD).toCharArray());
+                .toCharArray(), properties.getProperty(JSScannerConstants.PASSWORD).toCharArray(),
+                properties.getProperty(JSScannerConstants.SECURITY_ARTIFACT_REPO));
         return reportUploader;
 
     }
@@ -108,7 +114,7 @@ public class ConfigParser {
         try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.GIT_ACCESS_TOKEN_CONFIG_FILE)) {
             properties.load(input);
         } catch (IOException e) {
-            throw new ConfigParserException("Error occurred in parsing github credentials : " + e.getMessage());
+            throw new ConfigParserException("Error occurred in parsing github credentials : " + e);
         }
         CommonApiInvoker.setGitToken(properties.getProperty(JSScannerConstants.ACCESSTOKEN).toCharArray());
     }
@@ -125,14 +131,13 @@ public class ConfigParser {
         try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.ISSUECREATOR_CONFIG_FILE)) {
             properties.load(input);
         } catch (IOException e) {
-            throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e.getMessage());
+            throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e);
         }
 
         IssueCreator issueCreatorAPI = new JIRAIssueCreator(new JIRARestClient(), properties.getProperty
                 (JSScannerConstants.USERNAME).toCharArray(),
-                properties.getProperty(JSScannerConstants.PASSWORD).toCharArray());
-//        issueCreatorAPI.setUserName(properties.getProperty(JSScannerConstants.USERNAME).toCharArray());
-//        issueCreatorAPI.setPassWord(properties.getProperty(JSScannerConstants.PASSWORD).toCharArray());
+                properties.getProperty(JSScannerConstants.PASSWORD).toCharArray(),
+                properties.getProperty(IssueCreatorConstants.WSO2_JIRA_BASE_URL));
         HashMap<String, String> ticketAssigneeMapper = new HashMap<>();
         //assignees for each products
         ticketAssigneeMapper.put(JSScannerConstants.AM, properties.getProperty(IssueCreatorConstants.APIM));
@@ -159,12 +164,28 @@ public class ConfigParser {
         try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.JIRA_TICKET_INFO_FILE)) {
             properties.load(input);
         } catch (IOException e) {
-            throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e.getMessage());
+            throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e);
         }
         JIRAIssueCreator.setTicketSubject(properties.getProperty(IssueCreatorConstants.TICKET_SUBJECT));
         JIRAIssueCreator.setProjectKey(properties.getProperty(IssueCreatorConstants.PROJECT_KEY));
         JIRAIssueCreator.setIssueLabel(properties.getProperty(IssueCreatorConstants.ISSUELABEL));
         JIRAIssueCreator.setIssueType(properties.getProperty(IssueCreatorConstants.ISSUE_TYPE));
+    }
+
+    /**
+     * Get atuwa URL. It reade the base url of atuwa in config file.
+     *
+     * @throws ConfigParserException exception occurred while parsing configuration details.
+     */
+    public static void parseAtuwaUrl() throws ConfigParserException {
+        Properties properties = new Properties();
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.ATUWA_CONFIG)) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new ConfigParserException("Error occurred in parsing Atuwa URL : " + e);
+        }
+        AtuwaDownloader.setAtuwaBaseURl(properties.getProperty(JSScannerConstants.ATUWA_BASE_URL));
     }
 
     /**
@@ -197,7 +218,7 @@ public class ConfigParser {
         try (InputStream input = classLoader.getResourceAsStream(fileName)) {
             properties.load(input);
         } catch (IOException e) {
-            throw new ConfigParserException("Error occurred in parsing product configurations : " + e.getMessage());
+            throw new ConfigParserException("Error occurred in parsing product configurations : " + e);
         }
 
         Product productDto = new Product();
@@ -213,6 +234,15 @@ public class ConfigParser {
         }
         productDto.setRepoVersionMapper(repoVersionMapper);
         return productDto;
+    }
+
+    /**
+     * Generate random number
+     * @return random number
+     */
+    public static int getRandomNumber() {
+        //length of random string is the maximum and the 1 is our minimum
+        return random.nextInt(JSScannerConstants.RANDOM_STRING.length());
     }
 
 }

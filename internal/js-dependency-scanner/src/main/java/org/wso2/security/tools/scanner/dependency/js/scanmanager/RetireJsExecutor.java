@@ -63,7 +63,7 @@ public class RetireJsExecutor extends Executor {
             }
         } catch (IOException e) {
             throw new ScanExecutorException("Error occurred while performing Retire.js scan " +
-                    "against " + name + " :" + e.getMessage());
+                    "against " + name + " :", e);
         } finally {
             try {
                 if (reader != null) {
@@ -71,7 +71,7 @@ public class RetireJsExecutor extends Executor {
                 }
             } catch (IOException e) {
                 throw new ScanExecutorException("Error occurred while performing Retire.js scan " +
-                        "against " + name + " :" + e.getMessage());
+                        "against " + name + " :", e);
             }
         }
         return stringBuilder.toString();

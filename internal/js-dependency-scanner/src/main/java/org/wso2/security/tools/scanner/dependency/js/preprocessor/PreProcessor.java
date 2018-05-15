@@ -26,15 +26,14 @@ import org.wso2.security.tools.scanner.dependency.js.exception.ApiInvokerExcepti
 import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
+import org.wso2.security.tools.scanner.dependency.js.utils.CommonApiInvoker;
 import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
 
 /**
  * This class is responsible to perform pre-processing tasks prior to execute retire.js scan.
@@ -81,9 +80,10 @@ public class PreProcessor {
             log.info("[JS_SEC_DAILY_SCAN] Start downloading product packs");
             //download resources
             downloadResources(supportedProductList);
-
+            Arrays.fill(CommonApiInvoker.getGitToken(),
+                    JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
         } catch (ApiInvokerException | DownloaderException | ConfigParserException e) {
-            log.error(e.getMessage());
+            log.error("Error occurred while downloading product pack.", e);
         }
         return productFileMapper;
     }
@@ -115,8 +115,8 @@ public class PreProcessor {
             }
             if (productDto.getInputSourceType().equals(JSScannerConstants.ATUWA)) {
                 ResourceDownloader atuwaDownloader = new AtuwaDownloader();
+                ConfigParser.parseAtuwaUrl();
                 startDownload(productDto, currentProductDir, zipFileList, atuwaDownloader);
-
             }
             //unzip downloaded product pack
 
@@ -132,16 +132,22 @@ public class PreProcessor {
         }
     }
 
+    /**
+     * This method is common entry point to start downloading product packs.
+     *
+     * @param productDto         object which contains details of product.
+     * @param currentProductDir  Current product root directory.
+     * @param zipFileList        List to store downloaded product packs zip file list.
+     * @param resourceDownloader Resource downloader. This object indicates the type of source where we download
+     *                           product packs. Eg : Github, Atuwa.
+     * @throws ApiInvokerException Exception occurred when calling API.
+     * @throws DownloaderException Exception occurred when downloading files.
+     */
     private void startDownload(Product productDto, File currentProductDir, List<String> zipFileList, ResourceDownloader
             resourceDownloader) throws ApiInvokerException, DownloaderException {
-        try {
-            List<String> fileList = resourceDownloader.downloadProductPack(productDto,
-                    currentProductDir.getAbsolutePath());
-            zipFileList.addAll(fileList);
-        } catch (ParseException | IOException e) {
-            throw new DownloaderException("Error occurred in downloading file. " + " Error message:" +
-                    e.getMessage());
-        }
+        List<String> fileList = resourceDownloader.downloadProductPack(productDto,
+                currentProductDir.getAbsolutePath());
+        zipFileList.addAll(fileList);
     }
 
     /**
@@ -161,6 +167,5 @@ public class PreProcessor {
             log.info("[JS_SEC_DAILY_SCAN] " + dir.getName() + " directory already exists");
         }
     }
-
 
 }

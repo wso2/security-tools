@@ -21,12 +21,25 @@
 package org.wso2.security.tools.scanner.dependency.js.exception;
 
 /**
- * exception causes due to error in parse the configuration file
+ * The class {@code ConfigParserException} wraps the Exceptions and return a new {@link Exception} with the
+ * type of {@code ConfigParserException}. These exception causes due to error in parse the configuration file
  */
 public class ConfigParserException extends Exception {
 
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message Message for the exception
+     */
     public ConfigParserException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     */
+    public ConfigParserException(String message, Throwable e) {
+        super(message, e);
     }
 
 }

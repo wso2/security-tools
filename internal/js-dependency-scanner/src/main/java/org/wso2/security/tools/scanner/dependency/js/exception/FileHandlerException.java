@@ -21,12 +21,24 @@
 package org.wso2.security.tools.scanner.dependency.js.exception;
 
 /**
- * exception occurred during create, read, write , delete process on a file.
+ * The class {@code FileHandlerException} wraps the Exceptions and return a new {@link Exception} with the
+ * type of {@code FileHandlerException}. These exception occurred during create, read, write , delete process on a file.
  */
 public class FileHandlerException extends Exception {
-
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message Message for the exception
+     */
     public FileHandlerException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     */
+    public FileHandlerException(String message, Throwable e) {
+        super(message, e);
     }
 
 }

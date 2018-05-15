@@ -58,77 +58,89 @@ public class GitDownloader extends ResourceDownloader {
     public List<String> downloadProductPack(Product product, String path) throws ApiInvokerException,
             DownloaderException {
         List<String> zipFilePathList = new ArrayList<>();
-        try {
-            //git api endpoint to get releases of particular product.
-            String gitReleaseUrl = JSScannerConstants.GIT_BASE_URL + product.getProductRepoName() +
-                    JSScannerConstants.RELEASES;
-            String downloadURL;
-            //call release end point and get results
-            JSONArray resultJsonArray = new JSONArray(CommonApiInvoker.connectGitAPI(gitReleaseUrl));
-            for (int i = 0, size = resultJsonArray.length(); i < size; i++) {
-                JSONObject currentReleaseInfo = resultJsonArray.getJSONObject(i);
-                String releaseDate = currentReleaseInfo.get("published_at").toString().substring(0, 10);
-                String version = currentReleaseInfo.getString("tag_name");
-                Long dateDiff = getDateDiffFromLastWeeklyRelease(releaseDate);
-                if (dateDiff <= 8) {
-                    File tarDir = null;
-                    JSONArray assetsArray = (JSONArray) currentReleaseInfo.get(JSScannerConstants.ASSETS);
-                    String name;
-                    for (int j = 0, assetSize = assetsArray.length(); j < assetSize; j++) {
-                        JSONObject assetInArray = assetsArray.getJSONObject(j);
-                        //perform exact matching
-                        name = assetInArray.get(JSScannerConstants.NAME).toString();
-                        if ((name.contains(JSScannerConstants.AM) || name.contains(JSScannerConstants.APIM) ||
-                                name.contains(JSScannerConstants.INTEGRATION) ||
-                                name.contains(JSScannerConstants.STREAMPROCESSOR) ||
-                                name.contains(JSScannerConstants.IDENTITYSERVER)) &&
-                                name.endsWith(JSScannerConstants.ZIP_PREFIX)) {
-                            //If current product asset is weekly release the product should be saved in weekly release
-                            // folder of particular product.
-                            //If current product asset is GA release the product should be saved in GA release
-                            //folder of particular product.
-                            if (isWeeklyRelease(name)) {
-                                tarDir = new File(path + File.separator + JSScannerConstants.WEEKLY_RELEASE);
-                            } else if (isGARelease(name)) {
-                                tarDir = new File(path + File.separator + JSScannerConstants.GA_RELEASE);
-                            }
-                            if (tarDir != null) {
+
+        //git api endpoint to get releases of particular product.
+        String gitReleaseUrl = JSScannerConstants.GIT_BASE_URL + product.getProductRepoName() +
+                JSScannerConstants.RELEASES;
+        String downloadURL;
+        //call release end point and get results
+        JSONArray resultJsonArray = new JSONArray(CommonApiInvoker.connectGitAPI(gitReleaseUrl));
+        for (int i = 0, size = resultJsonArray.length(); i < size; i++) {
+            JSONObject currentReleaseInfo = resultJsonArray.getJSONObject(i);
+            String releaseDate = currentReleaseInfo.get("published_at").toString().substring(0, 10);
+            String version = currentReleaseInfo.getString("tag_name");
+            Long dateDiff;
+            try {
+                dateDiff = getDateDiffFromLastWeeklyRelease(releaseDate);
+            } catch (ParseException e) {
+                throw new DownloaderException("Error occurred while parsing release date.", e);
+            }
+            if (dateDiff <= 8) {
+                File tarDir = null;
+                JSONArray assetsArray = (JSONArray) currentReleaseInfo.get(JSScannerConstants.ASSETS);
+                String name;
+                for (int j = 0, assetSize = assetsArray.length(); j < assetSize; j++) {
+                    JSONObject assetInArray = assetsArray.getJSONObject(j);
+                    //perform exact matching
+                    name = assetInArray.get(JSScannerConstants.NAME).toString();
+                    if ((name.contains(JSScannerConstants.AM) || name.contains(JSScannerConstants.APIM) ||
+                            name.contains(JSScannerConstants.INTEGRATION) ||
+                            name.contains(JSScannerConstants.STREAMPROCESSOR) ||
+                            name.contains(JSScannerConstants.IDENTITYSERVER)) &&
+                            name.endsWith(JSScannerConstants.ZIP_PREFIX)) {
+                        //If current product asset is weekly release the product should be saved in weekly release
+                        // folder of particular product.
+                        //If current product asset is GA release the product should be saved in GA release
+                        //folder of particular product.
+                        if (isWeeklyRelease(name)) {
+                            tarDir = new File(path + File.separator + JSScannerConstants.WEEKLY_RELEASE);
+                        } else if (isGARelease(name)) {
+                            tarDir = new File(path + File.separator + JSScannerConstants.GA_RELEASE);
+                        }
+                        if (tarDir != null) {
+                            try {
                                 createDirectory(tarDir);
+                            } catch (IOException e) {
+                                throw new DownloaderException("Error occurred while " +
+                                        "creating directory for." + name, e);
                             }
-                            log.info(name + " is published on " + releaseDate);
-                            //get download endpoint url
-                            downloadURL = (String) assetInArray.get(JSScannerConstants.DOWNLOAD_URL);
-                            if (downloadURL != null && path != null) {
-                                // the path of downloaded product pack
-                                assert tarDir != null;
-                                String filePath = HttpDownloadUtility.downloadFile(downloadURL,
-                                        tarDir.getAbsolutePath());
-                                // the path of unzipped product directory
-                                String unzippedDirPath = UnZipper.extractFolder(filePath);
-                                zipFilePathList.add(filePath);
-                                //Check whether the current product has react components and
-                                // if so download package.json files.
-                                if (product.getRepoVersionMapper().size() > 1) {
-                                    //since the wso2am versions below the 3.0.0 hasn't any react components.
-                                    // Package.json files won't be there. This implementation is temporary.
-                                    if (!name.contains(JSScannerConstants.AM)) {
-                                        //download react files
-                                        ReactFileDownloader.downloadReactFiles(version, product.getRepoVersionMapper(),
-                                                new File(unzippedDirPath), product.getProductRepoName());
-                                    }
+                        }
+                        log.info(name + " is published on " + releaseDate);
+                        //get download endpoint url
+                        downloadURL = (String) assetInArray.get(JSScannerConstants.DOWNLOAD_URL);
+                        if (downloadURL != null && path != null) {
+                            // the path of downloaded product pack
+                            assert tarDir != null;
+                            String filePath = HttpDownloadUtility.downloadFile(downloadURL,
+                                    tarDir.getAbsolutePath());
+                            // the path of unzipped product directory
+                            String unzippedDirPath;
+                            try {
+                                unzippedDirPath = UnZipper.extractFolder(filePath);
+                            } catch (IOException e) {
+                                throw new DownloaderException("Error occurred while unzip file " + filePath, e);
+                            }
+                            zipFilePathList.add(filePath);
+                            //Check whether the current product has react components and
+                            // if so download package.json files.
+                            if (product.getRepoVersionMapper().size() > 1) {
+                                //since the wso2am versions below the 3.0.0 hasn't any react components.
+                                // Package.json files won't be there. This implementation is temporary.
+                                if (!name.contains(JSScannerConstants.AM)) {
+                                    //download react files
+                                    ReactFileDownloader.downloadReactFiles(version, product.getRepoVersionMapper(),
+                                            new File(unzippedDirPath), product.getProductRepoName());
                                 }
                             }
-                            break;
                         }
+                        break;
                     }
-                } else {
-                    break;
                 }
+            } else {
+                break;
             }
-        } catch (ParseException | IOException e) {
-            throw new DownloaderException("Error occurred while downloading product pack: " + product + " due to error"
-                    + e.getMessage());
         }
+
         return zipFilePathList;
     }
 

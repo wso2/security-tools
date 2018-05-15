@@ -57,7 +57,6 @@ public class ReactFileDownloader {
      * @param rootDirectory Root directory where package.json files to be downloaded.
      * @throws DownloaderException Error occurred during Downloading react files.
      */
-
     public static void downloadReactFiles(String version, HashMap<String, String> repoVersionMapper, File rootDirectory,
                                           String productRepo)
             throws DownloaderException, ApiInvokerException {
@@ -192,7 +191,6 @@ public class ReactFileDownloader {
                 installNPMModules(parentDir.getAbsolutePath());
             }
         }
-
-
     }
+
 }

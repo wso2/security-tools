@@ -21,12 +21,25 @@
 package org.wso2.security.tools.scanner.dependency.js.exception;
 
 /**
- * exception occurred while calling APIs
+ * The class {@code ApiInvokerException} wraps the Exceptions and return a new {@link Exception} with the
+ * type of {@code ApiInvokerException}. These exceptions occurred while calling APIs
  */
 public class ApiInvokerException extends Exception {
 
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message Message for the exception
+     */
     public ApiInvokerException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     */
+    public ApiInvokerException(String message, Throwable e) {
+        super(message, e);
     }
 
 }

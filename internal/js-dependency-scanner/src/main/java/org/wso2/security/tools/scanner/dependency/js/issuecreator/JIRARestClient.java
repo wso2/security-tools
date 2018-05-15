@@ -22,7 +22,6 @@ package org.wso2.security.tools.scanner.dependency.js.issuecreator;
 
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import org.apache.http.HttpEntity;
@@ -40,17 +39,27 @@ import java.io.File;
 import java.io.IOException;
 import javax.naming.AuthenticationException;
 
-
 /**
- * REST client class to invoke JIRA API calls
+ * REST client class to invoke JIRA API calls. This class responsible to invoke
+ * 1. Get API.
+ * 2. Post API.
+ * 3. Post comment API.
+ * 4. Update ticket with file API.
  */
 public class JIRARestClient {
 
     private static final Logger log = Logger.getLogger(JIRARestClient.class);
 
+    /**
+     * Invoke Get method
+     *
+     * @param auth credentials info of JIRA
+     * @param url url to be invoked.
+     * @return response entity of get method.
+     * @throws AuthenticationException Exception occurred while authenticate the JIRA
+     */
     public String invokeGetMethod(String auth, String url)
-            throws AuthenticationException, ClientHandlerException {
-
+            throws AuthenticationException {
         Client client = Client.create();
         WebResource webResource = client.resource(url);
         ClientResponse response = webResource.header("Authorization", "Basic " + auth).type("application/json")
@@ -71,11 +80,10 @@ public class JIRARestClient {
      * @param url  url to be invoked.
      * @param data data of API call.
      * @return response entity.
-     * @throws AuthenticationException Authentication exception.
-     * @throws ClientHandlerException  Client Handler exception.
+     * @throws AuthenticationException Exception occurred while authenticate the JIRA.
      */
     public String invokePostMethod(String auth, String url, String data)
-            throws AuthenticationException, ClientHandlerException {
+            throws AuthenticationException {
         Client client = Client.create();
         WebResource webResource = client.resource(url);
         ClientResponse response = webResource.header("Authorization", "Basic " + auth).type("application/json")
@@ -93,7 +101,7 @@ public class JIRARestClient {
      * @param auth credentials info of JIRA.
      * @param url  url to be invoked.
      * @param data data of API call.
-     * @throws AuthenticationException Authentication exception.
+     * @throws AuthenticationException Exception occurred while authenticate the JIRA.
      */
     public void invokePostComment(String auth, String url, String data)
             throws AuthenticationException {
@@ -117,7 +125,7 @@ public class JIRARestClient {
      * @param auth credentials info of JIRA.
      * @param url  url to be invoked.
      * @param path path of the file to be attached.
-     * @throws IssueCreatorException Exception occured while creation of issue.
+     * @throws IssueCreatorException Exception occurred while attaching the file with ticket.
      */
     public void invokePutMethodWithFile(String auth, String url, String path) throws IssueCreatorException {
 
@@ -134,12 +142,13 @@ public class JIRARestClient {
             response = httpclient.execute(httppost);
             log.info("[JS_SEC_DAILY_SCAN] File attached with ticket : " + response.toString());
         } catch (IOException e) {
-            throw new IssueCreatorException("File upload failed when attaching the report : " + path);
+            throw new IssueCreatorException("File upload failed while attaching the scan report with issue ticket: " +
+                    path, e);
         } finally {
             try {
                 httpclient.close();
             } catch (IOException e) {
-                throw new IssueCreatorException("exception occurred when closing the http connection");
+                throw new IssueCreatorException("Exception occurred while closing the http connection", e);
             }
         }
     }

@@ -21,10 +21,11 @@
 package org.wso2.security.tools.scanner.dependency.js.constants;
 
 /**
- * constants related to creating an issue ticket in jira
+ * Constants related to creating an issue ticket in JIRA.
  */
 public class IssueCreatorConstants {
-    public static final String WSO2_JIRA_BASE_URL = "https://support-staging.wso2.com/jira/";
+
+    public static final String WSO2_JIRA_BASE_URL = "endpointurl";
     public static final String JIRA_REST_API_URL = "rest/api/2/issue";
 
     //constants for assignees of particular product ticket
@@ -40,4 +41,5 @@ public class IssueCreatorConstants {
     public static final String ISSUELABEL = "issueLabel";
     public static final String ISSUE_TYPE = "issueType";
     public static final String DEFAULT_ASSIGNEE = "-1";
+
 }

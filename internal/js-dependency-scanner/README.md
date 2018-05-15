@@ -36,6 +36,10 @@ Note : Following configurations need to be done before executing this scan tool.
    4. Please provide jira (any issue ticket manager) credential information in issuecreatorconfig.properties.
    5. Please provide jira ticket default ticket parameter values in jiraticketinfo.properties.
    6. Please check supported product list.
+   7. Replace the actual git repository url where the scan reports should be uploaded in SECURITY_ARTIFACT_REPO
+    placeholder in JSScannerConstants.java file.
+   8. Replace the JIRA URL in WSO2_JIRA_BASE_URL placeholder in IssueCreatorConstants.java
+  
     
 * How to use this tool?
 

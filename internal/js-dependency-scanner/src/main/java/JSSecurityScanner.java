@@ -53,11 +53,14 @@ public class JSSecurityScanner {
         //call pre processing
         log.info("----------------------------------------------------------------------------------------------");
         log.info("[JS_SEC_DAILY_SCAN] START");
+        //productMapper holds product name and the product's file path where those files are downloaded as key value
+        // pair.
         HashMap<String, String> productMapper = preProcessor.startPreprocessing();
         log.info("[JS_SEC_DAILY_SCAN] Product packs are downloaded successfully and ready to execute scanning " +
                 "tool.");
         log.info("----------------------------------------------------------------------------------------------");
         if (productMapper.size() > 0) {
+            //responseMapper holds product name and it's scan results as key value pair.
             HashMap<String, String> responseMapper = retireJsExecutor.startScanner(productMapper);
             log.info("[JS_SEC_DAILY_SCAN] Scan execution finished");
             log.info("----------------------------------------------------------------------------------------------");

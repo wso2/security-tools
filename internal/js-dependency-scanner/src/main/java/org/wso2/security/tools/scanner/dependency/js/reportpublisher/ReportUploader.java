@@ -23,7 +23,6 @@ package org.wso2.security.tools.scanner.dependency.js.reportpublisher;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -38,11 +37,10 @@ public abstract class ReportUploader {
      *
      * @param productResponseMapper Mapper for product and scan result.
      * @throws GitAPIException      Exception occurred during github API call.
-     * @throws IOException          IO Exception.
      * @throws FileHandlerException Exception occurred during report generation.
      */
     public abstract void publishReport(HashMap<String, String> productResponseMapper) throws GitAPIException,
-            IOException, FileHandlerException;
+            FileHandlerException;
 
     public HashMap<String, String> getReportFileMapper() {
         return reportFileMapper;
@@ -51,5 +49,4 @@ public abstract class ReportUploader {
     void setReportFileMapper(HashMap<String, String> reportFileMapper) {
         this.reportFileMapper = reportFileMapper;
     }
-
 }

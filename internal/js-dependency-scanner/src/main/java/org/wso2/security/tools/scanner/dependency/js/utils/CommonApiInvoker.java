@@ -44,6 +44,10 @@ public class CommonApiInvoker {
         CommonApiInvoker.gitToken = gitToken.clone();
     }
 
+    public static char[] getGitToken() {
+        return gitToken;
+    }
+
     //github API access-token
     private static char[] gitToken;
 
@@ -81,13 +85,13 @@ public class CommonApiInvoker {
                 result.append(line);
             }
         } catch (IOException e) {
-            throw new ApiInvokerException("Failed to connect Git API endpoint " + url + " : due to " + e.getMessage());
+            throw new ApiInvokerException("Failed to connect Git API endpoint " + url, e);
         } finally {
             if (bufferedReader != null) {
                 try {
                     bufferedReader.close();
                 } catch (IOException e) {
-                    throw new ApiInvokerException("Unable to close stream : " + e.getMessage());
+                    throw new ApiInvokerException("Unable to close stream : ", e);
 
                 }
             }

@@ -21,7 +21,7 @@
 package org.wso2.security.tools.scanner.dependency.js.constants;
 
 /**
- * constants related to JSSecurityScanner
+ * Constants related to JSSecurityScanner
  */
 public class JSScannerConstants {
 
@@ -39,7 +39,7 @@ public class JSScannerConstants {
     public static final String OB = "wso2-ob-solution";
 
     //constants related to config files
-    public static final String GIT_CONFIG_FILE = "githubconfig.properties";
+    public static final String GIT_CONFIG_FILE = "githubuploaderconfig.properties";
     public static final String GIT_ACCESS_TOKEN_CONFIG_FILE = "gitaccesstoken.properties";
     public static final String ISSUECREATOR_CONFIG_FILE = "issuecreatorconfig.properties";
     public static final String PRODUCT_LIST_FILE = "productlist.properties";
@@ -50,6 +50,7 @@ public class JSScannerConstants {
     public static final String IS_CONFIG_FILE = "iamconfig.properties";
     public static final String JIRA_TICKET_INFO_FILE = "jiraticketinfo.properties";
     public static final String OB_CONFIG_FILE = "obconfig.properties";
+    public static final String ATUWA_CONFIG = "atuwa.properties";
     public static final String PROPERTIES_FILE_DELIMETER = ",";
 
     //Config files attributes
@@ -57,6 +58,7 @@ public class JSScannerConstants {
     public static final String ACCESSTOKEN = "accessToken";
     public static final String USERNAME = "userName";
     public static final String PASSWORD = "password";
+    public static final String SECURITY_ARTIFACT_REPO = "githubrepourl";
     public static final String GIT_REPO_NAME = "gitRepoName";
     public static final String INPUT_SOURCE_TYPE = "inputSourceType";
     public static final String VERSION_TAG_KEY_WORD = "componentVersionTag";
@@ -72,14 +74,13 @@ public class JSScannerConstants {
     public static final String ASSETS = "assets";
     public static final String NAME = "name";
     public static final String DOWNLOAD_URL = "browser_download_url";
-    public static final String ATUWA_BASE_URL = "http://atuwa.private.wso2.com/WSO2-Products/open-banking-solutions/";
+    public static final String ATUWA_BASE_URL = "atuwabaseurl";
     public static final String OB_INDEX_FILE = "open-banking-solutions-packs.index";
     //constants related to directory
     public static final String PRODUCT_HOME = System.getProperty("user.home") + "/products";
     public static final String SECURITY_ARTIFACT_HOME = System.getProperty("user.home") + "/securityArtifact";
     public static final String WEEKLY_RELEASE = "weeklyRelease";
     public static final String GA_RELEASE = "GARelease";
-    public static final String SECURITY_ARTIFACT_REPO = "https://github.com/wso2/security-artifacts.git";
     public static final String SCN_REPORT_DIRECTORY_PATH = "/dependency-analysis/internal/retirejs/scan-reports";
 
     //constants related to github credentials
@@ -95,5 +96,7 @@ public class JSScannerConstants {
     public static final String POM_VERSION_REGEX = "[0-9]+[.][0-9]+[.][0-9]+";
     public static final String GA_RELEASE_VERSION_REGEX = "[-]\\d+[.]\\d+[.]\\d+[.]";
 
-}
+    //Random String
+    public static final String RANDOM_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+}

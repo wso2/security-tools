@@ -48,11 +48,10 @@ public class ReportWriter {
      * @param productResponseMapper Mapper which holds value for product and response.
      * @param targetDir             Root Directory where the report is generated.
      * @return Mapper which holds product and report file path key value pair.
-     * @throws IOException          IO Exception.
      * @throws FileHandlerException Exception occurred while generating report.
      */
     public static HashMap<String, String> callWriter(HashMap<String, String> productResponseMapper, File targetDir)
-            throws IOException, FileHandlerException {
+            throws FileHandlerException {
         String reportDesPath = targetDir.getAbsolutePath() + File.separator + java.time.LocalDate.now().toString();
         File reportDestDir = new File(reportDesPath);
         createDirectory(reportDestDir);
@@ -71,23 +70,28 @@ public class ReportWriter {
      * @param response  Scan response.
      * @param targetDir Directory where the report placed.
      * @return file path
-     * @throws IOException          IO Exception.
      * @throws FileHandlerException File handler Exception.
      */
-    private static String writeFile(String name, String response, File targetDir) throws IOException,
-            FileHandlerException {
+    private static String writeFile(String name, String response, File targetDir) throws FileHandlerException {
         PrintWriter writer;
+        String currentReportFilePath;
+        String indented;
         ObjectMapper mapper = new ObjectMapper();
-        Object json = mapper.readValue(response, Object.class);
-        String indented = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-        String currentReportFilePath = targetDir + "/" + name + "-" +
-                java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ".json";
+        try {
+            Object json = mapper.readValue(response, Object.class);
+            indented = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+            currentReportFilePath = targetDir + "/" + name + "-" +
+                    java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ".json";
+        } catch (IOException e) {
+            throw new FileHandlerException("Failed to generate report for " + name + "." +
+                    " Error occurred while formatting scan results (JSON format).", e);
+        }
         try {
             writer = new PrintWriter(currentReportFilePath, "UTF-8");
             writer.write(indented);
             writer.close();
         } catch (IOException e) {
-            throw new FileHandlerException("Failed to generate report for " + name + " " + e.getMessage());
+            throw new FileHandlerException("Failed to generate report for " + name + " " + e);
         }
         log.info("[JS_SEC_DAILY_SCAN] Successfully generated report for " + name);
         return currentReportFilePath;

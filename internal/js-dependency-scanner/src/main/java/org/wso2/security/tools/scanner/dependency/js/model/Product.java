@@ -26,6 +26,7 @@ import java.util.HashMap;
  * Attributes of a particular product.
  */
 public class Product {
+
     //Repository name of a product.
     private String productRepoName;
     //source type to get product type. It can be either github or atuwa.
@@ -56,4 +57,5 @@ public class Product {
     public void setRepoVersionMapper(HashMap<String, String> repoVersionMapper) {
         this.repoVersionMapper = repoVersionMapper;
     }
+
 }
