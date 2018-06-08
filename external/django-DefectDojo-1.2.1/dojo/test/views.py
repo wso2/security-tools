@@ -3,6 +3,7 @@
 import logging
 import sys
 import csv
+import re
 import StringIO
 import operator
 from datetime import datetime
@@ -158,6 +159,8 @@ def delete_test_note(request, tid, nid):
                              extra_tags='alert-success')
         return view_test(request, tid)
     return HttpResponseForbidden()
+
+
 @user_passes_test(lambda u: u.is_staff)
 @cache_page(60 * 5)  # cache for 5 minutes
 def test_calendar(request):
@@ -380,6 +383,8 @@ def add_temp_finding(request, tid, fid):
                    'tid': test.id,
                    'test': test,
                    })
+
+
 def search(request, tid):
     test = get_object_or_404(Test, id=tid)
     templates = Finding_Template.objects.all()
@@ -605,14 +610,13 @@ def download_cvffv1_test(request, tid):
 
     output = StringIO.StringIO()
     wr = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
-
+    product_name=test.engagement.product.name
     if str(test.test_type) == 'Veracode Scan':
         headings = ["finding_id", "issue_id", "title", "cwe", "url", "severity", "description", "mitigation", "impact",
-                    "line_number", "sourcefile", "sourcefilepath", "Function", "WSO2_resolution", "WSO2_offset", "WSO2_comment", "Use_Case" , "Vulnerability_Influence" , "Resolution"]
+                    "line_number", "sourcefile", "sourcefilepath", "Function", "WSO2_resolution", "WSO2_offset", "WSO2_comment", "Use_Case" , "Vulnerability_Influence" , "Resolution", "Applicable_Product"]
         wr.writerow(headings)
 
         offsets = [0, 10, 20, 50, 100, 150]
-
         for finding in Finding.objects.filter(test_id=tid):
             data = [finding.id, finding.issue_id, finding.title, finding.cwe, finding.url, finding.severity,
                     finding.description, finding.mitigation, finding.impact, finding.line_number, finding.sourcefile,
@@ -629,34 +633,118 @@ def download_cvffv1_test(request, tid):
                 comment_found = 1
 
             if comment_found == 0:
+                use_case_found = 0
+                wso2_comment = ""
+                wso2_resolution = ""
+                wso2_use_case = ""
+                wso2_vulnerability_influence = ""
+                resolution = ""
+                wso2_offset = 0
+                wso2_comment_found = 0
+
                 for offset in offsets:
-                    similarFindingsWithNotes = [];
+                    similarFindingsWithNotes = []
+                    pattern = re.compile('[0-9]*')
+                    product_name= pattern.split(product_name)[0]
                     if offset == 0:
-                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number).exclude(notes=None).order_by('-id')
+                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product__name__startswith=product_name).exclude(notes=None).order_by('-id')
+                        if len(similarFindingsWithNotes) == 0 :
+                            similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number ).exclude(notes=None).order_by('-id')
                     else:
-                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function).filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
-
+                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, test__engagement__product__name__startswith=product_name  ).filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
+                        if len(similarFindingsWithNotes) == 0:
+                            similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function).filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
                     if similarFindingsWithNotes:
-                        note = similarFindingsWithNotes[0].notes.all()[0]
-                        if note.entry.find("] ~ ") > -1:
-                            if str(note.entry[1:note.entry.find("] ~ ")]).strip().replace(" ","") != "":
-                                if note.entry.find("] ~ : ") > -1:
-                                    data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
-                                    data.append(str(offset))
-                                    data.append("")
-                                    data.append(note.entry[note.entry.find("] ~ : ") + 5 : note.entry.find(":- ")])
-                                    data.append(note.entry[note.entry.find(":- ")  + 3 : note.entry.find(" :: ")])
-                                    data.append(note.entry[note.entry.find(" :: ") + 3 :])
-                                    comment_found = 1
-                                    break
-                                else:
-                                    data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
-                                    data.append(str(offset))
-                                    data.append(note.entry[note.entry.find("] ~ ") + 4:])
-                                    comment_found = 1
-                                    break
+                        t = get_object_or_404(Test, pk=similarFindingsWithNotes[0].test_id)
 
-            wr.writerow(data)
+                        for note in similarFindingsWithNotes[0].notes.all():
+                            if note.entry.find("] ~ ") > -1:
+                                if str(note.entry[1:note.entry.find("] ~ ")]).strip().replace(" ","") != "":
+                                        if note.entry.find("] ~ : ") > -1:
+                                            if use_case_found != 1:
+                                                use_case_found = 1
+                                                wso2_resolution = str(note.entry[1:note.entry.find("] ~ ")]).strip()
+                                                if wso2_comment_found == 0:
+                                                    wso2_offset = str(offset)
+                                                wso2_use_case = note.entry[note.entry.find("] ~ : ") + 5 : note.entry.find(":- ")]
+                                                wso2_vulnerability_influence = note.entry[note.entry.find(":- ")  + 3 : note.entry.find(" :: ")]
+                                                resolution = note.entry[note.entry.find(" :: ") + 3 :]
+                                                comment_found = 1
+                                                wso2_product = t.engagement.product
+                                                if wso2_comment_found == 1:
+                                                    break
+                            elif note.entry.find("] ~ ") > -1:
+                                            if wso2_comment_found != 1:
+                                                wso2_resolution = str(note.entry[1:note.entry.find("] ~ ")]).strip()
+                                                wso2_offset = str(offset)
+                                                wso2_product = t.engagement.product
+                                                wso2_comment = note.entry[note.entry.find("] ~ ") + 4:]
+                                                comment_found = 1
+                                                wso2_comment_found = 1
+                                                if use_case_found == 1:
+                                                    break;
+                        if use_case_found ==1 & wso2_comment_found ==1:
+                            break
+                if comment_found == 1:
+                    data.append(wso2_resolution)
+                    data.append(wso2_offset)
+                    data.append(wso2_comment)
+                    data.append(wso2_use_case)
+                    data.append(wso2_vulnerability_influence)
+                    data.append(resolution)
+                    if wso2_product.id != test.engagement.product.id:
+                        data.append(wso2_product)
+
+            wr.writerow([unicode(c).encode('utf8') for c in data])
+
+    elif str(test.test_type) == 'Qualys Scan (Webapp)' or str(test.test_type) == 'Qualys Scan (Single Scan)':
+        headings = ["finding_id", "issue_id", "title", "severity", "impact", "url", "param", "payload","endpoint", "description", "mitigation",
+                    "WSO2_resolution", "WSO2_comment", "Use_Case" , "Vulnerability_Influence" , "Resolution"]
+        wr.writerow(headings)
+
+        for finding in Finding.objects.filter(test_id=tid):
+            endpoint = ""
+            if finding.endpoints:
+                if finding.endpoints.all():
+                    endpoint = finding.endpoints.all()[0];
+
+                if endpoint:
+                    data = [finding.id, finding.issue_id, finding.title, finding.severity, finding.impact, str(endpoint) + "\r\n(" + finding.url + ")", finding.param,
+                            finding.payload, endpoint, finding.description, finding.mitigation]
+                else:
+                    data = [finding.id, finding.issue_id, finding.title, finding.severity, finding.impact, str(endpoint) + "\r\n(" + finding.url + ")", finding.param,
+                            finding.payload , "", finding.description, finding.mitigation]
+                comment_found = 0
+
+                if finding.param:
+                    similarFindingsWithNotes = Finding.objects.filter(title=finding.title,
+                                                                    param=finding.param,
+                                                                    url=finding.url).exclude(notes=None).order_by('-id')
+                elif endpoint:
+                    similarFindingsWithNotes = Finding.objects.filter(title=finding.title,
+                                                                      payload=finding.payload,
+                                                                      url=finding.url).exclude(notes=None).order_by('-id')
+
+                if similarFindingsWithNotes:
+                    for note in similarFindingsWithNotes[0].notes.all():
+                        if note.entry.find("] ~ ") > -1:
+                            if note.entry.find("] ~ : ") > -1:
+                                data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
+                                data.append("N/A")
+                                data.append("")
+                                data.append(note.entry[note.entry.find("] ~ : ") + 5 : note.entry.find(":- ")])
+                                data.append(note.entry[note.entry.find(":- ")  + 3 : note.entry.find(" :: ")])
+                                data.append(note.entry[note.entry.find(" :: ") + 3 :])
+                                comment_found = 1
+                                break
+                            elif note.entry.find("] ~ ") > -1:
+                                data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
+                                data.append("N/A")
+                                data.append(note.entry[note.entry.find("] ~ ") + 4:])
+                                comment_found = 1
+                                break
+
+            wr.writerow([unicode(c).encode('utf8') for c in data])
 
     response = HttpResponse(output.getvalue(), content_type='plain/text')
     response['Content-Disposition'] = 'attachment; filename=' + str(test.test_type).replace(' ','_') + "-" + tid + '.csv'

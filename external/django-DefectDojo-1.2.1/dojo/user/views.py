@@ -56,41 +56,45 @@ class UploadCVFFForm(forms.Form):
 def handle_uploaded_cvff(request, f):
     output = StringIO.StringIO()
     for chunk in f.chunks():
-        output.write(chunk)
+       output.write(chunk)
 
-    csvString = output.getvalue().splitlines(True)[1:]
+    csvString = output.getvalue().splitlines(True)[0:]
 
     inputCSV = csv.reader(csvString, quoting=csv.QUOTE_NONNUMERIC)
     logger.error('Before moving into loop')
+    isHeader = 1
+    indexOfResolution = 0
+
     for row in inputCSV:
+        if isHeader == 1:
+            for col in row:
+                print str(col)
+                if str(col) == "WSO2_resolution":
+                    print "is header changed:"
+                    isHeader = 0
+                    break
+                indexOfResolution = indexOfResolution + 1
+
         try:
             finding = Finding.objects.filter(pk=float(row[0]))[0];
             logger.error('Finding note count for id '+ str(row[0]) +' is : ' + str(finding.notes.count()))
-            status = str(row[13]).strip().split("(")[0]
-            if finding.notes.count() == 0:
-                if row[15] in (None, ""):
-                    note = Notes(entry= "[ " + status + " ] ~ : " + row[16] + " :- " + row[17] + " :: " + row[18] , author=request.user)
-                    note.save()
-                    finding.notes.add(note);
-                    logger.info('Adding new note')
-                else:
-                    note = Notes(entry= "[ " + status + " ] ~ " + row[15] , author=request.user)
+            status = str(row[indexOfResolution]).strip().split("(")[0]
+            # if finding.notes.count() == 0:
+            if row[indexOfResolution+2] in (None, ""):
+                if row[indexOfResolution+3] is not None:
+                    note = Notes(entry= "[ " + status + " ] ~ : " + row[indexOfResolution+3] + " :- " + row[indexOfResolution+4] + " :: " + row[indexOfResolution+5] , author=request.user)
                     note.save()
                     finding.notes.add(note);
                     logger.info('Adding new note')
             else:
-                if row[15] in (None, ""):
-                    note = finding.notes.all()[0]
-                    note.entry = "[ " + status + " ] ~ : " + row[16] + " :- " + row[17] + " :: " + row[18]
-                    note.author=request.user
+                    note = Notes(entry= "[ " + status + " ] ~ " + row[indexOfResolution+2] , author=request.user)
                     note.save()
-                    logger.info('Updating existing note' + str(note.id))
-                else:
-                    note = finding.notes.all()[0]
-                    note.entry = "[ " + status + " ] ~ " + row[15]
-                    note.author=request.user
-                    note.save()
-                    logger.info('Updating existing note' + str(note.id))
+                    finding.notes.add(note);
+                    if row[indexOfResolution+3] is not None:
+                        note2 = Notes(entry= "[ " + status + " ] ~ : " + row[indexOfResolution+3] + " :- " + row[indexOfResolution+4] + " :: " + row[indexOfResolution+5] , author=request.user)
+                        note2.save()
+                        finding.notes.add(note2);
+                    logger.info('Adding new note')
 
             status = status.replace('.','').replace(',','').replace(' ','').lower()
 
