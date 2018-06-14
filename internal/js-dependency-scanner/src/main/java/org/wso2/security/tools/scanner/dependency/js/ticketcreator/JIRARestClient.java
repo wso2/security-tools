@@ -33,7 +33,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
-import org.wso2.security.tools.scanner.dependency.js.exception.IssueCreatorException;
+import org.wso2.security.tools.scanner.dependency.js.exception.TicketCreatorException;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,9 +125,9 @@ public class JIRARestClient {
      * @param auth credentials info of JIRA.
      * @param url  url to be invoked.
      * @param path path of the file to be attached.
-     * @throws IssueCreatorException Exception occurred while attaching the file with ticket.
+     * @throws TicketCreatorException Exception occurred while attaching the file with ticket.
      */
-    public void invokePutMethodWithFile(String auth, String url, String path) throws IssueCreatorException {
+    public void invokePutMethodWithFile(String auth, String url, String path) throws TicketCreatorException {
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httppost = new HttpPost(url);
@@ -142,13 +142,13 @@ public class JIRARestClient {
             response = httpclient.execute(httppost);
             log.info("[JS_SEC_DAILY_SCAN] File attached with ticket : " + response.toString());
         } catch (IOException e) {
-            throw new IssueCreatorException("File upload failed while attaching the scan report with issue ticket: " +
+            throw new TicketCreatorException("File upload failed while attaching the scan report with issue ticket: " +
                     path, e);
         } finally {
             try {
                 httpclient.close();
             } catch (IOException e) {
-                throw new IssueCreatorException("Exception occurred while closing the http connection", e);
+                throw new TicketCreatorException("Exception occurred while closing the http connection", e);
             }
         }
     }

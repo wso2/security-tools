@@ -21,7 +21,7 @@
 package org.wso2.security.tools.scanner.dependency.js.issuecreator;
 
 
-import org.wso2.security.tools.scanner.dependency.js.exception.IssueCreatorException;
+import org.wso2.security.tools.scanner.dependency.js.exception.TicketCreatorException;
 
 import java.util.HashMap;
 
@@ -29,14 +29,14 @@ import java.util.HashMap;
 /**
  * Abstract Class for implementing issue creator API Endpoint.
  */
-public abstract class IssueCreator {
+public abstract class TicketCreator {
     private char[] username;
     private char[] password;
     private String endPointURL;
     private HashMap<String, String> assigneeMapper;
 
-    IssueCreator(char[] issueCreatorAPIUserName, char[] issueCreatorAPIPassWord,
-                 String url) {
+    TicketCreator(char[] issueCreatorAPIUserName, char[] issueCreatorAPIPassWord,
+                  String url) {
         username = issueCreatorAPIUserName.clone();
         password = issueCreatorAPIPassWord.clone();
         endPointURL = url;
@@ -69,6 +69,6 @@ public abstract class IssueCreator {
      * @param fileMapper     Mapper which holds product name and it's report file path.
      */
     public abstract void handleIssueCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String>
-            fileMapper) throws IssueCreatorException;
+            fileMapper) throws TicketCreatorException;
 
 }

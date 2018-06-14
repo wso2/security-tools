@@ -25,10 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.wso2.security.tools.scanner.dependency.js.constants.IssueCreatorConstants;
+import org.wso2.security.tools.scanner.dependency.js.constants.TicketCreatorConstants;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
-import org.wso2.security.tools.scanner.dependency.js.exception.IssueCreatorException;
+import org.wso2.security.tools.scanner.dependency.js.exception.TicketCreatorException;
 import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 
 import java.nio.charset.Charset;
@@ -44,8 +44,8 @@ import javax.naming.AuthenticationException;
  * JIRA Issue Creator. This class responsible for essential functions for creating a JIRA issue ticket and
  * update existing tickets with newly scan reports.
  */
-public class JIRAIssueCreator extends IssueCreator {
-    private static final Logger log = Logger.getLogger(JIRAIssueCreator.class);
+public class JIRATicketCreator extends TicketCreator {
+    private static final Logger log = Logger.getLogger(JIRATicketCreator.class);
     private JIRARestClient jira;
     private static String ticketSubject;
     private static String projectKey;
@@ -53,25 +53,25 @@ public class JIRAIssueCreator extends IssueCreator {
     private static String issueType;
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
-    public JIRAIssueCreator(JIRARestClient jira, char[] username, char[] password, String url) {
+    public JIRATicketCreator(JIRARestClient jira, char[] username, char[] password, String url) {
         super(username, password, url);
         this.jira = jira;
     }
 
     public static void setTicketSubject(String ticketSubject) {
-        JIRAIssueCreator.ticketSubject = ticketSubject;
+        JIRATicketCreator.ticketSubject = ticketSubject;
     }
 
     public static void setProjectKey(String projectKey) {
-        JIRAIssueCreator.projectKey = projectKey;
+        JIRATicketCreator.projectKey = projectKey;
     }
 
     public static void setIssueLabel(String issueLabel) {
-        JIRAIssueCreator.issueLabel = issueLabel;
+        JIRATicketCreator.issueLabel = issueLabel;
     }
 
     public static void setIssueType(String issueType) {
-        JIRAIssueCreator.issueType = issueType;
+        JIRATicketCreator.issueType = issueType;
     }
 
     /**
@@ -84,11 +84,11 @@ public class JIRAIssueCreator extends IssueCreator {
      */
     @Override
     public void handleIssueCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String> fileMapper)
-            throws IssueCreatorException {
+            throws TicketCreatorException {
         try {
             ConfigParser.parseJIRATicketInfo();
         } catch (ConfigParserException e) {
-            throw new IssueCreatorException("Unable to create JIRA ticket for all products.", e);
+            throw new TicketCreatorException("Unable to create JIRA ticket for all products.", e);
         }
         String credentials = new String(getUsername()) + ":" + new String(getPassword());
         String auth;
@@ -98,21 +98,21 @@ public class JIRAIssueCreator extends IssueCreator {
                 //Get the index of the last occurrence of the character ('-') in product name.
                 int index = entry.getKey().lastIndexOf("-");
                 String summary = entry.getKey().substring(0, index) + ":" + ticketSubject;
-                String issueKey = checkForIssueExistence(auth, summary, projectKey);
+                String issueKey = checkForTicketExistence(auth, summary, projectKey);
                 if (StringUtils.isBlank(issueKey)) {
-                    createJIRAIssue(entry.getKey(), fileMapper.get(entry.getKey()), auth, summary);
+                    createJIRATicket(entry.getKey(), fileMapper.get(entry.getKey()), auth, summary);
                 } else {
                     try {
                         jira.invokePostComment(auth, getEndPointURL() +
-                                IssueCreatorConstants.JIRA_REST_API_URL +
+                                TicketCreatorConstants.JIRA_REST_API_URL +
                                 "/" + issueKey + "/comment", createComment(entry.getKey()));
                     } catch (AuthenticationException e) {
-                        throw new IssueCreatorException("Failed to add comment for attached file in jira ticket." +
+                        throw new TicketCreatorException("Failed to add comment for attached file in jira ticket." +
                                 entry.getKey().substring(0, index), e);
                     }
                     log.info("[JS_SEC_DAILY_SCAN] JIRA Comment added : " + createComment(entry.getKey()));
                     jira.invokePutMethodWithFile(auth, getEndPointURL() +
-                            IssueCreatorConstants.JIRA_REST_API_URL + "/" +
+                            TicketCreatorConstants.JIRA_REST_API_URL + "/" +
                             issueKey + "/attachments", fileMapper.get(entry.getKey()));
                 }
             }
@@ -120,15 +120,17 @@ public class JIRAIssueCreator extends IssueCreator {
     }
 
     /**
-     * Create JIRA Issue.
+     * Create JIRA Ticket.
      *
      * @param product  product name
      * @param filePath File path where the generated report is located. It will attached with ticket.
-     * @throws IssueCreatorException exception occurred while creating issue ticket.
+     * @param auth     Credential data which is encoded using base64.
+     * @param summary  Summary of the JIRA issue ticket.
+     * @throws TicketCreatorException exception occurred while creating issue ticket.
      */
-    private void createJIRAIssue(String product, String
-            filePath, String auth, String summary) throws IssueCreatorException {
-        String issue;
+    private void createJIRATicket(String product, String
+            filePath, String auth, String summary) throws TicketCreatorException {
+        String ticket;
         String assignee = null;
         if (product.contains(JSScannerConstants.AM)) {
             assignee = this.getAssigneeMapper().get(JSScannerConstants.AM);
@@ -143,24 +145,24 @@ public class JIRAIssueCreator extends IssueCreator {
         }
 
         if (assignee == null) {
-            assignee = IssueCreatorConstants.DEFAULT_ASSIGNEE;
+            assignee = TicketCreatorConstants.DEFAULT_ASSIGNEE;
         }
 
         String jiraBaseUrl = getEndPointURL();
-        String issueToBeCreated = createNewTicket(product, assignee, summary);
+        String ticketToBeCreated = buildNewTicketData(product, assignee, summary);
         try {
-            issue = jira.invokePostMethod(auth, jiraBaseUrl + IssueCreatorConstants.JIRA_REST_API_URL,
-                    issueToBeCreated);
-            JSONObject createdIssue = new JSONObject(issue);
-            String issueKey = createdIssue.getString("key");
+            ticket = jira.invokePostMethod(auth, jiraBaseUrl + TicketCreatorConstants.JIRA_REST_API_URL,
+                    ticketToBeCreated);
+            JSONObject createdTicket = new JSONObject(ticket);
+            String ticketKey = createdTicket.getString("key");
             log.info("[JS_SEC_DAILY_SCAN] Issue ticket for " + product + " successfully created.");
-            jira.invokePostComment(auth, jiraBaseUrl + IssueCreatorConstants.JIRA_REST_API_URL +
-                    "/" + issueKey + "/comment", createComment(product));
+            jira.invokePostComment(auth, jiraBaseUrl + TicketCreatorConstants.JIRA_REST_API_URL +
+                    "/" + ticketKey + "/comment", createComment(product));
             log.info("[JS_SEC_DAILY_SCAN] JIRA Comment added ");
-            jira.invokePutMethodWithFile(auth, jiraBaseUrl + IssueCreatorConstants.JIRA_REST_API_URL + "/" +
-                    issueKey + "/attachments", filePath);
+            jira.invokePutMethodWithFile(auth, jiraBaseUrl + TicketCreatorConstants.JIRA_REST_API_URL + "/" +
+                    ticketKey + "/attachments", filePath);
         } catch (AuthenticationException e) {
-            throw new IssueCreatorException("Failed to authenticate JIRA : " + e);
+            throw new TicketCreatorException("Failed to authenticate JIRA : ", e);
         }
     }
 
@@ -180,19 +182,20 @@ public class JIRAIssueCreator extends IssueCreator {
     }
 
     /**
-     * Create JIRA new ticket.
+     * Build new JIRA ticket data.
      *
      * @param product  product name.
      * @param assignee mail address of a person who is responsible for this ticket.
+     * @param summary  summary of the JIRA Issue Ticket.
      * @return Created issue data.
      */
-    private String createNewTicket(String product, String assignee, String summary) {
-        String createIssueData = "{\"fields\": {\"project\": {\"key\":\"" + projectKey + "\"}," +
+    private String buildNewTicketData(String product, String assignee, String summary) {
+        String ticketDataToBeCreated = "{\"fields\": {\"project\": {\"key\":\"" + projectKey + "\"}," +
                 "\"summary\":" + "\"" + summary + "\"" + ",  \"assignee\": {\"name\": \"" +
                 assignee + "\"}," + "\"labels\":" + "[\"" + issueLabel + "\"]" + "," +
                 "\"description\":" + "\"" + product + "\"" + "," +
                 "\"issuetype\":{\"name\":\"" + issueType + "\"}}}";
-        return createIssueData;
+        return ticketDataToBeCreated;
     }
 
     /**
@@ -209,32 +212,32 @@ public class JIRAIssueCreator extends IssueCreator {
     }
 
     /**
-     * Checking if there is any issues already reported in the Jira with the same summary.
+     * Checking if there is any tickets already reported in the JIRA with the same summary.
      *
-     * @param auth    Base64 encoded authorization paramters
-     * @param summary JIRA heading which used to find the JIRA existance
-     * @return returning the JIRA key, if already jira is created else return an empty String
+     * @param auth    Base64 encoded authorization parameters
+     * @param summary JIRA heading which used to find the JIRA Ticket existance
+     * @return returning the JIRA Ticket key, if already jira is created else return an empty String
      */
 
-    private String checkForIssueExistence(String auth, String summary, String projectKey) {
+    private String checkForTicketExistence(String auth, String summary, String projectKey) {
         String responseIssue;
         String key = "";
-        JSONObject availableIssue = null;
+        JSONObject availableTicket = null;
         summary = summary.replace("[", "");
         summary = summary.replace("]", "");
         try {
-            String issueExistenceCheckUrl = getEndPointURL() +
+            String ticketExistenceCheckUrl = getEndPointURL() +
                     "rest/api/2/search?jql=project+%3d+" + projectKey +
                     "+AND+summary+%7e+%22" + summary + "%22" + "&fields=" + "";
-            responseIssue = jira.invokeGetMethod(auth, issueExistenceCheckUrl);
-            availableIssue = new JSONObject(responseIssue);
+            responseIssue = jira.invokeGetMethod(auth, ticketExistenceCheckUrl);
+            availableTicket = new JSONObject(responseIssue);
         } catch (AuthenticationException e) {
             log.error("Authentication failed", e);
         }
         try {
-            if (availableIssue != null) {
-                if (availableIssue.getJSONArray("issues").length() != 0) {
-                    key = availableIssue.getJSONArray("issues").getJSONObject(0).getString("key");
+            if (availableTicket != null) {
+                if (availableTicket.getJSONArray("issues").length() != 0) {
+                    key = availableTicket.getJSONArray("issues").getJSONObject(0).getString("key");
                 }
             }
         } catch (org.json.JSONException e) {
