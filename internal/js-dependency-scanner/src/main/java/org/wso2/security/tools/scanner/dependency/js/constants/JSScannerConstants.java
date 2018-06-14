@@ -41,7 +41,7 @@ public class JSScannerConstants {
     //constants related to config files
     public static final String GIT_CONFIG_FILE = "githubuploaderconfig.properties";
     public static final String GIT_ACCESS_TOKEN_CONFIG_FILE = "gitaccesstoken.properties";
-    public static final String ISSUECREATOR_CONFIG_FILE = "issuecreatorconfig.properties";
+    public static final String TICKETCREATOR_CONFIG_FILE = "ticketcreatorconfig.properties";
     public static final String PRODUCT_LIST_FILE = "productlist.properties";
     public static final String APIM_CONFIG_FILE = "apimconfig.properties";
     public static final String EI_CONFIG_FILE = "eiconfig.properties";

@@ -88,31 +88,29 @@ public class GitDownloader extends ResourceDownloader {
                             name.contains(JSScannerConstants.STREAMPROCESSOR) ||
                             name.contains(JSScannerConstants.IDENTITYSERVER)) &&
                             name.endsWith(JSScannerConstants.ZIP_PREFIX)) {
-                        //If current product asset is weekly release the product should be saved in weekly release
-                        // folder of particular product.
-                        //If current product asset is GA release the product should be saved in GA release
-                        //folder of particular product.
                         if (isWeeklyRelease(name)) {
+                            //If current product asset is weekly release then the target directory is weekly release
+                            // folder of particular product.
                             tarDir = new File(path + File.separator + JSScannerConstants.WEEKLY_RELEASE);
                         } else if (isGARelease(name)) {
+                            //If current product asset is GA release then the target directory is GA release
+                            //folder of particular product.
                             tarDir = new File(path + File.separator + JSScannerConstants.GA_RELEASE);
                         }
                         if (tarDir != null) {
-                            try {
-                                createDirectory(tarDir);
-                            } catch (IOException e) {
-                                throw new DownloaderException("Error occurred while " +
-                                        "creating directory for." + name, e);
-                            }
+                            createResourceDirectory(tarDir);
                         }
                         log.info(name + " is published on " + releaseDate);
                         //get download endpoint url
                         downloadURL = (String) assetInArray.get(JSScannerConstants.DOWNLOAD_URL);
                         if (downloadURL != null && path != null) {
                             // the path of downloaded product pack
-                            assert tarDir != null;
-                            String filePath = HttpDownloadUtility.downloadFile(downloadURL,
-                                    tarDir.getAbsolutePath());
+
+                            String filePath = null;
+                            if (tarDir != null) {
+                                filePath = HttpDownloadUtility.downloadFile(downloadURL,
+                                        tarDir.getAbsolutePath());
+                            }
                             // the path of unzipped product directory
                             String unzippedDirPath;
                             try {

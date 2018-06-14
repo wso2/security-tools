@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.security.tools.scanner.dependency.js.issuecreator;
+package org.wso2.security.tools.scanner.dependency.js.ticketcreator;
 
 
 import com.sun.jersey.api.client.Client;

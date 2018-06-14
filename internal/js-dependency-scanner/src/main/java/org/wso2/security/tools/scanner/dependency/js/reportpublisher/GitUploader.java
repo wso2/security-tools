@@ -33,6 +33,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
+import org.wso2.security.tools.scanner.dependency.js.utils.CommonUtils;
 import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 import org.wso2.security.tools.scanner.dependency.js.utils.ReportWriter;
 
@@ -64,13 +65,13 @@ public class GitUploader extends ReportUploader {
      * @param repoUrl  RepoUrl
      * @throws GitAPIException Exception occurred when clone or pull action executed.
      */
-    public GitUploader(char[] username, char[] password, String repoUrl) throws GitAPIException {
+    public GitUploader(char[] username, char[] password, String repoUrl) throws GitAPIException, FileHandlerException {
         super();
-        this.gitUsername = username.clone();
-        this.gitPassword = password.clone();
+        this.gitUsername = username;
+        this.gitPassword = password;
         File artifactFile = new File(JSScannerConstants.SECURITY_ARTIFACT_HOME);
         if (!artifactFile.exists()) {
-            createDirectory(artifactFile);
+            CommonUtils.createDirectory(artifactFile);
             gitRepo = Git.cloneRepository()
                     .setURI(repoUrl)
                     .setDirectory(new File(artifactFile.getAbsolutePath()))
@@ -99,8 +100,7 @@ public class GitUploader extends ReportUploader {
         storeFiles(productResponseMapper);
         gitCommit();
         gitPush();
-        Arrays.fill(gitUsername, JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
-        Arrays.fill(gitPassword, JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
+        CommonUtils.clearCredentialData(gitUsername, gitPassword);
     }
 
     /**
@@ -150,20 +150,6 @@ public class GitUploader extends ReportUploader {
                         new String(gitPassword)))
                 .call();
         log.info("[JS_SEC_DAILY_SCAN]  " + "Push to Security artifact repo");
-    }
-
-    /**
-     * Create directory.
-     *
-     * @param dir target directory.
-     */
-    private void createDirectory(File dir) {
-        if (!dir.exists()) {
-            boolean isDirCreated = dir.mkdir();
-            if (!isDirCreated) {
-                log.error((dir.getAbsolutePath() + " is not created"));
-            }
-        }
     }
 
     /**

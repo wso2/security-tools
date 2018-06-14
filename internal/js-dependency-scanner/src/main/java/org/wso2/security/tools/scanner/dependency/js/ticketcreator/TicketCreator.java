@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.security.tools.scanner.dependency.js.issuecreator;
+package org.wso2.security.tools.scanner.dependency.js.ticketcreator;
 
 
 import org.wso2.security.tools.scanner.dependency.js.exception.TicketCreatorException;
@@ -68,7 +68,7 @@ public abstract class TicketCreator {
      * @param responseMapper Mapper which holds product name and it's scan response as string.
      * @param fileMapper     Mapper which holds product name and it's report file path.
      */
-    public abstract void handleIssueCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String>
+    public abstract void handleTicketCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String>
             fileMapper) throws TicketCreatorException;
 
 }

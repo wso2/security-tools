@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.security.tools.scanner.dependency.js.issuecreator;
+package org.wso2.security.tools.scanner.dependency.js.ticketcreator;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -83,7 +83,7 @@ public class JIRATicketCreator extends TicketCreator {
      * @return {@inheritDoc}
      */
     @Override
-    public void handleIssueCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String> fileMapper)
+    public void handleTicketCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String> fileMapper)
             throws TicketCreatorException {
         try {
             ConfigParser.parseJIRATicketInfo();
@@ -218,7 +218,6 @@ public class JIRATicketCreator extends TicketCreator {
      * @param summary JIRA heading which used to find the JIRA Ticket existance
      * @return returning the JIRA Ticket key, if already jira is created else return an empty String
      */
-
     private String checkForTicketExistence(String auth, String summary, String projectKey) {
         String responseIssue;
         String key = "";

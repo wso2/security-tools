@@ -23,7 +23,7 @@ package org.wso2.security.tools.scanner.dependency.js.constants;
 /**
  * Constants related to creating an issue ticket in JIRA.
  */
-public class IssueCreatorConstants {
+public class TicketCreatorConstants {
 
     public static final String WSO2_JIRA_BASE_URL = "endpointurl";
     public static final String JIRA_REST_API_URL = "rest/api/2/issue";

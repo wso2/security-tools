@@ -27,7 +27,9 @@ import org.json.JSONObject;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ApiInvokerException;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
+import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.utils.CommonApiInvoker;
+import org.wso2.security.tools.scanner.dependency.js.utils.CommonUtils;
 import org.wso2.security.tools.scanner.dependency.js.utils.HttpDownloadUtility;
 
 import java.io.File;
@@ -62,7 +64,12 @@ public class ReactFileDownloader {
             throws DownloaderException, ApiInvokerException {
         for (Map.Entry<String, String> entry : repoVersionMapper.entrySet()) {
             String componentVersion = getComponentVersionFromPom(version, productRepo, entry.getValue());
-            getPackagejsonFiles(componentVersion, entry.getKey(), rootDirectory);
+            try {
+                getPackagejsonFiles(componentVersion, entry.getKey(), rootDirectory);
+            }catch (FileHandlerException e) {
+                throw new DownloaderException("Failed to download package.json file : ",e);
+            }
+
         }
     }
 
@@ -83,25 +90,12 @@ public class ReactFileDownloader {
         } catch (IOException | InterruptedException e) {
             throw new DownloaderException("Error occurred while downloading NPM modules due to : " + e.getMessage());
         } finally {
-            assert process != null;
-            process.destroyForcibly();
-        }
-    }
-
-    /**
-     * Create Directory
-     *
-     * @param dir Directory to be created
-     */
-    private static void createDirectory(File dir) {
-
-        if (!dir.exists()) {
-            boolean isDirCreated = dir.mkdir();
-            if (!isDirCreated) {
-                log.error((dir.getAbsolutePath() + " is not created"));
+            if (process != null) {
+                process.destroyForcibly();
             }
         }
     }
+
 
     /**
      * Get component version from product main pom file.
@@ -161,7 +155,7 @@ public class ReactFileDownloader {
      * @throws DownloaderException Exception occurred while downloading package.json files.
      */
     private static void getPackagejsonFiles(String version, String componentRepo, File rootDir) throws
-            ApiInvokerException, DownloaderException {
+            ApiInvokerException, DownloaderException, FileHandlerException {
         //endpoint to get package.json files
         String url = JSScannerConstants.GIT_SEARCH_URL + JSScannerConstants.PACKAGE_JSON + "+repo:wso2/" +
                 componentRepo + "/tree/" + "v" + version;
@@ -184,7 +178,7 @@ public class ReactFileDownloader {
                 Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                 File parentDir = new File(rootDir.getAbsolutePath() + File.separator + parentFileName +
                         timestamp.getTime());
-                createDirectory(parentDir);
+                CommonUtils.createDirectory(parentDir);
                 //Download package.json files.
                 HttpDownloadUtility.downloadFile(downloadURL, parentDir.getAbsolutePath());
                 //Install NPM modules

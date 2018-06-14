@@ -54,7 +54,7 @@ public class ReportWriter {
             throws FileHandlerException {
         String reportDesPath = targetDir.getAbsolutePath() + File.separator + java.time.LocalDate.now().toString();
         File reportDestDir = new File(reportDesPath);
-        createDirectory(reportDestDir);
+        CommonUtils.createDirectory(reportDestDir);
         HashMap<String, String> reportFileMapper = new HashMap<>();
         for (Map.Entry<String, String> entry : productResponseMapper.entrySet()) {
             String path = writeFile(entry.getKey(), entry.getValue(), reportDestDir);
@@ -95,21 +95,6 @@ public class ReportWriter {
         }
         log.info("[JS_SEC_DAILY_SCAN] Successfully generated report for " + name);
         return currentReportFilePath;
-    }
-
-    /**
-     * Create directory.
-     *
-     * @param dir target directory.
-     */
-    private static void createDirectory(File dir) {
-
-        if (!dir.exists()) {
-            boolean isDirCreated = dir.mkdirs();
-            if (!isDirCreated) {
-                log.error((dir.getAbsolutePath() + " is not created"));
-            }
-        }
     }
 
 }

@@ -15,7 +15,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * /
+ *
  */
 
 package org.wso2.security.tools.scanner.dependency.js.preprocessor;
@@ -25,7 +25,9 @@ import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ApiInvokerException;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
+import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
+import org.wso2.security.tools.scanner.dependency.js.utils.CommonUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,26 +105,35 @@ public abstract class ResourceDownloader {
     }
 
     /**
-     * Create Directory
+     * Create Directory while downloading files
      *
      * @param dir Directory to be created
+     * @throws FileHandlerException Exception occurred while creating resource directory.
      */
-    static void createDirectory(File dir) throws IOException {
-        if (!dir.exists()) {
-            boolean isDirCreated = dir.mkdir();
-            if (!isDirCreated) {
-                log.error((dir.getAbsolutePath() + " is not created : " + dir.getName()));
+    static void createResourceDirectory(File dir) throws DownloaderException {
+        try {
+            // If the file belongs to weekly release the existing weekly release folder should be deleted
+            refreshWeeklyRelease(dir);
+            CommonUtils.createDirectory(dir);
+            log.info("[JS_SEC_DAILY_SCAN]  " + "new weekly release is created successfully : "
+                    + dir.getName());
+        } catch (IOException | FileHandlerException e) {
+            throw new DownloaderException("Error occurred in refreshing the weekly release directory : " +
+                    dir.getAbsolutePath());
+        }
+    }
 
-            }
-        } else {
-            if (dir.getAbsolutePath().contains("weeklyRelease")) {
-                FileUtils.deleteDirectory(dir);
-                log.info("[JS_SEC_DAILY_SCAN]  " + "Existing weekly release is deleted successfully : "
-                        + dir.getName());
-                createDirectory(dir);
-                log.info("[JS_SEC_DAILY_SCAN]  " + "new weekly release is created successfully : "
-                        + dir.getName());
-            }
+    /**
+     * This method checks wheather weekly release is already exists and if so weekly release folder should be deleted.
+     *
+     * @param dir Directory to be checked.
+     * @throws IOException Exception occurred while deleting the file.
+     */
+    private static void refreshWeeklyRelease(File dir) throws IOException {
+        if (dir.exists() && dir.getAbsolutePath().contains(JSScannerConstants.WEEKLY_RELEASE)) {
+            FileUtils.deleteDirectory(dir);
+            log.info("[JS_SEC_DAILY_SCAN]  " + "Existing weekly release is deleted successfully : "
+                    + dir.getName());
         }
     }
 

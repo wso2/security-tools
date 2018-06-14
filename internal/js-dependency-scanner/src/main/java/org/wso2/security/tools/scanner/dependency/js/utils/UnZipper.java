@@ -122,8 +122,9 @@ public class UnZipper {
                 }
             }
         } finally {
-            assert zip != null;
-            zip.close();
+            if (zip != null) {
+                zip.close();
+            }
         }
         return newPath;
     }

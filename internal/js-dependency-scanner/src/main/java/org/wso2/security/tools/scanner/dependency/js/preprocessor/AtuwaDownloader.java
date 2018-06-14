@@ -23,6 +23,7 @@ package org.wso2.security.tools.scanner.dependency.js.preprocessor;
 import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
+import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
 import org.wso2.security.tools.scanner.dependency.js.utils.HttpDownloadUtility;
 import org.wso2.security.tools.scanner.dependency.js.utils.UnZipper;
@@ -44,10 +45,10 @@ import java.util.List;
 public class AtuwaDownloader extends ResourceDownloader {
 
     private static final Logger log = Logger.getLogger(PreProcessor.class);
-    private static String atuwaBaseURl;
+    private static String atuwaBaseURL;
 
-    public static void setAtuwaBaseURl(String atuwaBaseURl) {
-        AtuwaDownloader.atuwaBaseURl = atuwaBaseURl;
+    public static void setAtuwaBaseURL(String atuwaBaseURL) {
+        AtuwaDownloader.atuwaBaseURL = atuwaBaseURL;
     }
 
     /**
@@ -63,7 +64,7 @@ public class AtuwaDownloader extends ResourceDownloader {
     }
 
     /**
-     * Download product pack from atuwa url.
+     * Download product pack from atuwa URL.
      *
      * @param path Root directory file path to store the downloaded file.
      * @return list of downloaded weekly release zip file paths.
@@ -74,20 +75,19 @@ public class AtuwaDownloader extends ResourceDownloader {
         String name = null;
         try {
             zipFilePathList = new ArrayList<>();
-            String urlString = atuwaBaseURl + File.separator + JSScannerConstants.OB_INDEX_FILE;
-            String downloadUrl;
-            // create the url
-            URL url;
+            String urlString = atuwaBaseURL + File.separator + JSScannerConstants.OB_INDEX_FILE;
+            String downloadURL;
+            // build the url
+            URL urlObject;
             try {
-                url = new URL(urlString);
+                urlObject = new URL(urlString);
                 // open the url stream, wrap it an a few "readers"
-                reader = new BufferedReader(new InputStreamReader(url.openStream()));
+                reader = new BufferedReader(new InputStreamReader(urlObject.openStream()));
             } catch (MalformedURLException e) {
-                throw new DownloaderException("Malformed URL has occurred.", e);
+                throw new DownloaderException("Malformed URL has occurred. : " + urlString + " ", e);
             } catch (IOException e) {
-                throw new DownloaderException("Unable to reach url.", e);
+                throw new DownloaderException("Unable to reach URL  .", e);
             }
-            // write the output to stdout
             String line;
             File tarDir = null;
             try {
@@ -101,13 +101,13 @@ public class AtuwaDownloader extends ResourceDownloader {
                             tarDir = new File(path + File.separator + "GARelease");
                         }
                         if (tarDir != null) {
-                            createDirectory(tarDir);
+                            createResourceDirectory(tarDir);
                         }
                         name = element[0];
-                        downloadUrl = atuwaBaseURl + File.separator + element[0];
+                        downloadURL = atuwaBaseURL + File.separator + element[0];
                         if (path != null) {
                             if (tarDir != null) {
-                                String filePath = HttpDownloadUtility.downloadFile(downloadUrl,
+                                String filePath = HttpDownloadUtility.downloadFile(downloadURL,
                                         tarDir.getAbsolutePath());
                                 String unzippedDirPath = UnZipper.extractFolder(filePath);
                                 zipFilePathList.add(filePath);

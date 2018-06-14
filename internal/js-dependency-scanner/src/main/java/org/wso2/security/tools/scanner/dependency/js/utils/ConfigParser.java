@@ -23,12 +23,13 @@ package org.wso2.security.tools.scanner.dependency.js.utils;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.wso2.security.tools.scanner.dependency.js.constants.IssueCreatorConstants;
+import org.wso2.security.tools.scanner.dependency.js.constants.TicketCreatorConstants;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
-import org.wso2.security.tools.scanner.dependency.js.issuecreator.IssueCreator;
-import org.wso2.security.tools.scanner.dependency.js.issuecreator.JIRAIssueCreator;
-import org.wso2.security.tools.scanner.dependency.js.issuecreator.JIRARestClient;
+import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
+import org.wso2.security.tools.scanner.dependency.js.ticketcreator.TicketCreator;
+import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRATicketCreator;
+import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRARestClient;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
 import org.wso2.security.tools.scanner.dependency.js.preprocessor.AtuwaDownloader;
 import org.wso2.security.tools.scanner.dependency.js.reportpublisher.GitUploader;
@@ -87,7 +88,8 @@ public class ConfigParser {
      *
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
-    public static ReportUploader parseGitUploaderConfigProperties() throws GitAPIException, ConfigParserException {
+    public static ReportUploader parseGitUploaderConfigProperties() throws GitAPIException, ConfigParserException,
+            FileHandlerException {
         Properties properties = new Properties();
         ClassLoader classLoader = ConfigParser.class.getClassLoader();
         try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.GIT_CONFIG_FILE)) {
@@ -99,7 +101,6 @@ public class ConfigParser {
                 .toCharArray(), properties.getProperty(JSScannerConstants.PASSWORD).toCharArray(),
                 properties.getProperty(JSScannerConstants.SECURITY_ARTIFACT_REPO));
         return reportUploader;
-
     }
 
     /**
@@ -124,32 +125,32 @@ public class ConfigParser {
      *
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
-    public static IssueCreator parseIssueTicketCreatorCredentials() throws ConfigParserException {
+    public static TicketCreator parseTicketCreatorCredentials() throws ConfigParserException {
 
         Properties properties = new Properties();
         ClassLoader classLoader = ConfigParser.class.getClassLoader();
-        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.ISSUECREATOR_CONFIG_FILE)) {
+        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.TICKETCREATOR_CONFIG_FILE)) {
             properties.load(input);
         } catch (IOException e) {
             throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e);
         }
 
-        IssueCreator issueCreatorAPI = new JIRAIssueCreator(new JIRARestClient(), properties.getProperty
+        TicketCreator ticketCreatorAPI = new JIRATicketCreator(new JIRARestClient(), properties.getProperty
                 (JSScannerConstants.USERNAME).toCharArray(),
                 properties.getProperty(JSScannerConstants.PASSWORD).toCharArray(),
-                properties.getProperty(IssueCreatorConstants.WSO2_JIRA_BASE_URL));
+                properties.getProperty(TicketCreatorConstants.WSO2_JIRA_BASE_URL));
         HashMap<String, String> ticketAssigneeMapper = new HashMap<>();
         //assignees for each products
-        ticketAssigneeMapper.put(JSScannerConstants.AM, properties.getProperty(IssueCreatorConstants.APIM));
+        ticketAssigneeMapper.put(JSScannerConstants.AM, properties.getProperty(TicketCreatorConstants.APIM));
         ticketAssigneeMapper.put(JSScannerConstants.IDENTITYSERVER, properties.getProperty(
-                IssueCreatorConstants.IDENTITYSERVER));
-        ticketAssigneeMapper.put(JSScannerConstants.INTEGRATION, properties.getProperty(IssueCreatorConstants
+                TicketCreatorConstants.IDENTITYSERVER));
+        ticketAssigneeMapper.put(JSScannerConstants.INTEGRATION, properties.getProperty(TicketCreatorConstants
                 .INTEGRATION));
-        ticketAssigneeMapper.put(JSScannerConstants.STREAMPROCESSOR, properties.getProperty(IssueCreatorConstants
+        ticketAssigneeMapper.put(JSScannerConstants.STREAMPROCESSOR, properties.getProperty(TicketCreatorConstants
                 .STREAMPROCESSOR));
-        ticketAssigneeMapper.put(JSScannerConstants.OB, properties.getProperty(IssueCreatorConstants.OPENBANKING));
-        issueCreatorAPI.setAssigneeMapper(ticketAssigneeMapper);
-        return issueCreatorAPI;
+        ticketAssigneeMapper.put(JSScannerConstants.OB, properties.getProperty(TicketCreatorConstants.OPENBANKING));
+        ticketCreatorAPI.setAssigneeMapper(ticketAssigneeMapper);
+        return ticketCreatorAPI;
 
     }
 
@@ -166,10 +167,10 @@ public class ConfigParser {
         } catch (IOException e) {
             throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e);
         }
-        JIRAIssueCreator.setTicketSubject(properties.getProperty(IssueCreatorConstants.TICKET_SUBJECT));
-        JIRAIssueCreator.setProjectKey(properties.getProperty(IssueCreatorConstants.PROJECT_KEY));
-        JIRAIssueCreator.setIssueLabel(properties.getProperty(IssueCreatorConstants.ISSUELABEL));
-        JIRAIssueCreator.setIssueType(properties.getProperty(IssueCreatorConstants.ISSUE_TYPE));
+        JIRATicketCreator.setTicketSubject(properties.getProperty(TicketCreatorConstants.TICKET_SUBJECT));
+        JIRATicketCreator.setProjectKey(properties.getProperty(TicketCreatorConstants.PROJECT_KEY));
+        JIRATicketCreator.setIssueLabel(properties.getProperty(TicketCreatorConstants.ISSUELABEL));
+        JIRATicketCreator.setIssueType(properties.getProperty(TicketCreatorConstants.ISSUE_TYPE));
     }
 
     /**
@@ -185,7 +186,7 @@ public class ConfigParser {
         } catch (IOException e) {
             throw new ConfigParserException("Error occurred in parsing Atuwa URL : " + e);
         }
-        AtuwaDownloader.setAtuwaBaseURl(properties.getProperty(JSScannerConstants.ATUWA_BASE_URL));
+        AtuwaDownloader.setAtuwaBaseURL(properties.getProperty(JSScannerConstants.ATUWA_BASE_URL));
     }
 
     /**

@@ -25,8 +25,10 @@ import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstant
 import org.wso2.security.tools.scanner.dependency.js.exception.ApiInvokerException;
 import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
+import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
 import org.wso2.security.tools.scanner.dependency.js.utils.CommonApiInvoker;
+import org.wso2.security.tools.scanner.dependency.js.utils.CommonUtils;
 import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 
 import java.io.File;
@@ -76,13 +78,13 @@ public class PreProcessor {
 
             //Create Root Directory for products if not exists
             productRootDirectory = new File(JSScannerConstants.PRODUCT_HOME);
-            createDirectory(productRootDirectory);
+            CommonUtils.createDirectory(productRootDirectory);
             log.info("[JS_SEC_DAILY_SCAN] Start downloading product packs");
             //download resources
             downloadResources(supportedProductList);
             Arrays.fill(CommonApiInvoker.getGitToken(),
                     JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
-        } catch (ApiInvokerException | DownloaderException | ConfigParserException e) {
+        } catch (ApiInvokerException | DownloaderException | ConfigParserException | FileHandlerException e) {
             log.error("Error occurred while downloading product pack.", e);
         }
         return productFileMapper;
@@ -97,7 +99,7 @@ public class PreProcessor {
      * @throws DownloaderException exception occurred while downloading files.
      */
     private void downloadResources(List<Product> productDtoList) throws DownloaderException,
-            ApiInvokerException, ConfigParserException {
+            ApiInvokerException, ConfigParserException, FileHandlerException {
         ConfigParser.parseGitAccessToken();
         productFileMapper = new HashMap<>();
         String filename;
@@ -105,7 +107,7 @@ public class PreProcessor {
             //create directory for current product
             File currentProductDir = new File(productRootDirectory.getAbsolutePath() + File.separator +
                     productDto.getProductRepoName());
-            createDirectory(currentProductDir);
+            CommonUtils.createDirectory(currentProductDir);
 
             List<String> zipFileList = new ArrayList<>();
             //download from git repository
@@ -148,24 +150,6 @@ public class PreProcessor {
         List<String> fileList = resourceDownloader.downloadProductPack(productDto,
                 currentProductDir.getAbsolutePath());
         zipFileList.addAll(fileList);
-    }
-
-    /**
-     * Create Directory
-     *
-     * @param dir Directory to be created
-     */
-    private static void createDirectory(File dir) {
-        if (!dir.exists()) {
-            boolean isDirCreated = dir.mkdir();
-            if (!isDirCreated) {
-                log.warn((dir.getAbsolutePath() + " is not created"));
-            } else {
-                log.info("[JS_SEC_DAILY_SCAN] " + dir.getName() + " directory created");
-            }
-        } else {
-            log.info("[JS_SEC_DAILY_SCAN] " + dir.getName() + " directory already exists");
-        }
     }
 
 }

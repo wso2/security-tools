@@ -42,5 +42,4 @@ public class DownloaderException extends Exception {
         super(message, e);
     }
 
-
 }
