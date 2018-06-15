@@ -81,7 +81,8 @@ public class JSScannerConstants {
     public static final String SECURITY_ARTIFACT_HOME = System.getProperty("user.home") + "/securityArtifact";
     public static final String WEEKLY_RELEASE = "weeklyRelease";
     public static final String GA_RELEASE = "GARelease";
-    public static final String SCN_REPORT_DIRECTORY_PATH = "/dependency-analysis/internal/retirejs/scan-reports";
+    public static final String SCN_REPORT_DIRECTORY_PATH = "/RetireJSLibraryScanReports";
+//            "/dependency-analysis/internal/retirejs/scan-reports";
 
     //constants related to github credentials
     public static final String GIT = "git";

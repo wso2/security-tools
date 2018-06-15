@@ -55,7 +55,7 @@ public class JSSecurityScanner {
         log.info("[JS_SEC_DAILY_SCAN] START");
         //productMapper holds product name and the product's file path where those files are downloaded as key value
         // pair.
-        HashMap<String, String> productMapper = preProcessor.startPreprocessing();
+        HashMap<String, String> productMapper = preProcessor.startPreProcessing();
         log.info("[JS_SEC_DAILY_SCAN] Product packs are downloaded successfully and ready to execute scanning " +
                 "tool.");
         log.info("----------------------------------------------------------------------------------------------");

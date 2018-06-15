@@ -15,7 +15,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * /
+ *
  */
 
 package org.wso2.security.tools.scanner.dependency.js.reportpublisher;
@@ -33,6 +33,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
+import org.wso2.security.tools.scanner.dependency.js.model.GitUploaderProperties;
 import org.wso2.security.tools.scanner.dependency.js.utils.CommonUtils;
 import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 import org.wso2.security.tools.scanner.dependency.js.utils.ReportWriter;
@@ -50,8 +51,7 @@ import java.util.List;
 public class GitUploader extends ReportUploader {
     private static final Logger log = Logger.getLogger(GitUploader.class);
 
-    private char[] gitUsername;
-    private char[] gitPassword;
+    private GitUploaderProperties gitUploaderProperties;
     private Git gitRepo;
 
     /**
@@ -60,23 +60,23 @@ public class GitUploader extends ReportUploader {
      * Meanwhile It clones the artifact repo from github. If the cloned repository exists in local directory
      * pull command will execute.
      *
-     * @param username Username
-     * @param password Password
-     * @param repoUrl  RepoUrl
+     * @param gitUploaderProperties This object holds the value of username, password, and repository URL where the scan
+     *                              reports should be uploaded.
      * @throws GitAPIException Exception occurred when clone or pull action executed.
      */
-    public GitUploader(char[] username, char[] password, String repoUrl) throws GitAPIException, FileHandlerException {
+    public GitUploader(GitUploaderProperties gitUploaderProperties) throws GitAPIException, FileHandlerException {
         super();
-        this.gitUsername = username;
-        this.gitPassword = password;
+        this.gitUploaderProperties = gitUploaderProperties;
         File artifactFile = new File(JSScannerConstants.SECURITY_ARTIFACT_HOME);
         if (!artifactFile.exists()) {
+            System.out.println(gitUploaderProperties.getRepoURL());
             CommonUtils.createDirectory(artifactFile);
             gitRepo = Git.cloneRepository()
-                    .setURI(repoUrl)
+                    .setURI(gitUploaderProperties.getRepoURL())
                     .setDirectory(new File(artifactFile.getAbsolutePath()))
-                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(new String(gitUsername),
-                            new String(gitPassword)))
+                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(
+                            new String(gitUploaderProperties.getGitUsername()),
+                            new String(gitUploaderProperties.getGitPassword())))
                     .call();
             log.info("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo cloned successfully.");
         } else {
@@ -100,7 +100,7 @@ public class GitUploader extends ReportUploader {
         storeFiles(productResponseMapper);
         gitCommit();
         gitPush();
-        CommonUtils.clearCredentialData(gitUsername, gitPassword);
+        CommonUtils.clearCredentialData(gitUploaderProperties.getGitUsername(), gitUploaderProperties.getGitPassword());
     }
 
     /**
@@ -114,12 +114,10 @@ public class GitUploader extends ReportUploader {
     private void storeFiles(HashMap<String, String> productResponseMapper) throws GitAPIException,
             FileHandlerException {
         Repository repository = gitRepo.getRepository();
-
         File targetDir = new File(repository.getDirectory().getParentFile().getAbsolutePath()
                 + JSScannerConstants.SCN_REPORT_DIRECTORY_PATH);
         HashMap<String, String> fileMapper;
-        fileMapper = ReportWriter.callWriter(productResponseMapper, targetDir);
-
+        fileMapper = ReportWriter.callWriter(productResponseMapper, targetDir);         
         // Stage all files in the repo including new files
         gitRepo.add().addFilepattern(".").call();
         this.setReportFileMapper(fileMapper);
@@ -146,8 +144,9 @@ public class GitUploader extends ReportUploader {
      */
     private void gitPush() throws GitAPIException {
         gitRepo.push()
-                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(new String(gitUsername),
-                        new String(gitPassword)))
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(
+                        new String(gitUploaderProperties.getGitUsername()),
+                        new String(gitUploaderProperties.getGitPassword())))
                 .call();
         log.info("[JS_SEC_DAILY_SCAN]  " + "Push to Security artifact repo");
     }
@@ -165,8 +164,9 @@ public class GitUploader extends ReportUploader {
             gitRepo = new Git(localRepo);
             if (populateDiff()) {
                 PullCommand pullCmd = gitRepo.pull();
-                pullCmd.setCredentialsProvider(new UsernamePasswordCredentialsProvider(new String(gitUsername),
-                        new String(gitPassword)))
+                pullCmd.setCredentialsProvider(new UsernamePasswordCredentialsProvider(
+                        new String(gitUploaderProperties.getGitUsername()),
+                        new String(gitUploaderProperties.getGitPassword())))
                         .call();
                 return true;
             }
@@ -182,8 +182,9 @@ public class GitUploader extends ReportUploader {
      */
     private boolean populateDiff() {
         try {
-            gitRepo.fetch().setCredentialsProvider(new UsernamePasswordCredentialsProvider(new String(gitUsername),
-                    new String(gitPassword))).call();
+            gitRepo.fetch().setCredentialsProvider(new UsernamePasswordCredentialsProvider(
+                    new String(gitUploaderProperties.getGitUsername()),
+                    new String(gitUploaderProperties.getGitPassword()))).call();
             Repository repo = gitRepo.getRepository();
             ObjectId fetchHead = repo.resolve("FETCH_HEAD^{tree}");
             ObjectId head = repo.resolve("HEAD^{tree}");

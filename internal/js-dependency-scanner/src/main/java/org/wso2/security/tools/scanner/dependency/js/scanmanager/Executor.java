@@ -49,11 +49,13 @@ public abstract class Executor {
             try {
                 log.info("[JS_SEC_DAILY_SCAN]  " + "Start security scan for : " + entry.getKey());
                 response = executeCommand(entry.getKey(), entry.getValue());
+                if(response!=null) {
+                    productResponseMapper.put(entry.getKey(), response);
+                    log.info("[JS_SEC_DAILY_SCAN]  " + "End security scan for : " + entry.getKey());
+                }
             } catch (ScanExecutorException e) {
                 log.error(e.getMessage());
             }
-            productResponseMapper.put(entry.getKey(), response);
-            log.info("[JS_SEC_DAILY_SCAN]  " + "End security scan for : " + entry.getKey());
         }
         return productResponseMapper;
     }

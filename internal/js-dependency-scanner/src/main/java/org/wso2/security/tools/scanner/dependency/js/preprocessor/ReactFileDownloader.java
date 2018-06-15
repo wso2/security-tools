@@ -59,6 +59,17 @@ public class ReactFileDownloader {
      * @param rootDirectory Root directory where package.json files to be downloaded.
      * @throws DownloaderException Error occurred during Downloading react files.
      */
+
+    /**
+     * Download Package.json files.
+     *
+     * @param version           version of the product.
+     * @param repoVersionMapper Version of components. Package.json files are from these components.
+     * @param rootDirectory     Directory where the files will be downloaded.
+     * @param productRepo       Repository of product.
+     * @throws DownloaderException Exception occurred while downloading the product.
+     * @throws ApiInvokerException Exception occurred while invoking the Github API.
+     */
     public static void downloadReactFiles(String version, HashMap<String, String> repoVersionMapper, File rootDirectory,
                                           String productRepo)
             throws DownloaderException, ApiInvokerException {
@@ -66,8 +77,8 @@ public class ReactFileDownloader {
             String componentVersion = getComponentVersionFromPom(version, productRepo, entry.getValue());
             try {
                 getPackagejsonFiles(componentVersion, entry.getKey(), rootDirectory);
-            }catch (FileHandlerException e) {
-                throw new DownloaderException("Failed to download package.json file : ",e);
+            } catch (FileHandlerException e) {
+                throw new DownloaderException("Failed to download package.json file : ", e);
             }
 
         }
@@ -88,7 +99,7 @@ public class ReactFileDownloader {
             process = processBuilder.start();
             process.waitFor();
         } catch (IOException | InterruptedException e) {
-            throw new DownloaderException("Error occurred while downloading NPM modules due to : " + e.getMessage());
+            throw new DownloaderException("Error occurred while downloading NPM modules due to : ", e);
         } finally {
             if (process != null) {
                 process.destroyForcibly();
@@ -116,31 +127,35 @@ public class ReactFileDownloader {
         JSONObject resultJsonObject = new JSONObject(response);
         //array of pom files in product repo
         JSONArray itemsArray = resultJsonObject.getJSONArray("items");
-        for (int i = 0, size = itemsArray.length(); i < size; i++) {
-            JSONObject currentItem = itemsArray.getJSONObject(i);
-            if (currentItem.get("path").equals(JSScannerConstants.POM)) {
-                //endpoint to get content of pom file
-                String contentAPIURL = currentItem.getString("url");
-                String contentAPIResponse = CommonApiInvoker.connectGitAPI(contentAPIURL);
-                JSONObject contentResponseObject = new JSONObject(contentAPIResponse);
-                //get encoded content of pom file
-                String encodedContent = contentResponseObject.getString("content");
-                //get decoded content of pom file
-                byte[] encodedContentBytes = Base64.decodeBase64(encodedContent);
-                String decodedContent = new String(encodedContentBytes, UTF_8);
-                String[] lines = decodedContent.split(System.getProperty("line.separator"));
-                //get component version
-                for (String line : lines) {
-                    if (line.contains(versionTag)) {
-                        Pattern pattern = Pattern.compile(JSScannerConstants.POM_VERSION_REGEX);
-                        Matcher matcher = pattern.matcher(line);
-                        if (matcher.find()) {
-                            componentVersion = matcher.group(0);
+        if (itemsArray.length() > 0) {
+            for (int i = 0, size = itemsArray.length(); i < size; i++) {
+                JSONObject currentItem = itemsArray.getJSONObject(i);
+                if (currentItem.get("path").equals(JSScannerConstants.POM)) {
+                    //endpoint to get content of pom file
+                    String contentAPIURL = currentItem.getString("url");
+                    String contentAPIResponse = CommonApiInvoker.connectGitAPI(contentAPIURL);
+                    JSONObject contentResponseObject = new JSONObject(contentAPIResponse);
+                    //get encoded content of pom file
+                    String encodedContent = contentResponseObject.getString("content");
+                    //get decoded content of pom file
+                    byte[] encodedContentBytes = Base64.decodeBase64(encodedContent);
+                    String decodedContent = new String(encodedContentBytes, UTF_8);
+                    String[] lines = decodedContent.split(System.getProperty("line.separator"));
+                    //get component version
+                    for (String line : lines) {
+                        if (line.contains(versionTag)) {
+                            Pattern pattern = Pattern.compile(JSScannerConstants.POM_VERSION_REGEX);
+                            Matcher matcher = pattern.matcher(line);
+                            if (matcher.find()) {
+                                componentVersion = matcher.group(0);
+                            }
                         }
                     }
+                    break;
                 }
-                break;
             }
+        } else {
+            log.error("Could not find pom.xml for " + repoName);
         }
         return componentVersion;
     }
@@ -163,27 +178,31 @@ public class ReactFileDownloader {
         JSONObject resultJsonObject = new JSONObject(response);
         //get all package.json files from component repo
         JSONArray itemsArray = resultJsonObject.getJSONArray("items");
-        for (int i = 0, size = itemsArray.length(); i < size; i++) {
-            JSONObject currentItem = itemsArray.getJSONObject(i);
-            if (currentItem.get("name").equals(JSScannerConstants.PACKAGE_JSON)) {
-                //endpoint to get download url
-                String currentFileURL = currentItem.getString("url");
-                JSONObject currentJSONObject = new JSONObject(CommonApiInvoker.connectGitAPI(currentFileURL));
-                //download url endpoint
-                String downloadURL = currentJSONObject.getString("download_url");
-                File currentFile = new File(downloadURL);
-                String parentFileName = currentFile.getParentFile().getName();
-                //Since there could be different package.json files with in a component. To maintain unique folder
-                //for each pacakage.json files, the timestamp is attached with folder name.
-                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                File parentDir = new File(rootDir.getAbsolutePath() + File.separator + parentFileName +
-                        timestamp.getTime());
-                CommonUtils.createDirectory(parentDir);
-                //Download package.json files.
-                HttpDownloadUtility.downloadFile(downloadURL, parentDir.getAbsolutePath());
-                //Install NPM modules
-                installNPMModules(parentDir.getAbsolutePath());
+        if (itemsArray.length() > 0) {
+            for (int i = 0, size = itemsArray.length(); i < size; i++) {
+                JSONObject currentItem = itemsArray.getJSONObject(i);
+                if (currentItem.get("name").equals(JSScannerConstants.PACKAGE_JSON)) {
+                    //endpoint to get download url
+                    String currentFileURL = currentItem.getString("url");
+                    JSONObject currentJSONObject = new JSONObject(CommonApiInvoker.connectGitAPI(currentFileURL));
+                    //download url endpoint
+                    String downloadURL = currentJSONObject.getString("download_url");
+                    File currentFile = new File(downloadURL);
+                    String parentFileName = currentFile.getParentFile().getName();
+                    //Since there could be different package.json files with in a component. To maintain unique folder
+                    //for each pacakage.json files, the timestamp is attached with folder name.
+                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                    File parentDir = new File(rootDir.getAbsolutePath() + File.separator + parentFileName +
+                            timestamp.getTime());
+                    CommonUtils.createDirectory(parentDir);
+                    //Download package.json files.
+                    HttpDownloadUtility.downloadFile(downloadURL, parentDir.getAbsolutePath());
+                    //Install NPM modules
+                    installNPMModules(parentDir.getAbsolutePath());
+                }
             }
+        } else {
+            log.error("Could not find package.json files for " + componentRepo);
         }
     }
 

@@ -113,7 +113,7 @@ public abstract class ResourceDownloader {
     static void createResourceDirectory(File dir) throws DownloaderException {
         try {
             // If the file belongs to weekly release the existing weekly release folder should be deleted
-            refreshWeeklyRelease(dir);
+            refreshWeeklyReleaseDirectory(dir);
             CommonUtils.createDirectory(dir);
             log.info("[JS_SEC_DAILY_SCAN]  " + "new weekly release is created successfully : "
                     + dir.getName());
@@ -129,7 +129,7 @@ public abstract class ResourceDownloader {
      * @param dir Directory to be checked.
      * @throws IOException Exception occurred while deleting the file.
      */
-    private static void refreshWeeklyRelease(File dir) throws IOException {
+    private static void refreshWeeklyReleaseDirectory(File dir) throws IOException {
         if (dir.exists() && dir.getAbsolutePath().contains(JSScannerConstants.WEEKLY_RELEASE)) {
             FileUtils.deleteDirectory(dir);
             log.info("[JS_SEC_DAILY_SCAN]  " + "Existing weekly release is deleted successfully : "

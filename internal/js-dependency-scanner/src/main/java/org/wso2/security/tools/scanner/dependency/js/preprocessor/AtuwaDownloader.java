@@ -94,7 +94,7 @@ public class AtuwaDownloader extends ResourceDownloader {
                 while ((line = reader.readLine()) != null) {
                     String element[] = line.split(":");
                     Long dateDiff = getDateDiffFromLastWeeklyRelease(element[1]);
-                    if (dateDiff < 28) {
+                    if (dateDiff < 18) {
                         if (isWeeklyRelease(element[0])) {
                             tarDir = new File(path + File.separator + "weeklyRelease");
                         } else if (isGARelease(element[0])) {
@@ -110,7 +110,8 @@ public class AtuwaDownloader extends ResourceDownloader {
                                 String filePath = HttpDownloadUtility.downloadFile(downloadURL,
                                         tarDir.getAbsolutePath());
                                 String unzippedDirPath = UnZipper.extractFolder(filePath);
-                                zipFilePathList.add(filePath);
+                                // TODO: 6/15/18 to be checked wheather file path or unzippedfil path
+                                zipFilePathList.add(unzippedDirPath);
                             }
                         }
                         break;

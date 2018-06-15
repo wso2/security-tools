@@ -63,25 +63,24 @@ public class PreProcessor {
      *
      * @return productFileMapper which holds the values each product's path where it is downloaded.
      */
-    public HashMap<String, String> startPreprocessing() {
+    public HashMap<String, String> startPreProcessing() {
 
         try {
             List<String> productList;
             //Parse config details.
             //Get supported product list from config file
             productList = ConfigParser.parseProductList();
-            List<Product> supportedProductList = new ArrayList<>();
+            List<Product> supportedProductDtoList = new ArrayList<>();
             //Get product details from respective product configuration files.
             for (String product : productList) {
-                supportedProductList.add(ConfigParser.parseProductConfiguration(product));
+                supportedProductDtoList.add(ConfigParser.parseProductConfiguration(product));
             }
-
             //Create Root Directory for products if not exists
             productRootDirectory = new File(JSScannerConstants.PRODUCT_HOME);
             CommonUtils.createDirectory(productRootDirectory);
             log.info("[JS_SEC_DAILY_SCAN] Start downloading product packs");
             //download resources
-            downloadResources(supportedProductList);
+            downloadResources(supportedProductDtoList);
             Arrays.fill(CommonApiInvoker.getGitToken(),
                     JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
         } catch (ApiInvokerException | DownloaderException | ConfigParserException | FileHandlerException e) {
@@ -108,27 +107,27 @@ public class PreProcessor {
             File currentProductDir = new File(productRootDirectory.getAbsolutePath() + File.separator +
                     productDto.getProductRepoName());
             CommonUtils.createDirectory(currentProductDir);
-
-            List<String> zipFileList = new ArrayList<>();
+            List<String> downloadedProductRootDirPathList = new ArrayList<>();
             //download from git repository
             if (productDto.getInputSourceType().equals(JSScannerConstants.GIT)) {
                 ResourceDownloader gitDownloader = new GitDownloader();
-                startDownload(productDto, currentProductDir, zipFileList, gitDownloader);
+                downloadedProductRootDirPathList.addAll(executeDownloader(productDto, currentProductDir,
+                        downloadedProductRootDirPathList, gitDownloader));
             }
+            //download from atuwa
             if (productDto.getInputSourceType().equals(JSScannerConstants.ATUWA)) {
                 ResourceDownloader atuwaDownloader = new AtuwaDownloader();
                 ConfigParser.parseAtuwaUrl();
-                startDownload(productDto, currentProductDir, zipFileList, atuwaDownloader);
+                downloadedProductRootDirPathList.addAll(executeDownloader(productDto, currentProductDir,
+                        downloadedProductRootDirPathList, atuwaDownloader));
             }
-            //unzip downloaded product pack
-
-            if (zipFileList.size() > 0) {
-                for (String filePath : zipFileList) {
+            if (downloadedProductRootDirPathList.size() > 0) {
+                for (String filePath : downloadedProductRootDirPathList) {
                     filename = new File(filePath).getName();
                     productFileMapper.put(filename.substring(0, (filename.length() -
                                     JSScannerConstants.FILE_SUFFIX_LENGTH)),
                             currentProductDir.getAbsolutePath());
-                    log.info("[JS_SEC_DAILY_SCAN]  " + " Unzipped file : " + zipFileList);
+                    log.info("[JS_SEC_DAILY_SCAN]  " + " Unzipped file : " + downloadedProductRootDirPathList);
                 }
             }
         }
@@ -145,11 +144,11 @@ public class PreProcessor {
      * @throws ApiInvokerException Exception occurred when calling API.
      * @throws DownloaderException Exception occurred when downloading files.
      */
-    private void startDownload(Product productDto, File currentProductDir, List<String> zipFileList, ResourceDownloader
+    private List<String> executeDownloader(Product productDto, File currentProductDir, List<String> zipFileList, ResourceDownloader
             resourceDownloader) throws ApiInvokerException, DownloaderException {
-        List<String> fileList = resourceDownloader.downloadProductPack(productDto,
+        List<String> downloadedProductPackPathList = resourceDownloader.downloadProductPack(productDto,
                 currentProductDir.getAbsolutePath());
-        zipFileList.addAll(fileList);
+        return downloadedProductPackPathList;
     }
 
 }

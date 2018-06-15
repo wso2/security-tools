@@ -20,8 +20,10 @@
 
 package org.wso2.security.tools.scanner.dependency.js.scanmanager;
 
+import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.constants.RetireJSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ScanExecutorException;
+import org.wso2.security.tools.scanner.dependency.js.preprocessor.GitDownloader;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,6 +37,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class RetireJsExecutor extends Executor {
 
+    private static final Logger log = Logger.getLogger(RetireJsExecutor.class);
+
+
     /**
      * Execute retire.js command against product directory.
      *
@@ -44,7 +49,7 @@ public class RetireJsExecutor extends Executor {
      * @throws ScanExecutorException Exception occurred while performing scanning.
      */
     public String executeCommand(String name, String filePath) throws ScanExecutorException {
-        StringBuilder stringBuilder;
+        StringBuilder scanResultBuilder;
         BufferedReader reader = null;
         try {
             File file = new File(filePath);
@@ -53,13 +58,13 @@ public class RetireJsExecutor extends Executor {
                     RetireJSScannerConstants.JS_COMMAND, RetireJSScannerConstants.OUTPUT_FORMAT,
                     RetireJSScannerConstants.JSON);
             processBuilder.directory(file);
-            stringBuilder = new StringBuilder();
+            scanResultBuilder = new StringBuilder();
             Process p = processBuilder.start();
             String line;
             reader =
                     new BufferedReader(new InputStreamReader(p.getErrorStream(), StandardCharsets.UTF_8));
             while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
+                scanResultBuilder.append(line);
             }
         } catch (IOException e) {
             throw new ScanExecutorException("Error occurred while performing Retire.js scan " +
@@ -70,11 +75,10 @@ public class RetireJsExecutor extends Executor {
                     reader.close();
                 }
             } catch (IOException e) {
-                throw new ScanExecutorException("Error occurred while performing Retire.js scan " +
-                        "against " + name + " :", e);
+                log.error("Closing the file reader has failed", e);
             }
         }
-        return stringBuilder.toString();
+        return scanResultBuilder.toString();
     }
 
 }

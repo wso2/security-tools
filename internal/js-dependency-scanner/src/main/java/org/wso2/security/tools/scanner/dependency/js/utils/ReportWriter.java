@@ -73,7 +73,7 @@ public class ReportWriter {
      * @throws FileHandlerException File handler Exception.
      */
     private static String writeFile(String name, String response, File targetDir) throws FileHandlerException {
-        PrintWriter writer;
+        PrintWriter writer = null;
         String currentReportFilePath;
         String indented;
         ObjectMapper mapper = new ObjectMapper();
@@ -89,9 +89,13 @@ public class ReportWriter {
         try {
             writer = new PrintWriter(currentReportFilePath, "UTF-8");
             writer.write(indented);
-            writer.close();
+
         } catch (IOException e) {
             throw new FileHandlerException("Failed to generate report for " + name + " " + e);
+        }finally {
+            if(writer!=null) {
+                writer.close();
+            }
         }
         log.info("[JS_SEC_DAILY_SCAN] Successfully generated report for " + name);
         return currentReportFilePath;

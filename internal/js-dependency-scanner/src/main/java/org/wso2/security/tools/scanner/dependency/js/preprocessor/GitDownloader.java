@@ -118,7 +118,8 @@ public class GitDownloader extends ResourceDownloader {
                             } catch (IOException e) {
                                 throw new DownloaderException("Error occurred while unzip file " + filePath, e);
                             }
-                            zipFilePathList.add(filePath);
+                            System.out.println(filePath);
+                            zipFilePathList.add(unzippedDirPath);
                             //Check whether the current product has react components and
                             // if so download package.json files.
                             if (product.getRepoVersionMapper().size() > 1) {

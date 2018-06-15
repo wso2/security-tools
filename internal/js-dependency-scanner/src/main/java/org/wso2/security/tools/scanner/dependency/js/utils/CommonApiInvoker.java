@@ -24,6 +24,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.exception.ApiInvokerException;
 
 import java.io.BufferedReader;
@@ -36,6 +37,9 @@ import static org.apache.http.protocol.HTTP.USER_AGENT;
  * This class is responsible to connect API endpoints which are commonly used in this tool.
  */
 public class CommonApiInvoker {
+
+    private static final Logger log = Logger.getLogger(CommonApiInvoker.class);
+
 
     private CommonApiInvoker() {
     }
@@ -91,8 +95,7 @@ public class CommonApiInvoker {
                 try {
                     bufferedReader.close();
                 } catch (IOException e) {
-                    throw new ApiInvokerException("Unable to close stream : ", e);
-
+                    log.error("Unable to close stream : ", e);
                 }
             }
 

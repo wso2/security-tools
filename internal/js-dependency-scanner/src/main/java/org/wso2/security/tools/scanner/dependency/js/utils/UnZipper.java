@@ -107,18 +107,12 @@ public class UnZipper {
 
                 }
 
-                if (currentEntry.endsWith(JSScannerConstants.ZIP_PREFIX)) {
+                //Extract zip or jar or war file.
+                if (currentEntry.endsWith(JSScannerConstants.ZIP_PREFIX) ||
+                        currentEntry.endsWith(JSScannerConstants.JAR_PREFIX) ||
+                        currentEntry.endsWith(JSScannerConstants.WAR_PREFIX)) {
                     // found a zip file, try to open
                     extractFolder(destFile.getAbsolutePath());
-                }
-                if (currentEntry.endsWith(JSScannerConstants.JAR_PREFIX)) {
-                    // found a zip file, try to open
-                    extractFolder(destFile.getAbsolutePath());
-                }
-                if (currentEntry.endsWith(JSScannerConstants.WAR_PREFIX)) {
-                    // found a zip file, try to open
-                    extractFolder(destFile.getAbsolutePath());
-
                 }
             }
         } finally {

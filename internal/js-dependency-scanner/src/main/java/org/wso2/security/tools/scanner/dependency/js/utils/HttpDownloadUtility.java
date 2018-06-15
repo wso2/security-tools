@@ -105,16 +105,14 @@ public class HttpDownloadUtility {
                     outputStream.flush();
                     outputStream.close();
                 } catch (IOException e) {
-                    throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message:"
-                            , e);
+                    log.error("Closing the reader has failed : ", e);
                 }
             }
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    throw new DownloaderException("Error occurred in downloading file :" + fileName + " Error message:"
-                            , e);
+                    log.error("Closing the reader has failed : ", e);
                 }
 
             }
