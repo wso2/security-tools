@@ -21,19 +21,15 @@
 package org.wso2.security.tools.scanner.dependency.js.utils;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.wso2.security.tools.scanner.dependency.js.constants.TicketCreatorConstants;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
-import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.model.GitUploaderProperties;
 import org.wso2.security.tools.scanner.dependency.js.ticketcreator.TicketCreator;
 import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRATicketCreator;
 import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRARestClient;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
 import org.wso2.security.tools.scanner.dependency.js.preprocessor.AtuwaDownloader;
-import org.wso2.security.tools.scanner.dependency.js.reportpublisher.GitUploader;
-import org.wso2.security.tools.scanner.dependency.js.reportpublisher.ReportUploader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,18 +53,15 @@ public class ConfigParser {
     }
 
     /**
-     * Parse the list of products which supports for weekly scanning.
+     * Parse the list of products for weekly scanning.
      *
      * @return list of product names.
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
     public static List<String> parseProductList() throws ConfigParserException {
         List<String> products;
-        Properties properties = new Properties();
-        ClassLoader classLoader = ConfigParser.class.getClassLoader();
-        //load a properties file from class path
-        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.PRODUCT_LIST_FILE)) {
-            properties.load(input);
+        try {
+            Properties properties = loadProperties(JSScannerConstants.PRODUCT_LIST_FILE);
             products = Arrays.asList(properties.getProperty(JSScannerConstants.PRODUCTS).
                     split(JSScannerConstants.PROPERTIES_FILE_DELIMETER));
             log.info("[JS_SEC_DAILY_SCAN] Supported products are : " + String.join(",", products));
@@ -78,10 +71,9 @@ public class ConfigParser {
         return products;
     }
 
-
     /**
-     * This method is responsible to parse properties regarding to upload scan reports into particular github
-     * repository. THe following properties are read from config file.
+     * Parse properties which are needed to upload scan reports into particular github
+     * repository. THe following properties will be read from config file.
      * 1.Username
      * 2.Password
      * 3.Repository url where the reports should be uploaded.
@@ -89,16 +81,14 @@ public class ConfigParser {
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
     public static GitUploaderProperties parseGitUploaderConfigProperties() throws ConfigParserException {
-        Properties properties = new Properties();
-        ClassLoader classLoader = ConfigParser.class.getClassLoader();
         GitUploaderProperties gitUploaderProperties;
-        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.GIT_CONFIG_FILE)) {
-            properties.load(input);
+        try {
+            Properties properties = loadProperties(JSScannerConstants.GIT_CONFIG_FILE);
             gitUploaderProperties = new GitUploaderProperties(properties.getProperty(JSScannerConstants.USERNAME)
                     .toCharArray(), properties.getProperty(JSScannerConstants.PASSWORD).toCharArray(),
                     properties.getProperty(JSScannerConstants.SECURITY_ARTIFACT_REPO));
         } catch (IOException e) {
-            throw new ConfigParserException("Error occurred in parsing github credentials : " + e);
+            throw new ConfigParserException("Error occurred in parsing github credentials : ", e);
         }
         return gitUploaderProperties;
     }
@@ -109,11 +99,8 @@ public class ConfigParser {
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
     public static void parseGitAccessToken() throws ConfigParserException {
-
-        Properties properties = new Properties();
-        ClassLoader classLoader = ConfigParser.class.getClassLoader();
-        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.GIT_ACCESS_TOKEN_CONFIG_FILE)) {
-            properties.load(input);
+        try {
+            Properties properties = loadProperties(JSScannerConstants.GIT_ACCESS_TOKEN_CONFIG_FILE);
             CommonApiInvoker.setGitToken(properties.getProperty(JSScannerConstants.ACCESSTOKEN).toCharArray());
         } catch (IOException e) {
             throw new ConfigParserException("Error occurred in parsing github credentials : ", e);
@@ -121,16 +108,14 @@ public class ConfigParser {
     }
 
     /**
-     * Parse jira credential details (Username, Password).
+     * Parse JIRA credential details (Username, Password).
      *
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
     public static TicketCreator parseTicketCreatorCredentials() throws ConfigParserException {
         TicketCreator ticketCreatorAPI;
-        Properties properties = new Properties();
-        ClassLoader classLoader = ConfigParser.class.getClassLoader();
-        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.TICKETCREATOR_CONFIG_FILE)) {
-            properties.load(input);
+        try {
+            Properties properties = loadProperties(JSScannerConstants.TICKETCREATOR_CONFIG_FILE);
             ticketCreatorAPI = new JIRATicketCreator(new JIRARestClient(), properties.getProperty
                     (JSScannerConstants.USERNAME).toCharArray(),
                     properties.getProperty(JSScannerConstants.PASSWORD).toCharArray(),
@@ -159,10 +144,8 @@ public class ConfigParser {
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
     public static void parseJIRATicketInfo() throws ConfigParserException {
-        Properties properties = new Properties();
-        ClassLoader classLoader = ConfigParser.class.getClassLoader();
-        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.JIRA_TICKET_INFO_FILE)) {
-            properties.load(input);
+        try {
+            Properties properties = loadProperties(JSScannerConstants.JIRA_TICKET_INFO_FILE);
             JIRATicketCreator.setTicketSubject(properties.getProperty(TicketCreatorConstants.TICKET_SUBJECT));
             JIRATicketCreator.setProjectKey(properties.getProperty(TicketCreatorConstants.PROJECT_KEY));
             JIRATicketCreator.setIssueLabel(properties.getProperty(TicketCreatorConstants.ISSUELABEL));
@@ -170,19 +153,16 @@ public class ConfigParser {
         } catch (IOException e) {
             throw new ConfigParserException("Error occurred in parsing JIRA Credentials : " + e);
         }
-
     }
 
     /**
-     * Get atuwa URL. It reade the base url of atuwa in config file.
+     * Get Atuwa URL. It reade the base url of atuwa in config file.
      *
      * @throws ConfigParserException exception occurred while parsing configuration details.
      */
     public static void parseAtuwaUrl() throws ConfigParserException {
-        Properties properties = new Properties();
-        ClassLoader classLoader = ConfigParser.class.getClassLoader();
-        try (InputStream input = classLoader.getResourceAsStream(JSScannerConstants.ATUWA_CONFIG)) {
-            properties.load(input);
+        try {
+            Properties properties = loadProperties(JSScannerConstants.ATUWA_CONFIG);
             AtuwaDownloader.setAtuwaBaseURL(properties.getProperty(JSScannerConstants.ATUWA_BASE_URL));
         } catch (IOException e) {
             throw new ConfigParserException("Error occurred in parsing Atuwa URL : " + e);
@@ -190,7 +170,7 @@ public class ConfigParser {
     }
 
     /**
-     * Parse each product configuration details.
+     * Parse each product's configurations.
      *
      * @param productName product name.
      * @return Product
@@ -214,11 +194,8 @@ public class ConfigParser {
             fileName = JSScannerConstants.APIM_CONFIG_FILE;
         }
         Product productDto;
-        Properties properties = new Properties();
-        ClassLoader classLoader = ConfigParser.class.getClassLoader();
-        //load a properties file from class path
-        try (InputStream input = classLoader.getResourceAsStream(fileName)) {
-            properties.load(input);
+        try {
+            Properties properties = loadProperties(fileName);
             productDto = new Product();
             productDto.setProductRepoName(properties.getProperty(JSScannerConstants.GIT_REPO_NAME));
             productDto.setInputSourceType(properties.getProperty(JSScannerConstants.INPUT_SOURCE_TYPE));
@@ -245,6 +222,22 @@ public class ConfigParser {
     public static int getRandomNumber() {
         //length of random string is the maximum and the 1 is our minimum
         return random.nextInt(JSScannerConstants.RANDOM_STRING.length());
+    }
+
+    /**
+     * load properties of configuration file.
+     *
+     * @param filename Configuration file name.
+     * @return properties.
+     * @throws IOException exception occurred while parsing configuration details.
+     */
+    private static Properties loadProperties(String filename) throws IOException {
+        Properties properties = new Properties();
+        //load a properties file from class path
+        ClassLoader classLoader = ConfigParser.class.getClassLoader();
+        InputStream input = classLoader.getResourceAsStream(filename);
+        properties.load(input);
+        return properties;
     }
 
 }

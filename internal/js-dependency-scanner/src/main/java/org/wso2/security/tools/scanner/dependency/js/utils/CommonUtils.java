@@ -33,7 +33,6 @@ import java.util.Arrays;
 public class CommonUtils {
     private static final Logger log = Logger.getLogger(CommonUtils.class);
 
-
     /**
      * Create Directory
      *
@@ -52,7 +51,7 @@ public class CommonUtils {
 
     /**
      * Username and password are filled with random numbers. This is used to discard the char array elements
-     * of username and password from memory dump and refill with random numbers.
+     * of username and password from memory dump and refill with random numbers. This is done for security purpose.
      *
      * @param username Username
      * @param password Password
@@ -61,4 +60,15 @@ public class CommonUtils {
         Arrays.fill(username, JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
         Arrays.fill(password, JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
     }
+
+    /**
+     * Accesstoken is illed with random numbers. This is used to discard the char array elements
+     * of accesstoken from memory dump and refill with random numbers.
+     *
+     * @param accessToken Accestoken
+     */
+    public static void clearAccssToken(char[] accessToken) {
+        Arrays.fill(accessToken, JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
+    }
+
 }

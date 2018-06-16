@@ -35,12 +35,10 @@ import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstant
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.model.GitUploaderProperties;
 import org.wso2.security.tools.scanner.dependency.js.utils.CommonUtils;
-import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 import org.wso2.security.tools.scanner.dependency.js.utils.ReportWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -117,7 +115,7 @@ public class GitUploader extends ReportUploader {
         File targetDir = new File(repository.getDirectory().getParentFile().getAbsolutePath()
                 + JSScannerConstants.SCN_REPORT_DIRECTORY_PATH);
         HashMap<String, String> fileMapper;
-        fileMapper = ReportWriter.callWriter(productResponseMapper, targetDir);         
+        fileMapper = ReportWriter.callWriter(productResponseMapper, targetDir);
         // Stage all files in the repo including new files
         gitRepo.add().addFilepattern(".").call();
         this.setReportFileMapper(fileMapper);

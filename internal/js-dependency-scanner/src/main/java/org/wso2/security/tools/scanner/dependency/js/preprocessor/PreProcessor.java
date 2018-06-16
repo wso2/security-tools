@@ -33,14 +33,13 @@ import org.wso2.security.tools.scanner.dependency.js.utils.ConfigParser;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * This class is responsible to perform pre-processing tasks prior to execute retire.js scan.
  * Pre processing includes following processes :
- * Parse configuration
+ * Parse configurations
  * Download product packs
  * Download package.json files
  * Unzip product directory
@@ -50,18 +49,19 @@ public class PreProcessor {
     private static final Logger log = Logger.getLogger(PreProcessor.class);
     //Root directory where all products are downloaded.
     private File productRootDirectory;
-    //Mapper to hold values each product's path where it is downloaded.
+    //Mapper to hold product name as key and each product's path where product pack are downloaded as value.
     private HashMap<String, String> productFileMapper;
 
     /**
      * Entry point to start pre-processing task.
-     * Following tasks are sub task of this method.
+     * Following are sub tasks of this method.
      * Parse configuration
      * Download product packs
      * Download package.json files
      * Unzip product directory
      *
-     * @return productFileMapper which holds the values each product's path where it is downloaded.
+     * @return productFileMapper Mapper to hold product name as key and each product's path where product
+     * pack are downloaded as value.
      */
     public HashMap<String, String> startPreProcessing() {
 
@@ -81,8 +81,7 @@ public class PreProcessor {
             log.info("[JS_SEC_DAILY_SCAN] Start downloading product packs");
             //download resources
             downloadResources(supportedProductDtoList);
-            Arrays.fill(CommonApiInvoker.getGitToken(),
-                    JSScannerConstants.RANDOM_STRING.charAt(ConfigParser.getRandomNumber()));
+            CommonUtils.clearAccssToken(CommonApiInvoker.getGitToken());
         } catch (ApiInvokerException | DownloaderException | ConfigParserException | FileHandlerException e) {
             log.error("Error occurred while downloading product pack.", e);
         }
@@ -91,7 +90,7 @@ public class PreProcessor {
 
     /**
      * Download resources. It can be either product pack or package.json files.
-     * Product pack can be downloaded from any resource. Currently it supports GitHub.
+     * Product pack can be downloaded from any resource.
      * Package.json files can be downloaded from github repo as raw materials.
      *
      * @param productDtoList Product list
@@ -112,14 +111,14 @@ public class PreProcessor {
             if (productDto.getInputSourceType().equals(JSScannerConstants.GIT)) {
                 ResourceDownloader gitDownloader = new GitDownloader();
                 downloadedProductRootDirPathList.addAll(executeDownloader(productDto, currentProductDir,
-                        downloadedProductRootDirPathList, gitDownloader));
+                        gitDownloader));
             }
             //download from atuwa
             if (productDto.getInputSourceType().equals(JSScannerConstants.ATUWA)) {
                 ResourceDownloader atuwaDownloader = new AtuwaDownloader();
                 ConfigParser.parseAtuwaUrl();
                 downloadedProductRootDirPathList.addAll(executeDownloader(productDto, currentProductDir,
-                        downloadedProductRootDirPathList, atuwaDownloader));
+                        atuwaDownloader));
             }
             if (downloadedProductRootDirPathList.size() > 0) {
                 for (String filePath : downloadedProductRootDirPathList) {
@@ -138,13 +137,12 @@ public class PreProcessor {
      *
      * @param productDto         object which contains details of product.
      * @param currentProductDir  Current product root directory.
-     * @param zipFileList        List to store downloaded product packs zip file list.
      * @param resourceDownloader Resource downloader. This object indicates the type of source where we download
      *                           product packs. Eg : Github, Atuwa.
      * @throws ApiInvokerException Exception occurred when calling API.
      * @throws DownloaderException Exception occurred when downloading files.
      */
-    private List<String> executeDownloader(Product productDto, File currentProductDir, List<String> zipFileList, ResourceDownloader
+    private List<String> executeDownloader(Product productDto, File currentProductDir, ResourceDownloader
             resourceDownloader) throws ApiInvokerException, DownloaderException {
         List<String> downloadedProductPackPathList = resourceDownloader.downloadProductPack(productDto,
                 currentProductDir.getAbsolutePath());

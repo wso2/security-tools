@@ -21,6 +21,7 @@
 package org.wso2.security.tools.scanner.dependency.js.utils;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -77,16 +78,20 @@ public class CommonApiInvoker {
          * But the private github access token expired once commit done, Need to get new access token
          */
         request.addHeader("Authorization", "Bearer " + new String(gitToken));
-        StringBuffer result;
+        StringBuffer result = null;
         BufferedReader bufferedReader = null;
         try {
             response = client.execute(request);
-            bufferedReader = new BufferedReader(new
-                    InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-            result = new StringBuffer();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                result.append(line);
+            StatusLine statusLine = response.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            if (statusCode == 200) {
+                bufferedReader = new BufferedReader(new
+                        InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                result = new StringBuffer();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    result.append(line);
+                }
             }
         } catch (IOException e) {
             throw new ApiInvokerException("Failed to connect Git API endpoint " + url, e);
@@ -100,7 +105,11 @@ public class CommonApiInvoker {
             }
 
         }
-        return result.toString();
+        if (result != null) {
+            return result.toString();
+        } else {
+            return null;
+        }
     }
 
 }

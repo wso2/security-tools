@@ -105,12 +105,12 @@ public class JIRATicketCreator extends TicketCreator {
                     try {
                         jira.invokePostComment(auth, getEndPointURL() +
                                 TicketCreatorConstants.JIRA_REST_API_URL +
-                                "/" + issueKey + "/comment", createComment(entry.getKey()));
+                                "/" + issueKey + "/comment", buildComment(entry.getKey()));
                     } catch (AuthenticationException e) {
                         throw new TicketCreatorException("Failed to add comment for attached file in jira ticket." +
                                 entry.getKey().substring(0, index), e);
                     }
-                    log.info("[JS_SEC_DAILY_SCAN] JIRA Comment added : " + createComment(entry.getKey()));
+                    log.info("[JS_SEC_DAILY_SCAN] JIRA Comment added : " + buildComment(entry.getKey()));
                     jira.invokePutMethodWithFile(auth, getEndPointURL() +
                             TicketCreatorConstants.JIRA_REST_API_URL + "/" +
                             issueKey + "/attachments", fileMapper.get(entry.getKey()));
@@ -157,7 +157,7 @@ public class JIRATicketCreator extends TicketCreator {
             String ticketKey = createdTicket.getString("key");
             log.info("[JS_SEC_DAILY_SCAN] Issue ticket for " + product + " successfully created.");
             jira.invokePostComment(auth, jiraBaseUrl + TicketCreatorConstants.JIRA_REST_API_URL +
-                    "/" + ticketKey + "/comment", createComment(product));
+                    "/" + ticketKey + "/comment", buildComment(product));
             log.info("[JS_SEC_DAILY_SCAN] JIRA Comment added ");
             jira.invokePutMethodWithFile(auth, jiraBaseUrl + TicketCreatorConstants.JIRA_REST_API_URL + "/" +
                     ticketKey + "/attachments", filePath);
@@ -203,7 +203,7 @@ public class JIRATicketCreator extends TicketCreator {
      *
      * @return comment that needs to be added when uploading a file
      */
-    private String createComment(String product) {
+    private String buildComment(String product) {
         String comment;
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();

@@ -28,12 +28,15 @@ import java.util.HashMap;
 
 /**
  * Main class for JSSecurity Scanner. This class is main entry point for JSSecurity scanner.
- * This class call fallowing functions :
- * 1. Start pre processing : It is responsible for parse configuration files, download product packs and
- * package.json files if required and Unzip product packs.
+ * This class calls fallowing functions :
+ * 1. Start pre processing : It is responsible for following tasks -
+ *                                        parse configuration files
+ *                                        download product packs
+ *                                        if product is C5 download package.json files
+ *                                        Unzip product packs.
  * 2. Perform scanning process : Run retire.js scanner against root directory of each products.
- * 3. Expose generated issue reports by uploading reports to security artifacts.
- * create JIRA issue ticket if there are any known vulnerabilities found in report.
+ * 3. Fetch generated issue reports by uploading reports to security artifacts.
+ * create JIRA ticket if there are any known vulnerabilities found in report.
  */
 public class JSSecurityScanner {
 
@@ -41,20 +44,20 @@ public class JSSecurityScanner {
 
     public static void main(String[] args) {
 
-        //Instance to perform pre processing
+        // Instance to perform pre processing
         PreProcessor preProcessor = new PreProcessor();
 
-        //Instance to perform retire.js scan for supported product list
+        // Instance to perform retire.js scan for supported product list
         Executor retireJsExecutor = new RetireJsExecutor();
 
-        //Instance to perform outputPublisher
+        // Instance to control fetching generated reports.
         VulnerabilityReportManager outputController = new VulnerabilityReportManager();
 
-        //call pre processing
+        // call Preprocessing
         log.info("----------------------------------------------------------------------------------------------");
         log.info("[JS_SEC_DAILY_SCAN] START");
-        //productMapper holds product name and the product's file path where those files are downloaded as key value
-        // pair.
+        // productMapper holds product name as key and the product's file path where those files are downloaded as
+        // value.
         HashMap<String, String> productMapper = preProcessor.startPreProcessing();
         log.info("[JS_SEC_DAILY_SCAN] Product packs are downloaded successfully and ready to execute scanning " +
                 "tool.");

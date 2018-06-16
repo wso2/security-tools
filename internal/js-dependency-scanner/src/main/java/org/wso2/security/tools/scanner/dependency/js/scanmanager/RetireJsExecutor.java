@@ -23,7 +23,6 @@ package org.wso2.security.tools.scanner.dependency.js.scanmanager;
 import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.constants.RetireJSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ScanExecutorException;
-import org.wso2.security.tools.scanner.dependency.js.preprocessor.GitDownloader;
 
 import java.io.BufferedReader;
 import java.io.File;

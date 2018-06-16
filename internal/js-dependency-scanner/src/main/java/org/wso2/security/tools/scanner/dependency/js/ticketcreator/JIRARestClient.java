@@ -148,7 +148,7 @@ public class JIRARestClient {
             try {
                 httpclient.close();
             } catch (IOException e) {
-                throw new TicketCreatorException("Exception occurred while closing the http connection", e);
+                log.error("Exception occurred while closing the http connection", e);
             }
         }
     }

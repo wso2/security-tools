@@ -23,7 +23,6 @@ package org.wso2.security.tools.scanner.dependency.js.preprocessor;
 import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
-import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
 import org.wso2.security.tools.scanner.dependency.js.utils.HttpDownloadUtility;
 import org.wso2.security.tools.scanner.dependency.js.utils.UnZipper;
@@ -110,7 +109,6 @@ public class AtuwaDownloader extends ResourceDownloader {
                                 String filePath = HttpDownloadUtility.downloadFile(downloadURL,
                                         tarDir.getAbsolutePath());
                                 String unzippedDirPath = UnZipper.extractFolder(filePath);
-                                // TODO: 6/15/18 to be checked wheather file path or unzippedfil path
                                 zipFilePathList.add(unzippedDirPath);
                             }
                         }

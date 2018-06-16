@@ -108,7 +108,7 @@ public abstract class ResourceDownloader {
      * Create Directory while downloading files
      *
      * @param dir Directory to be created
-     * @throws FileHandlerException Exception occurred while creating resource directory.
+     * @throws DownloaderException Exception occurred while creating resource directory.
      */
     static void createResourceDirectory(File dir) throws DownloaderException {
         try {
