@@ -6,11 +6,11 @@ downloaded from respective github repository.
 *This tool currently uses Retire.js as a JS Security Scan tool. Retire.js is an open source tool
 which helps to detect JS libraries with known vulnerabilities.
 
-*This tool generate a report for each product which includes retire.js result as json format.
+*This tool generates a report for each product which includes retire.js result as json format.
 
-*This tool delivers the by fallowing ways : 
+*This tool delivers the generated reports in fallowing ways : 
         1. Upload reports to particular git repository.
-        2. If the report contains any known vulnerability, Create issue ticket. Currently it supports JIRA.
+        2. If the report contains any known vulnerability, Create JIRA ticket.
         3. Integrate with Vulnerability Management System (VMS).
         
 * Before you begin : 
@@ -30,12 +30,12 @@ which helps to detect JS libraries with known vulnerabilities.
     
 Note : Following configurations need to be done before executing this scan tool. 
 
-   1. There are separate configurations for each product. Please check those configurations.
-   2. Please provide github credential information in githubconfig.properties.
-   3. Please provide github accesstoken information in githubaccesstoken.properties.
-   4. Please provide jira (any issue ticket manager) credential information in issuecreatorconfig.properties.
-   5. Please provide jira ticket default ticket parameter values in jiraticketinfo.properties.
-   6. Please check supported product list.
+   1. There are separate configurations for each product. Provide product details in respective configuration files.
+   2. Provide github credential information in githubconfig.properties.
+   3. Provide github accesstoken information in githubaccesstoken.properties.
+   4. Provide JIRA credential information in issuecreatorconfig.properties.
+   5. Provide jira ticket  parameter values in jiraticketinfo.properties.
+   6. Provide supported product list.
    7. Replace the actual git repository url where the scan reports should be uploaded in SECURITY_ARTIFACT_REPO
     placeholder in JSScannerConstants.java file.
    8. Replace the JIRA URL in WSO2_JIRA_BASE_URL placeholder in IssueCreatorConstants.java
