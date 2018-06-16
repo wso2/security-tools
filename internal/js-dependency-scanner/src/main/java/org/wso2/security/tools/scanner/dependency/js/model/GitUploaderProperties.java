@@ -24,8 +24,12 @@ package org.wso2.security.tools.scanner.dependency.js.model;
  * Attributes of GitUploader Properties.
  */
 public class GitUploaderProperties {
+
+    // Username of Github account
     private char[] gitUsername;
+    // Password of Github account
     private char[] gitPassword;
+    // repository URL. This is used to upload generated scan reports.
     private String repoURL;
 
     public GitUploaderProperties(char[] gitUsername, char[] gitPassword, String repoURL) {
@@ -57,4 +61,5 @@ public class GitUploaderProperties {
     public void setRepoURL(String repoURL) {
         this.repoURL = repoURL;
     }
+
 }

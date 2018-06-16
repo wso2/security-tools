@@ -20,7 +20,6 @@
 
 package org.wso2.security.tools.scanner.dependency.js.scanmanager;
 
-
 import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.exception.ScanExecutorException;
 
@@ -32,6 +31,7 @@ import java.util.Map;
  * contains vulnerabilities related to JS Libraries.
  */
 public abstract class Executor {
+
     private static final Logger log = Logger.getLogger(Executor.class);
 
     /**
@@ -45,16 +45,16 @@ public abstract class Executor {
         HashMap<String, String> productResponseMapper = new HashMap<>();
         for (Map.Entry<String, String> entry : productFileMapper.entrySet()) {
             //Execute scan
-            String response = null;
+            String response;
             try {
                 log.info("[JS_SEC_DAILY_SCAN]  " + "Start security scan for : " + entry.getKey());
                 response = executeCommand(entry.getKey(), entry.getValue());
-                if(response!=null) {
+                if (response != null) {
                     productResponseMapper.put(entry.getKey(), response);
                     log.info("[JS_SEC_DAILY_SCAN]  " + "End security scan for : " + entry.getKey());
                 }
             } catch (ScanExecutorException e) {
-                log.error(e.getMessage());
+                log.error(e);
             }
         }
         return productResponseMapper;

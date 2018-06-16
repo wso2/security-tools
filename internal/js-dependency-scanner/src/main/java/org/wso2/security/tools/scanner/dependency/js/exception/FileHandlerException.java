@@ -25,6 +25,7 @@ package org.wso2.security.tools.scanner.dependency.js.exception;
  * type of {@code FileHandlerException}. These exception occurred during create, read, write , delete process on a file.
  */
 public class FileHandlerException extends Exception {
+
     /**
      * Constructs a new exception with the specified detail message.
      *

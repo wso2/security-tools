@@ -26,7 +26,7 @@ package org.wso2.security.tools.scanner.dependency.js.constants;
  */
 public class RetireJSScannerConstants {
 
-    //constants related to Retire.js command
+    // Constants related to Retire.js command
     public static final String RETIRE = "retire";
     public static final String JS_COMMAND = "-j";
     public static final String OUTPUT_FORMAT = "--outputformat";

@@ -49,9 +49,9 @@ import java.util.regex.Pattern;
  * github api.
  */
 public class ReactFileDownloader {
-    private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     private static final Logger log = Logger.getLogger(ReactFileDownloader.class);
+    private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
     /**
      * Download Package.json files.
@@ -100,12 +100,11 @@ public class ReactFileDownloader {
         }
     }
 
-
     /**
      * Get component version from product main pom file.
      *
      * @param version    product version
-     * @param repoName   reponame of the product
+     * @param repoName   repository name of the product
      * @param versionTag version tag of component
      * @return component version
      * @throws ApiInvokerException Exception occurred while API Call.
@@ -178,8 +177,9 @@ public class ReactFileDownloader {
      * @param version       version
      * @param componentRepo component repository name
      * @param rootDir       directory where the package.json files to be downloaded.
-     * @throws ApiInvokerException Exception occurred while API Call.
-     * @throws DownloaderException Exception occurred while downloading package.json files.
+     * @throws ApiInvokerException  Exception occurred while API Call.
+     * @throws DownloaderException  Exception occurred while downloading package.json files.
+     * @throws FileHandlerException Exception occurred while creating directory.
      */
     private static void getPackagejsonFiles(String version, String componentRepo, File rootDir) throws
             ApiInvokerException, DownloaderException, FileHandlerException {

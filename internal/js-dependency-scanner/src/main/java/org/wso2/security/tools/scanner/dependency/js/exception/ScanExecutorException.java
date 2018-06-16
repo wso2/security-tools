@@ -26,6 +26,7 @@ package org.wso2.security.tools.scanner.dependency.js.exception;
  * products.
  */
 public class ScanExecutorException extends Exception {
+
     /**
      * Constructs a new exception with the specified detail message.
      *
@@ -41,4 +42,5 @@ public class ScanExecutorException extends Exception {
     public ScanExecutorException(String message, Throwable e) {
         super(message, e);
     }
+
 }

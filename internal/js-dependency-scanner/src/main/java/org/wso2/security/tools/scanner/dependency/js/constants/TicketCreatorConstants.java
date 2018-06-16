@@ -28,14 +28,14 @@ public class TicketCreatorConstants {
     public static final String WSO2_JIRA_BASE_URL = "endpointurl";
     public static final String JIRA_REST_API_URL = "rest/api/2/issue";
 
-    //constants for assignees of particular product ticket
+    // Constants for assignees of particular product ticket
     public static final String IDENTITYSERVER = "imTicketAssignee";
     public static final String APIM = "apimTicketAssignee";
     public static final String INTEGRATION = "eiTicketAssignee";
     public static final String STREAMPROCESSOR = "spTicketAssignee";
     public static final String OPENBANKING = "obTicketAssignee";
 
-    //constants related to jira ticket
+    // Constants related to jira ticket
     public static final String TICKET_SUBJECT = "ticketSubject";
     public static final String PROJECT_KEY = "projectKey";
     public static final String ISSUELABEL = "issueLabel";

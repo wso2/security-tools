@@ -25,11 +25,11 @@ package org.wso2.security.tools.scanner.dependency.js.constants;
  */
 public class JSScannerConstants {
 
-    //constants related to npm
+    // Constants related to npm
     public static final String NPM = "npm";
     public static final String INSTALL = "install";
 
-    //constants for suffix of supported products
+    // Constants for suffix of supported products
     public static final String IDENTITYSERVER = "wso2is";
     public static final String APIM = "wso2apim";
     public static final String AM = "wso2am";
@@ -38,7 +38,7 @@ public class JSScannerConstants {
     public static final String DAS = "wso2das";
     public static final String OB = "wso2-ob-solution";
 
-    //constants related to config files
+    // Constants related to config files
     public static final String GIT_CONFIG_FILE = "githubuploaderconfig.properties";
     public static final String GIT_ACCESS_TOKEN_CONFIG_FILE = "gitaccesstoken.properties";
     public static final String TICKETCREATOR_CONFIG_FILE = "ticketcreatorconfig.properties";
@@ -53,7 +53,7 @@ public class JSScannerConstants {
     public static final String ATUWA_CONFIG = "atuwa.properties";
     public static final String PROPERTIES_FILE_DELIMETER = ",";
 
-    //Config files attributes
+    // Config files attributes
     public static final String PRODUCTS = "products";
     public static final String ACCESSTOKEN = "accessToken";
     public static final String USERNAME = "userName";
@@ -64,7 +64,7 @@ public class JSScannerConstants {
     public static final String VERSION_TAG_KEY_WORD = "componentVersionTag";
     public static final String COMPONENT_REPO = "componentRepo";
 
-    //constants related to git api url
+    // Constants related to git api url
     public static final String GIT_BASE_URL = "https://api.github.com/repos/wso2/";
     public static final String GIT_SEARCH_URL = "https://api.github.com/search/code?q=filename:";
     public static final String POM = "pom.xml";
@@ -76,7 +76,7 @@ public class JSScannerConstants {
     public static final String DOWNLOAD_URL = "browser_download_url";
     public static final String ATUWA_BASE_URL = "atuwabaseurl";
     public static final String OB_INDEX_FILE = "open-banking-solutions-packs.index";
-    //constants related to directory
+    // Constants related to directory
     public static final String PRODUCT_HOME = System.getProperty("user.home") + "/products";
     public static final String SECURITY_ARTIFACT_HOME = System.getProperty("user.home") + "/securityArtifact";
     public static final String WEEKLY_RELEASE = "weeklyRelease";
@@ -84,7 +84,7 @@ public class JSScannerConstants {
     public static final String SCN_REPORT_DIRECTORY_PATH = "/RetireJSLibraryScanReports";
 //            "/dependency-analysis/internal/retirejs/scan-reports";
 
-    //constants related to github credentials
+    // Constants related to github credentials
     public static final String GIT = "git";
     public static final String ATUWA = "atuwa";
 
@@ -97,7 +97,7 @@ public class JSScannerConstants {
     public static final String POM_VERSION_REGEX = "[0-9]+[.][0-9]+[.][0-9]+";
     public static final String GA_RELEASE_VERSION_REGEX = "[-]\\d+[.]\\d+[.]\\d+[.]";
 
-    //Random String
+    // Random String
     public static final String RANDOM_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 }

@@ -41,7 +41,6 @@ public class CommonApiInvoker {
 
     private static final Logger log = Logger.getLogger(CommonApiInvoker.class);
 
-
     private CommonApiInvoker() {
     }
 

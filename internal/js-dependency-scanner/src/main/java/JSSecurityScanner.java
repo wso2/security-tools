@@ -25,15 +25,14 @@ import org.wso2.security.tools.scanner.dependency.js.scanmanager.RetireJsExecuto
 
 import java.util.HashMap;
 
-
 /**
  * Main class for JSSecurity Scanner. This class is main entry point for JSSecurity scanner.
  * This class calls fallowing functions :
  * 1. Start pre processing : It is responsible for following tasks -
- *                                        parse configuration files
- *                                        download product packs
- *                                        if product is C5 download package.json files
- *                                        Unzip product packs.
+ * parse configuration files
+ * download product packs
+ * if product is C5 download package.json files
+ * Unzip product packs.
  * 2. Perform scanning process : Run retire.js scanner against root directory of each products.
  * 3. Fetch generated issue reports by uploading reports to security artifacts.
  * create JIRA ticket if there are any known vulnerabilities found in report.
@@ -67,10 +66,13 @@ public class JSSecurityScanner {
             HashMap<String, String> responseMapper = retireJsExecutor.startScanner(productMapper);
             log.info("[JS_SEC_DAILY_SCAN] Scan execution finished");
             log.info("----------------------------------------------------------------------------------------------");
-            log.info("[JS_SEC_DAILY_SCAN] Starts publishing the report ");
-            outputController.controlReportManager(responseMapper);
-            log.info("----------------------------------------------------------------------------------------------");
-            log.info("[JS_SEC_DAILY_SCAN] END");
+            if (responseMapper.size() > 0) {
+                log.info("[JS_SEC_DAILY_SCAN] Starts publishing the report ");
+                outputController.controlReportManager(responseMapper);
+                log.info("-------------------------------------------------------------------------------------------" +
+                        "---");
+                log.info("[JS_SEC_DAILY_SCAN] END");
+            }
         }
     }
 

@@ -20,7 +20,6 @@
 
 package org.wso2.security.tools.scanner.dependency.js.ticketcreator;
 
-
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -54,7 +53,7 @@ public class JIRARestClient {
      * Invoke Get method
      *
      * @param auth credentials info of JIRA
-     * @param url url to be invoked.
+     * @param url  url to be invoked.
      * @return response entity of get method.
      * @throws AuthenticationException Exception occurred while authenticate the JIRA
      */
@@ -62,7 +61,8 @@ public class JIRARestClient {
             throws AuthenticationException {
         Client client = Client.create();
         WebResource webResource = client.resource(url);
-        ClientResponse response = webResource.header("Authorization", "Basic " + auth).type("application/json")
+        ClientResponse response = webResource.header("Authorization", "Basic " + auth)
+                .type("application/json")
                 .accept("application/json").get(ClientResponse.class);
         int statusCode = response.getStatus();
         if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
@@ -105,7 +105,6 @@ public class JIRARestClient {
      */
     public void invokePostComment(String auth, String url, String data)
             throws AuthenticationException {
-
         Client client = Client.create();
         WebResource webResource = client.resource(url);
         WebResource.Builder builder = webResource.header("Authorization", "Basic " + auth);
@@ -128,7 +127,6 @@ public class JIRARestClient {
      * @throws TicketCreatorException Exception occurred while attaching the file with ticket.
      */
     public void invokePutMethodWithFile(String auth, String url, String path) throws TicketCreatorException {
-
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httppost = new HttpPost(url);
         httppost.setHeader("X-Atlassian-Token", "nocheck");

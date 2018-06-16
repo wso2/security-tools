@@ -23,7 +23,6 @@ package org.wso2.security.tools.scanner.dependency.js.preprocessor;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
-import org.wso2.security.tools.scanner.dependency.js.exception.ApiInvokerException;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
@@ -58,9 +57,7 @@ public abstract class ResourceDownloader {
      * and scan date (Current system date)
      * @throws ParseException Exception occurred parsing the string to date format.
      */
-    long getDateDiffFromLastWeeklyRelease(String releaseDate)
-            throws ParseException {
-
+    long getDateDiffFromLastWeeklyRelease(String releaseDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         LocalDateTime now = LocalDateTime.now();
         Date firstDate = sdf.parse(releaseDate);
@@ -140,13 +137,12 @@ public abstract class ResourceDownloader {
     /**
      * Download product pack.
      *
-     * @param productDto Repository Name.
-     * @param path       Path where the downloaded pack to be placed.
+     * @param product Repository Name.
+     * @param path    Path where the downloaded pack to be placed.
      * @return Path of the zip file.
-     * @throws ApiInvokerException exception occurred while calling GIT API
      * @throws DownloaderException exception occurred while downloading files.
      */
-    public abstract List<String> downloadProductPack(Product productDto, String path) throws ApiInvokerException,
+    public abstract List<String> downloadProductPack(Product product, String path) throws
             DownloaderException;
 
 }

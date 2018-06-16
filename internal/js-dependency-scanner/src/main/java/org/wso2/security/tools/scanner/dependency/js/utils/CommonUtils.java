@@ -37,6 +37,7 @@ public class CommonUtils {
      * Create Directory
      *
      * @param dir Directory to be created
+     * @throws FileHandlerException Exception occurred while creating directory.
      */
     public static void createDirectory(File dir) throws FileHandlerException {
         if (!dir.exists()) {
@@ -62,8 +63,8 @@ public class CommonUtils {
     }
 
     /**
-     * Accesstoken is illed with random numbers. This is used to discard the char array elements
-     * of accesstoken from memory dump and refill with random numbers.
+     * Access token is filled with random numbers. This is used to discard the char array elements
+     * of access token from memory dump and refill with random numbers.
      *
      * @param accessToken Accestoken
      */

@@ -20,7 +20,6 @@
 
 package org.wso2.security.tools.scanner.dependency.js.utils;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
@@ -37,6 +36,7 @@ import java.util.Map;
  * The content of the file will be prettify json format.
  */
 public class ReportWriter {
+
     private static final Logger log = Logger.getLogger(ReportWriter.class);
 
     private ReportWriter() {
@@ -64,7 +64,7 @@ public class ReportWriter {
     }
 
     /**
-     * Write resposne in file.
+     * Write scan result in file.
      *
      * @param name      Name of the product.
      * @param response  Scan response.
@@ -89,11 +89,10 @@ public class ReportWriter {
         try {
             writer = new PrintWriter(currentReportFilePath, "UTF-8");
             writer.write(indented);
-
         } catch (IOException e) {
             throw new FileHandlerException("Failed to generate report for " + name + " " + e);
-        }finally {
-            if(writer!=null) {
+        } finally {
+            if (writer != null) {
                 writer.close();
             }
         }

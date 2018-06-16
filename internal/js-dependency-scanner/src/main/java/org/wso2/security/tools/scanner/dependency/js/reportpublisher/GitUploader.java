@@ -47,8 +47,8 @@ import java.util.List;
  * into the security artifact repo.
  */
 public class GitUploader extends ReportUploader {
-    private static final Logger log = Logger.getLogger(GitUploader.class);
 
+    private static final Logger log = Logger.getLogger(GitUploader.class);
     private GitUploaderProperties gitUploaderProperties;
     private Git gitRepo;
 
@@ -60,14 +60,14 @@ public class GitUploader extends ReportUploader {
      *
      * @param gitUploaderProperties This object holds the value of username, password, and repository URL where the scan
      *                              reports should be uploaded.
-     * @throws GitAPIException Exception occurred when clone or pull action executed.
+     * @throws GitAPIException      Exception occurred when clone or pull action executed.
+     * @throws FileHandlerException Exception occurred while creating directory.
      */
     public GitUploader(GitUploaderProperties gitUploaderProperties) throws GitAPIException, FileHandlerException {
         super();
         this.gitUploaderProperties = gitUploaderProperties;
         File artifactFile = new File(JSScannerConstants.SECURITY_ARTIFACT_HOME);
         if (!artifactFile.exists()) {
-            System.out.println(gitUploaderProperties.getRepoURL());
             CommonUtils.createDirectory(artifactFile);
             gitRepo = Git.cloneRepository()
                     .setURI(gitUploaderProperties.getRepoURL())
@@ -78,7 +78,7 @@ public class GitUploader extends ReportUploader {
                     .call();
             log.info("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo cloned successfully.");
         } else {
-            //If cloned repository exists in local directory, pull command will be executed,
+            // If cloned repository exists in local directory, pull command will be executed,
             if (gitPull(artifactFile)) {
                 log.error("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo pull action successful.");
             }
@@ -86,7 +86,8 @@ public class GitUploader extends ReportUploader {
     }
 
     /**
-     * Publish report to any endpoint. currently it supports to github.
+     * Publish report to any endpoint. This inherited method responsible to upload generated reports to github
+     * repository.
      *
      * @param productResponseMapper Mapper for product and scan result.
      * @throws GitAPIException      Exception occurred during github API call.
@@ -102,11 +103,10 @@ public class GitUploader extends ReportUploader {
     }
 
     /**
-     * Add generated reports to git repo
+     * Add generated reports to cloned github repository.
      *
      * @param productResponseMapper Mapper for product and scan result.
      * @throws GitAPIException      Exception occurred during github API call.
-     * @throws GitAPIException      Exception occurred while add files.
      * @throws FileHandlerException Exception occurred during report generation.
      */
     private void storeFiles(HashMap<String, String> productResponseMapper) throws GitAPIException,
@@ -125,10 +125,10 @@ public class GitUploader extends ReportUploader {
     /**
      * perform git commit.
      *
-     * @throws GitAPIException Exception occurred during gitcommit.
+     * @throws GitAPIException Exception occurred during git commit.
      */
     private void gitCommit() throws GitAPIException {
-        // and then commit the changes.
+        // Commit the changes.
         gitRepo.commit()
                 .setMessage("Added Retire.js vulnerability report " + java.time.LocalDate.now().toString())
                 .call();
@@ -136,7 +136,7 @@ public class GitUploader extends ReportUploader {
     }
 
     /**
-     * perform git push.
+     * Perform git push.
      *
      * @throws GitAPIException Exception occurred during gitcommit.
      */
@@ -199,6 +199,7 @@ public class GitUploader extends ReportUploader {
         } catch (GitAPIException | IOException e) {
             log.error("[JS_SEC_DAILY_SCAN]  " + "Security artifact repo pull action failed.", e);
         }
-        return true; //assume true
+        return true;
     }
+
 }

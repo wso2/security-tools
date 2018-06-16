@@ -21,15 +21,15 @@
 package org.wso2.security.tools.scanner.dependency.js.utils;
 
 import org.apache.log4j.Logger;
-import org.wso2.security.tools.scanner.dependency.js.constants.TicketCreatorConstants;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
+import org.wso2.security.tools.scanner.dependency.js.constants.TicketCreatorConstants;
 import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
 import org.wso2.security.tools.scanner.dependency.js.model.GitUploaderProperties;
-import org.wso2.security.tools.scanner.dependency.js.ticketcreator.TicketCreator;
-import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRATicketCreator;
-import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRARestClient;
 import org.wso2.security.tools.scanner.dependency.js.model.Product;
 import org.wso2.security.tools.scanner.dependency.js.preprocessor.AtuwaDownloader;
+import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRARestClient;
+import org.wso2.security.tools.scanner.dependency.js.ticketcreator.JIRATicketCreator;
+import org.wso2.security.tools.scanner.dependency.js.ticketcreator.TicketCreator;
 
 import java.io.IOException;
 import java.io.InputStream;

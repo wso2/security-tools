@@ -20,7 +20,6 @@
 
 package org.wso2.security.tools.scanner.dependency.js.utils;
 
-
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
 
 import java.io.BufferedInputStream;
@@ -122,4 +121,5 @@ public class UnZipper {
         }
         return newPath;
     }
+
 }

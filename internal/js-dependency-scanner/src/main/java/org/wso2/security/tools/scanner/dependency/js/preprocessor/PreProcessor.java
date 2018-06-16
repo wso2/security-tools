@@ -22,7 +22,6 @@ package org.wso2.security.tools.scanner.dependency.js.preprocessor;
 
 import org.apache.log4j.Logger;
 import org.wso2.security.tools.scanner.dependency.js.constants.JSScannerConstants;
-import org.wso2.security.tools.scanner.dependency.js.exception.ApiInvokerException;
 import org.wso2.security.tools.scanner.dependency.js.exception.ConfigParserException;
 import org.wso2.security.tools.scanner.dependency.js.exception.DownloaderException;
 import org.wso2.security.tools.scanner.dependency.js.exception.FileHandlerException;
@@ -82,7 +81,7 @@ public class PreProcessor {
             //download resources
             downloadResources(supportedProductDtoList);
             CommonUtils.clearAccssToken(CommonApiInvoker.getGitToken());
-        } catch (ApiInvokerException | DownloaderException | ConfigParserException | FileHandlerException e) {
+        } catch (DownloaderException | ConfigParserException | FileHandlerException e) {
             log.error("Error occurred while downloading product pack.", e);
         }
         return productFileMapper;
@@ -94,26 +93,28 @@ public class PreProcessor {
      * Package.json files can be downloaded from github repo as raw materials.
      *
      * @param productDtoList Product list
-     * @throws DownloaderException exception occurred while downloading files.
+     * @throws DownloaderException   Exception occurred while downloading files.
+     * @throws ConfigParserException Exception occurred while parsing configuration properties.
+     * @throws FileHandlerException  Exception occured while creating root directory.
      */
     private void downloadResources(List<Product> productDtoList) throws DownloaderException,
-            ApiInvokerException, ConfigParserException, FileHandlerException {
+            FileHandlerException, ConfigParserException {
         ConfigParser.parseGitAccessToken();
         productFileMapper = new HashMap<>();
         String filename;
         for (Product productDto : productDtoList) {
-            //create directory for current product
+            // Create directory for current product
             File currentProductDir = new File(productRootDirectory.getAbsolutePath() + File.separator +
                     productDto.getProductRepoName());
             CommonUtils.createDirectory(currentProductDir);
             List<String> downloadedProductRootDirPathList = new ArrayList<>();
-            //download from git repository
+            // Download from git repository
             if (productDto.getInputSourceType().equals(JSScannerConstants.GIT)) {
                 ResourceDownloader gitDownloader = new GitDownloader();
                 downloadedProductRootDirPathList.addAll(executeDownloader(productDto, currentProductDir,
                         gitDownloader));
             }
-            //download from atuwa
+            // Download from Atuwa
             if (productDto.getInputSourceType().equals(JSScannerConstants.ATUWA)) {
                 ResourceDownloader atuwaDownloader = new AtuwaDownloader();
                 ConfigParser.parseAtuwaUrl();
@@ -139,11 +140,10 @@ public class PreProcessor {
      * @param currentProductDir  Current product root directory.
      * @param resourceDownloader Resource downloader. This object indicates the type of source where we download
      *                           product packs. Eg : Github, Atuwa.
-     * @throws ApiInvokerException Exception occurred when calling API.
      * @throws DownloaderException Exception occurred when downloading files.
      */
     private List<String> executeDownloader(Product productDto, File currentProductDir, ResourceDownloader
-            resourceDownloader) throws ApiInvokerException, DownloaderException {
+            resourceDownloader) throws DownloaderException {
         List<String> downloadedProductPackPathList = resourceDownloader.downloadProductPack(productDto,
                 currentProductDir.getAbsolutePath());
         return downloadedProductPackPathList;

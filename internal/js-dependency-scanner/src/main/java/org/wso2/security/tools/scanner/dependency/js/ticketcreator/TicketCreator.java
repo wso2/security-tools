@@ -20,16 +20,15 @@
 
 package org.wso2.security.tools.scanner.dependency.js.ticketcreator;
 
-
 import org.wso2.security.tools.scanner.dependency.js.exception.TicketCreatorException;
 
 import java.util.HashMap;
-
 
 /**
  * Abstract Class for implementing issue creator API Endpoint.
  */
 public abstract class TicketCreator {
+
     private char[] username;
     private char[] password;
     private String endPointURL;
@@ -67,6 +66,7 @@ public abstract class TicketCreator {
      *
      * @param responseMapper Mapper which holds product name and it's scan response as string.
      * @param fileMapper     Mapper which holds product name and it's report file path.
+     * @throws TicketCreatorException Exception occurred while creating JIRA ticket.
      */
     public abstract void handleTicketCreatorAPICall(HashMap<String, String> responseMapper, HashMap<String, String>
             fileMapper) throws TicketCreatorException;

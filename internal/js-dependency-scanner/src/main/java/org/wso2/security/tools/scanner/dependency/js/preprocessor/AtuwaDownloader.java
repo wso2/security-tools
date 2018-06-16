@@ -50,15 +50,8 @@ public class AtuwaDownloader extends ResourceDownloader {
         AtuwaDownloader.atuwaBaseURL = atuwaBaseURL;
     }
 
-    /**
-     * <p>
-     * This is an override method, so javadoc should be visible. This method responsible to download
-     * product packs from atuwa.
-     * </p>
-     * {@inheritDoc}
-     */
     @Override
-    public List<String> downloadProductPack(Product productDto, String path) throws DownloaderException {
+    public List<String> downloadProductPack(Product product, String path) throws DownloaderException {
         return download(path);
     }
 
@@ -67,6 +60,7 @@ public class AtuwaDownloader extends ResourceDownloader {
      *
      * @param path Root directory file path to store the downloaded file.
      * @return list of downloaded weekly release zip file paths.
+     * @throws DownloaderException Exception occurred while downloading files.
      */
     private List<String> download(String path) throws DownloaderException {
         BufferedReader reader = null;
@@ -76,11 +70,11 @@ public class AtuwaDownloader extends ResourceDownloader {
             zipFilePathList = new ArrayList<>();
             String urlString = atuwaBaseURL + File.separator + JSScannerConstants.OB_INDEX_FILE;
             String downloadURL;
-            // build the url
+            // Build url
             URL urlObject;
             try {
                 urlObject = new URL(urlString);
-                // open the url stream, wrap it an a few "readers"
+                // Open the url stream, wrap it an a few "readers"
                 reader = new BufferedReader(new InputStreamReader(urlObject.openStream()));
             } catch (MalformedURLException e) {
                 throw new DownloaderException("Malformed URL has occurred. : " + urlString + " ", e);
@@ -90,10 +84,11 @@ public class AtuwaDownloader extends ResourceDownloader {
             String line;
             File tarDir = null;
             try {
+                // Identify the weekly release and download product pack.
                 while ((line = reader.readLine()) != null) {
                     String element[] = line.split(":");
                     Long dateDiff = getDateDiffFromLastWeeklyRelease(element[1]);
-                    if (dateDiff < 18) {
+                    if (dateDiff < 8) {
                         if (isWeeklyRelease(element[0])) {
                             tarDir = new File(path + File.separator + "weeklyRelease");
                         } else if (isGARelease(element[0])) {
@@ -125,10 +120,11 @@ public class AtuwaDownloader extends ResourceDownloader {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    log.error("Unable to close stream : " + name + e.getMessage());
+                    log.error("Unable to close stream : " + name, e);
                 }
             }
         }
         return zipFilePathList;
     }
+
 }

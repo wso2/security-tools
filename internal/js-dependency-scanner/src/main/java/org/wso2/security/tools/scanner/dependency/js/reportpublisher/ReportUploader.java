@@ -30,6 +30,7 @@ import java.util.HashMap;
  * uploaded.
  */
 public abstract class ReportUploader {
+
     private HashMap<String, String> reportFileMapper;
 
     /**
@@ -49,4 +50,5 @@ public abstract class ReportUploader {
     void setReportFileMapper(HashMap<String, String> reportFileMapper) {
         this.reportFileMapper = reportFileMapper;
     }
+
 }

@@ -45,26 +45,21 @@ public class GitDownloader extends ResourceDownloader {
 
     private static final Logger log = Logger.getLogger(GitDownloader.class);
 
-    /**
-     * Download product pack from github repository.
-     *
-     * @param product Repository Name.
-     * @param path    parent path where downloaded pack to be saved.
-     * @return path where downloaded pack to be saved.
-     * @throws ApiInvokerException exception occurred while Calling API
-     * @throws DownloaderException exception occurred while downloading file.
-     */
     @Override
-    public List<String> downloadProductPack(Product product, String path) throws ApiInvokerException,
+    public List<String> downloadProductPack(Product product, String path) throws
             DownloaderException {
         List<String> zipFilePathList = new ArrayList<>();
-
         //git api endpoint to get releases of particular product.
         String gitReleaseUrl = JSScannerConstants.GIT_BASE_URL + product.getProductRepoName() +
                 JSScannerConstants.RELEASES;
         String downloadURL;
-        //call release end point and get results
-        String apiResponse = CommonApiInvoker.connectGitAPI(gitReleaseUrl);
+        // call release end point and get results
+        String apiResponse;
+        try {
+            apiResponse = CommonApiInvoker.connectGitAPI(gitReleaseUrl);
+        } catch (ApiInvokerException e) {
+            throw new DownloaderException("Failed to connect GitAPI. ", e);
+        }
         if (apiResponse != null) {
             JSONArray resultJsonArray = new JSONArray(apiResponse);
             for (int i = 0, size = resultJsonArray.length(); i < size; i++) {
@@ -77,13 +72,13 @@ public class GitDownloader extends ResourceDownloader {
                 } catch (ParseException e) {
                     throw new DownloaderException("Error occurred while parsing release date.", e);
                 }
-                if (dateDiff <= 2) {
+                if (dateDiff <= 8) {
                     File tarDir = null;
                     JSONArray assetsArray = (JSONArray) currentReleaseInfo.get(JSScannerConstants.ASSETS);
                     String name;
                     for (int j = 0, assetSize = assetsArray.length(); j < assetSize; j++) {
                         JSONObject assetInArray = assetsArray.getJSONObject(j);
-                        //perform exact matching
+                        // Perform exact matching
                         name = assetInArray.get(JSScannerConstants.NAME).toString();
                         if ((name.contains(JSScannerConstants.AM) || name.contains(JSScannerConstants.APIM) ||
                                 name.contains(JSScannerConstants.INTEGRATION) ||
@@ -91,36 +86,35 @@ public class GitDownloader extends ResourceDownloader {
                                 name.contains(JSScannerConstants.IDENTITYSERVER)) &&
                                 name.endsWith(JSScannerConstants.ZIP_PREFIX)) {
                             if (isWeeklyRelease(name)) {
-                                //If current product asset is weekly release then the target directory is weekly release
-                                // folder of particular product.
+                                // If current product asset is weekly release then the target directory is weekly
+                                // release folder of particular product.
                                 tarDir = new File(path + File.separator + JSScannerConstants.WEEKLY_RELEASE);
                             } else if (isGARelease(name)) {
-                                //If current product asset is GA release then the target directory is GA release
-                                //folder of particular product.
+                                // If current product asset is GA release then the target directory is GA release
+                                // folder of particular product.
                                 tarDir = new File(path + File.separator + JSScannerConstants.GA_RELEASE);
                             }
                             if (tarDir != null) {
                                 createResourceDirectory(tarDir);
                             }
                             log.info(name + " is published on " + releaseDate);
-                            //get download endpoint url
+                            // Get download endpoint url
                             downloadURL = (String) assetInArray.get(JSScannerConstants.DOWNLOAD_URL);
                             if (downloadURL != null && path != null) {
-                                // the path of downloaded product pack
+                                // The path of downloaded product pack
 
                                 String filePath = null;
                                 if (tarDir != null) {
                                     filePath = HttpDownloadUtility.downloadFile(downloadURL,
                                             tarDir.getAbsolutePath());
                                 }
-                                // the path of unzipped product directory
+                                // The path of unzipped product directory
                                 String unzippedDirPath;
                                 try {
                                     unzippedDirPath = UnZipper.extractFolder(filePath);
                                 } catch (IOException e) {
                                     throw new DownloaderException("Error occurred while unzip file " + filePath, e);
                                 }
-                                System.out.println(filePath);
                                 zipFilePathList.add(unzippedDirPath);
                                 //Check whether the current product has react components and
                                 // if so download package.json files.
@@ -129,8 +123,14 @@ public class GitDownloader extends ResourceDownloader {
                                     // Package.json files won't be there. This implementation is temporary.
                                     if (!name.contains(JSScannerConstants.AM)) {
                                         //download react files
-                                        ReactFileDownloader.downloadReactFiles(version, product.getRepoVersionMapper(),
-                                                new File(unzippedDirPath), product.getProductRepoName());
+                                        try {
+                                            ReactFileDownloader.downloadReactFiles(version,
+                                                    product.getRepoVersionMapper(),
+                                                    new File(unzippedDirPath), product.getProductRepoName());
+                                        } catch (ApiInvokerException e) {
+                                            throw new DownloaderException("Failed to connect GitAPI while downloading" +
+                                                    "package.json files. ", e);
+                                        }
                                     }
                                 }
                             }
@@ -142,7 +142,6 @@ public class GitDownloader extends ResourceDownloader {
                 }
             }
         }
-
         return zipFilePathList;
     }
 
