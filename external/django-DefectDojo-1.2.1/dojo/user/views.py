@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from tastypie.models import ApiKey
-from dojo.models import Finding, Notes
+from dojo.models import Finding, Notes , Multi_Usage_Notes, Notes_Multi_Usage_Mapping
 
 from dojo.filters import UserFilter
 from dojo.forms import DojoUserForm, AddDojoUserForm, DeleteUserForm, APIKeyForm, UserContactInfoForm
@@ -30,8 +30,94 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# #  tastypie api
+def upload_multi_usage_cvffv1(request):
+    if request.method == 'POST':
+        form = UploadCVFFForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_multi_usage_cvff(request, request.FILES['file'])
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'WSO2 CVFFv1 file import was successful.',
+                                 extra_tags='alert-success')
+            return HttpResponseRedirect("/")
+    else:
+        form = UploadCVFFForm()
+    return render(request,
+                  'dojo/up_multi_usage_cvff.html',
+                  {'form': form})
 
+def handle_uploaded_multi_usage_cvff(request, f):
+    output = StringIO.StringIO()
+    for chunk in f.chunks():
+        output.write(chunk)
+
+    csvString = output.getvalue().splitlines(True)[0:]
+
+    inputCSV = csv.reader(csvString, quoting=csv.QUOTE_NONNUMERIC)
+    logger.error('Before moving into loop')
+    isHeader = 1
+    indexOfResolution = 0
+
+    for row in inputCSV:
+        if isHeader == 1:
+            for col in row:
+                if str(col) == "WSO2_resolution":
+                    print "is header changed:"
+                    isHeader = 0
+                    break
+                indexOfResolution = indexOfResolution + 1
+
+        try:
+            finding = Finding.objects.filter(pk=float(row[0]))[0]
+            logger.error('Finding note count for id '+ str(row[0]) +' is : ' + str(finding.notes.count()))
+            status = str(row[indexOfResolution]).strip().split("(")[0]
+
+            if row[indexOfResolution] in (None, ""):
+                print finding.title
+                multi_usage_notes = Multi_Usage_Notes(entry= "[ " + status + " ] ~ : " + row[indexOfResolution+2] + " :- " + row[indexOfResolution+3] + " :: " + row[indexOfResolution+4] , author=request.user)
+                multi_usage_notes.save()
+                finding.notes.multi_usage.add(multi_usage_notes);
+                logger.info('Adding new multi usage to the note')
+            else:
+                note=finding.notes.all()[0]
+                note.entry = "[ " + status + " ] ~ : [Multi Usage]"
+                note.save()
+                multi_usage_notes = Multi_Usage_Notes(entry="[ " + status + " ] ~ : " + row[indexOfResolution+2] + " :- " + row[indexOfResolution+3] + " :: " + row[indexOfResolution+4], note=note, occurrence_number=row[indexOfResolution-1])
+                multi_usage_notes.save()
+
+            status = status.replace('.','').replace(',','').replace(' ','').lower()
+
+            finding.false_p = False
+            finding.verified = False
+            finding.active = False
+            finding.out_of_scope = False
+            finding.save()
+
+            if status == 'falsepositive':
+                finding.false_p = True
+                finding.save()
+            elif status == 'notathreat':
+                finding.verified = True
+                finding.save()
+            elif status == 'needtobefixed':
+                finding.active = True
+                finding.save()
+            elif status == 'needtofix':
+                finding.active = True
+                finding.save()
+            elif status == 'truepositive':
+                finding.active = True
+                finding.save()
+            elif status == 'alreadymitigated':
+                finding.out_of_scope = True
+                finding.save()
+            else:
+                logger.error('Unknown status for : ' + str(row[0]) + ". Status is : " + status)
+        except Exception as e:
+            logger.error(e.message)
+            logger.error('Error in processing row: ' + str(row[0]) + ". Skipping.")
+
+# #  tastypie api
 def upload_cvffv1(request):
     if request.method == 'POST':
         form = UploadCVFFForm(request.POST, request.FILES)

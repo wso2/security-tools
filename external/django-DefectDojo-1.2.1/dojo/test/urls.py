@@ -25,4 +25,6 @@ urlpatterns = [
     url(r'^test/(?P<tid>\d+)/re_import_scan_results', views.re_import_scan_results, name='re_import_scan_results'),
     url(r'^test/(?P<tid>\d+)/download_cvffv1$', views.download_cvffv1_test,
         name='download_cvffv1_test'),
+    url(r'^test/(?P<tid>\d+)/download_multi_usage_cvffv1$', views.download_multi_usage_cvffv1_test,
+        name='download_multi_usage_cvffv1_test'),
 ]

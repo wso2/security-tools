@@ -22,8 +22,9 @@ from dojo.filters import TemplateFindingFilter
 from dojo.forms import NoteForm, TestForm, FindingForm, \
     DeleteTestForm, AddFindingForm, \
     ImportScanForm, ReImportScanForm, FindingBulkUpdateForm, JIRAFindingForm
-from dojo.models import Finding, Test, Notes, \
-    BurpRawRequestResponse, Endpoint, Stub_Finding, Finding_Template, JIRA_PKey, Cred_User, Cred_Mapping, Dojo_User
+from dojo.models import Finding, Test, Notes,\
+    BurpRawRequestResponse, Endpoint, Stub_Finding, Finding_Template, JIRA_PKey, Cred_User,\
+    Cred_Mapping, Dojo_User, Multi_Usage_Notes
 from dojo.tools.factory import import_parser_factory
 from dojo.utils import get_page_items, add_breadcrumb, get_cal_event, message, \
     process_notifications, get_system_setting, create_notification
@@ -643,17 +644,10 @@ def download_cvffv1_test(request, tid):
                 wso2_comment_found = 0
 
                 for offset in offsets:
-                    similarFindingsWithNotes = []
                     pattern = re.compile('[0-9]*')
                     product_name= pattern.split(product_name)[0]
-                    if offset == 0:
-                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product__name__startswith=product_name).exclude(notes=None).order_by('-id')
-                        if len(similarFindingsWithNotes) == 0 :
-                            similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number ).exclude(notes=None).order_by('-id')
-                    else:
-                        similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, test__engagement__product__name__startswith=product_name  ).filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
-                        if len(similarFindingsWithNotes) == 0:
-                            similarFindingsWithNotes = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function).filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
+                    similarFindingsWithNotes = filter_similar_findings_for_veracode_items(offset, finding, product_name)
+
                     if similarFindingsWithNotes:
                         t = get_object_or_404(Test, pk=similarFindingsWithNotes[0].test_id)
 
@@ -673,7 +667,7 @@ def download_cvffv1_test(request, tid):
                                                 wso2_product = t.engagement.product
                                                 if wso2_comment_found == 1:
                                                     break
-                            elif note.entry.find("] ~ ") > -1:
+                                        elif note.entry.find("] ~ ") > -1:
                                             if wso2_comment_found != 1:
                                                 wso2_resolution = str(note.entry[1:note.entry.find("] ~ ")]).strip()
                                                 wso2_offset = str(offset)
@@ -682,7 +676,7 @@ def download_cvffv1_test(request, tid):
                                                 comment_found = 1
                                                 wso2_comment_found = 1
                                                 if use_case_found == 1:
-                                                    break;
+                                                    break
                         if use_case_found ==1 & wso2_comment_found ==1:
                             break
                 if comment_found == 1:
@@ -735,16 +729,101 @@ def download_cvffv1_test(request, tid):
                                 data.append(note.entry[note.entry.find("] ~ : ") + 5 : note.entry.find(":- ")])
                                 data.append(note.entry[note.entry.find(":- ")  + 3 : note.entry.find(" :: ")])
                                 data.append(note.entry[note.entry.find(" :: ") + 3 :])
-                                comment_found = 1
                                 break
                             elif note.entry.find("] ~ ") > -1:
                                 data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
                                 data.append("N/A")
                                 data.append(note.entry[note.entry.find("] ~ ") + 4:])
-                                comment_found = 1
                                 break
 
             wr.writerow([unicode(c).encode('utf8') for c in data])
+
+    response = HttpResponse(output.getvalue(), content_type='plain/text')
+    response['Content-Disposition'] = 'attachment; filename=' + str(test.test_type).replace(' ','_') + "-" + tid + '.csv'
+
+    return response
+
+def filter_similar_findings_for_veracode_items(offset, finding, product_name):
+    pattern = re.compile('[0-9]*')
+    product_name= pattern.split(product_name)[0]
+    if offset == 0:
+        filter = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product=finding.test.engagement.product)
+        similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+        if len(similarFindingsWithNotes) == 0 :
+            filter = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product__name__startswith=product_name)
+            similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+            if len(similarFindingsWithNotes) == 0 :
+                Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number)
+                similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+    else:
+        filter = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product=finding.test.engagement.product)
+        similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+        if len(similarFindingsWithNotes) == 0 :
+            filter = Finding.objects.filter( title=finding.title, sourcefile=finding.sourcefile, function=finding.function, test__engagement__product__name__startswith=product_name)
+            similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+            if len(similarFindingsWithNotes) == 0:
+                filter = Finding.objects.filter( title=finding.title, sourcefile=finding.sourcefile, function=finding.function)
+                similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+    return similarFindingsWithNotes
+
+def get_notes_for_similar_findings(filter,offset):
+    if offset == 0:
+        similarFindingsWithNotes = filter.exclude(notes=None).order_by('-id')
+    else:
+        similarFindingsWithNotes = filter.filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
+    return similarFindingsWithNotes
+
+def download_multi_usage_cvffv1_test(request, tid):
+    test = get_object_or_404(Test, pk=tid)
+
+    output = StringIO.StringIO()
+    wr = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
+    product_name=test.engagement.product.name
+
+    if str(test.test_type) == 'Veracode Scan':
+        headings = ["finding_id", "issue_id", "occurrence_number","WSO2_resolution", "Use_Case" , "Vulnerability_Influence" , "Resolution", "Applicable_Product"]
+        wr.writerow(headings)
+
+        offsets = [0, 10, 20, 50, 100, 150]
+        for finding in Finding.objects.filter(test_id=tid):
+            comment_found = 0
+            if comment_found == 0:
+                wso2_resolution = ""
+                wso2_use_case = ""
+                wso2_vulnerability_influence = ""
+                resolution = ""
+                multi_usage_comment_found = 0
+                for offset in offsets:
+                    pattern = re.compile('[0-9]*')
+                    product_name = pattern.split(product_name)[0]
+                    similarFindingsWithNotes = filter_similar_findings_for_veracode_items(offset, finding, product_name)
+                    if similarFindingsWithNotes:
+                        t = get_object_or_404(Test, pk=similarFindingsWithNotes[0].test_id)
+                        for note in similarFindingsWithNotes[0].notes.all():
+                            if str(note.entry[note.entry.find(": "):note.entry.find("] ~ : ")+20]) == ": [Multi Usage]":
+                                if multi_usage_comment_found == 0:
+                                    note_id=note.id
+                                    multi_usage_notes=Multi_Usage_Notes.objects.filter(note_id=note_id)
+                                    for multi_usage_note in multi_usage_notes:
+                                        data = [finding.id, finding.issue_id ]
+                                        if str(multi_usage_note.entry[1:multi_usage_note.entry.find("] ~ ")]).strip().replace(" ","") != "":
+                                            if multi_usage_note.entry.find("] ~ : ") > -1:
+                                                    wso2_resolution = str(multi_usage_note.entry[1:multi_usage_note.entry.find("] ~ ")]).strip()
+                                                    occurrence_number = multi_usage_note.occurrence_number
+                                                    wso2_use_case = multi_usage_note.entry[multi_usage_note.entry.find("] ~ : ") + 5 : multi_usage_note.entry.find(":- ")]
+                                                    wso2_vulnerability_influence = multi_usage_note.entry[multi_usage_note.entry.find(":- ")  + 3 : multi_usage_note.entry.find(" :: ")]
+                                                    resolution = multi_usage_note.entry[multi_usage_note.entry.find(" :: ") + 3 :]
+                                                    multi_usage_comment_found = 1
+                                                    wso2_product = t.engagement.product
+                                        data.append(occurrence_number)
+                                        data.append(wso2_resolution)
+                                        data.append(wso2_use_case)
+                                        data.append(wso2_vulnerability_influence)
+                                        data.append(resolution)
+                                        if wso2_product.id != test.engagement.product.id:
+                                            data.append(wso2_product)
+
+                                        wr.writerow([unicode(c).encode('utf8') for c in data])
 
     response = HttpResponse(output.getvalue(), content_type='plain/text')
     response['Content-Disposition'] = 'attachment; filename=' + str(test.test_type).replace(' ','_') + "-" + tid + '.csv'

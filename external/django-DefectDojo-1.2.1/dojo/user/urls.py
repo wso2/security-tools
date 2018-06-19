@@ -22,4 +22,5 @@ urlpatterns = [
         name='delete_user'),
     url(r'^api/key$', views.api_key, name='api_key'),
     url(r'^upload_cvffv1$', views.upload_cvffv1, name='upload_cvffv1'),
+    url(r'^upload_multi_usage_cvffv1$', views.upload_multi_usage_cvffv1, name='upload_multi_usage_cvffv1'),
 ]
