@@ -15,7 +15,6 @@
  */
 package org.wso2.security.tool.service;
 
-
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -23,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.formparam.FileInfo;
 import org.wso2.msf4j.formparam.FormDataParam;
 import org.wso2.security.tool.adapter.InputAdapter;
+import org.wso2.security.tool.exception.FeedbackToolException;
 import org.wso2.security.tool.generator.HTMLOutputGenerator;
 import org.wso2.security.tool.generator.OutputGenerator;
 import org.wso2.security.tool.generator.PDFFromHTMLOutputGenerator;
@@ -31,7 +31,6 @@ import org.wso2.security.tool.util.Constants;
 import org.wso2.security.tool.util.FileHandler;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -44,8 +43,8 @@ import javax.ws.rs.core.Response;
  * Customer Feedback Generation Service. -------------------------------------------------------------------------------
  * FeedbackGenerationService - This class consists of functionality to accept uploaded files by the clients and
  * to generate the requested output file. The data files uploaded are converted to JSON objects; prior to applying
- * the data to the template file (.hbs). The operations supported are generateHTML(), generatePDF() and
- * generate PDFFromHTML() which will instantiate the corresponding generators and delegate the functionality.
+ * the data to the template file (.hbs). The operations supported by the service are generateHTML(), generatePDF() and
+ * generatePDFFromHTML() which will instantiate the corresponding generators and delegate the functionality.
  *
  * @author Arshika Mohottige
  */
@@ -79,47 +78,26 @@ public class FeedbackGenerationService {
         String dataFilePath;
         JSONObject dataJSONObject = null;
 
-        // Saving the uploaded handlebars template file
         try {
+            // Saving the uploaded Handlebars template file and the data file
             FileHandler.saveUploadedFile(hbsFileInputStream, hbsFileInfo);
-        } catch (IOException e) {
-            log.error("Error occurred while saving the template file: " + hbsFileInfo.getFileName()
+            dataFilePath = FileHandler.saveUploadedFile(dataFileInputStream, dataFileInfo);
+
+            // Converting the uploaded data to a JSON object
+            adapter = FileHandler.getAdapter(dataFileInfo);
+            dataJSONObject = adapter.convert(dataFilePath);
+
+            // Generating the output html page by combining the JSON data and the handlebars template
+            outputGenerator = new HTMLOutputGenerator(dataJSONObject, System.getProperty("java.io.tmpdir"),
+                    hbsFileInfo.getFileName());
+            outputGenerator.generate(System.getProperty("java.io.tmpdir"));
+        } catch (FeedbackToolException e) {
+            log.error("Error occurred while generating the output HTML file: " + hbsFileInfo.getFileName()
                     + e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             IOUtils.closeQuietly(hbsFileInputStream);
         }
-
-        // Saving the uploaded data (.xls/.xml) file
-        try {
-            dataFilePath = FileHandler.saveUploadedFile(dataFileInputStream, dataFileInfo);
-        } catch (IOException e) {
-            log.error("Error occured while saving the data file: " + dataFileInfo.getFileName() + e.getMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } finally {
-            IOUtils.closeQuietly(dataFileInputStream);
-        }
-
-        // Converting the uploaded data to a JSON object
-        try {
-            adapter = FileHandler.getAdapter(dataFileInfo);
-            dataJSONObject = adapter.convert(dataFilePath);
-        } catch (IOException e) {
-            log.error("Error occurred while converting data in the file: " + dataFileInfo.getFileName()
-                    + e.getMessage(), e);
-        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-            log.error("Error occurred while obtaining the InputAdapter; " + e.getMessage(), e);
-        }
-
-        // Generating the output html page by combining the JSON data and the handlebars template
-        outputGenerator = new HTMLOutputGenerator(dataJSONObject, System.getProperty("java.io.tmpdir"),
-                hbsFileInfo.getFileName());
-        try {
-            outputGenerator.generate(System.getProperty("java.io.tmpdir"));
-        } catch (IOException e) {
-            log.error("Error occurred while generating the output HTML file; " + e.getMessage(), e);
-        }
-
         File file = new File(System.getProperty("java.io.tmpdir") + Constants.OUTPUT_HTML_FILE);
         Response.ResponseBuilder response = Response.ok((Object) file);
         response.header("Content-Disposition",
@@ -144,24 +122,20 @@ public class FeedbackGenerationService {
                                         @FormDataParam("html") InputStream htmlFileInputStream) {
         String htmlFilePath;
 
-        // Saving the uploaded handlebars template file
         try {
+            // Saving the uploaded HTML file
             htmlFilePath = FileHandler.saveUploadedFile(htmlFileInputStream, htmlFileInfo);
-        } catch (IOException e) {
-            log.error("Error occurred while saving the html file: " + htmlFileInfo.getFileName() + e.getMessage(), e);
+
+            // Instantiating outputGenerator
+            outputGenerator = new PDFFromHTMLOutputGenerator(htmlFilePath);
+
+            // Generating the output pdf page
+            outputGenerator.generate(System.getProperty("java.io.tmpdir"));
+        } catch (FeedbackToolException e) {
+            log.error("Error occurred while generating the output PDF file; " + e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             IOUtils.closeQuietly(htmlFileInputStream);
-        }
-
-        // Instantiating outputGenerator
-        outputGenerator = new PDFFromHTMLOutputGenerator(htmlFilePath);
-
-        // Generating the output pdf page
-        try {
-            outputGenerator.generate(System.getProperty("java.io.tmpdir"));
-        } catch (IOException e) {
-            log.error("Error occurred while generating the output PDF file; " + e.getMessage(), e);
         }
         File file = new File(System.getProperty("java.io.tmpdir") + Constants.OUTPUT_PDF_FILE);
         Response.ResponseBuilder response = Response.ok((Object) file);
@@ -171,10 +145,10 @@ public class FeedbackGenerationService {
     }
 
     /**
-     * Generates an output PDF file by first generating an HTMl file by applying the data to the template file
-     * and then converting that html file to pdf.
+     * Generates an output PDF file by first generating an HTML file by applying the data to the template file
+     * and then converting that HTML file to PDF.
      * The PDFOutputGenerator uses instances of HTMLOutputGenerator and PDFFromHTMLOutputGenerator to first generate
-     * an html file and then convert that html to a pdf file.
+     * an HTML file and then convert that HTML file to a PDF file.
      *
      * @param hbsFileInfo         The file details of the template file uploaded.
      * @param hbsFileInputStream  The template file InputStream.
@@ -193,51 +167,31 @@ public class FeedbackGenerationService {
         String dataFilePath;
         JSONObject dataJSONObject = null;
 
-        // Saving the uploaded handlebars template file
         try {
+            // Saving the uploaded Handlebars template file and the data file
             FileHandler.saveUploadedFile(hbsFileInputStream, hbsFileInfo);
-        } catch (IOException e) {
-            log.error("Error occurred while saving the template file: " + hbsFileInfo.getFileName()
+            dataFilePath = FileHandler.saveUploadedFile(dataFileInputStream, dataFileInfo);
+
+            // Converting the uploaded data to a JSON object
+            adapter = FileHandler.getAdapter(dataFileInfo);
+            dataJSONObject = adapter.convert(dataFilePath);
+
+            // Instantiating outputGenerator
+            outputGenerator = new PDFOutputGenerator(
+                    new HTMLOutputGenerator(dataJSONObject, System.getProperty("java.io.tmpdir"),
+                            hbsFileInfo.getFileName()),
+                    new PDFFromHTMLOutputGenerator(System.getProperty("java.io.tmpdir")
+                            + Constants.OUTPUT_HTML_FILE)
+            );
+
+            // Generating the output pdf page
+            outputGenerator.generate(System.getProperty("java.io.tmpdir"));
+        } catch (FeedbackToolException e) {
+            log.error("Error occurred while generating the output PDF file" + hbsFileInfo.getFileName()
                     + e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             IOUtils.closeQuietly(hbsFileInputStream);
-        }
-
-        // Saving the uploaded data (.xls/.xml) file
-        try {
-            dataFilePath = FileHandler.saveUploadedFile(dataFileInputStream, dataFileInfo);
-        } catch (IOException e) {
-            log.error("Error occurred while saving the data file: " + dataFileInfo.getFileName() + e.getMessage(), e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        } finally {
-            IOUtils.closeQuietly(dataFileInputStream);
-        }
-
-        // Converting the uploaded data to a JSON object
-        try {
-            adapter = FileHandler.getAdapter(dataFileInfo);
-            dataJSONObject = adapter.convert(dataFilePath);
-        } catch (IOException e) {
-            log.error("Error occurred while converting data in the file: " + dataFileInfo.getFileName()
-                    + e.getMessage(), e);
-        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-            log.error("Error occurred while obtaining the InputAdapter; " + e.getMessage(), e);
-        }
-
-        // Instantiating outputGenerator
-        outputGenerator = new PDFOutputGenerator(
-                new HTMLOutputGenerator(dataJSONObject, System.getProperty("java.io.tmpdir"),
-                        hbsFileInfo.getFileName()),
-                new PDFFromHTMLOutputGenerator(System.getProperty("java.io.tmpdir")
-                        + Constants.OUTPUT_HTML_FILE)
-        );
-
-        // Generating the output pdf page
-        try {
-            outputGenerator.generate(System.getProperty("java.io.tmpdir"));
-        } catch (IOException e) {
-            log.error("Error occurred while generating the output PDF file; " + e.getMessage(), e);
         }
         File file = new File(System.getProperty("java.io.tmpdir") + Constants.OUTPUT_PDF_FILE);
         Response.ResponseBuilder response = Response.ok((Object) file);

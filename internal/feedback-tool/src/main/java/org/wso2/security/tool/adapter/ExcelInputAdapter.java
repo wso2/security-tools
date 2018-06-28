@@ -26,6 +26,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.security.tool.exception.FeedbackToolException;
 import org.wso2.security.tool.util.Constants;
 
 import java.io.File;
@@ -53,14 +54,16 @@ public class ExcelInputAdapter implements InputAdapter {
      *
      * @param dataFilePath The path where the data file uploaded is saved.
      * @return returns the JSON object that contains all the data in the .xlsx file.
-     * @throws IOException If the .xlsx file is not found in the given path.
+     * @throws FeedbackToolException If the .xlsx file is not found in the given path or due to an error in
+     *                               parsing the data in the data file.
      */
     @Override
-    public JSONObject convert(String dataFilePath) throws IOException {
+    public JSONObject convert(String dataFilePath) throws FeedbackToolException {
 
         // JSONObject to hold the array of row objects
         JSONObject dataJSONObject = new JSONObject();
-        try (Workbook workbook = WorkbookFactory.create(new File(dataFilePath))) {
+        try {
+            Workbook workbook = WorkbookFactory.create(new File(dataFilePath));
             logInfo = "Workbook has " + workbook.getNumberOfSheets() + " sheets";
             log.info(logInfo);
 
@@ -78,8 +81,8 @@ public class ExcelInputAdapter implements InputAdapter {
 
                 logInfo = "Iterating over Rows and Columns using for-each loop";
                 log.info(logInfo);
-
                 for (Row row : sheet) {
+
                     // JSONObject to hold the data in the cells of a given row
                     JSONObject rowJSONObject = new JSONObject();
 
@@ -94,7 +97,9 @@ public class ExcelInputAdapter implements InputAdapter {
             }
             dataJSONObject.put(Constants.JSON_DATA_OBJECT, rowsJSONArray);
         } catch (InvalidFormatException e) {
-            log.error("Error in parsing the data file uploaded; " + e.getMessage(), e);
+            throw new FeedbackToolException("Error in parsing the data file uploaded" + e);
+        } catch (IOException e) {
+            throw new FeedbackToolException("Data file was not found in the specified location" + e);
         }
         return dataJSONObject;
     }

@@ -15,7 +15,7 @@
  */
 package org.wso2.security.tool.generator;
 
-import java.io.IOException;
+import org.wso2.security.tool.exception.FeedbackToolException;
 
 /**
  * OutputGenerator -- The common interface implemented by all output generators.
@@ -26,11 +26,11 @@ import java.io.IOException;
 public interface OutputGenerator {
 
     /**
-     * Generates the specific file by the output generators (HTML/ PDF).
+     * Generates a specific file by the output generators (HTML/ PDF).
      * Converts the given template file (.hbs) and the data in JSON format to a desired output file format (HTML/PDF).
      *
      * @param outputFilePath The output file path where the output file is created.
-     * @throws IOException If the inner method calls throw an IOException
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
-    void generate(String outputFilePath) throws IOException;
+    void generate(String outputFilePath) throws FeedbackToolException;
 }

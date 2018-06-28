@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.formparam.FileInfo;
 import org.wso2.security.tool.adapter.InputAdapter;
 import org.wso2.security.tool.config.GetProperties;
+import org.wso2.security.tool.exception.FeedbackToolException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -46,14 +47,27 @@ public class FileHandler {
      *
      * @param dataFileInfo The file details of the data file uploaded.
      * @return returns the relevant InputAdapter for the uploaded data file.
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
-    public static InputAdapter getAdapter(FileInfo dataFileInfo) throws ClassNotFoundException, InstantiationException,
-            IllegalAccessException {
+    public static InputAdapter getAdapter(FileInfo dataFileInfo) throws FeedbackToolException {
         String className;
-        className = GetProperties.getClassName(FilenameUtils.getExtension(dataFileInfo.getFileName()));
-        Class clazz = Class.forName(className);
-        log.info("The InputAdapter class selected is: " + className);
-        return (InputAdapter) clazz.newInstance();
+        className = new GetProperties().readProperty(FilenameUtils.getExtension(dataFileInfo.getFileName()));
+        Class clazz = null;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new FeedbackToolException("ClassNotFoundException was thrown while obtaining obtaining " +
+                    "the InputAdapter", e);
+        }
+        try {
+            return (InputAdapter) clazz.newInstance();
+        } catch (InstantiationException e) {
+            throw new FeedbackToolException("InstantiationException was thrown while obtaining obtaining " +
+                    "the InputAdapter", e);
+        } catch (IllegalAccessException e) {
+            throw new FeedbackToolException("IllegalAccessException was thrown while obtaining obtaining " +
+                    "the InputAdapter", e);
+        }
     }
 
     /**
@@ -62,24 +76,29 @@ public class FileHandler {
      *
      * @param fileInputStream The uploaded file InputStream.
      * @param fileInfo        The details about the uploaded file.
-     * @throws IOException
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     public static String saveUploadedFile(InputStream fileInputStream,
-                                          FileInfo fileInfo) throws IOException {
-        Files.copy(fileInputStream, Paths.get(System.getProperty("java.io.tmpdir"), fileInfo.getFileName()),
-                StandardCopyOption.REPLACE_EXISTING);
+                                          FileInfo fileInfo) throws FeedbackToolException {
+        try {
+            Files.copy(fileInputStream, Paths.get(System.getProperty("java.io.tmpdir"), fileInfo.getFileName()),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new FeedbackToolException("IOException was thrown while saving the file: "
+                    + fileInfo.getFileName(), e);
+        }
         return Paths.get(System.getProperty("java.io.tmpdir"), fileInfo.getFileName()).toString();
     }
 
     /**
-     * Writes the given html string to a .html file.
+     * Writes the given HTML string to a .html file.
      *
-     * @param htmlString     The html string after combining the JSON data with the template file.
-     * @param outputFilePath The path where the output html file is created.
-     * @return
-     * @throws IOException
+     * @param htmlString     The HTML string after combining the JSON data with the template file.
+     * @param outputFilePath The path where the output HTML file is created.
+     * @return returns false if the htmlString is null and true upon successful execution.
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
-    public static boolean writeToFile(String htmlString, String outputFilePath) throws IOException {
+    public static boolean writeToFile(String htmlString, String outputFilePath) throws FeedbackToolException {
         boolean flag = false;
         if (htmlString == null) {
             return flag;
@@ -92,6 +111,8 @@ public class FileHandler {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(htmlFile))) {
             writer.write(htmlString);
             flag = true;
+        } catch (IOException e) {
+            throw new FeedbackToolException("IOException was thrown while writing to the HTML file", e);
         }
         return flag;
     }

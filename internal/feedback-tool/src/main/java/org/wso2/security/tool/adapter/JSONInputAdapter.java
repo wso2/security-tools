@@ -15,12 +15,12 @@
  */
 package org.wso2.security.tool.adapter;
 
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.security.tool.exception.FeedbackToolException;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -42,10 +42,10 @@ public class JSONInputAdapter implements InputAdapter {
      *
      * @param dataFilePath The path where the data file uploaded by the client is saved.
      * @return returns the JSON object that contains all the data in the data file.
-     * @throws IOException If the data file is not found in the given path.
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     @Override
-    public JSONObject convert(String dataFilePath) throws IOException {
+    public JSONObject convert(String dataFilePath) throws FeedbackToolException {
         JSONParser parser = new JSONParser();
         Object object;
         try {
@@ -54,10 +54,9 @@ public class JSONInputAdapter implements InputAdapter {
             log.info("Returning the JSON object");
             return jsonObject;
         } catch (IOException e) {
-            log.error("IOException was thrown while reading the uploaded JSON file; " + e.getMessage(), e);
+            throw new FeedbackToolException("IOException was thrown while reading the uploaded JSON file" , e);
         } catch (ParseException e) {
-            log.error("ParseException was thrown while parsing the data; " + e.getMessage(), e);
+            throw new FeedbackToolException("ParseException was thrown while parsing the data", e);
         }
-        return null;
     }
 }

@@ -28,15 +28,16 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.security.tool.exception.FeedbackToolException;
 import org.wso2.security.tool.util.Constants;
 import org.wso2.security.tool.util.FileHandler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 
 /**
  * HTMLOutputGenerator -- This class consists of functionality to generate an output HTML file by applying
@@ -93,7 +94,6 @@ public class HTMLOutputGenerator implements OutputGenerator {
         return templateFileName;
     }
 
-
     /**
      * Generates an output HTML file by applying the input data in the JSON format to the handlebars template.
      * The uploaded template file is loaded, compiled and the data JSONObject is then applied to the compiled template.
@@ -101,10 +101,9 @@ public class HTMLOutputGenerator implements OutputGenerator {
      * util class FileHandler.
      *
      * @param outputFilePath The output file path where the output html file is created.
-     * @throws IOException If the readTree() method throws IOException due to missing input while handling tree model
-     *                     nodes with Jackson.
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
-    public void generate(String outputFilePath) throws IOException {
+    public void generate(String outputFilePath) throws FeedbackToolException {
         Template template;
         Context context;
         try {
@@ -122,7 +121,6 @@ public class HTMLOutputGenerator implements OutputGenerator {
                             MethodValueResolver.INSTANCE
                     )
                     .build();
-
             /**
              * Loads template files from the specified file path. The base directory path must be specified at the
              *             creation time; which then serves as the template repository.
@@ -130,13 +128,15 @@ public class HTMLOutputGenerator implements OutputGenerator {
             TemplateLoader loader = new FileTemplateLoader(this.getHbsFileDirectory(), ".hbs");
             handlebars = new Handlebars(loader);
 
-            template = handlebars.compile(this.getTemplateFileName());
+            template = handlebars.compile(FilenameUtils.removeExtension(this.getTemplateFileName()));
             String html = template.apply(context);
 
             FileHandler.writeToFile(html, System.getProperty("java.io.tmpdir") +
                     Constants.OUTPUT_HTML_FILE);
         } catch (FileNotFoundException e) {
-            log.error("FileNotFoundException was thrown while compiling the template file; " + e.getMessage(), e);
+            throw new FeedbackToolException("FileNotFoundException was thrown while compiling the template file", e);
+        } catch (IOException e) {
+            throw new FeedbackToolException("IOException was thrown while compiling the template file", e);
         }
     }
 

@@ -17,8 +17,7 @@ package org.wso2.security.tool.generator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
+import org.wso2.security.tool.exception.FeedbackToolException;
 
 /**
  * PDFOutputGenerator -- This class consists of functionality to generate an output PDF file by using the functionality
@@ -70,10 +69,10 @@ public class PDFOutputGenerator implements OutputGenerator {
      * and then generating a PDF file using an instance of class PDFFromHTMLOutputGenerator.
      *
      * @param outputFilePath The output file path where the output pdf file is created.
-     * @throws IOException If the exception is thrown by
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     @Override
-    public void generate(String outputFilePath) throws IOException {
+    public void generate(String outputFilePath) throws FeedbackToolException {
         if (this.getHtmlOutputGenerator() != null) {
             htmlOutputGenerator.generate(outputFilePath);
         } else {

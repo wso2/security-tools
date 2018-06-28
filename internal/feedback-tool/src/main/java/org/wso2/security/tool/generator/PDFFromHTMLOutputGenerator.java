@@ -19,6 +19,7 @@ import com.lowagie.text.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.wso2.security.tool.exception.FeedbackToolException;
 import org.wso2.security.tool.util.Constants;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.xhtmlrenderer.resource.XMLResource;
@@ -33,8 +34,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * PDFFromHTMLOutputGenerator -- This class consists of functionality to generate an output pdf file by
- * reading an html file. The method generate() will generate a pdf file from the given html string. The html string
+ * PDFFromHTMLOutputGenerator -- This class consists of functionality to generate an output PDF file by
+ * reading an HTML file. The method generate() will generate a PDF file from the given HTML string. The HTML string
  * is read from a .html file using the method readHTMLFile().
  *
  * @author Arshika Mohottige
@@ -83,19 +84,19 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
 
     /**
      * Generates an output PDF file by reading and converting HTML file.
-     * The pre - generated or uploaded HTML file is read through the method readHTMLFile() and an html string is
-     * extracted. The html string is then rendered to a PDF file by the method generate() creating an output
+     * The pre - generated or uploaded HTML file is read through the method readHTMLFile() and an HTML string is
+     * extracted. The HTML string is then rendered to a PDF file by the method generate() creating an output
      * PDF file.
      *
-     * @param outputFilePath The output file path where the output pdf file is created.
-     * @throws IOException If the FileOutputStream fails to find the output file in the given path.
+     * @param outputFilePath The output file path where the output PDF file is created.
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     @Override
-    public void generate(String outputFilePath) throws IOException {
+    public void generate(String outputFilePath) throws FeedbackToolException {
         try {
             readHTMLFile();
-        } catch (IOException e) {
-            log.error("IOException was thrown file reading the HTML file; " + e.getMessage(), e);
+        } catch (FeedbackToolException e) {
+            throw new FeedbackToolException("Error occurred while reading the HTML file", e);
         }
         new File(outputFilePath + Constants.OUTPUT_PDF_FILE);
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(this.getHtmlString()
@@ -109,19 +110,21 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
                     Constants.OUTPUT_PDF_FILE)) {
                 renderer.createPDF(fileOutputStream);
             } catch (DocumentException e) {
-                log.error("DocumentException was thrown while generating the PDF file; " + e.getMessage(), e);
+                throw new FeedbackToolException("DocumentException was thrown while generating the PDF file", e);
             }
+        } catch (IOException e) {
+            throw new FeedbackToolException("IOException was thrown while writing to the PDF file", e);
         }
     }
 
     /**
-     * Reads the HTML file at htmlFilePath and generates an html string.
-     * The HTML file at htmlFilePath is read and the generated html string is then set to the variable
+     * Reads the HTML file at htmlFilePath and generates an HTML string.
+     * The HTML file at htmlFilePath is read and the generated HTML string is then set to the variable
      * htmlString.
      *
-     * @throws IOException
+     * @throws FeedbackToolException If IOException or FileNotFoundException is thrown inside the method implementation.
      */
-    public void readHTMLFile() throws IOException {
+    public void readHTMLFile() throws FeedbackToolException {
         File file = new File(this.getHtmlFilePath());
         if (!file.exists()) {
             log.error("The html file is not found in the given path");
@@ -136,7 +139,9 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
             }
             this.setHtmlString(sb.toString());
         } catch (FileNotFoundException e) {
-            log.error("FileNotFoundException was thrown while reading the html file; " + e.getMessage(), e);
+            throw new FeedbackToolException("FileNotFoundException was thrown while reading the HTML file", e);
+        } catch (IOException e) {
+            throw new FeedbackToolException("IOException was thrown while reading the HTML file", e);
         }
     }
 }
