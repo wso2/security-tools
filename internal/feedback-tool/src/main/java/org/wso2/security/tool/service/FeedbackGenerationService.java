@@ -92,8 +92,7 @@ public class FeedbackGenerationService {
                     hbsFileInfo.getFileName());
             outputGenerator.generate(System.getProperty("java.io.tmpdir"));
         } catch (FeedbackToolException e) {
-            log.error("Error occurred while generating the output HTML file: " + hbsFileInfo.getFileName()
-                    + e.getMessage(), e);
+            log.error("Error occurred while generating the output HTML file", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             IOUtils.closeQuietly(hbsFileInputStream);
@@ -132,7 +131,7 @@ public class FeedbackGenerationService {
             // Generating the output pdf page
             outputGenerator.generate(System.getProperty("java.io.tmpdir"));
         } catch (FeedbackToolException e) {
-            log.error("Error occurred while generating the output PDF file; " + e.getMessage(), e);
+            log.error("Error occurred while generating the output PDF file" , e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             IOUtils.closeQuietly(htmlFileInputStream);
@@ -187,8 +186,7 @@ public class FeedbackGenerationService {
             // Generating the output pdf page
             outputGenerator.generate(System.getProperty("java.io.tmpdir"));
         } catch (FeedbackToolException e) {
-            log.error("Error occurred while generating the output PDF file" + hbsFileInfo.getFileName()
-                    + e.getMessage(), e);
+            log.error("Error occurred while generating the output PDF file", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             IOUtils.closeQuietly(hbsFileInputStream);
