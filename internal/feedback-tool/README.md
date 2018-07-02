@@ -34,3 +34,27 @@ From the target directory, run
 ```
 java -jar feedback-tool-0.1-SNAPSHOT.jar
 ```
+
+## How to Test
+
+To test the service you can use a simple html form like below or a rest client e.g. Postman, Advanced RestClient.
+
+```
+<form method="post" action="http://localhost:9090/security-feedback/generate-pdf" enctype="multipart/form-data">
+    <table>
+        <tr>
+    	    <td>Template:</td>
+    	    <td><input type="file" name="hbs" /></td>
+        </tr>
+        <tr>
+    	    <td>Data</td>
+    	    <td><input type="file" name="data" /></td>
+        </tr>
+        <tr>
+    	    <td colspan="1"><input name="submit" type="submit" value="Submit" /></td>
+        </tr>
+    </table>
+</form>
+```
+
+
