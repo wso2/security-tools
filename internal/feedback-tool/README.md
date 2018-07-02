@@ -10,8 +10,8 @@ This tool is implemented as a WSO2 MSF4J Microservice which exclusively supports
 
 ## Prerequisites 
 
-*Install Oracle Java SE Development Kit (JDK) version 1.8: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html 
-*Install Maven: https://maven.apache.org/install.html
+* Install Oracle Java SE Development Kit (JDK) version 1.8: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html 
+* Install Maven: https://maven.apache.org/install.html
 
 ## Configurations 
 
