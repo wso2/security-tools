@@ -4,7 +4,7 @@ This tool is implemented as a WSO2 MSF4J Microservice which exclusively supports
 
 ## Built With
 
-* [WSO2 MSF4J](hhttps://github.com/wso2/msf4j) - WSO2 Microservices Framework for Java (MSF4J)
+* [WSO2 MSF4J](https://github.com/wso2/msf4j) - WSO2 Microservices Framework for Java (MSF4J)
 * [Handlebars.java](https://github.com/jknack/handlebars.java) - Handlebars.java is a Java port of Handlebars.js.
 * [Handlebars.js](https://handlebarsjs.com/) - Javascript template engine language. 
 
