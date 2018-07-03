@@ -15,6 +15,8 @@
  */
 package org.wso2.security.tool.util;
 
+import java.io.File;
+
 /**
  * Constants -- This utility class consists of all the collected constant values of the project.
  * All the members of this class are immutable.
@@ -23,6 +25,6 @@ public final class Constants {
     public static final String OUTPUT_HTML_FILE = "output.html";
     public static final String OUTPUT_PDF_FILE = "output.pdf";
     public static final String JSON_DATA_OBJECT = "data";
-    public static final String PROPERTIES_FILE_PATH = "resource/conf.properties";
+    public static final String PROPERTIES_FILE_PATH = "resource"+ File.separator+ "conf.properties";
 
 }
