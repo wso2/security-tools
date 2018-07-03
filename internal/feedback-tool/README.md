@@ -39,7 +39,7 @@ java -jar feedback-tool-0.1-SNAPSHOT.jar
 
 To test the service you can use a simple html form like below or a rest client e.g. Postman, Advanced RestClient.
 
-```
+```html
 <form method="post" action="http://localhost:9090/security-feedback/generate-pdf" enctype="multipart/form-data">
     <table>
         <tr>

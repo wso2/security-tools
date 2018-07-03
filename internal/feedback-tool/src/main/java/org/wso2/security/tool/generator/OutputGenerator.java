@@ -19,9 +19,7 @@ import org.wso2.security.tool.exception.FeedbackToolException;
 
 /**
  * OutputGenerator -- The common interface implemented by all output generators.
- * Implementation of the method generate() should offer functionality to generate a given output file type.
- *
- * @author Arshika Mohottige
+ * Implementation of the method generate() should offer functionality to generate a file of the given output file type.
  */
 public interface OutputGenerator {
 
@@ -33,4 +31,5 @@ public interface OutputGenerator {
      * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     void generate(String outputFilePath) throws FeedbackToolException;
+
 }

@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Reads the properties from the properties file.
+ * GetProperties -- This class provides functionality to read the properties from the properties file.
  */
 public class GetProperties {
 
@@ -59,4 +59,5 @@ public class GetProperties {
     public String readProperty(String key) {
         return properties.getProperty(key);
     }
+
 }

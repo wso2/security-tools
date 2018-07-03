@@ -34,8 +34,6 @@ import java.nio.file.StandardCopyOption;
 
 /**
  * FileHandler -- This utility class consists of functionality to handle file related operations.
- *
- * @author Arshika Mohottige
  */
 public class FileHandler {
 
@@ -104,10 +102,10 @@ public class FileHandler {
             return flag;
         }
 
-        // Creating a new html file from the given output path
+        // Creating a new HTML file from the given output path
         File htmlFile = new File(outputFilePath);
 
-        // Writing the given html string to the output .html file.
+        // Writing the given HTML string to the output .html file.
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(htmlFile))) {
             writer.write(htmlString);
             flag = true;
@@ -116,4 +114,5 @@ public class FileHandler {
         }
         return flag;
     }
+
 }

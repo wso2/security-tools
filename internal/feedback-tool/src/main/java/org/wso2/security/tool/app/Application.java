@@ -19,9 +19,7 @@ import org.wso2.msf4j.MicroservicesRunner;
 import org.wso2.security.tool.service.FeedbackGenerationService;
 
 /**
- * Application entry point.
- *
- * @since 0.1-SNAPSHOT
+ * Application -- Application entry point.
  */
 public class Application {
     public static void main(String[] args) {
@@ -29,4 +27,5 @@ public class Application {
                 .deploy(new FeedbackGenerationService())
                 .start();
     }
+
 }

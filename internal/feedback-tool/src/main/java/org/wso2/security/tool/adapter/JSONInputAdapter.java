@@ -15,6 +15,7 @@
  */
 package org.wso2.security.tool.adapter;
 
+import org.apache.commons.io.Charsets;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -24,13 +25,12 @@ import org.wso2.security.tool.exception.FeedbackToolException;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * JSONInputAdapter -- This class consists of functionality to read the uploaded .json files and convert the data to a
  * JSONObject. The method convert() reads and converts the data in the .json file to a JSONObject and returns a
  * JSONObject that contains all the data in the input data file.
- *
- * @author Arshika Mohottige
  */
 public class JSONInputAdapter implements InputAdapter {
 
@@ -54,9 +54,10 @@ public class JSONInputAdapter implements InputAdapter {
             log.info("Returning the JSON object");
             return jsonObject;
         } catch (IOException e) {
-            throw new FeedbackToolException("IOException was thrown while reading the uploaded JSON file" , e);
+            throw new FeedbackToolException("IOException was thrown while reading the uploaded JSON file", e);
         } catch (ParseException e) {
             throw new FeedbackToolException("ParseException was thrown while parsing the data", e);
         }
     }
+
 }

@@ -44,8 +44,6 @@ import java.io.IOException;
  * the input data which is converted to the JSON format; to the handlebars template.
  * Which allows the client to review the file before generating the PDF.
  * The generated HTML file is created at the specified output file path location.
- *
- * @author Arshika Mohottige
  */
 public class HTMLOutputGenerator implements OutputGenerator {
 
@@ -96,11 +94,11 @@ public class HTMLOutputGenerator implements OutputGenerator {
 
     /**
      * Generates an output HTML file by applying the input data in the JSON format to the handlebars template.
-     * The uploaded template file is loaded, compiled and the data JSONObject is then applied to the compiled template.
-     * The resulting template is assigned to a String object which is then passed to the writeToFile method of the
+     * The uploaded template file is loaded, compiled and the data JSONObject is applied to the template.
+     * The resulting template is assigned to a String variable which is then passed to the writeToFile method of the
      * util class FileHandler.
      *
-     * @param outputFilePath The output file path where the output html file is created.
+     * @param outputFilePath The output file path where the output HTML file is created.
      * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     public void generate(String outputFilePath) throws FeedbackToolException {

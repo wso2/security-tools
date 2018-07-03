@@ -22,11 +22,9 @@ import org.wso2.security.tool.exception.FeedbackToolException;
 /**
  * PDFOutputGenerator -- This class consists of functionality to generate an output PDF file by using the functionality
  * offered by the generators; HTMLOutputGenerator and PDFFromHTMLOutputGenerator.
- * The method convert() generates an output PDF file by first generating an HTML file by applying the uploaded data
- * to the uploaded template file using the functionality provided by class HTMLOutputGenerator. The generated HTML
- * file is then read and converted to a PDF file using the functionality provided by class PDFFromHTMLOutputGenerator.
- *
- * @author Arshika Mohottige
+ * The method convert() generates an output PDF file by first generating an HTML file using the functionality
+ * provided by class HTMLOutputGenerator. The generated HTML file is then read and converted to a PDF file using
+ * the functionality provided by class PDFFromHTMLOutputGenerator.
  */
 public class PDFOutputGenerator implements OutputGenerator {
 
@@ -84,4 +82,5 @@ public class PDFOutputGenerator implements OutputGenerator {
             log.error("The value of the reference variable pdfFromHTMLOutputGenerator is null");
         }
     }
+
 }

@@ -22,8 +22,6 @@ import org.wso2.security.tool.exception.FeedbackToolException;
  * InputAdapter -- This interface exclusively consists of methods that must be implemented by all the input adapters.
  * Implementation of method convert() should offer functionality to convert the uploaded
  * data file in a given format to the JSON format.
- *
- * @author Arshika Mohottige
  */
 public interface InputAdapter {
 
@@ -36,4 +34,5 @@ public interface InputAdapter {
      * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     JSONObject convert(String dataFilePath) throws FeedbackToolException;
+
 }

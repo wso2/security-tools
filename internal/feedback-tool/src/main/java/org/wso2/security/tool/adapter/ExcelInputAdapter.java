@@ -37,8 +37,6 @@ import java.util.Iterator;
  * ExcelInputAdapter -- This class exclusively consists of the functionality to convert the data in the data file
  * uploaded with the .xlsx extension to the JSON format.The method convert() in this class
  * returns a JSONObject containing all the data in the uploaded data file.
- *
- * @author Arshika Mohottige
  */
 public class ExcelInputAdapter implements InputAdapter {
 
@@ -97,10 +95,11 @@ public class ExcelInputAdapter implements InputAdapter {
             }
             dataJSONObject.put(Constants.JSON_DATA_OBJECT, rowsJSONArray);
         } catch (InvalidFormatException e) {
-            throw new FeedbackToolException("Error in parsing the data file uploaded" + e);
+            throw new FeedbackToolException("Error in parsing the data file uploaded", e);
         } catch (IOException e) {
-            throw new FeedbackToolException("Data file was not found in the specified location" + e);
+            throw new FeedbackToolException("Data file was not found in the specified location", e);
         }
         return dataJSONObject;
     }
+
 }

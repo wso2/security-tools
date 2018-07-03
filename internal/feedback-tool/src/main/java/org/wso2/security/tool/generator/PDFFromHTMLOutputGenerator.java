@@ -37,8 +37,6 @@ import java.nio.charset.StandardCharsets;
  * PDFFromHTMLOutputGenerator -- This class consists of functionality to generate an output PDF file by
  * reading an HTML file. The method generate() will generate a PDF file from the given HTML string. The HTML string
  * is read from a .html file using the method readHTMLFile().
- *
- * @author Arshika Mohottige
  */
 public class PDFFromHTMLOutputGenerator implements OutputGenerator {
 
@@ -47,7 +45,7 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
     private String htmlString;
 
     /**
-     * Constrictor to set the value of the variable htmlFilePath.
+     * Constructor to set the value of the variable htmlFilePath.
      *
      * @param htmlFilePath
      */
@@ -76,7 +74,7 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
     /**
      * Setter for the variable htmlString.
      *
-     * @param htmlString
+     * @param htmlString The HTML String literal that is to be written to the file.
      */
     public void setHtmlString(String htmlString) {
         this.htmlString = htmlString;
@@ -85,8 +83,7 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
     /**
      * Generates an output PDF file by reading and converting HTML file.
      * The pre - generated or uploaded HTML file is read through the method readHTMLFile() and an HTML string is
-     * extracted. The HTML string is then rendered to a PDF file by the method generate() creating an output
-     * PDF file.
+     * extracted. The HTML string is then rendered to a PDF file by the method generate().
      *
      * @param outputFilePath The output file path where the output PDF file is created.
      * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
@@ -122,7 +119,7 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
      * The HTML file at htmlFilePath is read and the generated HTML string is then set to the variable
      * htmlString.
      *
-     * @throws FeedbackToolException If IOException or FileNotFoundException is thrown inside the method implementation.
+     * @throws FeedbackToolException If an Exception is thrown inside the method implementation.
      */
     public void readHTMLFile() throws FeedbackToolException {
         File file = new File(this.getHtmlFilePath());
@@ -144,4 +141,5 @@ public class PDFFromHTMLOutputGenerator implements OutputGenerator {
             throw new FeedbackToolException("IOException was thrown while reading the HTML file", e);
         }
     }
+
 }

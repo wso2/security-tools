@@ -45,8 +45,6 @@ import javax.ws.rs.core.Response;
  * to generate the requested output file. The data files uploaded are converted to JSON objects; prior to applying
  * the data to the template file (.hbs). The operations supported by the service are generateHTML(), generatePDF() and
  * generatePDFFromHTML() which will instantiate the corresponding generators and delegate the functionality.
- *
- * @author Arshika Mohottige
  */
 @Path("/security-feedback")
 public class FeedbackGenerationService {
@@ -131,7 +129,7 @@ public class FeedbackGenerationService {
             // Generating the output pdf page
             outputGenerator.generate(System.getProperty("java.io.tmpdir"));
         } catch (FeedbackToolException e) {
-            log.error("Error occurred while generating the output PDF file" , e);
+            log.error("Error occurred while generating the output PDF file", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         } finally {
             IOUtils.closeQuietly(htmlFileInputStream);
@@ -197,4 +195,5 @@ public class FeedbackGenerationService {
                 "attachment; filename=feedback-output.pdf");
         return response.build();
     }
+
 }

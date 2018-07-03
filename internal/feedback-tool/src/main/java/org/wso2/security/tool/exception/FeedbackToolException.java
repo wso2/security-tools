@@ -16,7 +16,7 @@
 package org.wso2.security.tool.exception;
 
 /**
- * This class is exclusively for handling exceptions in this project.
+ * FeedbackToolException -- This class is exclusively for handling exceptions in this project.
  */
 public class FeedbackToolException extends Exception {
 
@@ -38,4 +38,5 @@ public class FeedbackToolException extends Exception {
     public FeedbackToolException(String message, Throwable e) {
         super(message, e);
     }
+
 }
