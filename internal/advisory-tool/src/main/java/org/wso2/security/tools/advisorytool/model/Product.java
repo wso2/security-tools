@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,7 +28,6 @@ import java.util.List;
  * Represents a Product.
  */
 public class Product {
-
     @SerializedName("product-name")
     @JsonProperty
     private String name;

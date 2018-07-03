@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.data;
 
 import org.wso2.security.tools.advisorytool.model.SecurityAdvisoryData;
@@ -25,7 +24,6 @@ import org.wso2.security.tools.advisorytool.model.SecurityAdvisoryData;
  * This class is used to store the security advisory list.
  */
 public class SecurityAdvisoryDataHolder {
-
     private SecurityAdvisoryData securityAdvisoryData = new SecurityAdvisoryData();
     private static volatile SecurityAdvisoryDataHolder instance;
 

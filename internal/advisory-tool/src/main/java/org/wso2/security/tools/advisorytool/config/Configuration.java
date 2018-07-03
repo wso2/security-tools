@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.config;
 
 import org.apache.commons.codec.binary.Base64;
@@ -32,7 +31,6 @@ import java.util.List;
  * Configuration class to store advisory tool configurations
  */
 public class Configuration {
-
     private char[] patchListAPIUsername;
     private char[] patchListAPIPassword;
     private String patchListAPI;
@@ -185,5 +183,4 @@ public class Configuration {
     public void setPatchSupportPeriod(int patchSupportPeriod) {
         this.patchSupportPeriod = patchSupportPeriod;
     }
-
 }

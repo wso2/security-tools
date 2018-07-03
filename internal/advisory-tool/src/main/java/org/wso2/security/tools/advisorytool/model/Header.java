@@ -22,7 +22,6 @@ package org.wso2.security.tools.advisorytool.model;
  * Represents an HTTP Header.
  */
 public class Header {
-
     private String headerName;
     private String headerValue;
 

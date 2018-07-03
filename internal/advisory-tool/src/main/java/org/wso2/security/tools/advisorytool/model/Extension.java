@@ -22,7 +22,6 @@ package org.wso2.security.tools.advisorytool.model;
  * Represents an Extension class.
  */
 public class Extension {
-
     private String id;
     private String className;
 

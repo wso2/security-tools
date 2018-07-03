@@ -164,7 +164,7 @@
 
    - platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.3"
-     releaseDate: 2017-01-07
+     releaseDate: 2016-01-07
      versionNumber: "1.10.0"
      isWumSupported: false
      isPatchSupported: true
@@ -180,11 +180,25 @@
 
    - platformVersionNumber: "4.2.0"
      kernelVersionNumber: "4.2.0"
-     releaseDate: 2013-10-22
-     versionNumber: "1.5.0"
+     releaseDate: 2015-06-18
+     versionNumber: "1.9.0"
      isWumSupported: false
      isPatchSupported: true
-     isPublicSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-12-16
+     versionNumber: "1.8.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-23
+     versionNumber: "1.7.0"
+     isWumSupported: false
+     isPatchSupported: true
      isDeprecated: true
 
    - platformVersionNumber: "4.2.0"
@@ -198,25 +212,11 @@
 
    - platformVersionNumber: "4.2.0"
      kernelVersionNumber: "4.2.0"
-     releaseDate: 2015-06-18
-     versionNumber: "1.9.0"
+     releaseDate: 2013-10-22
+     versionNumber: "1.5.0"
      isWumSupported: false
      isPatchSupported: true
-
-   - platformVersionNumber: "4.2.0"
-     kernelVersionNumber: "4.2.0"
-     releaseDate: 2014-05-23
-     versionNumber: "1.7.0"
-     isWumSupported: false
-     isPatchSupported: true
-     isDeprecated: true
-
-   - platformVersionNumber: "4.2.0"
-     kernelVersionNumber: "4.2.0"
-     releaseDate: 2014-12-16
-     versionNumber: "1.8.0"
-     isWumSupported: false
-     isPatchSupported: true
+     isPublicSupported: true
      isDeprecated: true
 
 

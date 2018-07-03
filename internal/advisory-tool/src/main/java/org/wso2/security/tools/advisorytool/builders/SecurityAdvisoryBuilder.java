@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.builders;
 
 import org.apache.log4j.Logger;
@@ -40,7 +39,6 @@ import java.util.List;
  * SecurityAdvisoryBuilder class to build the security advisory object.
  */
 public abstract class SecurityAdvisoryBuilder {
-
     private static final Logger logger = Logger.getLogger(SecurityAdvisoryBuilder.class);
 
     /**
@@ -74,7 +72,6 @@ public abstract class SecurityAdvisoryBuilder {
      * @return
      */
     protected Patch getPatchDetails(String patchName) throws AdvisoryToolException {
-
         int jsonMainArrayIndex;
         StringBuilder result = null;
         Patch patch = new Patch();
@@ -107,6 +104,7 @@ public abstract class SecurityAdvisoryBuilder {
                          jsonArrayIndex++) {
                         if (!jsonArray.get(jsonArrayIndex).toString()
                                 .contains(Constants.PATCH_LIFECYCLE_RELEASED_STATE)) {
+
                             //if the patch is not in the released state.
                             logger.warn("Patch " + patchName + " is in the state of "
                                     + jsonArray.get(jsonArrayIndex).toString());
@@ -124,6 +122,7 @@ public abstract class SecurityAdvisoryBuilder {
                         String[] array = jsonArray.get(jsonArrayIndex).toString()
                                 .split("(?=\\s\\d)");
                         if (!"Carbon".equals(array[0].trim())) {
+
                             //WSO2 prefix will get appended to the product names returned from the PMT
                             // as we maintain products in our Products.xml with the WSO2 prefix.
                             if (!applicableProductAndVersionStringList.contains("WSO2 ".concat(jsonArray
@@ -133,6 +132,7 @@ public abstract class SecurityAdvisoryBuilder {
                             }
 
                         } else {
+
                             //If the applicable product is a kernel version, the relevant products
                             // included in the that kernel version are searched from the Products.xml
                             applicableProductAndVersionStringList
@@ -362,7 +362,6 @@ public abstract class SecurityAdvisoryBuilder {
      * @return
      */
     protected List<Product> getPatchSupportedProducts(List<Product> affectedProductsList) {
-
         List<Product> affectedPatchSupportedProductsList = new ArrayList<>();
         List<Version> affectedPatchSupportedVersionList = new ArrayList<>();
         Product affectedPatchSupportedProduct;

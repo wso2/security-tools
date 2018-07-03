@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.data;
 
 import org.wso2.security.tools.advisorytool.model.Product;
@@ -28,7 +27,6 @@ import java.util.List;
  * This class is used to store the data from the Products.xml.
  */
 public class ProductDataHolder {
-
     private static volatile ProductDataHolder instance;
 
     public static ProductDataHolder getInstance(){
@@ -53,10 +51,4 @@ public class ProductDataHolder {
     public void setProductList(List<Product> productList) {
         this.productList = productList;
     }
-
-
-
-
-
-
 }

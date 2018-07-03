@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,12 +47,23 @@ public class ConfigurationBuilder {
     private ConfigurationBuilder() {
     }
 
+    /**
+     * Loading configurations from the security-advisory-tools.yaml
+     * @return
+     * @throws AdvisoryToolException
+     */
     public Configuration getConfiguration() throws AdvisoryToolException {
         String advisoryToolConfigFile = "conf" + File.separator + Constants.CONFIGURATION_FILE_NAME;
 
         return getConfiguration(advisoryToolConfigFile);
     }
 
+    /**
+     * Load configurations from a given configuration file.
+     * @param configFileLocation
+     * @return
+     * @throws AdvisoryToolException
+     */
     public Configuration getConfiguration(String configFileLocation) throws AdvisoryToolException {
         Configuration configuration = null;
         File file = new File(configFileLocation);

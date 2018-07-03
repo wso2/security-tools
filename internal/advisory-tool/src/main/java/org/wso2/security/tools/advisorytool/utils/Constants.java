@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.utils;
 
 import java.io.File;
@@ -30,7 +29,6 @@ public class Constants {
     public static final String CONFIGURATION_FILE_NAME = "security-advisory-tool.yaml";
     public static final String SECURITY_ADVISORY_DATA_FILE_NAME = "security-advisory-data.yaml";
     public static final String RELEASED_PRODUCTS_FILE_PATH = "conf" + File.separator + "Products.yaml";
-    public static final String LOG4J_PROPERTIES_FILE_PATH = "conf" + File.separator + "log4j.properties";
     public static final String SECURITY_ADVISORY_OUTPUT_DIRECTORY = "output";
     public static final String SECURITY_ADVISORY_HTML_TEMPLATE = "security_advisory_html_template";
     public static final String SECURITY_ADVISORY_HTML_TEMPLATE_DIRECTORY = File.separator + "templates";
@@ -59,6 +57,5 @@ public class Constants {
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     public static final String PATCH_LIFECYCLE_STATE = "registry.lifecycle.Security_PatchLifeCycle.state";
     public static final String PATCH_LIFECYCLE_RELEASED_STATE = "Released";
-
 
 }

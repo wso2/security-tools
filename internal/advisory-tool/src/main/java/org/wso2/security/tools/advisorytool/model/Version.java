@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,14 +29,16 @@ import java.util.List;
  * Represents a Product Version.
  */
 public class Version {
-
     @SerializedName("version-number")
+    @JsonProperty
     String versionNumber;
 
     @SerializedName("kernel-version-number")
+    @JsonProperty
     String kernelVersionNumber;
 
     @SerializedName("platform-version-number")
+    @JsonProperty
     String platformVersionNumber;
 
     @SerializedName("patch-list")
@@ -56,7 +57,7 @@ public class Version {
     private boolean isPublicSupported;
 
     @SerializedName("is-deprecated")
-    @JsonProperty (required = true)
+    @JsonProperty
     private boolean isDeprecated;
 
     @JsonProperty
@@ -133,6 +134,5 @@ public class Version {
     public void setPlatformVersionNumber(String platformVersionNumber) {
         this.platformVersionNumber = platformVersionNumber;
     }
-
 }
 

@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.output.pdf;
 
 import com.lowagie.text.DocumentException;
@@ -39,7 +38,6 @@ import java.nio.charset.StandardCharsets;
  * This class generates the security advisory PDF.
  */
 public class SecurityAdvisoryPDFOutputGenerator extends SecurityAdvisoryHTMLOutputGenerator {
-
     private static final Logger logger = Logger.getLogger(SecurityAdvisoryPDFOutputGenerator.class);
 
     @Override
@@ -72,7 +70,6 @@ public class SecurityAdvisoryPDFOutputGenerator extends SecurityAdvisoryHTMLOutp
      * @param outputFilePath
      */
     protected void createPDFFromHTML(String htmlString, String outputFilePath) throws AdvisoryToolException {
-
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(htmlString
                 .getBytes(StandardCharsets.UTF_8))) {
             Document document = XMLResource.load(byteArrayInputStream).getDocument();

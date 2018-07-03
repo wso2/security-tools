@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.model;
 
 import com.google.gson.annotations.SerializedName;
@@ -27,7 +26,6 @@ import java.util.List;
  * Represents a Patch.
  */
 public class Patch {
-
     @SerializedName("patch-name")
     private String name;
 
@@ -59,5 +57,4 @@ public class Patch {
     public void setApplicableProductAndVersionStrings(List<String> applicableProductAndVersionStrings) {
         this.applicableProductAndVersionStrings = applicableProductAndVersionStrings;
     }
-
 }

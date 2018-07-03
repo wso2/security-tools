@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.model;
 
 import com.google.gson.annotations.SerializedName;

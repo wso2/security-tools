@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.model;
 
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import java.util.List;
  * This class is used to map the security advisory data.
  */
 public class SecurityAdvisoryData {
-
     private String title;
     private String date;
     private String overview;
@@ -145,5 +143,4 @@ public class SecurityAdvisoryData {
     public void setTitle(String title) {
         this.title = title;
     }
-
 }

@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.output.xml;
 
 import org.apache.log4j.Logger;
@@ -34,7 +33,6 @@ import java.io.File;
  * This class generates the security advisory XML.
  */
 public class SecurityAdvisoryXMLOutputGenerator implements SecurityAdvisoryOutputGenerator {
-
     private static final Logger logger = Logger.getLogger(SecurityAdvisoryXMLOutputGenerator.class);
 
     @Override

@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.output;
 
 import org.wso2.security.tools.advisorytool.exeption.AdvisoryToolException;
@@ -24,7 +23,17 @@ import org.wso2.security.tools.advisorytool.model.SecurityAdvisory;
 
 public interface SecurityAdvisoryOutputGenerator {
 
+    /**
+     * Checking whether the data needed for generating the security advisory output is read from
+     * a file. e.g., xml, html etc.
+     * @return
+     */
     boolean isAdvisoryGenerateFromFile();
 
+    /**
+     * Generating the security advisory output.
+     * @param securityAdvisory
+     * @throws AdvisoryToolException
+     */
     void generate(SecurityAdvisory securityAdvisory) throws AdvisoryToolException;
 }

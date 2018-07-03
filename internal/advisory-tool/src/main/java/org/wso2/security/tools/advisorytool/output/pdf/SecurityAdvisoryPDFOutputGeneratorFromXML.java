@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.output.pdf;
 
 import org.apache.log4j.Logger;
@@ -33,7 +32,6 @@ import java.io.File;
  * This class is used to generate the Security Advisory PDF from the Security Advisory XML file.
  */
 public class SecurityAdvisoryPDFOutputGeneratorFromXML extends SecurityAdvisoryPDFOutputGenerator {
-
     private static final Logger logger = Logger.getLogger(SecurityAdvisoryPDFOutputGeneratorFromXML.class);
 
     @Override

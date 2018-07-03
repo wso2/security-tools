@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.builders;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,10 +46,10 @@ import java.util.Map;
  * This class builds the customer security advisory object.
  */
 public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
-
     private static final Logger logger = Logger.getLogger(CustomerSecurityAdvisoryBuilder.class);
     protected SecurityAdvisory securityAdvisory = new SecurityAdvisory();
 
+    @Override
     public void setAdvisoryData(SecurityAdvisory securityAdvisory) throws AdvisoryToolException {
 
         SecurityAdvisory securityAdvisoryDataFromPMT = null;
@@ -99,8 +98,10 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
         }
     }
 
+    @Override
     public void buildAffectedProductsList() throws AdvisoryToolException {
-
+        List<Product> affectedProductList = new ArrayList<>();
+        List<Product> releasedProductList = ProductDataHolder.getInstance().getProductList();
         List<Patch> patchListForAdvisory = getApplicablePatchListForAdvisory(securityAdvisory
                 .getName());
 
@@ -108,9 +109,6 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
             throw new AdvisoryToolException("Applicable patch list for the Security Advisory "
                     + securityAdvisory.getName() + " is empty.");
         }
-
-        List<Product> affectedProductList = new ArrayList<>();
-        List<Product> releasedProductList = ProductDataHolder.getInstance().getProductList();
 
         //affected product map is built with the affected product and version strings
         // (e.g., WSO2 API Manager 2.1.0) in the patch object.
@@ -152,8 +150,8 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
         securityAdvisory.setAffectedAllProducts(affectedProductList);
     }
 
+    @Override
     public void buildAdvisory() throws AdvisoryToolException {
-
         List<String> affectedPatchNames = new ArrayList<>();
         List<Patch> supportedPatchListForAdvisory = new ArrayList<>();
 
@@ -210,6 +208,7 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
 
     }
 
+    @Override
     public SecurityAdvisory getSecurityAdvisory() {
         return securityAdvisory;
     }
@@ -224,7 +223,6 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
      */
     private Map<String, Map<String, Version>> generateAffectedProductMapFromApplicablePatches(
             List<Patch> applicablePatchList) {
-
         Map<String, Map<String, Version>> affectedProductMap = new HashMap<>();
 
         for (Patch patch : applicablePatchList) {
@@ -278,7 +276,6 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
      * @return
      */
     private Version buildAffectedVersion(String productName, String versionNumber, String patchName) {
-
         DateTime dateTime = new DateTime();
         boolean hasAMatchingProduct = false;
         boolean hasAMatchingVersion = false;
@@ -355,8 +352,8 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
         File outputFile = new File(Constants.SECURITY_ADVISORY_OUTPUT_DIRECTORY + File.separator
                 + "csv" + File.separator + securityAdvisoryName + ".csv");
 
-         File outputDirectory = new File(outputFile.getParent());
-         outputDirectory.mkdirs();
+        File outputDirectory = new File(outputFile.getParent());
+        outputDirectory.mkdirs();
         if (!outputDirectory.exists()) {
             throw new AdvisoryToolException("Unable to create the directory " + outputDirectory);
         }
@@ -370,10 +367,8 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
                     }
                 }
             }
-
         } catch (IOException e) {
             throw new AdvisoryToolException("Error occurred while generating the patch upload csv", e);
         }
-
     }
 }

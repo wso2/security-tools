@@ -22,7 +22,6 @@ package org.wso2.security.tools.advisorytool.model;
  * Represents the Carbon Platform.
  */
 public class Platform {
-
     private String name;
     private String versionNumber;
     private String patchDirectoryName;

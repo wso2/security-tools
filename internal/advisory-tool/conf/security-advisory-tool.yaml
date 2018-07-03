@@ -34,7 +34,6 @@ platforms:
     patchDirectoryName: Carbon 4.4.0 (Wilkes)
 
 
-
 advisoryBuilders:
   - id: customer
     className: org.wso2.security.tools.advisorytool.builders.CustomerSecurityAdvisoryBuilder

@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool;
 
 import com.beust.jcommander.JCommander;
@@ -43,14 +42,11 @@ import org.wso2.security.tools.advisorytool.utils.Constants;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Security Advisory Tool
  */
 public class AdvisoryTool {
-
     private static final Logger logger = Logger.getLogger(AdvisoryTool.class);
 
     @Parameter(names = {"-type"}, description = "Security Advisory type", required = true, order = 1)
@@ -85,7 +81,6 @@ public class AdvisoryTool {
                 return;
             }
 
-            validateInput();
             loadConfiguration();
             loadReleasedProductsList(Constants.RELEASED_PRODUCTS_FILE_PATH);
             loadSecurityAdvisoryListFromFile();
@@ -114,24 +109,6 @@ public class AdvisoryTool {
     }
 
     /**
-     * Validating the program arguments.
-     *
-     * @throws AdvisoryToolException
-     */
-    private static void validateInput() throws AdvisoryToolException {
-        List<String> advisoryTypesList = Arrays.asList("customer", "public");
-        List<String> advisoryOutputFormatList = Arrays.asList("pdf", "xml", "html", "html2pdf", "xml2pdf", "xml2html");
-
-        if (advisoryType == null || !advisoryTypesList.contains(advisoryType)) {
-            throw new AdvisoryToolException("Invalid advisory type");
-        }
-
-        if (advisoryOutFormat == null || !advisoryOutputFormatList.contains(advisoryOutFormat)) {
-            throw new AdvisoryToolException("Invalid advisory output format");
-        }
-    }
-
-    /**
      * Get the appropriate security advisory builder according to the given advisory type.
      *
      * @param advisoryType
@@ -156,7 +133,7 @@ public class AdvisoryTool {
             }
         }
         if (securityAdvisoryBuilder == null) {
-            throw new AdvisoryToolException("unable to find an output generator for the given id "
+            throw new AdvisoryToolException("unable to find an output generator for the given advisory type "
                     + advisoryType);
         }
 
@@ -187,7 +164,7 @@ public class AdvisoryTool {
             }
         }
         if (securityAdvisoryOutputGenerator == null) {
-            throw new AdvisoryToolException("unable to find an output generator for the given id " + advisoryOutFormat);
+            throw new AdvisoryToolException("unable to find an output generator for the given advisory format " + advisoryOutFormat);
         }
         return securityAdvisoryOutputGenerator;
     }
@@ -270,7 +247,7 @@ public class AdvisoryTool {
 
                 if (StringUtils.isEmpty(securityAdvisory.getTitle())) {
                     if (StringUtils.isEmpty(securityAdvisoryData.getTitle())) {
-                        throw new AdvisoryToolException("Security Advisory title cannot be empty");
+                       // throw new AdvisoryToolException("Security Advisory title cannot be empty");
                     } else {
                         securityAdvisory.setTitle(securityAdvisoryData.getTitle());
                     }
@@ -341,7 +318,6 @@ public class AdvisoryTool {
      * @throws AdvisoryToolException
      */
     private static void loadConfiguration() throws AdvisoryToolException {
-
         Configuration configuration = ConfigurationBuilder.getInstance().getConfiguration();
 
         if (!StringUtils.isEmpty(configuration.getPatchListAPI())) {

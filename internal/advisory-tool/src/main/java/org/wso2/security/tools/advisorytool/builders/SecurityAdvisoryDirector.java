@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-
 package org.wso2.security.tools.advisorytool.builders;
 
 import org.apache.log4j.Logger;
@@ -28,14 +27,19 @@ import org.wso2.security.tools.advisorytool.output.SecurityAdvisoryOutputGenerat
  * SecurityAdvisoryDirector class to create a complete security advisory.
  */
 public class SecurityAdvisoryDirector {
-
     private static Logger logger = Logger.getLogger(SecurityAdvisoryDirector.class);
 
+    /**
+     * Creating the complete security advisory.
+     * @param builder
+     * @param securityAdvisory
+     * @param outputGenerator
+     * @throws AdvisoryToolException
+     */
     public void createSecurityAdvisory(SecurityAdvisoryBuilder builder,
                                        SecurityAdvisory securityAdvisory,
                                        SecurityAdvisoryOutputGenerator outputGenerator)
             throws AdvisoryToolException {
-
         if (securityAdvisory == null) {
             throw new AdvisoryToolException("Invalid security advisory found");
         }
@@ -43,6 +47,7 @@ public class SecurityAdvisoryDirector {
         logger.info("Creating Security Advisory " + securityAdvisory.getName());
         try {
             if (!(outputGenerator.isAdvisoryGenerateFromFile())) {
+
                 //build the advisory object by the data from the PMT only if the advisory data
                 // is not being read from the file.
                 builder.setAdvisoryData(securityAdvisory);
