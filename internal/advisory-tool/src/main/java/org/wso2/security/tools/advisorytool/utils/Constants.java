@@ -53,9 +53,7 @@ public class Constants {
     //Patch Detail API Response Objects
     public static final String APPLICABLE_PRODUCTS = "overview_products";
 
-
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     public static final String PATCH_LIFECYCLE_STATE = "registry.lifecycle.Security_PatchLifeCycle.state";
     public static final String PATCH_LIFECYCLE_RELEASED_STATE = "Released";
-
 }

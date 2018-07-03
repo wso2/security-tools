@@ -223,7 +223,6 @@ public abstract class SecurityAdvisoryBuilder {
                 securityAdvisory.setScore(advisoryDetails
                         .get(getIndexOfObjectFromJsonArray(Constants.CVSS_SCORE, jsonMainArr)));
             }
-
         } catch (JSONException e) {
             throw new AdvisoryToolException("Error occurred while setting the advisory data from PMT", e);
         }
@@ -313,7 +312,6 @@ public abstract class SecurityAdvisoryBuilder {
             throw new AdvisoryToolException("Error occurred while retrieving the patch list " +
                     "for an advisory", e);
         }
-
         return patchList;
     }
 

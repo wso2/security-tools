@@ -92,7 +92,6 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
                     this.securityAdvisory.setCredits(securityAdvisoryDataFromPMT.getCredits());
                 }
             }
-
         } catch (AdvisoryToolException e) {
             throw new AdvisoryToolException("Error occurred while building the advisory details.", e);
         }
@@ -202,10 +201,8 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
             }
 
         }
-
         supportedPatchListForAdvisory.sort(Comparator.comparing(Patch::getName));
         securityAdvisory.setApplicablePatchList(supportedPatchListForAdvisory);
-
     }
 
     @Override
@@ -248,6 +245,7 @@ public class CustomerSecurityAdvisoryBuilder extends SecurityAdvisoryBuilder {
                             affectedProductMap.get(productName).get(versionNumber).getPatchNamesList()
                                     .addAll(currentAffectedVersion.getPatchNamesList());
                         } else {
+
                             //else add the complete version object in to the product map
                             affectedProductMap.get(productName).put(versionNumber,
                                     currentAffectedVersion);

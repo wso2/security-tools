@@ -96,10 +96,8 @@ public class AdvisoryTool {
                     .getSecurityAdvisoryData();
 
             for (SecurityAdvisory securityAdvisory : securityAdvisoryData.getAdvisories()) {
-
                 securityAdvisoryDirector.createSecurityAdvisory(builder, securityAdvisory,
                         securityAdvisoryOutputGenerator);
-
             }
         } catch (ParameterException e) {
             logger.error("Error occurred while parsing the tool parameters", e);
@@ -136,7 +134,6 @@ public class AdvisoryTool {
             throw new AdvisoryToolException("unable to find an output generator for the given advisory type "
                     + advisoryType);
         }
-
         return securityAdvisoryBuilder;
     }
 
@@ -225,7 +222,6 @@ public class AdvisoryTool {
         } else {
             throw new AdvisoryToolException("Products list file not found in: " + releasedProductFilePath);
         }
-
         ProductDataHolder.getInstance().setProductList(releasedProductDataHolder.getProductList());
     }
 
@@ -306,7 +302,6 @@ public class AdvisoryTool {
                 }
             }
             SecurityAdvisoryDataHolder.getInstance().setSecurityAdvisoryData(securityAdvisoryData);
-
         } catch (IOException e) {
             throw new AdvisoryToolException("Error occurred while reading " + Constants.SECURITY_ADVISORY_DATA_FILE, e);
         }
