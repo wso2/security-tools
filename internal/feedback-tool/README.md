@@ -32,7 +32,7 @@ mvn clean install
 From the target directory, run
 
 ```
-java -jar feedback-tool-0.1-SNAPSHOT.jar
+java -jar feedback-tool-1.0.jar
 ```
 
 ## How to Test
