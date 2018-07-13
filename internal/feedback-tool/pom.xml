@@ -26,7 +26,7 @@
 
     <groupId>org.wso2.security</groupId>
     <artifactId>feedback-tool</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>Customer Feedback Generation Tool</name>
 
     <dependencies>
