@@ -1,0 +1,1008 @@
+﻿productList:
+ - 
+  codeName: EI
+  name: "WSO2 Enterprise Integrator"
+  versionList: 
+   - versionNumber: "6.2.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - versionNumber: "6.1.1"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.16"
+     releaseDate: 2017-05-04
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "6.1.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.16"
+     releaseDate: 2017-04-10
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "6.0.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.14"
+     releaseDate: 2017-02-20
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+
+ -
+  codeName: MB
+  name: "WSO2 Message Broker"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.16"
+     releaseDate: 2017-04-24
+     versionNumber: "3.2.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2016-02-09
+     versionNumber: "3.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.2"
+     releaseDate: 2015-11-07
+     versionNumber: "3.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-23
+     versionNumber: "2.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: GREG
+  name: "WSO2 Governance Registry"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.14"
+     releaseDate: 2017-02-20
+     versionNumber: "5.4.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.7"
+     releaseDate: 2016-08-11
+     versionNumber: "5.3.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.5"
+     releaseDate: 2016-04-25
+     versionNumber: "5.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-10-31
+     versionNumber: "5.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-10-06
+     versionNumber: "5.0.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-09-07
+     versionNumber: "5.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-10-22
+     versionNumber: "4.6.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: AM
+  name: "WSO2 API Manager"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "2.2.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.11"
+     releaseDate: 2017-02-06
+     versionNumber: "2.1.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.7"
+     releaseDate: 2016-07-29
+     versionNumber: "2.0.0"
+     isWumSupported: true
+     isPatchSupported: true
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2016-01-07
+     versionNumber: "1.10.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2015-08-31
+     versionNumber: "1.9.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2015-06-18
+     versionNumber: "1.9.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-12-16
+     versionNumber: "1.8.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-23
+     versionNumber: "1.7.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-21
+     versionNumber: "1.6.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-10-22
+     versionNumber: "1.5.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: AM-Micro-GW
+  name: "WSO2 API Microgateway"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "2.2.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+
+ -
+  codeName: AM-Analytics
+  name: "WSO2 API Manager Analytics"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "2.2.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.11"
+     releaseDate: 2017-02-06
+     versionNumber: "2.1.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.7"
+     releaseDate: 2016-07-29
+     versionNumber: "2.0.0"
+     isWumSupported: true
+     isPatchSupported: true
+     isPublicSupported: false
+
+
+ -
+  codeName: IOT
+  name: "WSO2 IoT Server"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "3.3.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: false
+     isDeprecated: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.17"
+     releaseDate: 2018-03-07
+     versionNumber: "3.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: false
+     isDeprecated: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.11"
+     releaseDate: 2017-01-24
+     versionNumber: "3.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isPublicSupported: false
+     isDeprecated: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.16"
+     releaseDate: 2017-08-15
+     versionNumber: "3.1.0"
+     isWumSupported: true
+     isPatchSupported: true
+     isPublicSupported: false
+     isDeprecated: true
+
+
+ -
+  codeName: IS KM
+  name: "WSO2 IS as Key Manager"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "5.5.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.11"
+     releaseDate: 2017-01-11
+     versionNumber: "5.3.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.9"
+     releaseDate: 2016-09-20
+     versionNumber: "5.2.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+
+ -
+  codeName: IS
+  name: "WSO2 Identity Server"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "5.5.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.22"
+     releaseDate: 2018-01-31
+     versionNumber: "5.4.1"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.20"
+     releaseDate: 2017-12-11
+     versionNumber: "5.4.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.11"
+     releaseDate: 2017-01-11
+     versionNumber: "5.3.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.9"
+     releaseDate: 2016-09-20
+     versionNumber: "5.2.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2015-12-23
+     versionNumber: "5.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-23
+     versionNumber: "5.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-21
+     versionNumber: "4.6.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-09-02
+     versionNumber: "4.5.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+
+ -
+  codeName: IS-Analytics
+  name: "WSO2 Identity Server Analytics"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "5.5.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.22"
+     releaseDate: 2018-01-31
+     versionNumber: "5.4.1"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.20"
+     releaseDate: 2017-12-11
+     versionNumber: "5.4.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.11"
+     releaseDate: 2017-01-11
+     versionNumber: "5.3.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.9"
+     releaseDate: 2016-09-20
+     versionNumber: "5.2.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+
+ -
+  codeName: EMM
+  name: "WSO2 Enterprise Mobility Manager"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.10"
+     releaseDate: 2016-12-01
+     versionNumber: "2.2.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isDeprecated: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2016-03-15
+     versionNumber: "2.0.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2016-01-11
+     versionNumber: "2.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-06-11
+     versionNumber: "1.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-21
+     versionNumber: "1.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: DSS
+  name: "WSO2 Data Services Server"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.9"
+     releaseDate: 2016-09-23
+     versionNumber: "3.5.1"
+     isWumSupported: true
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.2"
+     releaseDate: 2015-10-28
+     versionNumber: "3.5.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-12-02
+     versionNumber: "3.2.2"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-13
+     versionNumber: "3.2.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-04-17
+     versionNumber: "3.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-09
+     versionNumber: "3.1.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-09-02
+     versionNumber: "3.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: ML
+  name: "WSO2 Machine Learner"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.9"
+     releaseDate: 2016-09-15
+     versionNumber: "1.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2015-12-23
+     versionNumber: "1.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-09-23
+     versionNumber: "1.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+
+ -
+  codeName: CEP
+  name: "WSO2 Complex Event Processor"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.9"
+     releaseDate: 2016-09-14
+     versionNumber: "4.2.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2016-02-26
+     versionNumber: "4.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-09-22
+     versionNumber: "4.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-04-17
+     versionNumber: "3.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-10-24
+     versionNumber: "3.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: DAS
+  name: "WSO2 Data Analytics Server"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.26"
+     releaseDate: 2018-04-05
+     versionNumber: "3.2.0"
+     isWumSupported: true
+     isPatchSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.9"
+     releaseDate: 2016-09-14
+     versionNumber: "3.1.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2016-01-19
+     versionNumber: "3.0.1"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.2"
+     releaseDate: 2015-10-28
+     versionNumber: "3.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+
+ -
+  codeName: BPS
+  name: "WSO2 Business Process Server"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.8"
+     releaseDate: 2016-08-31
+     versionNumber: "3.6.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.4"
+     releaseDate: 2016-03-04
+     versionNumber: "3.5.1"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-10-05
+     versionNumber: "3.5.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-02-03
+     versionNumber: "3.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-09
+     versionNumber: "3.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: ESB-Analytics
+  name: "WSO2 Enterprise Service Bus Analytics"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.8"
+     releaseDate: 2016-08-20
+     versionNumber: "5.0.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+
+ -
+  codeName: ESB
+  name: "WSO2 Enterprise Service Bus"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.8"
+     releaseDate: 2016-08-20
+     versionNumber: "5.0.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-09-10
+     versionNumber: "4.9.0"
+     isWumSupported: true
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-02-03
+     versionNumber: "4.8.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-03
+     versionNumber: "4.8.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: ES
+  name: "WSO2 Enterprise Store"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.7"
+     releaseDate: 2016-08-10
+     versionNumber: "2.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-09-14
+     versionNumber: "2.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-10-24
+     versionNumber: "1.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: APPM
+  name: "WSO2 App Manager"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.7"
+     releaseDate: 2016-07-21
+     versionNumber: "1.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2015-12-23
+     versionNumber: "1.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2015-05-30
+     versionNumber: "1.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: DS
+  name: "WSO2 Dashboard Server"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2016-02-29
+     versionNumber: "2.0.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ -
+  codeName: PPAAS
+  name: "WSO2 Private PaaS"
+  versionList:
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2016-01-04
+     versionNumber: "4.1.1"
+     isWumSupported: false
+     isPatchSupported: false
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2015-10-27
+     versionNumber: "4.1.0"
+     isWumSupported: false
+     isPatchSupported: false
+     isDeprecated: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-06-13
+     versionNumber: "4.0.0"
+     isWumSupported: false
+     isPatchSupported: false
+     isDeprecated: true
+
+
+ -
+  codeName: BRS
+  name: "WSO2 Business Rules Server"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.3"
+     releaseDate: 2015-12-23
+     versionNumber: "2.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-23
+     versionNumber: "2.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+     
+    
+ - 
+  codeName: AS
+  name: "WSO2 Application Server"
+  versionList: 
+  
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.1"
+     releaseDate: 2015-09-17
+     versionNumber: "5.3.0"
+     isWumSupported: false
+     isPatchSupported: true
+     
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-09
+     versionNumber: "5.2.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+     
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-09-02
+     versionNumber: "5.2.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+
+
+ - 
+  codeName: SS
+  name: "WSO2 Storage Server"
+  versionList: 
+ 
+   - platformVersionNumber: "4.3.0"
+     kernelVersionNumber: "4.3.0"
+     releaseDate: 2015-02-15
+     versionNumber: "1.5.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+     
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-12-21
+     versionNumber: "1.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+  
+   
+ - 
+  codeName: APPF
+  name: "WSO2 App Factory"
+  versionList: 
+  
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2015-03-16
+     versionNumber: "2.1.0"
+     isWumSupported: false
+     isPatchSupported: false
+     isDeprecated: true
+    
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-06-11
+     versionNumber: "2.0.0"
+     isWumSupported: false
+     isPatchSupported: false
+     isDeprecated: true
+  
+  
+ - 
+  codeName: ELB
+  name: "WSO2 Elastic Load Balancer"
+  versionList: 
+ 
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-23
+     versionNumber: "2.1.1"
+     isWumSupported: false
+     isPatchSupported: false
+     isDeprecated: true
+     
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-10-22
+     versionNumber: "2.1.0"
+     isWumSupported: false
+     isPatchSupported: false
+     isDeprecated: true
+  
+  
+ - 
+  codeName: BAM
+  name: "WSO2 Business Activity Monitor"
+  versionList: 
+  
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-12-16
+     versionNumber: "2.5.0"
+     isPatchSupported: true
+     isDeprecated: true
+     
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-05-05
+     versionNumber: "2.4.1"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+     
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2013-10-24
+     versionNumber: "2.4.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true
+  
+  
+ - 
+  codeName: TS
+  name: "WSO2 Task Server"
+  versionList: 
+ 
+   - platformVersionNumber: "4.2.0"
+     kernelVersionNumber: "4.2.0"
+     releaseDate: 2014-04-17
+     versionNumber: "1.1.0"
+     isWumSupported: false
+     isPatchSupported: true
+     isDeprecated: true

@@ -1,0 +1,59 @@
+# Advisory Tool Configurations
+---
+patchListAPI:
+patchDetailsAPI:
+advisoryDetailsAPI:
+
+#The patch supported period in years.
+patchSupportPeriod: 3
+
+#API Credentials
+patchListAPIUsername:
+patchListAPIPassword:
+patchDetailsAPIAuthToken:
+advisoryDetailsAPIAuthToken:
+
+patchZIPCustomerLocation:
+patchZIPPublicLocation:
+
+platforms:
+  - name:
+    versionNumber: 4.0.0
+    patchDirectoryName: Carbon 4.0.0
+
+  - name: Turing
+    versionNumber: 4.2.0
+    patchDirectoryName: Carbon 4.2.0 (Turing)
+
+  - name: Perlis
+    versionNumber: 4.3.0
+    patchDirectoryName: Carbon 4.3.0 (Perlis)
+
+  - name: Wilkes
+    versionNumber: 4.4.0
+    patchDirectoryName: Carbon 4.4.0 (Wilkes)
+
+
+advisoryBuilders:
+  - id: customer
+    className: org.wso2.security.tools.advisorytool.builders.CustomerSecurityAdvisoryBuilder
+
+
+outputGenerators:
+  - id: pdf
+    className: org.wso2.security.tools.advisorytool.output.pdf.SecurityAdvisoryPDFOutputGenerator
+
+  - id: html
+    className: org.wso2.security.tools.advisorytool.output.html.SecurityAdvisoryHTMLOutputGenerator
+
+  - id: xml
+    className: org.wso2.security.tools.advisorytool.output.xml.SecurityAdvisoryXMLOutputGenerator
+
+  - id: html2pdf
+    className: org.wso2.security.tools.advisorytool.output.pdf.SecurityAdvisoryPDFOutputGeneratorFromHTML
+
+  - id: xml2pdf
+    className: org.wso2.security.tools.advisorytool.output.pdf.SecurityAdvisoryPDFOutputGeneratorFromXML
+
+  - id: xml2html
+    className: org.wso2.security.tools.advisorytool.output.html.SecurityAdvisoryHTMLOutputGeneratorFromXML
