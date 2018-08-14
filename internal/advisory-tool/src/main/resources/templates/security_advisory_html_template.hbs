@@ -1,490 +1,590 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>{{advisory-title}}</title>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <style>
-        @font-face {
-            font-family: Arial Unicode MS;
-        }
-
-        div.header {
-            display: block;
-            height: 60px;
-            margin-bottom: 20px;
-            position: running(header);
-        }
-
-        @page {
-            @top-right {
-                content: element(header)
+    <head>
+        <title>Customer Security Advisory</title>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+            @font-face {
+                font-family: Arial Unicode MS;
             }
-        }
 
-        @media print {
-            .advisory-title {
-                font-weight: 600;
-                font-size: 34px;
-                width: 200%;
+            div.header {
+                display: block;
+                height: 60px;
                 margin-bottom: 20px;
-                color: #272727;
+                position: running(header);
             }
 
-            .advisory-data {
-                font-weight: 400;
-                font-size: 20px;
-                width: 100%;
-                margin-bottom: 20px;
-                color: #232323;
+            @page{
+                margin-top: 0.75in;
+                size: 8.3in 11.7in;
+                @top-left {
+                    content: element(header first-except);
+                }
             }
+            @media print {
+                .advisory-title {
+                    font-weight: 600;
+                    font-size: 34px;
+                    width: 200%;
+                    margin-bottom: 20px;
+                    color: #272727;
+                }
 
-            .advisory-score {
-                font-weight: 400;
-                font-size: 18px;
-                width: 100%;
-                margin-bottom: 20px;
-                color: #232323;
+                .advisory-data {
+                    font-weight: 400;
+                    font-size: 20px;
+                    width: 100%;
+                    margin-bottom: 20px;
+                    color: #232323;
+                }
+
+                .advisory-score {
+                    font-weight: 400;
+                    font-size: 18px;
+                    width: 100%;
+                    margin-bottom: 20px;
+                    color: #232323;
+                }
+
+                .advisory-data-heading {
+                    font-weight: bold;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 18px;
+                    width: 100%;
+                    margin-bottom: 20px;
+                    color: #8c8c8c;
+                }
+
+                .advisory-data-style {
+
+                    font-family:  Arial, Helvetica, sans-serif;
+
+                    color: #676767;
+                    border-top: 1px solid #ffffff;
+
+                }
+
+                .advisory-data-value {
+                    font-weight: normal;
+                    font-size: 14px;
+                    width: 7in;
+                    overflow-wrap: break-word;
+                    color: #000000;
+
+                }
+
+                .table-wum-patch {
+                    page-break-after: auto;
+                    padding-left: 25px;
+                    border-collapse: collapse;
+                    border: 1px solid black;
+                    line-height: 40px;
+                    align-content: center;
+                    margin-top: 20px;
+                    font-size: 13px;
+                }
+
+                .wum-table-row {
+                    page-break-inside: avoid;
+                    page-break-after: auto;
+                    border-collapse: collapse;
+                    border: 0.5px solid black;
+                }
+
+                .wum-table-data {
+                    page-break-inside: avoid;
+                    page-break-after: auto;
+                    border-collapse: collapse;
+                    border: 0.5px solid black;
+                    font-size: 13px;
+                    color: #232323;
+                    padding-left: 5px;
+                }
+
+                .wum-table-head {
+                    background-color: #cccccc;
+                    color: #232323;
+                    padding-left: 5px;
+                    border-collapse: collapse;
+                    border: 0.5px solid black;
+                    margin-left: 10px;
+                    margin-right: 4px;
+                    font-size: 15px;
+                }
+
+                .list {
+                    border-collapse: collapse;
+                    align-content: center;
+                    padding-left: 5px;
+                    font-size: 13px;
+                    border: 0.5px white;
+                    list-style: none;
+                }
+
+                .patch-table-head {
+                    page-break-inside: avoid;
+                    page-break-after: auto;
+                    background-color: #cccccc;
+                    color: #232323;
+                    font-size: 15px;
+                    border-collapse: collapse;
+                    border: 0.5px solid black;
+                }
+
+                .patch-table-data {
+                    page-break-inside: avoid;
+                    page-break-after: auto;
+                    color: #232323;
+                    font-size: 13px;
+                    border-collapse: collapse;
+                    border: 0.5px solid black;
+                }
+
+                .page-footer {
+                    position: absolute;
+                    top: 25cm;
+                    width: 100%;
+                }
+
+                #front-page #info {
+                    margin-top: 100px;
+                    width: 100%;
+                    line-height: 50px
+                }
+
+                #affected-products {
+                    margin-top: 20px;
+                }
+
+                #overview {
+                    margin-top: 20px;
+                }
+
+                #description {
+                    margin-top: 20px;
+                }
+
+                #impact {
+                    margin-top: 20px;
+                }
+
+                #solution {
+                    margin-top: 20px;
+                }
+
+                #content-page {
+                    margin-top: 20px;
+                    color: #3a3a3a;
+                }
+
+                #patch-list {
+                    margin-top: 50px;
+                }
+
+                #public-disclosure {
+                    margin-top: 20px;
+                }
+
+                #notes {
+                    margin-top: 10px;
+                }
+
+                #thanks {
+                    margin-top: 10px;
+                }
+
+                #patch-supported-versions-table {
+                    border-collapse: collapse;
+                    border-style: solid;
+                    border-color: white;
+                    margin: 0px 0px;
+                }
+
+                #patch-supported-versions-head {
+                    border-collapse: collapse;
+                    border-style: solid;
+                    border-color: #cccccc;
+                    margin: 0px 0px;
+                }
             }
+            @page:first{
 
-            .advisory-data-heading {
-                font-weight: bold;
-                font-size: 18px;
-                width: 100%;
-                margin-bottom: 20px;
-                color: #262626;
-            }
+                margin-bottom: 0;
+                margin-top: 0;
+                margin-left: 0;
+                margin-right: 0;
+                background: #ffa64c;
+                @top-right {
+                    content: element(triangle-down)
+                }
 
-            .advisory-data-style {
-                padding: 5% 7%;
-                font-family: arial;
-                font-size: 13px;
-                line-height: 30px;
-                color: #676767;
-                border-top: 1px solid #ffffff;
-                padding-top: 15px;
-                padding-bottom: 15px;
-            }
-
-            .advisory-data-value {
-                font-weight: 400;
-                font-size: 15px;
-                width: 100%;
-                margin-bottom: 20px;
-                color: #3e3e3e;
 
             }
-
-            .table-wum-patch {
-                page-break-after: auto;
-                padding-left: 25px;
-                border-collapse: collapse;
-                border: 1px solid black;
-                line-height: 40px;
-                align-content: center;
-                margin-top: 20px;
-                font-size: 13px;
+            @page{
+                @top-right{
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    color: #595959;
+                    font-weight: bold;
+                    content: "Platform Security"
+                }
             }
+            @page{
 
-            .wum-table-row {
-                page-break-inside: avoid;
-                page-break-after: auto;
-                border-collapse: collapse;
-                border: 0.5px solid black;
+                @bottom-left {
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    color: #ffa64c;
+                    content: "© 2018 WSO2 Inc.         Commercial in Confidence / Confidential / Not for Redistribution ";
+                }
             }
-
-            .wum-table-data {
-                page-break-inside: avoid;
-                page-break-after: auto;
-                border-collapse: collapse;
-                border: 0.5px solid black;
-                font-size: 13px;
-                color: #232323;
-                padding-left: 5px;
+            @page  {
+                @bottom-right{
+                    color: #ffa64c;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    content: "| Page: " counter(page);
+                }
             }
+            .triangle-up {
+                z-index: 100;
+                padding: 0;
+                margin: 0;
+                width: 0;
+                height: 0;
+                border-left: 8.3in solid transparent;
+                border-right: 0 solid transparent;
+                border-bottom: 4in solid #595959;
 
-            .wum-table-head {
-                background-color: #cccccc;
-                color: #232323;
-                padding-left: 5px;
-                border-collapse: collapse;
-                border: 0.5px solid black;
-                margin-left: 10px;
-                margin-right: 4px;
-                font-size: 15px;
             }
-
-            .list {
-                border-collapse: collapse;
-                align-content: center;
-                padding-left: 5px;
-                font-size: 13px;
-                border: 0.5px white;
-                list-style: none;
-            }
-
-            .patch-table-head {
-                page-break-inside: avoid;
-                page-break-after: auto;
-                background-color: #cccccc;
-                color: #232323;
-                font-size: 15px;
-                border-collapse: collapse;
-                border: 0.5px solid black;
-            }
-
-            .patch-table-data {
-                page-break-inside: avoid;
-                page-break-after: auto;
-                color: #232323;
-                font-size: 13px;
-                border-collapse: collapse;
-                border: 0.5px solid black;
-            }
-
-            .page-footer {
+            .triangle-down {
                 position: absolute;
-                top: 25cm;
-                width: 100%;
+                top: 0;
+                z-index: 100;
+                padding: 0;
+                margin-top: 0;
+                margin: 0;
+                width: 0;
+                height: 0;
+                border-left: 8.3in solid transparent;
+                border-right: 0 solid transparent;
+                border-top: 1.7in solid #595959;
             }
+            .overlayLogo {
+                position:absolute;
+                z-index: 99999;
+                top: 9.2in;
+                left:5.4in;
+                width: 2.5in;
+            }
+            .firstpage{
+                height: 11.7in;
+                width: 8.3in;
+            }
+            .firstpage-desc{
+                height:7.61in;
+                width: 8.3in;
+            }
+        </style>
+    </head>
+    <body>
 
-            #front-page #info {
-                margin-top: 100px;
-                width: 100%;
-                line-height: 50px
-            }
+        <!-- FIRST PAGE-->
+        <div class="firstpage">
+            <div class="triangle-down">
+            </div>
 
-            #affected-products {
-                margin-top: 20px;
-            }
+            <!--FIRST PAGE DESCRIPTION -->
+            <div class="firstpage-desc">
+                <div  style="position: absolute;
 
-            #overview {
-                margin-top: 20px;
-            }
+                      width: 8.3in;
+                      top:3in;
+                      left: 0.3in;
+                      font-family: Arial, Helvetica, sans-serif;">
+                    <h1 style="font-size: 70px;   color: #333333;">
+                        Security Advisory
+                    </h1>
+                    <p style="font-size: 30px;   color: #f2f2f2;">
+                        {{advisory-name}}
+                    </p>
 
-            #description {
-                margin-top: 20px;
-            }
+                    <p style="font-size: 20px;color: #333333;">
 
-            #impact {
-                margin-top: 20px;
-            }
+                        Scope: {{advisory-title}}
+                        <br></br>
+                        Date:  {{advisory-date}}
+                        <br></br>
+                        Severity: {{severity}}
+                        {{#if score}}
+                        <br></br>
+                        CVSS Score : {{score}}
+                        {{/if}}
+                        <br></br>
+                        Email: security@wso2.com
+                    </p>
+                </div>
+            </div>
 
-            #solution {
-                margin-top: 20px;
-            }
+            <div class="triangle-up">
+                <img src="https://upload.wikimedia.org/wikipedia/en/5/56/WSO2_Software_Logo.png" class="overlayLogo"></img>
+                <div  style="
 
-            #content-page {
-                margin-top: 20px;
-                color: #3a3a3a;
-            }
+                      font-family: Arial, Helvetica, sans-serif;">
+                    <h1 style="position: absolute; font-size: 45px;width: 8.3in;
+                        top:10in;
+                        left: 3.9in;
+                        color:  #f2f2f2;">
+                        Platform Security
 
-            #patch-list {
-                margin-top: 50px;
-            }
+                    </h1>
 
-            #public-disclosure {
-                margin-top: 20px;
-            }
+                    <p style="position: absolute; width: 8.3in;
+                       top:11.2in;
+                       left: 1.5in;
+                       font-size: 15px;
+                       color: #f2f2f2;"
+                       > © 2018 WSO2 Inc.         Commercial in Confidence / Confidential / Not for Redistribution
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!--FIRST PAGE END-->
 
-            #notes {
-                margin-top: 10px;
-            }
+        <!--HEADER LOGO-->
+        <div class='header'>
+            <img style="height: 20px; margin-top: 30px; margin-bottom: 20px;"
+                 src="http://b.content.wso2.com/sites/all/wum/wso2-logo-w.png"></img>
+        </div>
 
-            #thanks {
-                margin-top: 10px;
-            }
+        <!--FOOTER-->
+        <div class="footer" style="color: #ffa64c">
+        </div>
 
-            #patch-supported-versions-table {
-                border-collapse: collapse;
-                border-style: solid;
-                border-color: white;
-                margin: 0px 0px;
-            }
+        <!--CONTENT PAGES-->
+        <div style="position: absolute; width: 7.2in; left:0.1in; background-color: #ffffff; font-family: Arial, Helvetica, sans-serif;">
+            <table id="content-page" style=" width: 7.2in; background: #ffffff; font-family: Arial, Helvetica, sans-serif;">
+                <tr>
+                <span class="advisory-data-heading">Affected Products</span>
+                <ul>
+                    {{#affected-all-products}}
+                    <li style="list-style: none; width: 7.2in; font-size: 14px; font-style: normal; color: #000000; line-height: 20%;">
+                        {{product-name}} :
+                        {{#product-versions}}
+                        {{#version-number}}
+                        {{.}}
+                        {{/version-number}}
+                        {{#unless @last}},{{/unless}}
+                        {{/product-versions}}
+                    </li>
+                    <br></br>
+                    {{/affected-all-products}}
+                </ul>
+                </tr>
 
-            #patch-supported-versions-head {
-                border-collapse: collapse;
-                border-style: solid;
-                border-color: #cccccc;
-                margin: 0px 0px;
-            }
-        }
-    </style>
-</head>
-<body>
-<div class='header'>
-    <tr>
-        <td
-                style="text-align: right; width: 800px; background: #ffffff;  margin-top: 5px;margin-bottom: 20px"
-                colspan="2">
-            <img style="height: 45px; text-align: right;width: 100%; margin-top: 5px;margin-bottom: 20px;"
-                 src="http://b.content.wso2.com/sites/all/wum/wso2-logo-w.png"/>
+                <tr>
+                    <td colspan="2" class="advisory-data-style">
+                        <table id="overview" style="width: 7.2in; font-family: Arial, Helvetica, sans-serif; line-height: 25px;">
+                            <tr>
+                            <span class="advisory-data-heading">Overview </span><br/>
+                </tr>
+                <tr>
+                <span class="advisory-data-value" >{{overview}} </span>
+                </tr>
+            </table>
         </td>
     </tr>
-</div>
-<div style="width: 100%; margin: auto; background-color: #ffffff;">
-    <table id="content-page" style="padding: 0 0; width: 100%; background: #ffffff;">
-        <tr>
-            <td colspan="2"
-                class="advisory-data-style">
-                <table id="info">
-                    <tr>
-                        <span class="advisory-title">{{advisory-title}}</span><br/>
-                    </tr>
-                    <tr>
-                        <br/>
-                        <span class="advisory-data">{{advisory-name}}</span>
-                    </tr>
-                    <tr>
-                        <span class="advisory-data">{{advisory-date}}</span>
-                    </tr>
-                    <tr>
-                        <span class="advisory-score">Severity : </span>
-                        <span class="advisory-score">{{severity}}</span>
-                    </tr>
-                    {{#if score}}
-                        <tr>
-                            <span class="advisory-score">CVSS Score : </span>
-                            <span class="advisory-score">{{score}}</span>
-                        </tr>
-                    {{/if}}
-                </table>
-            </td>
-        </tr>
-        <br></br>
-        <tr>
-            <span class="advisory-data-heading">AFFECTED PRODUCTS </span>
-        </tr>
-        <tr>
-            <td colspan="2" class="advisory-data-value">
-                <table class="advisory-data-value" id="affected-products">
+    <span class="break-page"></span>
+    <tr>
+        <td colspan="2" class="advisory-data-style">
+            <table id="description" style="width: 7.2in; line-height: 25px;  overflow-wrap: break-word; ">
+                <tr>
+                <span class="advisory-data-heading">Description</span><br/>
+    </tr>
+    <tr style="overflow-wrap: break-word;">
 
-                    <ul>
-                        {{#affected-all-products}}
-                            <li style="list-style: none;line-height:70%">
-                                {{product-name}}
-                                <span style="display:inline-block; width: 30px;font-size: 15px;"></span>
-                                {{#product-versions}}
-                                    {{#version-number}}
-                                        {{.}}
-                                    {{/version-number}}
-                                    {{#unless @last}},{{/unless}}
-                                {{/product-versions}}
-                            </li>
-                            <br></br>
-                        {{/affected-all-products}}
-                    </ul>
-                </table>
-            </td>
-        </tr>
-        <span class="break-page"></span>
-        <tr>
-            <td colspan="2" class="advisory-data-style">
-                <table id="overview" style="width: 100%;">
-                    <tr>
-                        <span class="advisory-data-heading">OVERVIEW </span><br/>
-                    </tr>
-                    <tr>
-                        <span class="advisory-data-value">{{overview}} </span>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <span class="break-page"></span>
-        <tr>
-            <td colspan="2" class="advisory-data-style">
-                <table id="description" style="width: 100%; line-height: 30px">
-                    <tr>
-                        <span class="advisory-data-heading">DESCRIPTION  </span><br/>
-                    </tr>
-                    <tr>
-                        <span class="advisory-data-value">{{description}} </span>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <span class="break-page"></span>
-        <tr>
-            <td colspan="2" class="advisory-data-style">
-                <table id="impact" style="width: 100%; line-height: 30px">
-                    <tr>
-                        <span class="advisory-data-heading">IMPACT  </span><br/>
-                    </tr>
-                    <tr>
-                        <span class="advisory-data-value">{{impact}} </span>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <span class="break-page"></span>
-        <tr>
-            <td colspan="2" class="advisory-data-style">
-                <table id="solution" style="width: 100%;">
-                    <tr>
-                        <span class="advisory-data-heading">SOLUTION  </span><br/>
-                    </tr>
-                    <tr>
-                        <span class="advisory-data-value">{{solution}} </span><br/>
-                    </tr>
-                    {{^affected-wum-products.empty}}
-                        <span class="break-page"></span>
-                        <tr><br/><u
-                                class="advisory-data-value">For</u>
-                            <u>
-                                <a href="https://wso2.com/updates/wum">WSO2 Update Manager (WUM)</a>
-                            </u>
-                            <u class="advisory-data-value">Supported Products</u><br/>
-                        </tr>
-                        <span class="advisory-data-value">Please use WUM to update the following products.
-                     Patches can be used in case WUM is not applicable.</span>
-                        <table class="table-wum-patch"
-                               cellspacing="10">
-                            <tr class="wum-table-row" style="font-weight: bold">
-                                <th class="wum-table-head" style="width: 80px">
-                                    Code
-                                </th>
-                                <th class="wum-table-head" style="width: 200px">
-                                    Product
-                                </th>
-                                <th class="wum-table-head" style="width: 60px">
-                                    Version
-                                </th>
-                            </tr>
-                            {{#affected-wum-products}}
-                                <tr class="wum-table-row">
-                                    <td class="wum-table-data"> {{product-code}}</td>
-                                    <td class="wum-table-data">  {{product-name}}</td>
-                                    <td class="wum-table-data">
-                                        {{#product-versions}}
-                                            {{#version-number}}
-                                                <li class="list" style="line-height:200%">
-                                                    {{.}}
-                                                </li>
-                                            {{/version-number}}
-                                        {{/product-versions}}
-                                    </td>
-                                </tr>
-                            {{/affected-wum-products}}
-                        </table>
-                        <br/> <br/>
-                    {{/affected-wum-products.empty}}
-                    <span class="break-page"></span>
-                </table>
-            </td>
-        </tr>
-        <span class="break-page"></span>
-        {{^affected-patch-products.empty}}
-            <u
-                    class="advisory-data-value">For
-                Patch Supported Products</u><br/><br/>
-            <span class="advisory-data-value">Apply the following patches based on your product version
-            by following the instructions in the README file. Please use your WSO2 support credentials
-            to access the patch links.</span>
-            <br/><br/>
+    <span class="advisory-data-value">{{description}} </span>
+</tr>
+</table>
+</td>
+</tr>
+<span class="break-page"></span>
+<tr>
+    <td colspan="2" class="advisory-data-style">
+        <table id="impact" style="width: 7.2in; line-height: 25px; overflow-wrap: break-word;">
             <tr>
-                <td id="patch-list">
-                    {{#each applicable-patches}}
-                        <li class="list" style="line-height:70%">
-                            {{patch-name}}
-                            <span style="display:inline-block; width: 30px;font-size: 13px;"></span>
-                            <a href="{{zip-location}}">Download here</a>
-                        </li>
-                        <br></br>
-                    {{/each}}
-                </td>
-            </tr>
-            <span class="break-page"></span>
-            <br/><br/><span
-                class="advisory-data-value">Please download the relevant patches based on the products
-            you use following the matrix below.</span> <br/><br/>
-            <span class="break-page"></span>
-            <table class="table-wum-patch"
-                   style="page-break-after:auto;border-collapse: collapse;width:100%; height:100%">
-                <thead>
-                <tr style="page-break-inside:avoid; page-break-after:auto">
-                    <th class="patch-table-head" style="padding-left: 5px;width: 15%">
-                        Code
-                    </th>
-                    <th class="patch-table-head" style="padding-left: 5px;width: 37%">
-                        Product
-                    </th>
-                    <th class="patch-table-head" style="width: 48%">
-                        <table id="patch-supported-versions-head"
-                               style="page-break-after:auto;border-collapse: collapse;width:100%; height:100%">
-                            <tr class="patch-table-head">
-                                <td class="patch-table-head" style="width: 20%">
-                                    Version
-                                </td>
-                                <td class="patch-table-head" style="width: 80%">
-                                    Patch
-                                </td>
-                            </tr>
-                        </table>
-                    </th>
-                </tr>
-                {{#each affected-patch-products}}
-                    <tr class="patch-table-data">
-                        <td class="patch-table-data"
-                            style="padding-left: 5px; width: 15%"> {{product-code}}</td>
-                        <td class="patch-table-data"
-                            style="padding-left: 5px; width: 44%">  {{product-name}}</td>
-                        <td colspan="2"
-                            class="patch-table-data" style="width: 40%;height:100%">
-                            <table id="patch-supported-versions-table"
-                                   style="page-break-after:auto;border-collapse: collapse;width:100%; height:100%">
-                                {{#each product-versions}}
-                                    <tr class="patch-table-data">
-                                        <td class="patch-table-data" style="width: 20%">
-                                            <li class="list">{{version-number}}</li>
-                                        </td>
-                                        <td class="patch-table-data" style="width:80%">
-                                            {{#patch-list}}
-                                                <li class="list">
-                                                    {{.}}
-                                                </li>
-                                            {{/patch-list}}
-                                        </td>
-                                    </tr>
-                                {{/each}}
-                            </table>
+            <span class="advisory-data-heading">Impact  </span><br/>
+</tr>
+<tr>
+<span class="advisory-data-value">{{impact}} </span>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+    <td colspan="2" class="advisory-data-style">
+        <table id="solution" style="width: 7.2in; line-height: 25px; overflow-wrap: break-word;">
+            <tr>
+            <span class="advisory-data-heading">Solution  </span><br/>
+</tr>
+<tr>
+<span class="advisory-data-value">{{solution}} </span><br/>
+</tr>
+{{^affected-wum-products.empty}}
+<br> </br>
+
+<tr class="advisory-data-heading">For WSO2 Update Manager (WUM) Supported Products
+</tr>
+<span class="advisory-data-value" style="line-height: 25px;">Please use <a href="https://wso2.com/updates/wum">WUM</a> to update the following products.
+    Patches can be used in case WUM is not applicable.</span>
+<table class="table-wum-patch"
+       cellspacing="10" style="width: 7in;">
+    <tr class="wum-table-row" style="font-weight: bold">
+        <th class="wum-table-head" style="width: 80px">
+            Code
+        </th>
+        <th class="wum-table-head" style="width: 200px">
+            Product
+        </th>
+        <th class="wum-table-head" style="width: 60px">
+            Version
+        </th>
+    </tr>
+    {{#affected-wum-products}}
+    <tr class="wum-table-row">
+        <td class="wum-table-data"> {{product-code}}</td>
+        <td class="wum-table-data">  {{product-name}}</td>
+        <td class="wum-table-data">
+            {{#product-versions}}
+            {{#version-number}}
+    <li class="list" style="line-height:200%">
+        {{.}}
+    </li>
+    {{/version-number}}
+    {{/product-versions}}
+    </td>
+    </tr>
+    {{/affected-wum-products}}
+</table>
+{{/affected-wum-products.empty}}
+</table>
+
+</td>
+</tr>
+
+{{^affected-patch-products.empty}}
+<p class="advisory-data-heading">For Patch Supported Products</p>
+<p class="advisory-data-value" style="line-height: 25px;">
+    Apply the following patches based on your product version
+    by following the instructions in the README file. Please use your WSO2 support credentials
+    to access the patch links.</p>
+<tr>
+    <td id="patch-list">
+        {{#each applicable-patches}}
+<li class="list" style="line-height:70%">
+    {{patch-name}}
+    <span style="display:inline-block; width: 30px;font-size: 13px;"></span>
+    <a href="{{zip-location}}">Download here</a>
+</li>
+<br></br>
+{{/each}}
+</td>
+</tr>
+<span
+    class="advisory-data-value">Please download the relevant patches based on the products
+    you use following the matrix below.</span>
+<span class="break-page"></span>
+<table class="table-wum-patch"
+       style="page-break-after:auto; border-collapse: collapse;width: 7in; height:100%">
+    <thead>
+        <tr style="page-break-inside:avoid; page-break-after:auto">
+            <th class="patch-table-head" style="padding-left: 5px;width: 1in">
+                Code
+            </th>
+            <th class="patch-table-head" style="padding-left: 5px;width: 2in">
+                Product
+            </th>
+            <th class="patch-table-head" style="width: 4in">
+                <table id="patch-supported-versions-head"
+                       style="page-break-after:auto;border-collapse: collapse;width:4in; height:100%">
+                    <tr class="patch-table-head">
+                        <td class="patch-table-head" style="width: 1in">
+                            Version
+                        </td>
+                        <td class="patch-table-head" style="width: 3in">
+                            Patch
                         </td>
                     </tr>
-                {{/each}}
-                </thead>
-            </table>
-        {{/affected-patch-products.empty}}
-
-        {{^public-disclosure.empty}}
-            <span class="break-page"></span>
-            <tr>
-                <td colspan="2" class="advisory-data-style">
-                    <table id="public-disclosure" style="width: 100%;">
-                        <tr>
-                            <span class="advisory-data-heading">PUBLIC DISCLOSURE</span><br/>
-                            <span class="advisory-data-value">{{public-disclosure}}</span><br/>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        {{/public-disclosure.empty}}
-
-        <span class="break-page"></span>
-        <tr>
-            <td colspan="2" class="advisory-data-style">
-                <table id="notes" style="width: 100%;">
-                    <tr>
-                        <span class="advisory-data-heading">NOTES </span><br/>
-                        <span class="advisory-data-value">{{notes}}</span><br/>
-                    </tr>
                 </table>
+            </th>
+        </tr>
+        {{#each affected-patch-products}}
+        <tr class="patch-table-data">
+            <td class="patch-table-data"
+                style="padding-left: 5px; width: 1in"> {{product-code}}</td>
+            <td class="patch-table-data"
+                style="padding-left: 5px; width: 2in">  {{product-name}}</td>
+            <td colspan="2"
+                class="patch-table-data" style="width: 4in;height:100%">
+                <table id="patch-supported-versions-table"
+                       style="page-break-after:auto;border-collapse: collapse;width:4in; height:100%">
+                    {{#each product-versions}}
+                    <tr class="patch-table-data">
+                        <td class="patch-table-data" style="width: 1in">
+                    <li class="list">{{version-number}}</li>
             </td>
-        </tr>
-        <span class="break-page"></span>
-        <tr id="thanks" style="line-height: 30px">
-            <span class="advisory-data-value">Thanks, </span><br/>
-            <span class="advisory-data-value">{{thanks}}</span><br/>
-        </tr>
-    </table>
+            <td class="patch-table-data" style="width:3in">
+                {{#patch-list}}
+    <li class="list">
+        {{.}}
+    </li>
+    {{/patch-list}}
+    </td>
+    </tr>
+    {{/each}}
+</table>
+</td>
+</tr>
+{{/each}}
+</thead>
+</table>
+{{/affected-patch-products.empty}}
+
+{{^public-disclosure.empty}}
+<span class="break-page"></span>
+<tr>
+    <td colspan="2" class="advisory-data-style">
+        <table id="public-disclosure" style="width: 7in; line-height: 25px;">
+            <tr>
+            <span class="advisory-data-heading">Public Disclosure</span><br/>
+            <span class="advisory-data-value">{{public-disclosure}}</span><br/>
+</tr>
+</table>
+</td>
+</tr>
+{{/public-disclosure.empty}}
+
+<br></br>
+<tr>
+    <td colspan="2" class="advisory-data-style">
+        <table id="notes" style="width: 7in;">
+            <tr>
+            <span class="advisory-data-heading">Notes</span><br/>
+            <br></br>
+            <span class="advisory-data-value" style="line-height: 25px;">{{notes}}</span><br/>
+</tr>
+</table>
+</td>
+</tr>
+<tr id="thanks" style="line-height: 25px">
+<br></br>
+<span class="advisory-data-value">Thanks, </span><br/>
+<span class="advisory-data-value">{{thanks}}</span><br/>
+</tr>
+</table>
 </div>
 </body>
 </html>
