@@ -1,0 +1,11 @@
+#Config Checker settings
+
+parentPropertiesFile : Common/properties/parent.xml
+childPropertiesFile : Product/properties/child.xml
+
+parsers:
+ xml : org.wso2.security.tools.parser.xml.XMLConfigurationParser
+ json : org.wso2.security.tools.parser.json.JSONConfigurationParser
+
+reportGenerators:
+ text: org.wso2.security.tools.report.TextReportGenerator

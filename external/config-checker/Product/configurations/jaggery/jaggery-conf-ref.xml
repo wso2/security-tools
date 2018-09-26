@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configurations>
+   <!-- <config id="CSRFGuard">
+        <![CDATA[
+   {
+     "filters" :[
+        {
+             "name" : "CSRFGuard",
+             "class" : "org.owasp.csrfguard.CsrfGuardFilter"
+        }
+    ]
+   }
+]]>
+    </config>-->
+</configurations>

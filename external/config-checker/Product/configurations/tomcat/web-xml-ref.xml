@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configurations>
+
+   <!-- <config id="HttpHeaderSecurityFilter">
+        <![CDATA[
+   <web-app>
+    <filter>
+ <filter-name>HttpHeaderSecurityFilter</filter-name>
+ <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
+ <init-param>
+ <param-name>hstsEnabled</param-name>
+        <param-value>false</param-value>
+      </init-param>
+      <init-param>
+        <param-name>antiClickJackingEnabled</param-name>
+        <param-value>false</param-value>
+      </init-param>
+    </filter>
+    </web-app>
+]]>
+    </config>-->
+</configurations>

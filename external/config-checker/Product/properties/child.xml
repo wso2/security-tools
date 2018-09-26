@@ -1,0 +1,29 @@
+<?xml version="1.0"  ?>
+
+<!--Child properties file containing the reference product specific configuration file paths -->
+
+<child-properties>
+    <!--<file type="web.xml">
+        <format>xml</format>
+        <reference-path>/Product/configurations/tomcat/web-xml-ref.xml</reference-path>
+        <product-path>/repository/conf/tomcat/carbon/WEB-INF/web.xml</product-path>
+        <exclude-configs>
+            <config>HttpHeaderSecurityFilter</config>
+        </exclude-configs>
+    </file>-->
+   <!-- <file type="jaggery.conf">
+        <format>json</format>
+        <reference-path>/Product/configurations/jaggery/jaggery-conf-ref.xml</reference-path>
+        <product-path>/repository/deployment/server/jaggeryapps/portal/jaggery.conf</product-path>
+        <exclude-configs>
+            <config>HttpHeaderSecurityFilter</config>
+            <config>initScripts</config>
+        </exclude-configs>
+    </file>-->
+
+    <exclude-paths>
+<!--
+        <path>/repository/deployment/server/webapps/authenticationendpoint/WEB-INF/web.xml</path>
+-->
+    </exclude-paths>
+</child-properties>

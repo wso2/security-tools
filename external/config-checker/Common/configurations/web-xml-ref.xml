@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configurations>
+    <!--<config id="Owasp.CsrfGuard.Config">
+        <![CDATA[
+   <web-app id="WebApp">
+    <context-param>
+        <param-name>Owasp.CsrfGuard.Config</param-name>
+        <param-value>repository/conf/security/Owasp.CsrfGuard.Carbon.properties</param-value>
+    </context-param>
+    </web-app>
+]]>
+    </config>-->
+</configurations>
