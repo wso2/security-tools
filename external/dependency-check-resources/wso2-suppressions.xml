@@ -187,21 +187,21 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            This issue is reported in The MultipartStream class in Apache Commons Fileupload which allows remote attackers to cause a denial of service (CPU consumption) via a long boundary string.. The flagged component is not used in this project.
+            This issue is reported in The MultipartStream class in Apache Commons Fileupload which allows remote attackers to cause a denial of service (CPU consumption) via a long boundary string. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cve>CVE-2016-3092</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to EL API library. This issue is applicable only for Apache Tomcat servlet container.  Please check the issues reported against Apache Tomcat servlet container for further details. 
+            Issue is not relevant to EL API library. This issue is applicable only for Apache Tomcat servlet container.  Please check the issues reported against Apache Tomcat servlet container for further details.
         ]]></notes>
         <gav regex="true">^org\.apache\.tomcat:el-api:.*$</gav>
         <cpe>cpe:/a:apache:tomcat</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Jasper EL library. This issue is applicable only for Apache Tomcat servlet container.  Please check the issues reported against Apache Tomcat servlet container for further details. 
+            Issue is not relevant to Jasper EL library. This issue is applicable only for Apache Tomcat servlet container.  Please check the issues reported against Apache Tomcat servlet container for further details.
         ]]></notes>
         <gav regex="true">^org\.apache\.tomcat:jasper-el:.*$</gav>
         <cpe>cpe:/a:apache:tomcat</cpe>
