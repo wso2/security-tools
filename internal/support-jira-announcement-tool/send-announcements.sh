@@ -32,10 +32,34 @@ echo "Enter log file path :"
 read log_file
 
 #compares the skip list & the project list and makes a filtered list
-comm --nocheck-order -3 $proj_file $skip_file > filtered
+diff $proj_file $skip_file |  grep  '<' | sed 's/< //g' > filtered
 
-while IFS="," read -r id key remainder
-do
+echo
+echo "*************************************************************************************************"
+echo "To create a sample ticket before starting this process, Please provide the necessary information."
+echo "*************************************************************************************************"
+echo
+
+echo "Enter sample ticket key:"
+read sample_key
+
+sample_data="{\"fields\": {\"project\": {\"key\": \"$sample_key\"},\"summary\": \"$summary\",\"description\": "`cat $ticket`",\"issuetype\": {\"name\": \"Announcement\"}}}"
+
+sample_res=$(curl -u username:password -X POST --data "${sample_data}" -H "Content-Type:application/json" https://support-staging.wso2.com/jira/rest/api/2/issue/)
+
+echo $sample_res
+echo
+echo "Sample ticket created. Please confirm by checking the ticket by logging in to your JIRA account."
+echo "Created ticket id - `echo $sample_res | jq '.key'`"
+echo
+
+read -p "To continue the process, press [Y/N] " -n 1 -r
+echo
+
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  while IFS="," read -r id key remainder
+  do
 	data="{\"fields\": {\"project\": {\"id\": "$id"},\"summary\": \"$summary\",\"description\": "`cat $ticket`",\"issuetype\": {\"name\": \"Announcement\"}}}"
 	res=$(curl -u username:password -X POST --data "${data}" -H "Content-Type:application/json" https://support-staging.wso2.com/jira/rest/api/2/issue/) #to create an issue
 	
@@ -46,9 +70,13 @@ do
 		echo "$id | $res | `echo $res | jq '.key'`" >> "$log_file"
 	else
 		touch "$log_file"
-		echo "$id | $res | `echo $res | jq '.key'`" > "$log_file"
+		echo "$id | $res | `echo $res | jq '.key'`" >> "$log_file"
 	fi
 
-done < "filtered"
+  done < "filtered"
+else
+    echo "Process denied"
+    exit 1
+fi
 
 
