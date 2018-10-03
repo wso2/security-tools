@@ -1,8 +1,8 @@
 # Support JIRA announcement tool
 
-This tool is implemented to avoid duplicate JIRA tickets getting created during monthly security announcements. There are two shell scripts. It automates the ticket creation instead of using the browser based application. By running these scripts, first it obtains the list of customer projects and then iterates through all prjoects creating a ticket in each. 
+This tool is implemented to automate the JIRA ticket creation during monthly security announcements. There are two shell scripts and by running these scripts, first it obtains the list of projects in the JIRA portal and then iterates through all prjoects creating a ticket in each. 
 
-Before creating the ticket, it first creates a sample ticket and asks cyour confirmation to proceed. If you are satisfied with the sample ticket created, you can press 'Y' to continue. If not the process will terminate. By running this tool, It also creates a log file with the log history of ticket creation.
+Before creating the ticket, it first creates a sample ticket and asks your confirmation to proceed. If you are satisfied with the sample ticket created, you can press 'Y' to continue. If not the process will terminate. By running this tool, It also creates a log file with the status of ticket creation.
 
 ###  Configurations
 
@@ -16,7 +16,7 @@ In order to run the second script (send-announcements.sh) :
 
 **Skip list file**
 
-You should have the skip list file in order to run this. It should contain the project ids and the project keys each separated by a comma. These projects will be skipped from the ticket creation process.
+You should have the skip list file in order to run this. It should contain the project ids and the project keys each separated by a comma. These projects will be skipped from the ticket creation process. 
 
 **Ticket body content file**
 
