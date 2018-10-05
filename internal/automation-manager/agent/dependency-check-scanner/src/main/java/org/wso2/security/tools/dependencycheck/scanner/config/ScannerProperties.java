@@ -66,8 +66,7 @@ public class ScannerProperties {
             scanStatusCompleted = properties.getProperty("scanner.dependency-check.scan.status.completed");
             scanStatusFailed = properties.getProperty("scanner.dependency-check.scan.status.failed");
         } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.error(e.toString());
+            LOGGER.error("Error occurred while loading the scanner properties", e);
         }
     }
 

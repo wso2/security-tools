@@ -89,7 +89,6 @@ public class DependencyCheckExecutor extends Observable implements Runnable {
             startScan();
         } catch (DependencyCheckScannerException | NotificationManagerException e) {
             LOGGER.error(e.toString());
-            e.printStackTrace();
         }
         setChanged();
         notifyObservers(true);

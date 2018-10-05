@@ -79,11 +79,11 @@ public class NotificationManager {
                 }
                 Thread.sleep(2000);
             } catch (URISyntaxException | InterruptedException | IOException e) {
-                e.printStackTrace();
-                LOGGER.error(e.toString());
+                LOGGER.error("Error occurred while notifying the status to automation manager", e);
                 i++;
             }
-        }throw new NotificationManagerException("Error occurred while notifying status to Automation Manager");
+        }
+        throw new NotificationManagerException("Error occurred while notifying status to Automation Manager");
     }
 
     public static void notifyScanStatus(String status) throws NotificationManagerException {
@@ -106,11 +106,11 @@ public class NotificationManager {
                 }
                 Thread.sleep(2000);
             } catch (URISyntaxException | InterruptedException | IOException e) {
-                e.printStackTrace();
-                LOGGER.error(e.toString());
+                LOGGER.error("Error occurred while notifying the scan status to automation manager", e);
                 i++;
             }
-        }throw new NotificationManagerException("Error occurred while notifying status to Automation Manager");
+        }
+        throw new NotificationManagerException("Error occurred while notifying status to Automation Manager");
     }
 
     /**
