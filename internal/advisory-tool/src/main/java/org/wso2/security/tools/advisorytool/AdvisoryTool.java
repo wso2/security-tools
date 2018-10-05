@@ -65,11 +65,11 @@ public class AdvisoryTool {
         SecurityAdvisoryDirector securityAdvisoryDirector = new SecurityAdvisoryDirector();
 
         try {
-            logger.info("-------------------------------------------------");
-            logger.info("-----                                       -----");
-            logger.info("-----      Security Advisory Generator      -----");
-            logger.info("-----                                       -----");
-            logger.info("-------------------------------------------------");
+            logger.info("------------------------------------------------------");
+            logger.info("-----                                            -----");
+            logger.info("-----      WSO2 Security Advisory Generator      -----");
+            logger.info("-----                                            -----");
+            logger.info("------------------------------------------------------");
 
             //parsing the main arguments.
             JCommander jCommander = new JCommander(advisoryTool);
@@ -199,22 +199,22 @@ public class AdvisoryTool {
                 for (Version version : product.getVersionList()) {
                     if (StringUtils.isEmpty(version.getVersionNumber())) {
                         throw new AdvisoryToolException("Missing version number for the product "
-                                + product.getName() + "in Products list");
+                                + product.getName() + " in Products list");
                     }
 
                     if (StringUtils.isEmpty(version.getKernelVersionNumber())) {
                         throw new AdvisoryToolException("Missing kernel version number for " +
-                                "the product" + product.getName() + "in Products list");
+                                "the product" + product.getName() + " in Products list");
                     }
 
                     if (StringUtils.isEmpty(version.getPlatformVersionNumber())) {
                         throw new AdvisoryToolException("Missing platform version number for " +
-                                " the product" + product.getName() + "in Products list");
+                                " the product" + product.getName() + " in Products list");
                     }
 
                     if (StringUtils.isEmpty(version.getReleasedDate().toString())) {
                         throw new AdvisoryToolException("Missing released date for the product "
-                                + product.getName() + "in Products list");
+                                + product.getName() + " in Products list");
                     }
                 }
             }
