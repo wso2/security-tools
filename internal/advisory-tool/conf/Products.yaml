@@ -3,6 +3,15 @@
   codeName: EI
   name: "WSO2 Enterprise Integrator"
   versionList: 
+    
+   - versionNumber: "6.3.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
    - versionNumber: "6.2.0"
      platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.26"
