@@ -28,6 +28,8 @@ import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,6 +44,7 @@ import java.util.List;
 @SuppressWarnings({"unused"})
 public class HttpRequestHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRequestHandler.class);
     private static List<NameValuePair> urlParameters = new ArrayList<>();
 
     /**
@@ -58,7 +61,7 @@ public class HttpRequestHandler {
             HttpGet httpGetRequest = new HttpGet(request);
             return httpClient.execute(httpGetRequest);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error occurred while sending GET request to " + request.getPath(), e);
         }
         return null;
     }
@@ -66,15 +69,15 @@ public class HttpRequestHandler {
     /**
      * Send HTTP POST request
      *
-     * @param request Requested URI
+     * @param requestURI Requested URI
      * @return HTTPResponse after executing the command
      */
-    public static HttpResponse sendPostRequest(String request, ArrayList<NameValuePair> parameters) {
+    public static HttpResponse sendPostRequest(String requestURI, ArrayList<NameValuePair> parameters) {
         try {
             HttpClientBuilder clientBuilder = HttpClients.custom();
             HttpClient httpClient = clientBuilder.setRetryHandler(new
                     DefaultHttpRequestRetryHandler(3, false)).build();
-            HttpPost httpPostRequest = new HttpPost(request);
+            HttpPost httpPostRequest = new HttpPost(requestURI);
 
             for (NameValuePair parameter : parameters) {
                 urlParameters.add(new BasicNameValuePair(parameter.getName(), parameter.getValue()));
@@ -83,7 +86,7 @@ public class HttpRequestHandler {
             httpPostRequest.setEntity(new UrlEncodedFormEntity(urlParameters));
             return httpClient.execute(httpPostRequest);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error occurred while sending POST request to " + requestURI, e);
         }
         return null;
     }
@@ -106,7 +109,7 @@ public class HttpRequestHandler {
             }
             return result.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error occurred while processing the HTTP response", e);
         }
         return null;
     }
