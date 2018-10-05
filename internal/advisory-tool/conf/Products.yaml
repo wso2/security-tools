@@ -344,6 +344,7 @@
      versionNumber: "5.6.0"
      isWumSupported: true
      isPatchSupported: false
+     isPublicSupported: true
 
    - platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.26"
