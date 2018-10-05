@@ -45,7 +45,7 @@ read sample_key
 
 sample_data="{\"fields\": {\"project\": {\"key\": \"$sample_key\"},\"summary\": \"$summary\",\"description\": "`cat $ticket`",\"issuetype\": {\"name\": \"Announcement\"}}}"
 
-sample_res=$(curl -u username:password -X POST --data "${sample_data}" -H "Content-Type:application/json" https://support-staging.wso2.com/jira/rest/api/2/issue/)
+sample_res=$(curl -u username:password -X POST --data "${sample_data}" -H "Content-Type:application/json" https://WSO2_JIRA_DOMAIN/jira/rest/api/2/issue/)
 
 echo $sample_res
 echo
@@ -61,7 +61,7 @@ then
   while IFS="," read -r id key remainder
   do
 	data="{\"fields\": {\"project\": {\"id\": "$id"},\"summary\": \"$summary\",\"description\": "`cat $ticket`",\"issuetype\": {\"name\": \"Announcement\"}}}"
-	res=$(curl -u username:password -X POST --data "${data}" -H "Content-Type:application/json" https://support-staging.wso2.com/jira/rest/api/2/issue/) #to create an issue
+	res=$(curl -u username:password -X POST --data "${data}" -H "Content-Type:application/json" https://WSO2_JIRA_DOMAIN/jira/rest/api/2/issue/) #to create an issue
 	
 	#Checks whether the given file exists, if available it appends the log details to it. If not it creates a new file and adds the log details. 
 	#The log file will contain a format like -> Project ID | Response | Ticket number	

@@ -8,7 +8,7 @@
 #Replace the username and the password with your JIRA account credntials in the curl command.
 #*****************************************************************************************************
 
-curl -D- -u username:password -X GET -H "Content-Type: application/json" https://support-staging.wso2.com/jira/rest/api/2/project/ -o output.json #curl command to get all projects and to create a file called output.json
+curl -D- -u username:password -X GET -H "Content-Type: application/json" https://WSO2_JIRA_DOMAIN/jira/rest/api/2/project/ -o output.json #curl command to get all projects and to create a file called output.json
 
 jq '.[] | .id' output.json > id #creates a file called id with all project ids
 
