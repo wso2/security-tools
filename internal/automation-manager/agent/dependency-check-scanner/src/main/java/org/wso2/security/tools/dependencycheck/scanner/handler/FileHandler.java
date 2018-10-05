@@ -19,6 +19,7 @@
 package org.wso2.security.tools.dependencycheck.scanner.handler;
 
 import org.codehaus.plexus.util.FileUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.tools.dependencycheck.scanner.Constants;
 
@@ -26,6 +27,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -36,6 +38,8 @@ import java.util.zip.ZipOutputStream;
 @SuppressWarnings({"unused"})
 public class FileHandler {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FileHandler.class);
+
     /**
      * Traverse and find files with a specific name, rename them and move to a new folder.
      * <p>Since products have different modules with pom.xml files, after building the product scanning reports with
@@ -45,10 +49,8 @@ public class FileHandler {
      * @param sourcePath      Path of the folder to be traversed
      * @param destinationPath Path of the folder to add reports
      * @param fileName        Name of the file to be searched
-     * @throws IOException If an error occurs while I/O operations
      */
-    public static void findFilesRenameAndMoveToFolder(String sourcePath, String destinationPath, String fileName)
-            throws IOException {
+    public static void findFilesRenameAndMoveToFolder(String sourcePath, String destinationPath, String fileName) {
         File dir = new File(destinationPath);
         if (dir.mkdir()) {
             Files.find(Paths.get(sourcePath), Integer.MAX_VALUE, (filePath, fileAttr) -> filePath.getFileName()
@@ -61,7 +63,7 @@ public class FileHandler {
                 try {
                     FileUtils.copyFileToDirectory(newFile, dir);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error occurred while moving the files", e);
                 }
             });
         }

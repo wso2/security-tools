@@ -104,7 +104,7 @@ public class DependencyCheckScannerService {
             dependencyCheckExecutor.addObserver(mainScannerObserver);
             new Thread(dependencyCheckExecutor).start();
         } catch (NotificationManagerException e) {
-            LOGGER.error(e.toString());
+            LOGGER.error("Error occurred while initiating the scan", e);
         }
     }
 
