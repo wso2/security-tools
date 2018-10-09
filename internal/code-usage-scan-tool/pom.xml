@@ -27,8 +27,8 @@
 
     <groupId>org.wso2.security</groupId>
     <artifactId>scan-tool</artifactId>
-    <version>0.1-SNAPSHOT</version>
-    <name>WSO2 MSF4J Microservice</name>
+    <version>0.9</version>
+    <name>Code Usage Scan Tool</name>
     <dependencies>
         <dependency>
             <groupId>org.ow2.asm</groupId>
