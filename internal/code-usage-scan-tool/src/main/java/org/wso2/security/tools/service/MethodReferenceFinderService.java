@@ -33,8 +33,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-
-
 /**
  * Method Usage Finder Service. ----------------------------------------------------------------------------------------
  * MethodReferenceFinderService - This class consists of functionality to accept uploaded jar files by the clients and
@@ -46,14 +44,6 @@ public class MethodReferenceFinderService {
 
     private static final Logger log = LoggerFactory.getLogger(MethodReferenceFinderService.class);
 
-    /**
-     *
-     * @param jarFileInfo
-     * @param jarFileInputStream
-     * @param productName
-     * @param version
-     * @return
-     */
     @POST
     @Path("/populate-data")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -79,15 +69,6 @@ public class MethodReferenceFinderService {
        return dataFilePath;
     }
 
-    /**
-     *
-     * @param method
-     * @param owner
-     * @param productName
-     * @param version
-     * @return
-     * @throws UnknownHostException
-     */
     @POST
     @Path("/query-data")
     @Consumes(MediaType.MULTIPART_FORM_DATA)

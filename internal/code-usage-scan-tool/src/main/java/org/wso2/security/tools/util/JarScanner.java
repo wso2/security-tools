@@ -44,25 +44,12 @@ public class JarScanner {
 
     public static ArrayList<MethodReference> methodReferences;
 
-    /**
-     * Constructor to set the values of the variables dataFilePath, product and version.
-     *
-     * @param dataFilePath path where the jar file is saved.
-     * @param product      product name.
-     * @param version      product version.
-     */
     public JarScanner(String dataFilePath, String product, int version) {
         this.dataFilePath = dataFilePath;
         this.product = product;
         this.version = version;
     }
 
-    /**
-     * Goes through the entries with the .class extension and extracts the method
-     * instructions (method invocations) inside the class.
-     *
-     * @throws ScanToolException thrown if an exception is thrown inside the method.
-     */
     public void scan() throws ScanToolException {
 
         try (JarFile jarFile = new JarFile(dataFilePath)) {
@@ -84,5 +71,4 @@ public class JarScanner {
         }
         log.debug("Successful");
     }
-
 }

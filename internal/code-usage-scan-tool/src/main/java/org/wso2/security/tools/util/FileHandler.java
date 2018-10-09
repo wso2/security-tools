@@ -30,14 +30,6 @@ import java.nio.file.StandardCopyOption;
  */
 public class FileHandler {
 
-    /**
-     * Saves the uploaded files by the client.
-     * Temporarily saves the files uploaded by the clients in the system's tempdir.
-     *
-     * @param fileInputStream uploaded file InputStream.
-     * @param fileInfo        details about the uploaded file.
-     * @throws ScanToolException If an Exception is thrown inside the method implementation.
-     */
     public static String saveUploadedFile(InputStream fileInputStream,
                                           FileInfo fileInfo) throws ScanToolException {
         try {

@@ -41,21 +41,11 @@ public class DatabaseUtils {
     private static final String USERNAME = "mgdb";
     private static final String PASSWORD = "1234";
 
-    /**
-     * Connect to MongoDB without security.
-     *
-     * @return mongodb database client.
-     */
     private static MongoClient getMongoClient_1() {
         MongoClient mongoClient = new MongoClient(Constants.HOST, Constants.PORT);
         return mongoClient;
     }
 
-    /**
-     * Connect to the DB MongoDB with security.
-     *
-     * @return mongodb database client.
-     */
     private static MongoClient getMongoClient_2() {
         MongoCredential credential = MongoCredential.createMongoCRCredential(
                 USERNAME, Constants.DB_NAME, PASSWORD.toCharArray());
@@ -64,25 +54,12 @@ public class DatabaseUtils {
         return mongoClient;
     }
 
-    /**
-     * Connect to the DB MongoDB without security.
-     *
-     * @return mongodb database client.
-     */
     public static MongoClient getMongoClient() {
         return getMongoClient_1();
         // You can replace by getMongoClient_2 ()
         // In case of connection to MongoDB need security.
     }
 
-    /**
-     * Finds the method usages of a given method.
-     *
-     * @param productName the product in which the method usage is searched for.
-     * @param version     version of the product.
-     * @param method      name of the method.
-     * @param owner       owner of the method (class in which the method is declared in).
-     */
     public void find(String productName, int version, String method, String owner) {
 
         // To connect to mongodb server
@@ -104,11 +81,6 @@ public class DatabaseUtils {
         log.debug("Querying successful");
     }
 
-    /**
-     * Inserts the extracted method usages into the database.
-     *
-     * @param methodReferences method usages to be inserted to the database.
-     */
     public void insertIntoDatabase(ArrayList<MethodReference> methodReferences) {
 
         // To connect to mongodb server
@@ -133,13 +105,6 @@ public class DatabaseUtils {
 
     }
 
-    /**
-     * Building the JSON result.
-     *
-     * @param methodName
-     * @param className
-     * @return
-     */
     private static DBObject getWhereClause_1(String methodName, String className) {
         BasicDBObjectBuilder whereBuilder = BasicDBObjectBuilder.start();
 
