@@ -8,12 +8,18 @@
 #Replace the username and the password with your JIRA account credntials in the curl command.
 #*****************************************************************************************************
 
-curl -D- -u username:password -X GET -H "Content-Type: application/json" https://WSO2_JIRA_DOMAIN/jira/rest/api/2/project/ -o output.json #curl command to get all projects and to create a file called output.json
+curl -D- -u 'username:password' -X GET -H "Content-Type: application/json" https://WSO2_JIRA_DOMAIN/jira/rest/api/2/project/ -o output.json #curl command to get all projects and to create a file called output.json
+
+#pretty print the content of output.json to all_projects.json file
+cat output.json | python -m json.tool > all_projects.json
 
 jq '.[] | .id' output.json > id #creates a file called id with all project ids
 
 jq '.[] | .key' output.json > key #cerates a file called key with all project keys
 
-paste -d "," id key > project #creates a file called project with id and key separated by a comma
+jq '.[] | .projectCategory.name' output.json > project_status #cerates a file called project_status with the statuses
+
+
+paste -d "," id key project_status > project #creates a file called project with id and key separated by a comma
 
 
