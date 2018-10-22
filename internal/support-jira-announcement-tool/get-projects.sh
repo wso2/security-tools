@@ -13,13 +13,17 @@ curl -D- -u 'username:password' -X GET -H "Content-Type: application/json" https
 #pretty print the content of output.json to all_projects.json file
 cat output.json | python -m json.tool > all_projects.json
 
-jq '.[] | .id' output.json > id #creates a file called id with all project ids
+count=`jq length ./all_projects.json`
 
-jq '.[] | .key' output.json > key #cerates a file called key with all project keys
+for (( c=0; c< $count ; c++ ))
+do  
+   jq '.['$c'] | .id' all_projects.json >> id #creates a file called id with all project ids
 
-jq '.[] | .projectCategory.name' output.json > project_status #cerates a file called project_status with the statuses
+   jq '.['$c'] | .key' all_projects.json >> key #creates a file called key with all project keys
 
+   jq '.['$c'] | .projectCategory.name' all_projects.json >> project_status #creates a file called project_status with the statuses
 
-paste -d "," id key project_status > project #creates a file called project with id and key separated by a comma
+done
 
+paste -d "," id key project_status > project #creates a file called project with id, key and project_status separated by a comma
 
