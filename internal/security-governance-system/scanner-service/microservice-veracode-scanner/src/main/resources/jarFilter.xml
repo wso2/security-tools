@@ -1,0 +1,17 @@
+<formats>
+    <format>
+        <prefix>org.jaggeryjs.</prefix>
+        <sufix>.jar</sufix>
+    </format>
+    <format>
+        <prefix>org.wso2.</prefix>
+        <sufix>.jar</sufix>
+    </format>
+    <format>
+        <prefix>siddhi-</prefix>
+        <sufix>.jar</sufix>
+    </format>
+    <format>
+        <sufix>.war</sufix>
+    </format>
+</formats>
