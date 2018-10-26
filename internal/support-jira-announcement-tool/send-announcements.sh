@@ -37,10 +37,21 @@ diff $proj_file $skip_file |  grep  '<' | sed 's/< //g' > filtered
 #Creates a file called 'all_filtered' by removing the closed projects from the filtered file
 while IFS="," read -r id key description remainder
 do
-	if [ "$description" == '"Development Support"' ] || [ "$description" == '"Evaluation Support"' ] || [ "$description" == '"High-Value Evaluation"' ] || [ "$description" == '"Managed Cloud Development Support"' ] || [ "$description" == '"Managed Cloud Hosting Support"' ] || [ "$description" == '"Managed Cloud Production Support"' ] || [ "$description" == '"Managed Cloud Subscription"' ] || [ "$description" == '"Production Support"' ] || [ "$description" == '"Subscription"' ]
-	then
-		echo "$id,$key,$description" >> all_filtered
-	fi
+	array=(
+		'"Development Support"'
+		'"Evaluation Support"'
+		'"High-Value Evaluation"'
+		'"Managed Cloud Development Support"'
+		'"Managed Cloud Hosting Support"'
+		'"Managed Cloud Production Support"'
+		'"Managed Cloud Subscription"'
+		'"Production Support"'
+		'"Subscription"'
+	)		
+
+	for item in "${array[@]}"; do
+    		[[ $description == "$item" ]] && echo "$id,$key,$description" >> all_filtered
+	done
 	
 done < "filtered"
 
