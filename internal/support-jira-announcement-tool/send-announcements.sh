@@ -34,6 +34,27 @@ read log_file
 #compares the skip list & the project list and makes a filtered list
 diff $proj_file $skip_file |  grep  '<' | sed 's/< //g' > filtered
 
+#Creates a file called 'all_filtered' by removing the closed projects from the filtered file
+while IFS="," read -r id key description remainder
+do
+	array=(
+		'"Development Support"'
+		'"Evaluation Support"'
+		'"High-Value Evaluation"'
+		'"Managed Cloud Development Support"'
+		'"Managed Cloud Hosting Support"'
+		'"Managed Cloud Production Support"'
+		'"Managed Cloud Subscription"'
+		'"Production Support"'
+		'"Subscription"'
+	)		
+
+	for item in "${array[@]}"; do
+    		[[ $description == "$item" ]] && echo "$id,$key,$description" >> all_filtered
+	done
+	
+done < "filtered"
+
 echo
 echo "*************************************************************************************************"
 echo "To create a sample ticket before starting this process, Please provide the necessary information."
@@ -61,6 +82,7 @@ then
   while IFS="," read -r id key remainder
   do
 	data="{\"fields\": {\"project\": {\"id\": "$id"},\"summary\": \"$summary\",\"description\": "`cat $ticket`",\"issuetype\": {\"name\": \"Announcement\"}}}"
+
 	res=$(curl -u username:password -X POST --data "${data}" -H "Content-Type:application/json" https://WSO2_JIRA_DOMAIN/jira/rest/api/2/issue/) #to create an issue
 	
 	#Checks whether the given file exists, if available it appends the log details to it. If not it creates a new file and adds the log details. 
@@ -73,7 +95,7 @@ then
 		echo "$id | $res | `echo $res | jq '.key'`" >> "$log_file"
 	fi
 
-  done < "filtered"
+  done < "all_filtered"
 else
     echo "Process denied"
     exit 1
