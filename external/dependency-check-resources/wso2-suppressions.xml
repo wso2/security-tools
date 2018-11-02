@@ -284,4 +284,42 @@
         <filePath regex="true">.*\borg\.wso2\..*\.jar</filePath>
         <cpe>cpe:/a:wso2:.*</cpe>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+             This is only applicable for Ethertoken library. The flagged component is not used in this project.
+        ]]></notes>
+        <filePath regex="true">.*\siddhi-execution-tensorflow-.*\.jar</filePath>
+        <cpe>cpe:/a:flow_project:flow:.*</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+             This is only applicable for Ethertoken library. The flagged component is not used in this project.
+        ]]></notes>
+        <filePath regex="true">.*\org.eclipse.equinox.cm.*\.jar</filePath>
+        <cpe>cpe:/a:cm_project:cm:.*</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+             This is only applicable for rest-client library. The flagged component is not used in this project.
+        ]]></notes>
+        <filePath regex="true">.*\org.wso2.analytics.apim.rest.api.file.*\.jar</filePath>
+        <cpe>cpe:/a:rest-client_project:rest-client:.*</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+             This is only applicable for redis-store library. The flagged component is not used in this project.
+        ]]></notes>
+        <filePath regex="true">.*\siddhi-store-redis.*\.jar</filePath>
+        <cpe>cpe:/a:redis-store:redis-store:.*</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+             This is only applicable for elastic-search library under version 1.9.
+             The flagged component's version used in the project is above 6.0.
+        ]]></notes>
+        <filePath regex="true">.*\siddhi-store-elasticsearch.*\.jar</filePath>
+        <cpe>cpe:/a:elasticsearch:elasticsearch:.*</cpe>
+    </suppress>
+
 </suppressions>
