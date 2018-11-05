@@ -323,6 +323,6 @@
         <cve>CVE-2014-6439</cve>
         <cve>CVE-2015-1427</cve>
         <cve>CVE-2015-3337</cve>
-        <cve>CVE-2015-5531<cve>
+        <cve>CVE-2015-5531</cve>
     </suppress>
 </suppressions>
