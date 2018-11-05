@@ -284,7 +284,6 @@
         <filePath regex="true">.*\borg\.wso2\..*\.jar</filePath>
         <cpe>cpe:/a:wso2:.*</cpe>
     </suppress>
-
     <suppress>
         <notes><![CDATA[
              This is only applicable for Ethertoken library. The flagged component is not used in this project.
@@ -321,5 +320,4 @@
         <filePath regex="true">.*\siddhi-store-elasticsearch.*\.jar</filePath>
         <cpe>cpe:/a:elasticsearch:elasticsearch:.*</cpe>
     </suppress>
-
 </suppressions>
