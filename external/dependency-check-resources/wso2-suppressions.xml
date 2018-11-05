@@ -2,28 +2,28 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
     <suppress>
         <notes><![CDATA[
-            Issue is a only relevant to Eclipse IDE. The flagged component is not used in this project. 
+            Issue is a only relevant to Eclipse IDE. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is only relevant to Eclipse Business Intelligence and Reporting Tools (BIRT). The flagged component is not used in this project. 
+            Issue is only relevant to Eclipse Business Intelligence and Reporting Tools (BIRT). The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cpe>cpe:/a:eclipse:birt</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is only relevant to NTP (Network Time Protocol) daemon. The flagged component is not used in this project. 
+            Issue is only relevant to NTP (Network Time Protocol) daemon. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cpe>cpe:/a:ntp:ntp</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is only relevant to "JasPer Image Coding Toolkit" [1]. The flagged component is not used in this project. 
+            Issue is only relevant to "JasPer Image Coding Toolkit" [1]. The flagged component is not used in this project.
             OWASP Dependency Check incorrectly identifies "JasPer" instead of "jsp.jasper".
             [1] https://github.com/mdadams/jasper
         ]]></notes>
@@ -32,112 +32,112 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Axis2 Mail Transport. This issue is applicable only for Axis2 core. Please check the issues reported against Axis2 core for further details. 
+            Issue is not relevant to Axis2 Mail Transport. This issue is applicable only for Axis2 core. Please check the issues reported against Axis2 core for further details.
         ]]></notes>
         <filePath regex="true">.*\baxis2-transport-mail_.*\.jar</filePath>
         <cpe>cpe:/a:apache:axis2</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Axis2 JMS Transport. This issue is applicable only for Axis2 core. Please check the issues reported against Axis2 core for further details. 
+            Issue is not relevant to Axis2 JMS Transport. This issue is applicable only for Axis2 core. Please check the issues reported against Axis2 core for further details.
         ]]></notes>
         <filePath regex="true">.*\baxis2-transport-jms_.*\.jar</filePath>
         <cpe>cpe:/a:apache:axis2</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Axis2 RabbitMQ AMQP Transport. This issue is applicable only for Axis2 core. Please check the issues reported against Axis2 core for further details. 
+            Issue is not relevant to Axis2 RabbitMQ AMQP Transport. This issue is applicable only for Axis2 core. Please check the issues reported against Axis2 core for further details.
         ]]></notes>
         <filePath regex="true">.*\baxis2-transport-rabbitmq-amqp_.*\.jar</filePath>
         <cpe>cpe:/a:apache:axis2</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Geronimo SAAJ library. This issue is applicable only for Geranimo core. Please check the issues reported against Geranimo core for further details. 
+            Issue is not relevant to Geronimo SAAJ library. This issue is applicable only for Geranimo core. Please check the issues reported against Geranimo core for further details.
         ]]></notes>
         <filePath regex="true">.*\bgeronimo-saaj_1.3_spec_.*\.jar</filePath>
         <cpe>cpe:/a:apache:geronimo</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to JDBC Pool library. This issue is applicable only for Apache Tomcat servlet container. Please check the issues reported against Apache Tomcat servlet container for further details. 
+            Issue is not relevant to JDBC Pool library. This issue is applicable only for Apache Tomcat servlet container. Please check the issues reported against Apache Tomcat servlet container for further details.
         ]]></notes>
         <filePath regex="true">.*\bjdbc-pool_.*\.jar</filePath>
         <cpe>cpe:/a:apache:tomcat</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is only applicable for the init script for Apache Geronimo on SUSE Linux (when performing a chown operation). The flagged component is not used in this project. 
+            Issue is only applicable for the init script for Apache Geronimo on SUSE Linux (when performing a chown operation). The flagged component is not used in this project.
         ]]></notes>
         <cve>CVE-2008-0732</cve>
         <cpe>cpe:/a:apache:geronimo</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Tomcat Annotations API library. This issue is applicable only for Apache Tomcat servlet container. Please check the issues reported against Apache Tomcat servlet container for further details. 
+            Issue is not relevant to Tomcat Annotations API library. This issue is applicable only for Apache Tomcat servlet container. Please check the issues reported against Apache Tomcat servlet container for further details.
         ]]></notes>
         <filePath regex="true">.*\btomcat-annotations-api-.*\.jar</filePath>
         <cpe>cpe:/a:apache:tomcat</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Hadoop Client library. This issue is only applicable for authentication in Apache Hadoop server. The flagged component is not used in this project. 
+            Issue is not relevant to Hadoop Client library. This issue is only applicable for authentication in Apache Hadoop server. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bhadoop-client_.*\.jar</filePath>
         <cve>CVE-2016-5393</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Hadoop Client library. This issue is only applicable for YARN NodeManager in Apache Hadoop server. The flagged component is not used in this project. 
+            Issue is not relevant to Hadoop Client library. This issue is only applicable for YARN NodeManager in Apache Hadoop server. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bhadoop-client_.*\.jar</filePath>
         <cve>CVE-2016-3086</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Hadoop Client library. This issue is only applicable for short-circuit reads feature of HDFS in Apache Hadoop server. The flagged component is not used in this project. 
+            Issue is not relevant to Hadoop Client library. This issue is only applicable for short-circuit reads feature of HDFS in Apache Hadoop server. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bhadoop-client_.*\.jar</filePath>
         <cve>CVE-2016-5001</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is not relevant to Hadoop Client library. This issue is only applicable for Hadoop connector for IBM Spectrum Scale and General Parallel File System. The flagged component is not used in this project. 
+            Issue is not relevant to Hadoop Client library. This issue is only applicable for Hadoop connector for IBM Spectrum Scale and General Parallel File System. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bhadoop-client_.*\.jar</filePath>
         <cve>CVE-2015-7430</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            This is an issue with MyOpenID server. The flagged component is not used in this project. 
+            This is an issue with MyOpenID server. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cve>CVE-2007-1652</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            This is an issue with MyOpenID server. The flagged component is not used in this project. 
+            This is an issue with MyOpenID server. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cve>CVE-2007-1651</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is reported on "Apache Geronimo 2.2.1" server runtime. The flagged component is not used in this project. 
+            Issue is reported on "Apache Geronimo 2.2.1" server runtime. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cve>CVE-2011-5034</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is reported on "Apache Geronimo" server runtime init script for "SUSE Linux". The flagged component is not used in this project. 
+            Issue is reported on "Apache Geronimo" server runtime init script for "SUSE Linux". The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\.jar</filePath>
         <cve>CVE-2008-0732</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Axis 2 host name verification happens at HttpClient level. Relevant HttpClient version used in Axis2 has been patched by WSO2 to perform required host name verification. Please refer to [1] for the fork history of HttpClient. 
+            Axis 2 host name verification happens at HttpClient level. Relevant HttpClient version used in Axis2 has been patched by WSO2 to perform required host name verification. Please refer to [1] for the fork history of HttpClient.
 
             [1] https://github.com/wso2/wso2-commons-httpclient/commits/master?after=e6b98d752b17b8c772ce421bae47e1bd15e8cf6c+34
         ]]></notes>
@@ -157,7 +157,7 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Per Apache: "Having reviewed your report we have concluded that it does not represent a valid vulnerability in Apache Commons File Upload. 
+            Per Apache: "Having reviewed your report we have concluded that it does not represent a valid vulnerability in Apache Commons File Upload.
             If an application deserializes data from an untrusted source without filtering and/or validation that is an application vulnerability not
             a vulnerability in the library a potential attacker might leverage.
         ]]></notes>
@@ -236,42 +236,42 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-           Issue is not relevant to CXF XJC toString Plugin. This issue is applicable only for Apache CXF core. Please check the issues reported against Apache CXF core for further details. 
+           Issue is not relevant to CXF XJC toString Plugin. This issue is applicable only for Apache CXF core. Please check the issues reported against Apache CXF core for further details.
         ]]></notes>
         <filePath regex="true">.*\bcxf-xjc-ts-.*\.jar</filePath>
         <cpe>cpe:/a:apache:cxf</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this project. 
+            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bjavax.ws.rs-api-.*\.jar</filePath>
         <cpe>cpe:/a:restful_project:restful</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this project. 
+            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bjavax.ws.rs-api-.*\.jar</filePath>
         <cpe>cpe:/a:restful_web_services_project:restful_web_services</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this project. 
+            Issue is only relevant to RESTful web services module for Drupal. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bairline-.*\.jar</filePath>
         <cpe>cpe:/a:git_project:git</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Airline is a "Java annotation-based framework for parsing Git like command line structures." The reported issue is only relevant to Git project. Hence, the flagged component is not used in this project. 
+            Airline is a "Java annotation-based framework for parsing Git like command line structures." The reported issue is only relevant to Git project. Hence, the flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bairline-.*\.jar</filePath>
         <cpe>cpe:/a:git_project:git</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            Airline is a "Java annotation-based framework for parsing Git like command line structures." The reported issue is only relevant to Git project. Hence, the flagged component is not used in this project. 
+            Airline is a "Java annotation-based framework for parsing Git like command line structures." The reported issue is only relevant to Git project. Hence, the flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\bairline-.*\.jar</filePath>
         <cpe>cpe:/a:git:git</cpe>
@@ -288,21 +288,21 @@
         <notes><![CDATA[
              This is only applicable for Ethertoken library. The flagged component is not used in this project.
         ]]></notes>
-        <filePath regex="true">.*\siddhi-execution-tensorflow-.*\.jar</filePath>
+        <filePath regex="true">.*siddhi-execution-tensorflow-.*\.jar</filePath>
         <cve>CVE-2018-13525</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
              This is only applicable for Ethertoken library. The flagged component is not used in this project.
         ]]></notes>
-        <filePath regex="true">.*\org.eclipse.equinox.cm.*\.jar</filePath>
+        <filePath regex="true">.*org.eclipse.equinox.cm.*\.jar</filePath>
         <cve>CVE-2018-13714</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
              This is only applicable for rest-client library. The flagged component is not used in this project.
         ]]></notes>
-        <filePath regex="true">.*\org.wso2.analytics.apim.rest.api.file.*\.jar</filePath>
+        <filePath regex="true">.*org.wso2.analytics.apim.rest.api.file.*\.jar</filePath>
         <cve>CVE-2018-13714</cve>
         <cve>CVE-2015-3448</cve>
     </suppress>
@@ -310,7 +310,7 @@
         <notes><![CDATA[
              This is only applicable for redis-store library. The flagged component is not used in this project.
         ]]></notes>
-        <filePath regex="true">.*\siddhi-store-redis.*\.jar</filePath>
+        <filePath regex="true">.*siddhi-store-redis.*\.jar</filePath>
         <cve>CVE-2017-1000248</cve>
     </suppress>
     <suppress>
@@ -318,7 +318,7 @@
              This is only applicable for elastic-search library under version 1.9.
              The flagged component's version used in the project is above 6.0.
         ]]></notes>
-        <filePath regex="true">.*\siddhi-store-elasticsearch.*\.jar</filePath>
+        <filePath regex="true">.*siddhi-store-elasticsearch.*\.jar</filePath>
         <cve>CVE-2014-3120</cve>
         <cve>CVE-2014-6439</cve>
         <cve>CVE-2015-1427</cve>
