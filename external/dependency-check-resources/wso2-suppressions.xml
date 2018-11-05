@@ -289,28 +289,29 @@
              This is only applicable for Ethertoken library. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\siddhi-execution-tensorflow-.*\.jar</filePath>
-        <cpe>cpe:/a:flow_project:flow:.*</cpe>
+        <cve>CVE-2018-13525</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
              This is only applicable for Ethertoken library. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\org.eclipse.equinox.cm.*\.jar</filePath>
-        <cpe>cpe:/a:cm_project:cm:.*</cpe>
+        <cve>CVE-2018-13714</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
              This is only applicable for rest-client library. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\org.wso2.analytics.apim.rest.api.file.*\.jar</filePath>
-        <cpe>cpe:/a:rest-client_project:rest-client:.*</cpe>
+        <cve>CVE-2018-13714</cve>
+        <cve>CVE-2015-3448</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
              This is only applicable for redis-store library. The flagged component is not used in this project.
         ]]></notes>
         <filePath regex="true">.*\siddhi-store-redis.*\.jar</filePath>
-        <cpe>cpe:/a:redis-store:redis-store:.*</cpe>
+        <cve>CVE-2017-1000248</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -318,6 +319,10 @@
              The flagged component's version used in the project is above 6.0.
         ]]></notes>
         <filePath regex="true">.*\siddhi-store-elasticsearch.*\.jar</filePath>
-        <cpe>cpe:/a:elasticsearch:elasticsearch:.*</cpe>
+        <cve>CVE-2014-3120</cve>
+        <cve>CVE-2014-6439</cve>
+        <cve>CVE-2015-1427</cve>
+        <cve>CVE-2015-3337</cve>
+        <cve>CVE-2015-5531<cve>
     </suppress>
 </suppressions>
