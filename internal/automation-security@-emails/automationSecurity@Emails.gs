@@ -33,13 +33,11 @@ function checkThreadList() {
 
   if (newThreadIDs.length > 0) {
     for (var i=0; i < newThreadIDs.length; i++) {
-      var info = checkMailInfo(userId, newThreadIDs[i]);
-      
-      var ticketUrl = createIssue(info.subject, info.from, newThreadIDs[i], info.cc);
-      
-      var response = sendNotification(info.cc, info.subject, ticketUrl, newThreadIDs[i]);
-      
-      resetThreadId(spreadsheet, userId, newThreadIDs[i], response)
+      var info = checkMailInfo(userId, newThreadIDs[i]); //gets the necessary information from the mail
+      var ticketUrl = createIssue(info.subject, info.from, newThreadIDs[i], info.cc); //creates a JIRA issue ticket    
+      var response = sendNotification(info.cc, info.subject, ticketUrl, newThreadIDs[i]); /*sends an auto reply 
+						notification to the same email thread along with the ticket Url*/
+      resetThreadId(spreadsheet, userId, newThreadIDs[i], response); //resets the threadId after ticket creation and auto reply
     }  
   } 
 }
@@ -76,7 +74,7 @@ function checkMailInfo(userId, messageId) {
     if (obj["name"] == "Subject")
       var subject = obj["value"];
     if (obj["name"] == "To")
-      var to = obj["value"]
+      var to = obj["value"];
     if (obj["name"] == "From")
       var from = obj["value"];
     if (obj["name"] == "Cc")
@@ -129,12 +127,10 @@ function checkDomain(to, from, cc) {
   var isCustomer = new Array();
   
   var str = to + "," + from + "," + cc;
-  
   tempArray = str.split(",");
   
   for each (var item in tempArray) {
-   var check = item.split('<').pop().split('>')[0]
-
+   var check = item.split('<').pop().split('>')[0];
    var regExp = new RegExp("^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+\.)?[a-zA-Z]+\.)?(wso2)\.com$");
     
     if (regExp.test(check) == true) { //checks whther the domain is equal to wso2.com 
@@ -161,8 +157,8 @@ function createIssue(subject, from, threadID, cc) {
   if (subject == null) { //if the subject is null 
     subject = "Security Vulnerability";
   }
-  var reporter = jiraUsername 
-  var username = jiraUsername
+  var reporter = jiraUsername; 
+  var username = jiraUsername;
   var token = jiraPassword;
   var encCred = Utilities.base64Encode(username + ":" + token);
   var url = "https://WSO2_JIRA_DOMAIN/jira/rest/api/2/issue/";
@@ -199,7 +195,7 @@ function createIssue(subject, from, threadID, cc) {
   if (response.getResponseCode() == 201) {
     var res = response.getContentText();
     var JSONres = JSON.parse(res);
-    var key = JSONres["key"]
+    var key = JSONres["key"];
 
     if (key != null)
       var iurl = "https://WSO2_JIRA_DOMAIN/jira/browse/"+key;
@@ -228,7 +224,7 @@ function sendNotification(CC, subject, issueUrl, threadId) {
   var sender = userId; // (from)
   var reciever = recieverEmailAddress; // (to)
   var cc = CC.toString(); 
-  var username = userId 
+  var username = userId; 
   
   var message = "From: " + sender + "\nTo: " + reciever + "\nSubject: " + subject + "\nCc: " + cc + "\nDate: " + 
 Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy") + 
@@ -263,14 +259,12 @@ Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy") +
   
   var payload = JSON.stringify(resource);
   var Requesturl = "https://www.googleapis.com/gmail/v1/users/" + username + "/messages/send";
- 
   var RequestArguments = { "headers": {"Authorization": 'Bearer ' + ScriptApp.getOAuthToken()},
   "method": "post",
   "contentType": "application/json",
   "payload": payload,
   "muteHttpExceptions":true
-  };
-  
+  };  
   var response = UrlFetchApp.fetch(Requesturl,RequestArguments);
  
   if (response.getResponseCode() == 200) {
