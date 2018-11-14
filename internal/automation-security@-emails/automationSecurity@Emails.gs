@@ -1,16 +1,19 @@
-var file = DriveApp.getFileById('place the file ID of the conf file here'); //Sensitive infomation are stored seperately in a conf file and stored in the Google drive.
+var file = DriveApp.getFileById('place the file ID of the conf file here'); /*Sensitive infomation 
+			are stored seperately in a conf file and stored in the Google drive.*/
 var csvFile = file.getBlob().getDataAsString();
 var csvData = Utilities.parseCsv(csvFile, '\n');
-userId = csvData[0].toString();
-labelId = csvData[1].toString();
-spreadsheetURL = csvData[2].toString();
-defaultCC = csvData[3].toString();
-token1 = csvData[4].toString();
-reciever1 = csvData[5].toString();
+userId = csvData[0].toString().split("= ")[1];
+labelId = csvData[1].toString().split("= ")[1];
+spreadsheetURL = csvData[2].toString().split("= ")[1];
+defaultCC = csvData[3].toString().split("= ")[1];
+jiraUsername = csvData[4].toString().split("= ")[1];
+jiraPassword = csvData[5].toString().split("= ")[1];
+recieverEmailAddress = csvData[6].toString().split("= ")[1];
 
 /**
-* checkThreadList() -- This function checks the thread list by checking the security@ label and  
-*			creates an array of newly recieved email thread IDs.
+* checkThreadList() -- This function is the main function of the process. It checks the thread list by checking 
+*			the security@ label and creates an array of newly recieved email thread IDs. It then
+*			calls the necessary functions to flow through the process
 */
 function checkThreadList() {  
   var response = Gmail.Users.Threads.list(userId, {labelIds: labelId});   
@@ -28,27 +31,33 @@ function checkThreadList() {
     }  
   }
 
-  if (newThreadIDs.length > 0)
-    resetThreadId(spreadsheet, userId, newThreadIDs) 
+  if (newThreadIDs.length > 0) {
+    for (var i=0; i < newThreadIDs.length; i++) {
+      var info = checkMailInfo(userId, newThreadIDs[i]);
+      
+      var ticketUrl = createIssue(info.subject, info.from, newThreadIDs[i], info.cc);
+      
+      var response = sendNotification(info.cc, info.subject, ticketUrl, newThreadIDs[i]);
+      
+      resetThreadId(spreadsheet, userId, newThreadIDs[i], response)
+    }  
+  } 
 }
 
 /**
-* resetThreadId() -- Resets the thread ID which is stored in the spreadsheet by the thread ID of the email which a ticket was last created.
+* resetThreadId() -- Resets the thread ID which is stored in the spreadsheet by the thread ID of the email which a 
+*			ticket was last created
 *
 *@param ss The spreadsheet which hold the thread IDs
 *@param userId Email address of the user
 *@param newThreadIDs Array of newly added thread IDs
 *		
 */
-function resetThreadId(ss, userId, newThreadIDs) { 
-   for (var i = 0; i < newThreadIDs.length; i++) {
-    var response = checkMail(userId, newThreadIDs[i]); 
-    
+function resetThreadId(ss, userId, threadId, response) { 
     if (response == 200) { 
-      latestId = newThreadIDs[0];
+      latestId = threadId;
       ss.getRange('A1').setValue(latestId);
     }
-   } 
 }
 
 /**
@@ -57,33 +66,50 @@ function resetThreadId(ss, userId, newThreadIDs) {
 *@param userId Email address of the user
 *@param messageId Message ID of the email message
 *
-*@return returns the response of the auto reply email
+*@return returns an object containing the subject, from and cc of a selected email
 */
-function checkMail(userId, messageId) {  
+function checkMailInfo(userId, messageId) {  
   var headers = Gmail.Users.Messages.get(userId, messageId).payload.headers;
   var isWso2 = new Array(); 
   
   for each (var obj in headers) {
-    if(obj["name"] == "Subject")
+    if (obj["name"] == "Subject")
       var subject = obj["value"];
-    if(obj["name"] == "To")
+    if (obj["name"] == "To")
       var to = obj["value"]
-    if(obj["name"] == "From")
+    if (obj["name"] == "From")
       var from = obj["value"];
-    if(obj["name"] == "Cc")
+    if (obj["name"] == "Cc")
       var cc = obj["value"];
   }
      
-  if (cc != null) {
-    isWso2 = checkDomain(to, from, cc); 
-    var response = createIssue(subject, from, messageId, isWso2); 
-    
-    return response;
+  var mailInfo = Object.create(null, {
+      subject:{
+        value: subject
+      },
+      from:{
+        value: from
+      },
+      cc:{
+        value:isWso2
+      }
+    });
+    return mailInfo;
   } else {
     cc = defaultCC; //if the CC section is null, sets a default cc to security@
-    var response = createIssue(subject, from, messageId, cc);
-   
-    return response;
+    
+    var mailInfo = Object.create(null, {
+      subject:{
+        value: subject
+      },
+      from:{
+        value: from
+      },
+      cc:{
+        value:cc
+      }
+    });
+    return mailInfo;
   }  
 }
 
@@ -121,22 +147,23 @@ function checkDomain(to, from, cc) {
 }
 
 /**
-* createIssue() -- Creates a JIRA issue ticket for each email recieved by stating the reporter, timestamp and the subject of the email
+* createIssue() -- Creates a JIRA issue ticket for each email recieved by stating the reporter, timestamp and 
+*			the subject of the email
 *
 *@param subject Subject of the email to set as the summary of the ticket
 *@param from Reciever of the email to fill the description
 *@param threadID Thread ID of the email
 *@param cc  Array containing any CC participants of the email
 *
-*@return returns the response of the auto reply email
+*@return returns the URL of the issue ticket created
 */
 function createIssue(subject, from, threadID, cc) {
   if (subject == null) { //if the subject is null 
     subject = "Security Vulnerability";
   }
-  var reporter = userId 
-  var username = userId
-  var token = token1;
+  var reporter = jiraUsername 
+  var username = jiraUsername
+  var token = jiraPassword;
   var encCred = Utilities.base64Encode(username + ":" + token);
   var url = "https://WSO2_JIRA_DOMAIN/jira/rest/api/2/issue/";
   
@@ -152,12 +179,12 @@ function createIssue(subject, from, threadID, cc) {
       "reporter": {
         "name": reporter
       },
-      "description": "Reporter: "+ from +" \nDate: "+ Utilities.formatDate(new Date(), "IST", "yyyy-MM-dd'/'HH:mm:ss") + "\nReference: Please find the \""+ subject +"\" in Security@." 
+      "description": "Reporter: " + from + " \nDate: " + Utilities.formatDate(new Date(), "IST", "yyyy-MM-dd'/'HH:mm:ss") 
++ "\nReference: Please find the \"" + subject + "\" in Security@." 
     }
   };
   
   var payload = JSON.stringify(bodyData);
-
   var headers = { "Accept":"application/json", 
               "Content-Type":"application/json", 
               "Authorization":"Basic " + encCred,
@@ -167,7 +194,6 @@ function createIssue(subject, from, threadID, cc) {
               "headers": headers,
               "payload" : payload
            };
-  
   var response = UrlFetchApp.fetch(url, options);
  
   if (response.getResponseCode() == 201) {
@@ -179,14 +205,11 @@ function createIssue(subject, from, threadID, cc) {
       var iurl = "https://WSO2_JIRA_DOMAIN/jira/browse/"+key;
     
     console.log("Jira ticket successfully created!");
-
-    var returnMessage = sendMail(cc, subject, iurl, threadID); 
-    return returnMessage;
+    return iurl;
   } else {    
     var err = JSON.parse(response.getContentText());
     console.log("Error when creating the ticket!"+err);
     console.log("Could not send the reply due to ticket creation failure!");
-    return response.getResponseCode();
   }
 }
 
@@ -201,13 +224,15 @@ function createIssue(subject, from, threadID, cc) {
 *@return returns the response of the auto reply email
 *
 */
-function sendMail(CC, subject, issueUrl, threadId) { 
+function sendNotification(CC, subject, issueUrl, threadId) { 
   var sender = userId; // (from)
-  var reciever = reciever1; // (to)
+  var reciever = recieverEmailAddress; // (to)
   var cc = CC.toString(); 
   var username = userId 
   
-  var message = "From: " + sender + "\nTo: " + reciever + "\nSubject: " + subject + "\nCc: " + cc + "\nDate: " + Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy") + " \nMessage-ID: sentFromGAPI \n\nA JIRA issue has been created with the following URL - " + issueUrl;
+  var message = "From: " + sender + "\nTo: " + reciever + "\nSubject: " + subject + "\nCc: " + cc + "\nDate: " + 
+Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy") + 
+" \nMessage-ID: sentFromGAPI \n\nA JIRA issue has been created with the following URL - " + issueUrl;
   var encodedmessage = Utilities.base64EncodeWebSafe(message);
   
   var resource = {
@@ -237,7 +262,6 @@ function sendMail(CC, subject, issueUrl, threadId) {
   }
   
   var payload = JSON.stringify(resource);
-
   var Requesturl = "https://www.googleapis.com/gmail/v1/users/" + username + "/messages/send";
  
   var RequestArguments = { "headers": {"Authorization": 'Bearer ' + ScriptApp.getOAuthToken()},
