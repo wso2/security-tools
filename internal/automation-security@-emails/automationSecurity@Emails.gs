@@ -87,7 +87,7 @@ function checkMail(userId, messageId) {
   }  
 }
 
-/*
+/**
 * checkDomain() -- To check the domain of the recieved emails
 *
 *@param to Reciever of the email
@@ -120,7 +120,7 @@ function checkDomain(to, from, cc) {
   return isWso2;
 }
 
-/*
+/**
 * createIssue() -- Creates a JIRA issue ticket for each email recieved by stating the reporter, timestamp and the subject of the email
 *
 *@param subject Subject of the email to set as the summary of the ticket
@@ -130,7 +130,6 @@ function checkDomain(to, from, cc) {
 *
 *@return returns the response of the auto reply email
 */
-
 function createIssue(subject, from, threadID, cc) {
   if (subject == null) { //if the subject is null 
     subject = "Security Vulnerability";
@@ -157,7 +156,6 @@ function createIssue(subject, from, threadID, cc) {
     }
   };
   
-  
   var payload = JSON.stringify(bodyData);
 
   var headers = { "Accept":"application/json", 
@@ -170,7 +168,7 @@ function createIssue(subject, from, threadID, cc) {
               "payload" : payload
            };
   
- var response = UrlFetchApp.fetch(url, options);
+  var response = UrlFetchApp.fetch(url, options);
  
   if (response.getResponseCode() == 201) {
     var res = response.getContentText();
@@ -192,7 +190,7 @@ function createIssue(subject, from, threadID, cc) {
   }
 }
 
-/*
+/**
 * sendMail() -- After creating the ticket sends nd auto reply email to the same thread along with the ticket URL
 *
 *@param CC Array containing any CC participants of the email
