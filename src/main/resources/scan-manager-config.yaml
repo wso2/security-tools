@@ -1,0 +1,20 @@
+#Scan Manager Configuration
+
+ftpHost :
+ftpPort :
+ftpUsername :
+ftpPassword :
+queueUsername :
+queuePassword :
+brokerHostname : localhost
+brokerPort : 5672
+
+scanners:
+ - name:
+   id:
+   scannerType:
+   fields:
+    - id:
+      displayName:
+      type:
+      
