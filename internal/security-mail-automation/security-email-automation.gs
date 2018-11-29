@@ -51,10 +51,10 @@ function checkThreadList() {
 *@param newThreadIDs Array of newly added thread IDs
 *		
 */
-function resetThreadId(ss, userId, threadId, response) { 
+function resetThreadId(spreadsheet, userId, threadId, response) { 
     if (response == 200) { 
       latestId = threadId;
-      ss.getRange('A1').setValue(latestId);
+      spreadsheet.getRange('A1').setValue(latestId);
     }
 }
 
