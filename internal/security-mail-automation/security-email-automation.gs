@@ -198,13 +198,13 @@ function createIssue(subject, from, threadID, cc) {
     var key = JSONres["key"];
 
     if (key != null)
-      var iurl = "https://WSO2_JIRA_DOMAIN/jira/browse/"+key;
+      var iurl = "https://WSO2_JIRA_DOMAIN/jira/browse/" + key;
     
     console.log("Jira ticket successfully created!");
     return iurl;
   } else {    
     var err = JSON.parse(response.getContentText());
-    console.log("Error when creating the ticket!"+err);
+    console.log("Error when creating the ticket!" + err);
     console.log("Could not send the reply due to ticket creation failure!");
   }
 }
@@ -265,14 +265,14 @@ Utilities.formatDate(new Date(), "GMT+1", "dd/MM/yyyy") +
   "payload": payload,
   "muteHttpExceptions":true
   };  
-  var response = UrlFetchApp.fetch(Requesturl,RequestArguments);
+  var response = UrlFetchApp.fetch(Requesturl, RequestArguments);
  
   if (response.getResponseCode() == 200) {
     console.log("Mail sent successfully!");
     return response.getResponseCode();
   } else {
     var err = JSON.parse(response.getContentText());
-    console.log("Error when sending the mail!"+response);
+    console.log("Error when sending the mail!" + response);
     return response.getResponseCode();
   }
 }
