@@ -16,11 +16,12 @@ In order to run the second script (send-announcements.sh) :
 
 **Skip list file**
 
-You should have the skip list file in order to run this. It should contain the project ids and the project keys each separated by a comma. These projects will be skipped from the ticket creation process. 
+You should have the skip list file in order to run this. It should contain the project ids, project keys and project description each separated by a comma. These projects will be skipped from the ticket creation process. 
 
 **Ticket body content file**
 
-This file contains the description of the ticket. It should be formatted in JSON format and should be saved as a .json file. Line breaks should be replaced with '\n' character. Please find the sample-ticket-body.json file.
+This file contains the description of the ticket. It should be formatted in JSON format and should be saved as a .json file. Line breaks should be replaced with '\n' character. Please find the sample-ticket-body.json file. 
+There is a seperate script (ticket-body-creation.sh) to create the ticket body without any new line characters. Provide the original ticket body content file (saved as a .json file) path when prompted and it will create the ticket body .json file. 
 
 ### How to Run
 
@@ -33,6 +34,12 @@ chmod 777 get-projects.sh
 To run the scripts from the current directory, run
 ```
 ./get-projects.sh
+```
+
+To create the ticket body content file, run
+
+```
+chmod 777 ticket-body-creation.sh
 ```
 
 To create the sample ticket, run

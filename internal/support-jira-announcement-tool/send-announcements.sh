@@ -86,13 +86,13 @@ then
 	res=$(curl -u username:password -X POST --data "${data}" -H "Content-Type:application/json" https://WSO2_JIRA_DOMAIN/jira/rest/api/2/issue/) #to create an issue
 	
 	#Checks whether the given file exists, if available it appends the log details to it. If not it creates a new file and adds the log details. 
-	#The log file will contain a format like -> Project ID | Response | Ticket number	
+	#The log file will contain a format like -> Project ID | Project key | Response | Ticket number	
 	if [ -e "$log_file" ]
 	then 
-		echo "$id | $res | `echo $res | jq '.key'`" >> "$log_file"
+		echo "$id | $key | $res | `echo $res | jq '.key'`" >> "$log_file"
 	else
 		touch "$log_file"
-		echo "$id | $res | `echo $res | jq '.key'`" >> "$log_file"
+		echo "$id | $key | $res | `echo $res | jq '.key'`" >> "$log_file"
 	fi
 
   done < "all_filtered"
