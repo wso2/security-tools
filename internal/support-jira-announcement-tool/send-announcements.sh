@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #********************************************************************************USAGE****************************************************************************************
-#This is the second script that you have to run for the process.
+#This is the third script that you have to run for the process.
 #It takes 5 user inputs.
 #@summary - provide the summary field for the ticket
 #@ticket - provide the path of the ticket body content file. Ticket file should be a .json file with the body content in JSON format. Replace all new line chrarcters with '\n'
 #@proj_file - provide the path where you saved the project list file
-#@skip_file - provide the path of the skip list file. Skip list file should contain a format like -> Project ID,Project key
+#@skip_file - provide the path of the skip list file. Skip list file should contain a format like -> Project ID,Project key,Project description
 #@log_file - provide the file path in which you want to create the log file
 #Replace the username and the password with your JIRA account credntials in the curl command.
 #*****************************************************************************************************************************************************************************

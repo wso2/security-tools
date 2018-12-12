@@ -4,7 +4,7 @@
 #This is the first script that you have to run for the process.
 #It gets all the created projects from jira to a file called "output.json".
 #Then it creates another file called "project" with the project ids and the corresponding project keys.
-#Project file contains a format like this -> Project ID,Project key
+#Project file contains a format like this -> Project ID,Project key,Project description
 #Replace the username and the password with your JIRA account credntials in the curl command.
 #*****************************************************************************************************
 

@@ -1,8 +1,8 @@
 # Support JIRA announcement tool
 
-This tool is implemented to automate the JIRA ticket creation during monthly security announcements. There are two shell scripts and by running these scripts, first it obtains the list of projects in the JIRA portal and then iterates through all prjoects creating a ticket in each. 
+This tool is implemented to automate the JIRA ticket creation during monthly security announcements. There are three shell scripts and by running these scripts, first it obtains the list of projects in the JIRA portal and then iterates through all prjoects creating a ticket in each. First script (ticket-body-creation.sh) is to format the ticket body content to a valid JSON format that is acceptable for this process. Second scipt (get-projects.sh) is to get all the customer projects in JIRA portal. Third script (send-announcements.sh) is to send announcements by iterating through all the selected projects.
 
-Before creating the ticket, it first creates a sample ticket and asks your confirmation to proceed. If you are satisfied with the sample ticket created, you can press 'Y' to continue. If not the process will terminate. By running this tool, It also creates a log file with the status of ticket creation.
+Before starting the ticket creation process, it first creates a sample ticket and asks your confirmation to proceed. If you are satisfied with the sample ticket created, you can press 'Y' to continue. If not the process will terminate. By running this tool, It also creates a log file with the status of ticket creation.
 
 ###  Configurations
 
