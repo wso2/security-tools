@@ -20,8 +20,8 @@
 
 package org.wso2.security.tools.scanner.config;
 
-import org.wso2.security.tools.scanner.ScannerConstants;
 import org.wso2.security.tools.scanner.exception.ScannerException;
+import org.wso2.security.tools.scanner.utils.ScannerConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,7 +33,7 @@ import java.util.Properties;
  * Class to get the configurations from the configuration file.
  */
 public class ConfigurationReader {
-    private static Properties properties;
+    private static Properties properties = null;
 
     private ConfigurationReader() {
     }
@@ -45,7 +45,7 @@ public class ConfigurationReader {
      */
     public static void loadConfiguration() throws ScannerException {
         String configurationFile = ScannerConstants.RESOURCE_FILE_PATH + File.separator +
-                ScannerConstants.VERACODE_CONFIGURTION_FILE_NAME;
+                ScannerConstants.CONFIGURTION_FILE_NAME;
 
         loadConfiguration(configurationFile);
     }
@@ -82,5 +82,9 @@ public class ConfigurationReader {
      */
     public static String getConfigProperty(String key) {
         return properties.getProperty(key);
+    }
+
+    public static Properties getConfigs() {
+        return properties;
     }
 }

@@ -47,29 +47,16 @@ public class ScannerController {
     }
 
     /**
-     * Controller method to start scan using product pack as a zip file.
+     * Controller method to start scan.
      *
      * @param scannerRequestObject Object that represent the required information for tha scanner operation
      * @return Path to the scan report or status of the scan
      * @throws ScannerException
      */
-    @PostMapping("runScanWithZipFile")
+    @PostMapping("runScan")
     @ResponseBody
-    public String runScanWithZipFile(@RequestBody ScannerRequestObject scannerRequestObject) {
-        return cloudBasedScannerService.runScanUsingProductZip(scannerRequestObject);
-    }
-
-    /**
-     * Controller method to start scan using github product URL.
-     *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
-     * @return Path to the scan report or status of the scan
-     * @throws ScannerException
-     */
-    @PostMapping("runScanWithProductGitURL")
-    @ResponseBody
-    public String runScanUsingProductGitURL(@RequestBody ScannerRequestObject scannerRequestObject) {
-        return cloudBasedScannerService.runScanUsingProductGitURL(scannerRequestObject);
+    public boolean startScan(@RequestBody ScannerRequestObject scannerRequestObject) {
+        return cloudBasedScannerService.startScan(scannerRequestObject);
     }
 
     /**

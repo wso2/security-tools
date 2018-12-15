@@ -28,21 +28,21 @@ import org.eclipse.jgit.api.Git;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.wso2.security.tools.scanner.ScannerConstants;
 import org.wso2.security.tools.scanner.config.ConfigurationReader;
 import org.wso2.security.tools.scanner.exception.ScannerException;
 import org.wso2.security.tools.scanner.handler.FileHandler;
 import org.wso2.security.tools.scanner.handler.GitHandler;
 import org.wso2.security.tools.scanner.handler.MavenHandler;
+import org.wso2.security.tools.scanner.utils.ScannerConstants;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Observable;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Observable;
 
 /**
  * Abstract class for the Scanner interface.
@@ -175,9 +175,8 @@ public abstract class AbstractScanner extends Observable implements Scanner {
         Git git;
 
         try {
-            git = GitHandler.gitClone(gitUrl,
-                    ConfigurationReader.getConfigProperty(ScannerConstants.DEFAULT_GIT_PRODUCT_PATH), branch);
-
+            git = GitHandler.gitClone(gitUrl, ConfigurationReader.getConfigProperty
+                    (ScannerConstants.DEFAULT_GIT_PRODUCT_PATH), branch);
             return GitHandler.hasAtLeastOneReference(git.getRepository());
         } catch (ScannerException e) {
             throw new ScannerException("Error occured while cloning the product repository. ", e);

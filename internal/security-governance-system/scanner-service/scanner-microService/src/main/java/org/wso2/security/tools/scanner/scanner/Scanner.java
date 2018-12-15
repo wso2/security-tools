@@ -28,22 +28,12 @@ import org.wso2.security.tools.scanner.exception.ScannerException;
 public interface Scanner {
 
     /**
-     * Run scan using the product zip file.
+     * Run scan.
      *
      * @param scannerRequestObject Object that represent the required information for tha scanner operation
-     * @return Path to the scan report or status of the scan
      * @throws ScannerException
      */
-    String runScanUsingProductZip(ScannerRequestObject scannerRequestObject) throws ScannerException;
-
-    /**
-     * Run scan using the github location of a given product.
-     *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
-     * @return Path to the scan report or status of the scan
-     * @throws ScannerException
-     */
-    String runScanUsingProductGitURL(ScannerRequestObject scannerRequestObject) throws ScannerException;
+    boolean startScan(ScannerRequestObject scannerRequestObject) throws ScannerException;
 
     /**
      * Initialise the Scanner.
@@ -74,6 +64,6 @@ public interface Scanner {
      * @param scannerRequestObject Object that represent the required information for tha scanner operation
      * @return whether the report is downloaded
      */
-    boolean detailedReportPdf(ScannerRequestObject scannerRequestObject) throws ScannerException;
+    boolean getReport(ScannerRequestObject scannerRequestObject) throws ScannerException;
 
 }

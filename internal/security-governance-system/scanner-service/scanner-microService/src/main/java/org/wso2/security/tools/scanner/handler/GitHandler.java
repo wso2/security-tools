@@ -27,9 +27,9 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.wso2.security.tools.scanner.ScannerConstants;
 import org.wso2.security.tools.scanner.config.ConfigurationReader;
 import org.wso2.security.tools.scanner.exception.ScannerException;
+import org.wso2.security.tools.scanner.utils.ScannerConstants;
 
 import java.io.File;
 import java.io.IOException;

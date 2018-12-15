@@ -25,9 +25,9 @@ import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
-import org.wso2.security.tools.scanner.ScannerConstants;
 import org.wso2.security.tools.scanner.config.ConfigurationReader;
 import org.wso2.security.tools.scanner.exception.ScannerException;
+import org.wso2.security.tools.scanner.utils.ScannerConstants;
 
 import java.io.File;
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class MavenHandler {
      * @param pomFilePath  pom.xml file path
      * @param mavenCommand Maven command to execute
      * @throws ScannerException error during the construction of the command line
-     * used to invoke Maven
+     *                          used to invoke Maven
      */
     public static void runMavenCommand(String pomFilePath, String mavenCommand)
             throws ScannerException {
