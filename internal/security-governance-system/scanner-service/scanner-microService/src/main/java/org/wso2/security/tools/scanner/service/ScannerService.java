@@ -29,6 +29,7 @@ import org.wso2.security.tools.scanner.config.ConfigurationReader;
 import org.wso2.security.tools.scanner.exception.ScannerException;
 import org.wso2.security.tools.scanner.scanner.AbstractScanner;
 import org.wso2.security.tools.scanner.scanner.ScannerRequestObject;
+import org.wso2.security.tools.scanner.scanner.ScannerResponseObject;
 import org.wso2.security.tools.scanner.scanner.ScannerStatus;
 import org.wso2.security.tools.scanner.utils.ScannerConstants;
 
@@ -57,7 +58,7 @@ public class ScannerService {
         try {
             scannerClass = (Class<AbstractScanner>) Class.forName(getScannerInstanceOfScanType().getName());
         } catch (ClassNotFoundException e) {
-            log.error("Error occured while loading the Scanner class", e);
+
         }
 
         try {
@@ -82,7 +83,7 @@ public class ScannerService {
      * @param scannerRequestObject Object that represent the required information for tha scannerClass operation
      * @return the final report location or the Scan Status if failed to send the report
      */
-    public boolean startScan(ScannerRequestObject scannerRequestObject) {
+    public ScannerResponseObject startScan(ScannerRequestObject scannerRequestObject) {
         init();
 
         try {
@@ -90,7 +91,7 @@ public class ScannerService {
         } catch (ScannerException e) {
             log.error("Error occured while starting the scan.", e);
         }
-        return false;
+        return null;
     }
 
     private Observer observe() {
@@ -114,7 +115,7 @@ public class ScannerService {
         init();
 
         try {
-            return scanner.getLastScanStatus(scannerRequestObject);
+            return scanner.getStatus(scannerRequestObject);
         } catch (ScannerException e) {
             log.error("Error occured while getting scan information of a particular application.", e);
         }
@@ -132,7 +133,7 @@ public class ScannerService {
         init();
 
         try {
-            return scanner.deleteLastScan(scannerRequestObject);
+            return scanner.cancelScan(scannerRequestObject);
         } catch (ScannerException e) {
             log.error("Error occured while deleting the last scan application.", e);
         }

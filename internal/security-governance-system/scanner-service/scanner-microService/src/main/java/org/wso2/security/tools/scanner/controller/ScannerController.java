@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.wso2.security.tools.scanner.exception.ScannerException;
 import org.wso2.security.tools.scanner.scanner.ScannerRequestObject;
+import org.wso2.security.tools.scanner.scanner.ScannerResponseObject;
 import org.wso2.security.tools.scanner.scanner.ScannerStatus;
 import org.wso2.security.tools.scanner.service.ScannerService;
 
@@ -55,7 +56,7 @@ public class ScannerController {
      */
     @PostMapping("runScan")
     @ResponseBody
-    public boolean startScan(@RequestBody ScannerRequestObject scannerRequestObject) {
+    public ScannerResponseObject startScan(@RequestBody ScannerRequestObject scannerRequestObject) {
         return cloudBasedScannerService.startScan(scannerRequestObject);
     }
 
@@ -82,5 +83,4 @@ public class ScannerController {
     public boolean cancelScan(@RequestBody ScannerRequestObject scannerRequestObject) {
         return cloudBasedScannerService.cancelScan(scannerRequestObject);
     }
-
 }

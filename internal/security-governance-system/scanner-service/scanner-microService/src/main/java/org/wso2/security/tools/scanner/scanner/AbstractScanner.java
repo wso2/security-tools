@@ -36,13 +36,14 @@ import org.wso2.security.tools.scanner.handler.MavenHandler;
 import org.wso2.security.tools.scanner.utils.ScannerConstants;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Observable;
+
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
-import java.util.Observable;
 
 /**
  * Abstract class for the Scanner interface.
@@ -89,7 +90,9 @@ public abstract class AbstractScanner extends Observable implements Scanner {
             return FileHandler.extractZipFile(ConfigurationReader.getConfigProperty(
                     ScannerConstants.DEFAULT_PRODUCT_PATH) + File.separator + file.getName());
         } catch (ScannerException e) {
-            throw new ScannerException("Error occured while extracting zip file.", e);
+            throw new ScannerException("Error occurred while extracting zip file.", e);
+        } catch (IOException e) {
+            throw new ScannerException("Error occurred while extracting zip file.", e);
         }
     }
 

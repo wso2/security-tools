@@ -24,9 +24,12 @@ import org.wso2.security.tools.scanner.exception.ScannerException;
 import org.wso2.security.tools.scanner.utils.ScannerConstants;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Properties;
 
 /**
@@ -60,10 +63,14 @@ public class ConfigurationReader {
         File file = new File(configFileLocation);
 
         if (file.exists()) {
-            try (FileReader reader = new FileReader(file)) {
+            try {
+                InputStream inputStream = new FileInputStream(file);
+                Reader fileReader = new InputStreamReader(inputStream, "UTF-8");
                 properties = new Properties();
-                properties.load(reader);
+                properties.load(fileReader);
 
+                inputStream.close();
+                fileReader.close();
             } catch (FileNotFoundException e) {
                 throw new ScannerException("The configuration file was not found", e);
             } catch (IOException e) {

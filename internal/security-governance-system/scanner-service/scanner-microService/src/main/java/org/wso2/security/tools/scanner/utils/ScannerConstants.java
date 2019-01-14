@@ -20,9 +20,13 @@
 
 package org.wso2.security.tools.scanner.utils;
 
+/**
+ * Common scanner specific constants. {@link ScannerConstants}
+ */
 public interface ScannerConstants {
 
     String ZIP_FILE_EXTENSION = ".zip";
+    String PDF_FILE_EXTENSION = ".pdf";
     String POM_FILE = "pom.xml";
     String JAR_FILTER_PATTERN_FILE_PATH = "jar_filter_pattern_file_path";
     String CONFIGURTION_FILE_NAME = "conf.properties";

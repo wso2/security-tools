@@ -24,5 +24,5 @@ package org.wso2.security.tools.scanner.scanner;
  * Enum to represent the ScannerStatus.
  */
 public enum ScannerStatus {
-    COMPLETED, RUNNING, CANCELED, FAILED
+    COMPLETED, RUNNING, CANCELED, FAILED, SUBMITTED, FINISHED, ERROR
 }

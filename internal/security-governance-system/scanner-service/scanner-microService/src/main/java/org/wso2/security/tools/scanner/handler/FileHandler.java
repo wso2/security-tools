@@ -24,8 +24,8 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.tools.scanner.config.ConfigurationReader;
 import org.wso2.security.tools.scanner.exception.ScannerException;
@@ -61,7 +61,7 @@ public class FileHandler {
      * @return Extracted folder name
      * @throws ScannerException If an error occurs while I/O operations
      */
-    public static String extractZipFile(String zipFilePath) throws ScannerException {
+    public static String extractZipFile(String zipFilePath) throws ScannerException, IOException {
         int buffer = 2048;
 
         File file = new File(zipFilePath);
@@ -87,6 +87,11 @@ public class FileHandler {
             // create the parent directory structure if needed
             destinationParent.mkdirs();
 
+            boolean folderExisted = destinationParent.exists() || destinationParent.mkdirs();
+            if (!folderExisted) {
+                throw new IOException("Unable to create path");
+            }
+
             byte[] data = new byte[buffer];
 
             if (!entry.isDirectory()) {
@@ -104,8 +109,8 @@ public class FileHandler {
                 }
             }
         }
+        zip.close();
         return fileName.substring(0, fileName.length() - 4);
-
     }
 
 

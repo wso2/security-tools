@@ -30,6 +30,8 @@ public class ScannerRequestObject {
     private String productName;
     private String gitHubLoacation;
     private String gitBranch;
+    private String hostUrl;
+    private String scanId;
 
     public String getProductName() {
         return productName;
@@ -78,5 +80,21 @@ public class ScannerRequestObject {
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    public String getHostUrl() {
+        return hostUrl;
+    }
+
+    public void setHostUrl(String hostUrl) {
+        this.hostUrl = hostUrl;
+    }
+
+    public String getScanId() {
+        return scanId;
+    }
+
+    public void setScanId(String scanId) {
+        this.scanId = scanId;
     }
 }

@@ -33,7 +33,7 @@ public interface Scanner {
      * @param scannerRequestObject Object that represent the required information for tha scanner operation
      * @throws ScannerException
      */
-    boolean startScan(ScannerRequestObject scannerRequestObject) throws ScannerException;
+    ScannerResponseObject startScan(ScannerRequestObject scannerRequestObject) throws ScannerException;
 
     /**
      * Initialise the Scanner.
@@ -48,7 +48,7 @@ public interface Scanner {
      * @param scannerRequestObject Object that represent the required information for tha scanner operation
      * @return Enum of the ScannerStatus
      */
-    ScannerStatus getLastScanStatus(ScannerRequestObject scannerRequestObject) throws ScannerException;
+    ScannerStatus getStatus(ScannerRequestObject scannerRequestObject) throws ScannerException;
 
     /**
      * Controller method to stop the last scan for a given application.
@@ -56,7 +56,7 @@ public interface Scanner {
      * @param scannerRequestObject Object that represent the required information for tha scanner operation
      * @return whether delete scan operation success
      */
-    boolean deleteLastScan(ScannerRequestObject scannerRequestObject) throws ScannerException;
+    boolean cancelScan(ScannerRequestObject scannerRequestObject) throws ScannerException;
 
     /**
      * Controller method to stop the last scan for a given application.
