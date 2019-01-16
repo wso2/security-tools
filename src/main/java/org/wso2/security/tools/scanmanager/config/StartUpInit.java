@@ -20,12 +20,12 @@ package org.wso2.security.tools.scanmanager.config;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
-import org.wso2.security.tools.scanmanager.api.exception.ScanManagerException;
+import org.wso2.security.tools.scanmanager.exception.ScanManagerException;
 
 import javax.annotation.PostConstruct;
 
 /**
- * This class defines start up methods of the application
+ * This class defines start up methods of the application.
  */
 @Component
 public class StartUpInit {

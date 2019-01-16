@@ -16,8 +16,10 @@
  * under the License.
  */
 
-package org.wso2.security.tools.scanmanager.api.util;
-
+package org.wso2.security.tools.scanmanager.util;
+/**
+ * Model class to represent the constants.
+ */
 public class Constants {
 
     public static final String SCANNER_ID = "scannerId";

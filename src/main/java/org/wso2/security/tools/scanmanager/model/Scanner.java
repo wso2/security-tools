@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.security.tools.scanmanager.api.model;
+package org.wso2.security.tools.scanmanager.model;
 
-import org.wso2.security.tools.scanmanager.api.exception.ScanManagerException;
+import org.wso2.security.tools.scanmanager.exception.ScanManagerException;
 
 import java.util.List;
 
@@ -56,9 +56,9 @@ public class Scanner {
     }
 
     public void setScannerType(String scannerType) throws ScanManagerException {
-        if (scannerType.equalsIgnoreCase(Scanners.STATIC.name()) || scannerType
-                .equalsIgnoreCase(Scanners.DYNAMIC.name()) || scannerType
-                .equalsIgnoreCase(Scanners.DEPENDENCY.name())) {
+        if (scannerType.equalsIgnoreCase(ScanType.STATIC.name()) || scannerType
+                .equalsIgnoreCase(ScanType.DYNAMIC.name()) || scannerType
+                .equalsIgnoreCase(ScanType.DEPENDENCY.name())) {
             this.scannerType = scannerType;
         } else {
             throw new ScanManagerException("Invalid scanner type");

@@ -16,33 +16,23 @@
  * under the License.
  */
 
-package org.wso2.security.tools.scanmanager.api.model;
-
+package org.wso2.security.tools.scanmanager.model;
 /**
- * Model class to represent a scan
+ * Model class to represent an HTML field.
  */
-public class Scan {
+public class Field {
 
     private String id;
-    private String name;
-    private String owner;
-    private String status;
+    private String displayName;
+    private String type;
 
-    public Scan() {
+    public Field() {
     }
 
-    public Scan(String id, String name, String owner) {
+    public Field(String id, String displayName, String type) {
         this.id = id;
-        this.name = name;
-        this.owner = owner;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+        this.displayName = displayName;
+        this.type = type;
     }
 
     public String getId() {
@@ -53,19 +43,19 @@ public class Scan {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getType() {
+        return type;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setType(String type) {
+        this.type = type;
     }
 }

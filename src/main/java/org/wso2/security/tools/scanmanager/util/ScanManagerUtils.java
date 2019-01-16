@@ -16,31 +16,23 @@
  * under the License.
  */
 
-package org.wso2.security.tools.scanmanager.api.util;
+package org.wso2.security.tools.scanmanager.util;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.log4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.tools.scanmanager.api.exception.ScanManagerException;
-import org.wso2.security.tools.scanmanager.api.model.ScanRequest;
+import org.wso2.security.tools.scanmanager.exception.ScanManagerException;
 
-import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.Random;
 
 import static org.wso2.security.tools.scanmanager.config.StartUpInit.scanManagerConfiguration;
 
+/**
+ * Model class to represent utilities.
+ */
 public class ScanManagerUtils {
 
     private static final Logger logger = Logger.getLogger(ScanManagerUtils.class);
@@ -49,59 +41,15 @@ public class ScanManagerUtils {
     private static final String CF_NAME_PREFIX = "connectionfactory.";
     private static final String QUEUE_NAME_PREFIX = "queue.";
     private static final String CF_NAME = "qpidConnectionfactory";
-    private static String CARBON_CLIENT_ID = "carbon";
-    private static String CARBON_VIRTUAL_HOST_NAME = "carbon";
-
-    public static void addToQueue(String queueName, ScanRequest scanRequest) {
-        QueueConnection queueConnection = null;
-        QueueSession queueSession = null;
-        javax.jms.QueueSender queueSender = null;
-        Properties properties = new Properties();
-
-        try {
-            properties.put(Context.INITIAL_CONTEXT_FACTORY, QPID_ICF);
-            properties.put(CF_NAME_PREFIX + CF_NAME, getTCPConnectionURL(scanManagerConfiguration
-                    .getQueueUsername(), scanManagerConfiguration.getQueuePassword()));
-            properties.put(QUEUE_NAME_PREFIX + queueName, queueName);
-            InitialContext ctx = new InitialContext(properties);
-            // Lookup connection factory
-            QueueConnectionFactory connFactory = (QueueConnectionFactory) ctx.lookup(CF_NAME);
-            queueConnection = connFactory.createQueueConnection();
-            queueConnection.start();
-            queueSession = queueConnection.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
-            // Send message
-            Queue queue = (Queue) ctx.lookup(queueName);
-            // create the message to send
-            ObjectMessage objectMessage = queueSession.createObjectMessage(scanRequest);
-            queueSender = queueSession.createSender(queue);
-            queueSender.send(objectMessage);
-        } catch (JMSException | NamingException e) {
-            logger.error("Unable to add the message to the queue " + queueName, e);
-        } finally {
-            try {
-                if (queueSender != null) {
-                    queueSender.close();
-                }
-
-                if (queueSession != null) {
-                    queueSession.close();
-                }
-
-                if (queueConnection != null) {
-                    queueConnection.close();
-                }
-            } catch (JMSException e) {
-                //ignored
-            }
-        }
-    }
+    private static String carbonClientId = "carbon";
+    private static String carbonVirtualHostName = "carbon";
 
     private static String getTCPConnectionURL(String username, String password) {
         // amqp://{username}:{password}@carbon/carbon?brokerlist='tcp://{hostname}:{port}'
         return new StringBuffer()
                 .append("amqp://").append(username).append(":").append(password)
-                .append("@").append(CARBON_CLIENT_ID)
-                .append("/").append(CARBON_VIRTUAL_HOST_NAME)
+                .append("@").append(carbonClientId)
+                .append("/").append(carbonVirtualHostName)
                 .append("?brokerlist='tcp://").append(scanManagerConfiguration.getBrokerHostname())
                 .append(":").append(scanManagerConfiguration.getBrokerPort()).append("'")
                 .toString();
@@ -109,9 +57,9 @@ public class ScanManagerUtils {
 
     public static String generateScanId() {
         Random r = new Random();
-        int Low = 1000000;
-        int High = 9999999;
-        Integer result = r.nextInt(High - Low) + Low;
+        int low = 1000000;
+        int high = 9999999;
+        Integer result = r.nextInt(high - low) + low;
         return result.toString();
     }
 

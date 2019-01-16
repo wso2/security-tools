@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.security.tools.scanmanager.api.model;
+package org.wso2.security.tools.scanmanager.model;
 
 /**
  * Error message model class.

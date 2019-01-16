@@ -16,11 +16,13 @@
  * under the License.
  */
 
-package org.wso2.security.tools.scanmanager.api.model;
+package org.wso2.security.tools.scanmanager.model;
 
 import java.io.Serializable;
 import java.util.Map;
-
+/**
+ * Model class to represent a scan request.
+ */
 public class ScanRequest implements Serializable {
 
     private String id;

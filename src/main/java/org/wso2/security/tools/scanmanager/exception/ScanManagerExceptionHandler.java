@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.wso2.security.tools.scanmanager.api.exception;
+package org.wso2.security.tools.scanmanager.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.wso2.security.tools.scanmanager.api.model.ErrorMessage;
+import org.wso2.security.tools.scanmanager.model.ErrorMessage;
 
 /**
  * Global Exception handler class for Scan Manager exceptions.

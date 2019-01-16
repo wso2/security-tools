@@ -18,12 +18,12 @@
 
 package org.wso2.security.tools.scanmanager.config;
 
-import org.wso2.security.tools.scanmanager.api.model.Scanner;
+import org.wso2.security.tools.scanmanager.model.Scanner;
 
 import java.util.List;
 
 /**
- * Scan Manager configuration model class
+ * Scan Manager configuration model class.
  */
 public class ScanManagerConfiguration {
 
