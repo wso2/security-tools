@@ -1,0 +1,831 @@
+# #  tests
+
+import logging
+import sys
+import csv
+import re
+import StringIO
+import operator
+from datetime import datetime
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.http import HttpResponseRedirect, HttpResponseForbidden, Http404, HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.views.decorators.cache import cache_page
+from django.utils import timezone
+
+from dojo.filters import TemplateFindingFilter
+from dojo.forms import NoteForm, TestForm, FindingForm, \
+    DeleteTestForm, AddFindingForm, \
+    ImportScanForm, ReImportScanForm, FindingBulkUpdateForm, JIRAFindingForm
+from dojo.models import Finding, Test, Notes,\
+    BurpRawRequestResponse, Endpoint, Stub_Finding, Finding_Template, JIRA_PKey, Cred_User,\
+    Cred_Mapping, Dojo_User, Multi_Usage_Notes
+from dojo.tools.factory import import_parser_factory
+from dojo.utils import get_page_items, add_breadcrumb, get_cal_event, message, \
+    process_notifications, get_system_setting, create_notification
+from dojo.tasks import add_issue_task
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] %(message)s',
+    datefmt='%d/%b/%Y %H:%M:%S',
+    filename=settings.DOJO_ROOT + '/../django_app.log',
+)
+logger = logging.getLogger(__name__)
+
+
+@user_passes_test(lambda u: u.is_staff)
+def view_test(request, tid):
+    test = Test.objects.get(id=tid)
+    notes = test.notes.all()
+    person = request.user.username
+    findings = Finding.objects.filter(test=test)
+    stub_findings = Stub_Finding.objects.filter(test=test)
+    cred_test = Cred_Mapping.objects.filter(test=test).select_related('cred_id').order_by('cred_id')
+    creds = Cred_Mapping.objects.filter(engagement=test.engagement).select_related('cred_id').order_by('cred_id')
+
+    if request.method == 'POST':
+        form = NoteForm(request.POST)
+        if form.is_valid():
+            new_note = form.save(commit=False)
+            new_note.author = request.user
+            new_note.date = timezone.now()
+            new_note.save()
+            test.notes.add(new_note)
+            form = NoteForm()
+            url = request.build_absolute_uri(reverse("view_test", args=(test.id,)))
+            title="Test: %s on %s" % (test.test_type.name, test.engagement.product.name)
+            process_notifications(request, new_note, url, title)
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'Note added successfully.',
+                                 extra_tags='alert-success')
+    else:
+        form = NoteForm()
+
+    fpage = get_page_items(request, findings, 25)
+    sfpage = get_page_items(request, stub_findings, 25)
+    show_re_upload = any(test.test_type.name in code for code in ImportScanForm.SCAN_TYPE_CHOICES)
+
+    add_breadcrumb(parent=test, top_level=False, request=request)
+    return render(request, 'dojo/view_test.html',
+                  {'test': test,
+                   'findings': fpage,
+                   'stub_findings': sfpage,
+                   'form': form,
+                   'notes': notes,
+                   'person': person,
+                   'request': request,
+                   'show_re_upload': show_re_upload,
+                   'creds': creds,
+                   'cred_test': cred_test
+                   })
+
+
+@user_passes_test(lambda u: u.is_staff)
+def edit_test(request, tid):
+    test = get_object_or_404(Test, pk=tid)
+    form = TestForm(instance=test)
+    if request.method == 'POST':
+        form = TestForm(request.POST, instance=test)
+        if form.is_valid():
+            new_test = form.save()
+            tags = request.POST.getlist('tags')
+            t = ", ".join(tags)
+            new_test.tags = t
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'Test saved.',
+                                 extra_tags='alert-success')
+
+    form.initial['target_start'] = test.target_start.date()
+    form.initial['target_end'] = test.target_end.date()
+    form.initial['tags'] = [tag.name for tag in test.tags]
+
+    add_breadcrumb(parent=test, title="Edit", top_level=False, request=request)
+    return render(request, 'dojo/edit_test.html',
+                  {'test': test,
+                   'form': form,
+                   })
+
+@user_passes_test(lambda u: u.is_staff)
+def delete_test(request, tid):
+    test = get_object_or_404(Test, pk=tid)
+    eng = test.engagement
+    form = DeleteTestForm(instance=test)
+
+    from django.contrib.admin.utils import NestedObjects
+    from django.db import DEFAULT_DB_ALIAS
+
+    collector = NestedObjects(using=DEFAULT_DB_ALIAS)
+    collector.collect([test])
+    rels = collector.nested()
+
+    if request.method == 'POST':
+        if 'id' in request.POST and str(test.id) == request.POST['id']:
+            form = DeleteTestForm(request.POST, instance=test)
+            if form.is_valid():
+                del test.tags
+                test.delete()
+                messages.add_message(request,
+                                     messages.SUCCESS,
+                                     'Test and relationships removed.',
+                                     extra_tags='alert-success')
+                return HttpResponseRedirect(reverse('view_engagement', args=(eng.id,)))
+
+    add_breadcrumb(parent=test, title="Delete", top_level=False, request=request)
+    return render(request, 'dojo/delete_test.html',
+                  {'test': test,
+                   'form': form,
+                   'rels': rels,
+                   'deletable_objects': rels,
+                   })
+
+
+@user_passes_test(lambda u: u.is_staff)
+def delete_test_note(request, tid, nid):
+    note = Notes.objects.get(id=nid)
+    test = Test.objects.get(id=tid)
+    if note.author == request.user:
+        test.notes.remove(note)
+        note.delete()
+        messages.add_message(request,
+                             messages.SUCCESS,
+                             'Note removed.',
+                             extra_tags='alert-success')
+        return view_test(request, tid)
+    return HttpResponseForbidden()
+
+
+@user_passes_test(lambda u: u.is_staff)
+@cache_page(60 * 5)  # cache for 5 minutes
+def test_calendar(request):
+    if not 'lead' in request.GET or '0' in request.GET.getlist('lead'):
+        tests = Test.objects.all()
+    else:
+        filters = []
+        leads = request.GET.getlist('lead','')
+        if '-1' in request.GET.getlist('lead'):
+            leads.remove('-1')
+            filters.append(Q(lead__isnull=True))
+        filters.append(Q(lead__in=leads))
+        tests = Test.objects.filter(reduce(operator.or_, filters))
+    add_breadcrumb(title="Test Calendar", top_level=True, request=request)
+    return render(request, 'dojo/calendar.html', {
+        'caltype': 'tests',
+        'leads': request.GET.getlist('lead', ''),
+        'tests': tests,
+        'users': Dojo_User.objects.all()})
+
+@user_passes_test(lambda u: u.is_staff)
+def test_ics(request, tid):
+    test = get_object_or_404(Test, id=tid)
+    start_date = datetime.combine(test.target_start, datetime.min.time())
+    end_date = datetime.combine(test.target_end, datetime.max.time())
+    uid = "dojo_test_%d_%d_%d" % (test.id, test.engagement.id, test.engagement.product.id)
+    cal = get_cal_event(start_date,
+                        end_date,
+                        "Test: %s (%s)" % (test.test_type.name, test.engagement.product.name),
+                        "Set aside for test %s, on product %s.  Additional detail can be found at %s" % (
+                            test.test_type.name, test.engagement.product.name,
+                            request.build_absolute_uri((reverse("view_test", args=(test.id,))))),
+                        uid)
+    output = cal.serialize()
+    response = HttpResponse(content=output)
+    response['Content-Type'] = 'text/calendar'
+    response['Content-Disposition'] = 'attachment; filename=%s.ics' % test.test_type.name
+    return response
+
+
+@user_passes_test(lambda u: u.is_staff)
+def add_findings(request, tid):
+    test = Test.objects.get(id=tid)
+    form_error = False
+    enabled = False
+    jform = None
+    form = AddFindingForm(initial={'date': timezone.now().date()})
+
+    if get_system_setting('enable_jira') and JIRA_PKey.objects.filter(product=test.engagement.product).count() != 0:
+        enabled = JIRA_PKey.objects.get(product=test.engagement.product).push_all_issues
+        jform = JIRAFindingForm(enabled=enabled, prefix='jiraform')
+    else:
+        jform = None
+
+    if request.method == 'POST':
+        form = AddFindingForm(request.POST)
+        if form.is_valid():
+            new_finding = form.save(commit=False)
+            new_finding.test = test
+            new_finding.reporter = request.user
+            new_finding.numerical_severity = Finding.get_numerical_severity(
+                new_finding.severity)
+            if new_finding.false_p or new_finding.active is False:
+                new_finding.mitigated = timezone.now()
+                new_finding.mitigated_by = request.user
+            create_template = new_finding.is_template
+            # always false now since this will be deprecated soon in favor of new Finding_Template model
+            new_finding.is_template = False
+            new_finding.save()
+            new_finding.endpoints = form.cleaned_data['endpoints']
+            new_finding.save()
+            if 'jiraform-push_to_jira' in request.POST:
+                jform = JIRAFindingForm(request.POST, prefix='jiraform', enabled=enabled)
+                if jform.is_valid():
+                    add_issue_task.delay(new_finding, jform.cleaned_data.get('push_to_jira'))
+                messages.add_message(request,
+                                     messages.SUCCESS,
+                                     'Finding added successfully.',
+                                     extra_tags='alert-success')
+            if create_template:
+                templates = Finding_Template.objects.filter(title=new_finding.title)
+                if len(templates) > 0:
+                    messages.add_message(request,
+                                         messages.ERROR,
+                                         'A finding template was not created.  A template with this title already '
+                                         'exists.',
+                                         extra_tags='alert-danger')
+                else:
+                    template = Finding_Template(title=new_finding.title,
+                                                cwe=new_finding.cwe,
+                                                severity=new_finding.severity,
+                                                description=new_finding.description,
+                                                mitigation=new_finding.mitigation,
+                                                impact=new_finding.impact,
+                                                references=new_finding.references,
+                                                numerical_severity=new_finding.numerical_severity)
+                    template.save()
+                    messages.add_message(request,
+                                         messages.SUCCESS,
+                                         'A finding template was also created.',
+                                         extra_tags='alert-success')
+            if '_Finished' in request.POST:
+                return HttpResponseRedirect(reverse('view_test', args=(test.id,)))
+            else:
+                return HttpResponseRedirect(reverse('add_findings', args=(test.id,)))
+        else:
+            if 'endpoints' in form.cleaned_data:
+                form.fields['endpoints'].queryset = form.cleaned_data['endpoints']
+            else:
+                form.fields['endpoints'].queryset = Endpoint.objects.none()
+            form_error = True
+            messages.add_message(request,
+                                 messages.ERROR,
+                                 'The form has errors, please correct them below.',
+                                 extra_tags='alert-danger')
+    add_breadcrumb(parent=test, title="Add Finding", top_level=False, request=request)
+    return render(request, 'dojo/add_findings.html',
+                  {'form': form,
+                   'test': test,
+                   'temp': False,
+                   'tid': tid,
+                   'form_error': form_error,
+                   'jform': jform,
+                   })
+
+
+@user_passes_test(lambda u: u.is_staff)
+def add_temp_finding(request, tid, fid):
+    jform = None
+    test = get_object_or_404(Test, id=tid)
+    finding = get_object_or_404(Finding_Template, id=fid)
+    findings = Finding_Template.objects.all()
+
+    if request.method == 'POST':
+        form = FindingForm(request.POST)
+        if form.is_valid():
+            new_finding = form.save(commit=False)
+            new_finding.test = test
+            new_finding.reporter = request.user
+            new_finding.numerical_severity = Finding.get_numerical_severity(
+                new_finding.severity)
+            new_finding.date = datetime.today()
+            if new_finding.false_p or new_finding.active is False:
+                new_finding.mitigated = timezone.now()
+                new_finding.mitigated_by = request.user
+
+            create_template = new_finding.is_template
+            # is template always False now in favor of new model Finding_Template
+            # no further action needed here since this is already adding from template.
+            new_finding.is_template = False
+            new_finding.save()
+            new_finding.endpoints = form.cleaned_data['endpoints']
+            new_finding.save()
+            if 'jiraform-push_to_jira' in request.POST:
+                jform = JIRAFindingForm(request.POST, prefix='jiraform', enabled=True)
+                add_issue_task.delay(new_finding, jform.cleaned_data.get('push_to_jira'))
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'Finding from template added successfully.',
+                                 extra_tags='alert-success')
+
+            if create_template:
+                templates = Finding_Template.objects.filter(title=new_finding.title)
+                if len(templates) > 0:
+                    messages.add_message(request,
+                                         messages.ERROR,
+                                         'A finding template was not created.  A template with this title already '
+                                         'exists.',
+                                         extra_tags='alert-danger')
+                else:
+                    template = Finding_Template(title=new_finding.title,
+                                                cwe=new_finding.cwe,
+                                                severity=new_finding.severity,
+                                                description=new_finding.description,
+                                                mitigation=new_finding.mitigation,
+                                                impact=new_finding.impact,
+                                                references=new_finding.references,
+                                                numerical_severity=new_finding.numerical_severity)
+                    template.save()
+                    messages.add_message(request,
+                                         messages.SUCCESS,
+                                         'A finding template was also created.',
+                                         extra_tags='alert-success')
+
+            return HttpResponseRedirect(reverse('view_test', args=(test.id,)))
+        else:
+            messages.add_message(request,
+                                 messages.ERROR,
+                                 'The form has errors, please correct them below.',
+                                 extra_tags='alert-danger')
+
+    else:
+        form = FindingForm(initial={'active': False,
+                                    'date': timezone.now().date(),
+                                    'verified': False,
+                                    'false_p': False,
+                                    'duplicate': False,
+                                    'out_of_scope': False,
+                                    'title': finding.title,
+                                    'description': finding.description,
+                                    'cwe': finding.cwe,
+                                    'severity': finding.severity,
+                                    'mitigation': finding.mitigation,
+                                    'impact': finding.impact,
+                                    'references': finding.references,
+                                    'numerical_severity': finding.numerical_severity})
+        if get_system_setting('enable_jira'):
+            enabled = JIRA_PKey.objects.get(product=test.engagement.product).push_all_issues
+            jform = JIRAFindingForm(enabled=enabled, prefix='jiraform')
+        else:
+            jform = None
+
+    add_breadcrumb(parent=test, title="Add Finding", top_level=False, request=request)
+    return render(request, 'dojo/add_findings.html',
+                  {'form': form,
+                   'jform': jform,
+                   'findings': findings,
+                   'temp': True,
+                   'fid': finding.id,
+                   'tid': test.id,
+                   'test': test,
+                   })
+
+
+def search(request, tid):
+    test = get_object_or_404(Test, id=tid)
+    templates = Finding_Template.objects.all()
+    templates = TemplateFindingFilter(request.GET, queryset=templates).qs
+    paged_templates = get_page_items(request, templates, 25)
+    title_words = [word
+                   for finding in templates
+                   for word in finding.title.split() if len(word) > 2]
+
+    title_words = sorted(set(title_words))
+    add_breadcrumb(parent=test, title="Add From Template", top_level=False, request=request)
+    return render(request, 'dojo/templates.html',
+                  {'templates': paged_templates,
+                   'filtered': templates,
+                   'title_words': title_words,
+                   'tid': tid,
+                   'add_from_template': True,
+                   })
+
+
+@user_passes_test(lambda u: u.is_staff)
+def finding_bulk_update(request, tid):
+    test = get_object_or_404(Test, id=tid)
+    finding = test.finding_set.all()[0]
+    form = FindingBulkUpdateForm(request.POST)
+    if request.method == "POST":
+        if form.is_valid():
+            finding_to_update = request.POST.getlist('finding_to_update')
+            finds = Finding.objects.filter(test=test, id__in=finding_to_update)
+            finds.update(severity=form.cleaned_data['severity'],
+                         active=form.cleaned_data['active'],
+                         verified=form.cleaned_data['verified'],
+                         false_p=form.cleaned_data['false_p'],
+                         duplicate=form.cleaned_data['duplicate'],
+                         out_of_scope=form.cleaned_data['out_of_scope'])
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'Bulk edit of findings was successful.  Check to make sure it is what you intended.',
+                                 extra_tags='alert-success')
+        else:
+            messages.add_message(request,
+                                 messages.ERROR,
+                                 'Unable to process bulk update. Required fields are invalid,  '
+                                 'please update individually.',
+                                 extra_tags='alert-danger')
+
+    return HttpResponseRedirect(reverse('view_test', args=(test.id,)))
+
+
+@user_passes_test(lambda u: u.is_staff)
+def re_import_scan_results(request, tid):
+    additional_message = "When re-uploading a scan, any findings not found in original scan will be updated as " \
+                         "mitigated.  The process attempts to identify the differences, however manual verification " \
+                         "is highly recommended."
+    t = get_object_or_404(Test, id=tid)
+    scan_type = t.test_type.name
+    engagement = t.engagement
+    form = ReImportScanForm()
+
+    form.initial['tags'] = [tag.name for tag in t.tags]
+    if request.method == "POST":
+        form = ReImportScanForm(request.POST, request.FILES)
+        if form.is_valid():
+            scan_date = form.cleaned_data['scan_date']
+            min_sev = form.cleaned_data['minimum_severity']
+            file = request.FILES['file']
+            scan_type = t.test_type.name
+            active = form.cleaned_data['active']
+            verified = form.cleaned_data['verified']
+            tags = request.POST.getlist('tags')
+            ts = ", ".join(tags)
+            t.tags = ts
+            try:
+                parser = import_parser_factory(file, t)
+            except ValueError:
+                raise Http404()
+
+            try:
+                items = parser.items
+                original_items = t.finding_set.all().values_list("id", flat=True)
+                new_items = []
+                mitigated_count = 0
+                finding_count = 0
+                finding_added_count = 0
+                reactivated_count = 0
+                for item in items:
+                    sev = item.severity
+                    if sev == 'Information' or sev == 'Informational':
+                        sev = 'Info'
+
+                    if Finding.SEVERITIES[sev] > Finding.SEVERITIES[min_sev]:
+                        continue
+
+                    if scan_type == 'Veracode Scan' or scan_type == 'Arachni Scan':
+                        find = Finding.objects.filter(title=item.title,
+                                                      test__id=t.id,
+                                                      severity=sev,
+                                                      numerical_severity=Finding.get_numerical_severity(sev),
+                                                      description=item.description
+                                                      )
+                    else:
+                        find = Finding.objects.filter(title=item.title,
+                                                      test__id=t.id,
+                                                      severity=sev,
+                                                      numerical_severity=Finding.get_numerical_severity(sev),
+                                                      )
+
+                    if len(find) == 1:
+                        find = find[0]
+                        if find.mitigated:
+                            # it was once fixed, but now back
+                            find.mitigated = None
+                            find.mitigated_by = None
+                            find.active = True
+                            find.verified = verified
+                            find.save()
+                            note = Notes(entry="Re-activated by %s re-upload." % scan_type,
+                                         author=request.user)
+                            note.save()
+                            find.notes.add(note)
+                            reactivated_count += 1
+                        new_items.append(find.id)
+                    else:
+                        item.test = t
+                        item.date = t.target_start
+                        item.reporter = request.user
+                        item.last_reviewed = timezone.now()
+                        item.last_reviewed_by = request.user
+                        item.verified = verified
+                        item.active = active
+                        item.save()
+                        finding_added_count += 1
+                        new_items.append(item.id)
+                        find = item
+
+                        if hasattr(item, 'unsaved_req_resp') and len(item.unsaved_req_resp) > 0:
+                            for req_resp in item.unsaved_req_resp:
+                                burp_rr = BurpRawRequestResponse(finding=find,
+                                                                 burpRequestBase64=req_resp["req"],
+                                                                 burpResponseBase64=req_resp["resp"],
+                                                                 )
+                                burp_rr.clean()
+                                burp_rr.save()
+
+                        if item.unsaved_request is not None and item.unsaved_response is not None:
+                            burp_rr = BurpRawRequestResponse(finding=find,
+                                                             burpRequestBase64=item.unsaved_request,
+                                                             burpResponseBase64=item.unsaved_response,
+                                                             )
+                            burp_rr.clean()
+                            burp_rr.save()
+                    if find:
+                        finding_count += 1
+                        for endpoint in item.unsaved_endpoints:
+                            ep, created = Endpoint.objects.get_or_create(protocol=endpoint.protocol,
+                                                                         host=endpoint.host,
+                                                                         path=endpoint.path,
+                                                                         query=endpoint.query,
+                                                                         fragment=endpoint.fragment,
+                                                                         product=t.engagement.product)
+                            find.endpoints.add(ep)
+
+                        if item.unsaved_tags is not None:
+                            find.tags = item.unsaved_tags
+
+                # calculate the difference
+                to_mitigate = set(original_items) - set(new_items)
+                for finding_id in to_mitigate:
+                    finding = Finding.objects.get(id=finding_id)
+                    finding.mitigated = datetime.combine(scan_date, timezone.now().time())
+                    finding.mitigated_by = request.user
+                    finding.active = False
+                    finding.save()
+                    note = Notes(entry="Mitigated by %s re-upload." % scan_type,
+                                 author=request.user)
+                    note.save()
+                    finding.notes.add(note)
+                    mitigated_count += 1
+                messages.add_message(request,
+                                     messages.SUCCESS,
+                                     '%s processed, a total of ' % scan_type + message(finding_count, 'finding',
+                                                                                       'processed'),
+                                     extra_tags='alert-success')
+                if finding_added_count > 0:
+                    messages.add_message(request,
+                                         messages.SUCCESS,
+                                         'A total of ' + message(finding_added_count, 'finding',
+                                                                 'added') + ', that are new to scan.',
+                                         extra_tags='alert-success')
+                if reactivated_count > 0:
+                    messages.add_message(request,
+                                         messages.SUCCESS,
+                                         'A total of ' + message(reactivated_count, 'finding',
+                                                                 'reactivated') + ', that are back in scan results.',
+                                         extra_tags='alert-success')
+                if mitigated_count > 0:
+                    messages.add_message(request,
+                                         messages.SUCCESS,
+                                         'A total of ' + message(mitigated_count, 'finding',
+                                                                 'mitigated') + '. Please manually verify each one.',
+                                         extra_tags='alert-success')
+
+                create_notification(event='results_added', title='Results added', finding_count=finding_count, test=t, engagement=engagement, url=request.build_absolute_uri(reverse('view_test', args=(t.id,))))
+
+                return HttpResponseRedirect(reverse('view_test', args=(t.id,)))
+            except SyntaxError:
+                messages.add_message(request,
+                                     messages.ERROR,
+                                     'There appears to be an error in the XML report, please check and try again.',
+                                     extra_tags='alert-danger')
+
+    add_breadcrumb(parent=t, title="Re-upload a %s" % scan_type, top_level=False, request=request)
+    return render(request,
+                  'dojo/import_scan_results.html',
+                  {'form': form,
+                   'eid': engagement.id,
+                   'additional_message': additional_message,
+                   })
+
+@user_passes_test(lambda u: u.is_staff)
+def download_cvffv1_test(request, tid):
+    test = get_object_or_404(Test, pk=tid)
+
+    output = StringIO.StringIO()
+    wr = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
+    product_name=test.engagement.product.name
+    if str(test.test_type) == 'Veracode Scan':
+        headings = ["finding_id", "issue_id", "title", "cwe", "url", "severity", "description", "mitigation", "impact",
+                    "line_number", "sourcefile", "sourcefilepath", "Function", "WSO2_resolution", "WSO2_offset", "WSO2_comment", "Use_Case" , "Vulnerability_Influence" , "Resolution", "Applicable_Product"]
+        wr.writerow(headings)
+
+        offsets = [0, 10, 20, 50, 100, 150]
+        for finding in Finding.objects.filter(test_id=tid):
+            data = [finding.id, finding.issue_id, finding.title, finding.cwe, finding.url, finding.severity,
+                    finding.description, finding.mitigation, finding.impact, finding.line_number, finding.sourcefile,
+                    finding.sourcefilepath, finding.function ]
+
+            comment_found = 0
+
+            if int(finding.cwe) == 117:
+                data.append("Already Mitigated")
+                data.append("0");
+                data.append("CRLF prevention in HTTP headers is already handled in Tomcat level. "
+                            "Therefore  it is not required to do additional validation in applications. "
+                            "Please refer to CARBON-15811 (https://wso2.org/jira/browse/CARBON-15811) for details.")
+                comment_found = 1
+
+            if comment_found == 0:
+                use_case_found = 0
+                wso2_comment = ""
+                wso2_resolution = ""
+                wso2_use_case = ""
+                wso2_vulnerability_influence = ""
+                resolution = ""
+                wso2_offset = 0
+                wso2_comment_found = 0
+
+                for offset in offsets:
+                    pattern = re.compile('[0-9]*')
+                    product_name= pattern.split(product_name)[0]
+                    similarFindingsWithNotes = filter_similar_findings_for_veracode_items(offset, finding, product_name)
+
+                    if similarFindingsWithNotes:
+                        t = get_object_or_404(Test, pk=similarFindingsWithNotes[0].test_id)
+
+                        for note in similarFindingsWithNotes[0].notes.all():
+                            if note.entry.find("] ~ ") > -1:
+                                if str(note.entry[1:note.entry.find("] ~ ")]).strip().replace(" ","") != "":
+                                        if note.entry.find("] ~ : ") > -1:
+                                            if use_case_found != 1:
+                                                use_case_found = 1
+                                                wso2_resolution = str(note.entry[1:note.entry.find("] ~ ")]).strip()
+                                                if wso2_comment_found == 0:
+                                                    wso2_offset = str(offset)
+                                                wso2_use_case = note.entry[note.entry.find("] ~ : ") + 5 : note.entry.find(":- ")]
+                                                wso2_vulnerability_influence = note.entry[note.entry.find(":- ")  + 3 : note.entry.find(" :: ")]
+                                                resolution = note.entry[note.entry.find(" :: ") + 3 :]
+                                                comment_found = 1
+                                                wso2_product = t.engagement.product
+                                                if wso2_comment_found == 1:
+                                                    break
+                                        elif note.entry.find("] ~ ") > -1:
+                                            if wso2_comment_found != 1:
+                                                wso2_resolution = str(note.entry[1:note.entry.find("] ~ ")]).strip()
+                                                wso2_offset = str(offset)
+                                                wso2_product = t.engagement.product
+                                                wso2_comment = note.entry[note.entry.find("] ~ ") + 4:]
+                                                comment_found = 1
+                                                wso2_comment_found = 1
+                                                if use_case_found == 1:
+                                                    break
+                        if use_case_found ==1 & wso2_comment_found ==1:
+                            break
+                if comment_found == 1:
+                    data.append(wso2_resolution)
+                    data.append(wso2_offset)
+                    data.append(wso2_comment)
+                    data.append(wso2_use_case)
+                    data.append(wso2_vulnerability_influence)
+                    data.append(resolution)
+                    if wso2_product.id != test.engagement.product.id:
+                        data.append(wso2_product)
+
+            wr.writerow([unicode(c).encode('utf8') for c in data])
+
+    elif str(test.test_type) == 'Qualys Scan (Webapp)' or str(test.test_type) == 'Qualys Scan (Single Scan)':
+        headings = ["finding_id", "issue_id", "title", "severity", "impact", "url", "param", "payload","endpoint", "description", "mitigation",
+                    "WSO2_resolution", "WSO2_comment", "Use_Case" , "Vulnerability_Influence" , "Resolution"]
+        wr.writerow(headings)
+
+        for finding in Finding.objects.filter(test_id=tid):
+            endpoint = ""
+            if finding.endpoints:
+                if finding.endpoints.all():
+                    endpoint = finding.endpoints.all()[0];
+
+                if endpoint:
+                    data = [finding.id, finding.issue_id, finding.title, finding.severity, finding.impact, str(endpoint) + "\r\n(" + finding.url + ")", finding.param,
+                            finding.payload, endpoint, finding.description, finding.mitigation]
+                else:
+                    data = [finding.id, finding.issue_id, finding.title, finding.severity, finding.impact, str(endpoint) + "\r\n(" + finding.url + ")", finding.param,
+                            finding.payload , "", finding.description, finding.mitigation]
+                comment_found = 0
+
+                if finding.param:
+                    similarFindingsWithNotes = Finding.objects.filter(title=finding.title,
+                                                                    param=finding.param,
+                                                                    url=finding.url).exclude(notes=None).order_by('-id')
+                elif endpoint:
+                    similarFindingsWithNotes = Finding.objects.filter(title=finding.title,
+                                                                      payload=finding.payload,
+                                                                      url=finding.url).exclude(notes=None).order_by('-id')
+
+                if similarFindingsWithNotes:
+                    for note in similarFindingsWithNotes[0].notes.all():
+                        if note.entry.find("] ~ ") > -1:
+                            if note.entry.find("] ~ : ") > -1:
+                                data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
+                                data.append("N/A")
+                                data.append("")
+                                data.append(note.entry[note.entry.find("] ~ : ") + 5 : note.entry.find(":- ")])
+                                data.append(note.entry[note.entry.find(":- ")  + 3 : note.entry.find(" :: ")])
+                                data.append(note.entry[note.entry.find(" :: ") + 3 :])
+                                break
+                            elif note.entry.find("] ~ ") > -1:
+                                data.append(str(note.entry[1:note.entry.find("] ~ ")]).strip())
+                                data.append("N/A")
+                                data.append(note.entry[note.entry.find("] ~ ") + 4:])
+                                break
+
+            wr.writerow([unicode(c).encode('utf8') for c in data])
+
+    response = HttpResponse(output.getvalue(), content_type='plain/text')
+    response['Content-Disposition'] = 'attachment; filename=' + str(test.test_type).replace(' ','_') + "-" + tid + '.csv'
+
+    return response
+
+def filter_similar_findings_for_veracode_items(offset, finding, product_name):
+    pattern = re.compile('[0-9]*')
+    product_name= pattern.split(product_name)[0]
+    if offset == 0:
+        filter = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product=finding.test.engagement.product)
+        similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+        if len(similarFindingsWithNotes) == 0 :
+            filter = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product__name__startswith=product_name)
+            similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+            if len(similarFindingsWithNotes) == 0 :
+                Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number)
+                similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+    else:
+        filter = Finding.objects.filter(title=finding.title, sourcefile=finding.sourcefile, function=finding.function, line_number=finding.line_number, test__engagement__product=finding.test.engagement.product)
+        similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+        if len(similarFindingsWithNotes) == 0 :
+            filter = Finding.objects.filter( title=finding.title, sourcefile=finding.sourcefile, function=finding.function, test__engagement__product__name__startswith=product_name)
+            similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+            if len(similarFindingsWithNotes) == 0:
+                filter = Finding.objects.filter( title=finding.title, sourcefile=finding.sourcefile, function=finding.function)
+                similarFindingsWithNotes = get_notes_for_similar_findings(filter,offset)
+    return similarFindingsWithNotes
+
+def get_notes_for_similar_findings(filter,offset):
+    if offset == 0:
+        similarFindingsWithNotes = filter.exclude(notes=None).order_by('-id')
+    else:
+        similarFindingsWithNotes = filter.filter(line_number__gte=(int(finding.line_number) - offset), line_number__lte=(int(finding.line_number) + offset)).exclude(notes=None).order_by('-id')
+    return similarFindingsWithNotes
+
+def download_multi_usage_cvffv1_test(request, tid):
+    test = get_object_or_404(Test, pk=tid)
+
+    output = StringIO.StringIO()
+    wr = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
+    product_name=test.engagement.product.name
+
+    if str(test.test_type) == 'Veracode Scan':
+        headings = ["finding_id", "issue_id", "occurrence_number","WSO2_resolution", "Use_Case" , "Vulnerability_Influence" , "Resolution", "Applicable_Product"]
+        wr.writerow(headings)
+
+        offsets = [0, 10, 20, 50, 100, 150]
+        for finding in Finding.objects.filter(test_id=tid):
+            comment_found = 0
+            if comment_found == 0:
+                wso2_resolution = ""
+                wso2_use_case = ""
+                wso2_vulnerability_influence = ""
+                resolution = ""
+                multi_usage_comment_found = 0
+                for offset in offsets:
+                    pattern = re.compile('[0-9]*')
+                    product_name = pattern.split(product_name)[0]
+                    similarFindingsWithNotes = filter_similar_findings_for_veracode_items(offset, finding, product_name)
+                    if similarFindingsWithNotes:
+                        t = get_object_or_404(Test, pk=similarFindingsWithNotes[0].test_id)
+                        for note in similarFindingsWithNotes[0].notes.all():
+                            if str(note.entry[note.entry.find(": "):note.entry.find("] ~ : ")+20]) == ": [Multi Usage]":
+                                if multi_usage_comment_found == 0:
+                                    note_id=note.id
+                                    multi_usage_notes=Multi_Usage_Notes.objects.filter(note_id=note_id)
+                                    for multi_usage_note in multi_usage_notes:
+                                        data = [finding.id, finding.issue_id ]
+                                        if str(multi_usage_note.entry[1:multi_usage_note.entry.find("] ~ ")]).strip().replace(" ","") != "":
+                                            if multi_usage_note.entry.find("] ~ : ") > -1:
+                                                    wso2_resolution = str(multi_usage_note.entry[1:multi_usage_note.entry.find("] ~ ")]).strip()
+                                                    occurrence_number = multi_usage_note.occurrence_number
+                                                    wso2_use_case = multi_usage_note.entry[multi_usage_note.entry.find("] ~ : ") + 5 : multi_usage_note.entry.find(":- ")]
+                                                    wso2_vulnerability_influence = multi_usage_note.entry[multi_usage_note.entry.find(":- ")  + 3 : multi_usage_note.entry.find(" :: ")]
+                                                    resolution = multi_usage_note.entry[multi_usage_note.entry.find(" :: ") + 3 :]
+                                                    multi_usage_comment_found = 1
+                                                    wso2_product = t.engagement.product
+                                        data.append(occurrence_number)
+                                        data.append(wso2_resolution)
+                                        data.append(wso2_use_case)
+                                        data.append(wso2_vulnerability_influence)
+                                        data.append(resolution)
+                                        if wso2_product.id != test.engagement.product.id:
+                                            data.append(wso2_product)
+
+                                        wr.writerow([unicode(c).encode('utf8') for c in data])
+
+    response = HttpResponse(output.getvalue(), content_type='plain/text')
+    response['Content-Disposition'] = 'attachment; filename=' + str(test.test_type).replace(' ','_') + "-" + tid + '.csv'
+
+    return response
