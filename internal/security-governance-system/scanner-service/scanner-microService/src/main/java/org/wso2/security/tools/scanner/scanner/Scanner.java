@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,9 +18,15 @@
  *
  */
 
-package org.wso2.security.tools.scanner.scanner;
+package org.wso2.security.tools.veracode.scanner.scanner;
 
-import org.wso2.security.tools.scanner.exception.ScannerException;
+import org.wso2.security.tools.veracode.scanner.exception.InvalidRequestException;
+import org.wso2.security.tools.veracode.scanner.exception.ScannerException;
+import org.wso2.security.tools.veracode.scanner.utils.ScannerRequest;
+import org.wso2.security.tools.veracode.scanner.utils.ScannerResponse;
+
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Interface for the scanner.
@@ -28,42 +34,26 @@ import org.wso2.security.tools.scanner.exception.ScannerException;
 public interface Scanner {
 
     /**
-     * Run scan.
-     *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
-     * @throws ScannerException
-     */
-    boolean startScan(ScannerRequestObject scannerRequestObject) throws ScannerException;
-
-    /**
      * Initialise the Scanner.
      *
      * @throws ScannerException
      */
-    void init() throws ScannerException;
+    void init() throws ScannerException, FileNotFoundException, UnsupportedEncodingException;
 
     /**
-     * Returns the status of the last scan.
+     * Run scan.
      *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
-     * @return Enum of the ScannerStatus
+     * @param scannerRequest Object that represent the required information for tha scanner operation
+     * @throws ScannerException
      */
-    ScannerStatus getLastScanStatus(ScannerRequestObject scannerRequestObject) throws ScannerException;
+    ScannerResponse startScan(ScannerRequest scannerRequest) throws InvalidRequestException;
 
     /**
      * Controller method to stop the last scan for a given application.
      *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
+     * @param scannerRequest Object that represent the required information for tha scanner operation
      * @return whether delete scan operation success
      */
-    boolean deleteLastScan(ScannerRequestObject scannerRequestObject) throws ScannerException;
-
-    /**
-     * Controller method to stop the last scan for a given application.
-     *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
-     * @return whether the report is downloaded
-     */
-    boolean getReport(ScannerRequestObject scannerRequestObject) throws ScannerException;
+    ScannerResponse cancelScan(ScannerRequest scannerRequest) throws ScannerException;
 
 }

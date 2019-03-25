@@ -21,25 +21,33 @@
 package org.wso2.security.tools.veracode.scanner.exception;
 
 /**
- * ScannerException -- This class is exclusively for handling exceptions in this project.
+ * The class {@code InvalidRequestException} extends {@link Exception}, is the invalid request exception,
+ * for all operations dealing with Scan Manager.
  */
-public class ScannerException extends Exception {
+public class InvalidRequestException extends Exception {
+
     /**
-     * Constructor to create a new ScannerException with the specified detail message.
-     *
-     * @param string The detail message of the exception.
+     * Constructs a new runtime exception with {@code null} as its
+     * detail message.
      */
-    public ScannerException(String string) {
-        super(string);
+    public InvalidRequestException() {
+        super();
     }
 
     /**
-     * Constructor to create a new exception with the specified detail message and cause.
+     * Constructs a new runtime exception with the specified detail message.
      *
-     * @param message The detail message of the exception.
-     * @param e       The cause of the exceptionl.
+     * @param message Message for the exception
      */
-    public ScannerException(String message, Throwable e) {
+    public InvalidRequestException(String message) {
+        super(message);
+    }
+
+    /**
+     * Constructs a new runtime exception with the specified detail message and
+     * cause.
+     */
+    public InvalidRequestException(String message, Throwable e) {
         super(message, e);
     }
 }

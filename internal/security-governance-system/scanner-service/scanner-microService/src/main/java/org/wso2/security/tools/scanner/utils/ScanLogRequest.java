@@ -18,18 +18,46 @@
  *
  */
 
-package org.wso2.security.tools.veracode.scanner;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+package org.wso2.security.tools.veracode.scanner.utils;
 
 /**
- * App.
+ * Model class to represent a scan log request object coming from scanner micro services.
  */
-@SpringBootApplication
-public class App {
+public class ScanLogRequest {
 
-    public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
+    private String scanId;
+
+    private String type;
+
+    private String message;
+
+    public String getScanId() {
+
+        return scanId;
+    }
+
+    public void setScanId(String scanId) {
+
+        this.scanId = scanId;
+    }
+
+    public String getType() {
+
+        return type;
+    }
+
+    public void setType(String type) {
+
+        this.type = type;
+    }
+
+    public String getMessage() {
+
+        return message;
+    }
+
+    public void setMessage(String message) {
+
+        this.message = message;
     }
 }

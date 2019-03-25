@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,11 +18,28 @@
  *
  */
 
-package org.wso2.security.tools.scanner.scanner;
+package org.wso2.security.tools.veracode.scanner.utils;
 
 /**
- * Enum to represent the ScannerStatus.
+ * Class to represent the object that goes with the POST request.
  */
-public enum ScannerStatus {
-    COMPLETED, RUNNING, CANCELED, FAILED
+public class ScannerResponse {
+    private String scanID;
+    private boolean isSuccessful;
+
+    public String getScanID() {
+        return scanID;
+    }
+
+    public void setScanID(String scanID) {
+        this.scanID = scanID;
+    }
+
+    public boolean getIsSuccessful() {
+        return isSuccessful;
+    }
+
+    public void setIsSuccessful(boolean isSuccessful) {
+        this.isSuccessful = isSuccessful;
+    }
 }

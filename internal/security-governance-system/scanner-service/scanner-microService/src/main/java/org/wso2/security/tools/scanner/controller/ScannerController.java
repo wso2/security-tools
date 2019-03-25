@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,69 +18,69 @@
  *
  */
 
-package org.wso2.security.tools.scanner.controller;
+package org.wso2.security.tools.veracode.scanner.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.wso2.security.tools.scanner.exception.ScannerException;
-import org.wso2.security.tools.scanner.scanner.ScannerRequestObject;
-import org.wso2.security.tools.scanner.scanner.ScannerStatus;
-import org.wso2.security.tools.scanner.service.ScannerService;
+import org.wso2.security.tools.veracode.scanner.exception.InvalidRequestException;
+import org.wso2.security.tools.veracode.scanner.exception.ScannerException;
+import org.wso2.security.tools.veracode.scanner.service.ScannerService;
+import org.wso2.security.tools.veracode.scanner.utils.ScannerRequest;
+import org.wso2.security.tools.veracode.scanner.utils.ScannerResponse;
 
 /**
  * The class {@code ScannerController} is the web controller which defines the routines for initiating
  * scanner operations.
  */
 @Controller
-@RequestMapping("Scanner")
+@RequestMapping("scanner")
 public class ScannerController {
 
-    private final ScannerService cloudBasedScannerService;
+    private final ScannerService scannerService;
 
     @Autowired
-    public ScannerController(ScannerService cloudBasedScannerService) {
-        this.cloudBasedScannerService = cloudBasedScannerService;
+    public ScannerController(ScannerService scannerService) throws ScannerException {
+        this.scannerService = scannerService;
+        scannerService.init();
     }
 
     /**
      * Controller method to start scan.
      *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
+     * @param scannerRequest Object that represent the required information for tha scanner operation
      * @return Path to the scan report or status of the scan
      * @throws ScannerException
      */
-    @PostMapping("runScan")
+    @PostMapping("start-scan")
     @ResponseBody
-    public boolean startScan(@RequestBody ScannerRequestObject scannerRequestObject) {
-        return cloudBasedScannerService.startScan(scannerRequestObject);
-    }
+    public ResponseEntity<ScannerResponse> startScan(@RequestBody ScannerRequest scannerRequest)
+            throws InvalidRequestException {
+        ScannerResponse scannerResponse;
+        scannerResponse = scannerService.startScan(scannerRequest);
 
-    /**
-     * Controller method to get the status of the last scan.
-     *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
-     * @return Enum of the ScannerStatus
-     */
-    @PostMapping("getStatus")
-    @ResponseBody
-    public ScannerStatus getStatus(@RequestBody ScannerRequestObject scannerRequestObject) {
-        return cloudBasedScannerService.getStatus(scannerRequestObject);
+        return new ResponseEntity<>(scannerResponse, HttpStatus.OK);
     }
 
     /**
      * Controller method to stop the last scan for a given application.
      *
-     * @param scannerRequestObject Object that represent the required information for tha scanner operation
+     * @param scannerRequest Object that represent the required information for tha scanner operation
      * @return
      */
-    @PostMapping("cancelScan")
+    @PostMapping("cancel-scan")
     @ResponseBody
-    public boolean cancelScan(@RequestBody ScannerRequestObject scannerRequestObject) {
-        return cloudBasedScannerService.cancelScan(scannerRequestObject);
+    public ResponseEntity<ScannerResponse> cancelScan(@RequestBody ScannerRequest scannerRequest)
+            throws ScannerException {
+        ScannerResponse scannerResponse;
+        scannerResponse = scannerService.cancelScan(scannerRequest);
+
+        return new ResponseEntity<>(scannerResponse, HttpStatus.OK);
     }
 
 }

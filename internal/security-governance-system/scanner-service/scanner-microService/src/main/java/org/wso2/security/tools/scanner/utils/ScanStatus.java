@@ -18,18 +18,11 @@
  *
  */
 
-package org.wso2.security.tools.veracode.scanner;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+package org.wso2.security.tools.veracode.scanner.utils;
 
 /**
- * App.
+ * Enum to represent the ScanStatus.
  */
-@SpringBootApplication
-public class App {
-
-    public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
-    }
+public enum ScanStatus {
+    COMPLETED, RUNNING, CANCELED, FAILED, SUBMITTED, ERROR, PENDING
 }
