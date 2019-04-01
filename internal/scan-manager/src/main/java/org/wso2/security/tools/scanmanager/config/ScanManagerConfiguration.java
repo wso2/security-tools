@@ -19,7 +19,6 @@
 package org.wso2.security.tools.scanmanager.config;
 
 import org.wso2.security.tools.scanmanager.model.Scanner;
-
 import java.util.List;
 
 /**
