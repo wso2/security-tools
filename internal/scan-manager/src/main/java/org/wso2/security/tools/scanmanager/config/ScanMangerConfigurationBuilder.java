@@ -57,7 +57,7 @@ public class ScanMangerConfigurationBuilder {
      * Reading the scan manager configuration from a given config file.
      *
      * @param configFile
-     * @return
+     * @return configurations of scan manager
      * @throws ScanManagerException
      */
     public static ScanManagerConfiguration getConfiguration(File configFile) throws ScanManagerException {
