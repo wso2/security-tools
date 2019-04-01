@@ -70,7 +70,7 @@ public class Scan {
     private java.sql.Timestamp submittedTimestamp;
 
     @Column(name = "ACTUAL_SCANNER_ID")
-    private String actualScannerIdl;
+    private String actualScannerId;
 
 
     public Scan() {
@@ -177,11 +177,11 @@ public class Scan {
         this.status = status;
     }
 
-    public String getActualScannerIdl() {
-        return actualScannerIdl;
+    public String getActualScannerId() {
+        return actualScannerId;
     }
 
-    public void setActualScannerIdl(String actualScannerIdl) {
-        this.actualScannerIdl = actualScannerIdl;
+    public void setActualScannerId(String actualScannerId) {
+        this.actualScannerId = actualScannerId;
     }
 }
