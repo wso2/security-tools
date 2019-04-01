@@ -1,8 +1,8 @@
 #Scan Manager Configuration
 
-databaseUrl : jdbc:mysql://localhost:3306/smdb?useSSL=false
-userName : root
-password : admin
+databaseUrl : 
+userName : 
+password : 
 
 ftpHost :
 ftpPort :
@@ -10,8 +10,8 @@ ftpUsername :
 ftpPassword :
 queueUsername :
 queuePassword :
-brokerHostname : localhost
-brokerPort : 5672
+brokerHostname : 
+brokerPort : 
 
 
 
