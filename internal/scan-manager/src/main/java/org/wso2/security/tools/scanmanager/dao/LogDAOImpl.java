@@ -1,6 +1,5 @@
 package org.wso2.security.tools.scanmanager.dao;
 
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
