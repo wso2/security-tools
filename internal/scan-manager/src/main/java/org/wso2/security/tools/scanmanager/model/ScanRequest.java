@@ -20,6 +20,7 @@ package org.wso2.security.tools.scanmanager.model;
 
 import java.io.Serializable;
 import java.util.Map;
+
 /**
  * Model class to represent a scan request.
  */
