@@ -37,7 +37,7 @@ public class ScanMangerConfigurationBuilder {
     /**
      * Reading the scan manager configuration from scanner-config.yaml.
      *
-     * @return,
+     * @return configurations of scan manager,
      * @throws ScanManagerException
      */
     public static ScanManagerConfiguration getConfiguration() throws ScanManagerException {
