@@ -13,8 +13,6 @@ queuePassword :
 brokerHostname : 
 brokerPort : 
 
-
-
 scanners:
  - name:
    id:
@@ -23,4 +21,3 @@ scanners:
     - id:
       displayName:
       type:
-      
