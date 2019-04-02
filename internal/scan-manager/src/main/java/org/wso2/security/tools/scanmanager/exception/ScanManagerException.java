@@ -23,6 +23,7 @@ package org.wso2.security.tools.scanmanager.exception;
  * for all operations dealing with Scan Manager.
  */
 public class ScanManagerException extends Exception {
+    
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.
