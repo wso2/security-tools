@@ -7,6 +7,5 @@ import org.wso2.security.tools.scanmanager.model.Scan;
 public interface ScanDAO {
     
     boolean persist(Scan scan);
-    
     Scan getScan(Integer scanId);
 }
