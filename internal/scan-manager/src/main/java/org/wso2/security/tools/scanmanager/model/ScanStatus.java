@@ -16,6 +16,7 @@
  * under the License.
  */
 package org.wso2.security.tools.scanmanager.model;
+
 /**
  * Model Enum to represent a Status of the Scans.
  */
