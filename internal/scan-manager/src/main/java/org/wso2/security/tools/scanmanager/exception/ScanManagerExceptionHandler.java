@@ -35,6 +35,12 @@ public class ScanManagerExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
+    
+    /**
+     * Reading the exceptions.
+     *
+     * @return error message .
+     */
     ErrorMessage exceptionHandler(ScanManagerException e) {
         return new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
