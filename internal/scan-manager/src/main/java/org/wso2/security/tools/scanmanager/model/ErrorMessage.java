@@ -21,7 +21,6 @@ package org.wso2.security.tools.scanmanager.model;
 /**
  * Error message model class.
  */
-
 public class ErrorMessage {
 
     private int code;
