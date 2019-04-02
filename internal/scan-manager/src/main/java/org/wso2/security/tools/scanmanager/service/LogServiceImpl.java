@@ -24,8 +24,7 @@ import org.wso2.security.tools.scanmanager.dao.LogDAO;
 import org.wso2.security.tools.scanmanager.model.Log;
 
 /**
- * The class {@code LogService} is the service class that manage the method implementations of the
- * Scan logs.
+ * The class {@code LogService} is the service class that manage the method implementations of the Scan logs.
  */
 
 @Service
