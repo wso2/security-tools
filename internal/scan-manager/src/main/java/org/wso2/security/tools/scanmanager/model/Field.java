@@ -17,6 +17,7 @@
  */
 
 package org.wso2.security.tools.scanmanager.model;
+
 /**
  * Model class to represent an HTML field.
  */
