@@ -29,7 +29,6 @@ import javax.persistence.Table;
 /**
  * Model class to represent a scan.
  */
-
 @Entity
 @Table(name = "SCAN")
 public class Scan {
