@@ -16,6 +16,7 @@
  * under the License.
  */
 package org.wso2.security.tools.scanmanager.model;
+
 /**
  * Model class to represent a Scan status reques object coming from Scanner Side.
  */
