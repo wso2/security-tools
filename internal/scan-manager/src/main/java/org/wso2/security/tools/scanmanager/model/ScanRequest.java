@@ -24,7 +24,6 @@ import java.util.Map;
 /**
  * Model class to represent a scan request.
  */
-
 public class ScanRequest implements Serializable {
 
     private String id;
