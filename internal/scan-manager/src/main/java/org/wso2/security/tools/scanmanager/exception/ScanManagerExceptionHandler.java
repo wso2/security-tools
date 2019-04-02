@@ -28,6 +28,7 @@ import org.wso2.security.tools.scanmanager.model.ErrorMessage;
 /**
  * Global Exception handler class for Scan Manager exceptions.
  */
+
 @ControllerAdvice
 public class ScanManagerExceptionHandler {
 
@@ -38,6 +39,3 @@ public class ScanManagerExceptionHandler {
         return new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 }
-
-
-
