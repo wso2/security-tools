@@ -19,6 +19,12 @@ public class LogDAOImpl implements LogDAO {
     @Autowired
     private SessionFactory sessionFactory;
 
+    /**
+     * Persist logs.
+     *
+     * @param Log 
+     * @return status
+     */
     @Override
     public boolean persist(Log log) {
         boolean status = true;
