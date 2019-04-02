@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 @RequestMapping("callback")
 public class CallbackController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScanController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CallbackController.class);
 
     @Autowired
     LogService logService;
