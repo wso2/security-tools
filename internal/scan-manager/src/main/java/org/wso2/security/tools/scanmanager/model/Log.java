@@ -28,7 +28,6 @@ import javax.persistence.Table;
 /**
  * Model class to represent a Logs in the scan containers.
  */
-
 @Entity
 @Table(name = "LOG")
 public class Log {
