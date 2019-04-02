@@ -72,7 +72,6 @@ public class Scan {
     @Column(name = "ACTUAL_SCANNER_ID")
     private String actualScannerId;
 
-
     public Scan() {
     }
 
