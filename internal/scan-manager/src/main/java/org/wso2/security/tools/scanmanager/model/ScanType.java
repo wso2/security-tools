@@ -21,7 +21,6 @@ package org.wso2.security.tools.scanmanager.model;
 /**
  * Model class to represent a scan types.
  */
-
 public enum ScanType {
     STATIC, DYNAMIC, DEPENDENCY
 }
