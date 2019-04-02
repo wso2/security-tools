@@ -21,7 +21,6 @@ package org.wso2.security.tools.scanmanager.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.wso2.security.tools.scanmanager.exception.ScanManagerException;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -36,7 +35,7 @@ public class ScanMangerConfigurationBuilder {
     /**
      * Reading the scan manager configuration from scanner-config.yaml.
      *
-     * @return configurations of scan manager,
+     * @return configurations of scan manager.
      * @throws ScanManagerException
      */
     public static ScanManagerConfiguration getConfiguration() throws ScanManagerException {
@@ -57,7 +56,7 @@ public class ScanMangerConfigurationBuilder {
      *
      * @param configFile
      * @return configurations of scan manager
-     * @throws ScanManagerException
+     * @throws ScanManagerException.
      */
     public static ScanManagerConfiguration getConfiguration(File configFile) throws ScanManagerException {
         ScanManagerConfiguration configuration = null;
