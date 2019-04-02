@@ -49,6 +49,3 @@ public class ScanManagerException extends Exception {
         super(message, e);
     }
 }
-
-
-
