@@ -14,7 +14,7 @@ import org.wso2.security.tools.scanmanager.model.Scan;
  */
 @Repository
 public class ScanDAOImpl implements ScanDAO {
-    private static final Logger logger = LoggerFactory.getLogger(ScanController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ScanDAOImpl.class);
 
     @Autowired
     private SessionFactory sessionFactory;
