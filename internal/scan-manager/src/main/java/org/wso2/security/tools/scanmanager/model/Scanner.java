@@ -25,7 +25,6 @@ import java.util.List;
 /**
  * Model class to represent a scanner.
  */
-
 public class Scanner {
 
     private String name;
