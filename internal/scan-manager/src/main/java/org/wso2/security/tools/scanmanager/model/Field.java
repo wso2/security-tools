@@ -21,6 +21,7 @@ package org.wso2.security.tools.scanmanager.model;
 /**
  * Model class to represent an HTML field.
  */
+
 public class Field {
 
     private String id;
