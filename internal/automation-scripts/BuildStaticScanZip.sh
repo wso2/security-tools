@@ -48,15 +48,16 @@ do
 				find $STATIC_HOME/$product -regex $actual_pattern -exec cp {} $STATIC_HOME/$product-work \;
 			else
 				echo "$SCRIPT_TAG Copying files that match the pattern: $pattern"
-                        	#Find and Copy all the js,jsp and jaggery files to scan artifact
+                        	# Find and Copy all the js,jsp and jaggery files to scan artifact
                         	if [[ $pattern == *".js"* ]] || [[ $pattern == *".jag"* ]] ;then
                         		for file in $(find $STATIC_HOME/$product -name $pattern)
                         		do
-                            			#Create same directory structure for each file
+                            			# Create same directory structure for each file
                             			dir=$(dirname "$file")
                             			base_path=$STATIC_HOME/$product
+                            			# Replacing base path with empty string in directory path
                             			suffix_of_dir="${dir//$base_path/}"
-                            			target_dir=$STATIC_HOME/$product-work$suffix_of_dir
+                            			target_dir=${STATIC_HOME}/${product}-work${suffix_of_dir}
                             			mkdir -p $target_dir
                             			cp $file $target_dir
                         		done
