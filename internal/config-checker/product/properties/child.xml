@@ -1,0 +1,44 @@
+<?xml version="1.0"  ?>
+<!--
+  ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!--Child properties file containing the reference product specific configuration file paths -->
+
+<child-properties>
+    <!--<file type="web.xml">
+        <format>xml</format>
+        <reference-path>/product/configurations/tomcat/web-xml-ref.xml</reference-path>
+        <product-path>/repository/conf/tomcat/carbon/WEB-INF/web.xml</product-path>
+        <exclude-configs>
+            <config>HttpHeaderSecurityFilter</config>
+        </exclude-configs>
+    </file>-->
+   <!-- <file type="jaggery.conf">
+        <format>json</format>
+        <reference-path>/product/configurations/jaggery/jaggery-conf-ref.xml</reference-path>
+        <product-path>/repository/deployment/server/jaggeryapps/portal/jaggery.conf</product-path>
+        <exclude-configs>
+            <config>HttpHeaderSecurityFilter</config>
+            <config>initScripts</config>
+        </exclude-configs>
+    </file>-->
+
+    <exclude-paths>
+<!--<path>/repository/deployment/server/webapps/authenticationendpoint/WEB-INF/web.xml</path>-->
+    </exclude-paths>
+</child-properties>
