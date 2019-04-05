@@ -213,6 +213,33 @@
     </div>
 
     <div class="panel panel-default">
+            <table id="error_notes" class="table-striped table table-condensed table-hover centered">
+                <tr>
+                    <th>Use Case</th>
+                    <th>Influence of the Vulnerability</th>
+                    <th>Resolution</th>
+                </tr>
+                <tr>
+                    <td>
+                        <span>
+                           {{ finding.use_case }}
+                        </span>
+                    </td>
+		    <td>
+    			<span>
+                           {{ finding.vulnerability_influence }}
+                        </span>
+                    </td>
+                    <td>
+                        <span>
+                           {{ finding.resolution }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+    </div>
+
+    <div class="panel panel-default">
         <table id="error_notes" class="table-striped table table-condensed table-hover centered">
                 <tr>
                     <th>Parameters</th>

@@ -113,6 +113,7 @@
                                 </li>
                                 <li><a href="{% url 'api_key' %}"><i class="fa fa-fw fa-key"></i> API Key</a></li>
                                 <li><a href="{% url 'upload_cvffv1' %}"><i class="fa fa-fw fa-upload"></i> Upload WSO2-CVFFv1</a></li>
+                                <li><a href="{% url 'upload_multi_usage_cvffv1' %}"><i class="fa fa-fw fa-upload"></i> Upload Multi Usage WSO2-CVFFv1</a></li>
                             {% endif %}
                             <li><a href="{% url 'tastypie_swagger:index' %}"><i class="fa fa-book fa-fw"></i> API
                                 Docs</a></li>
@@ -178,6 +179,9 @@
                                     <a href="#"><i class="fa fa-bug fa-fw"></i> <span>Findings</span><span
                                             class="glyphicon arrow"></span></a>
                                     <ul class="nav nav-second-level">
+                                        <li>
+                                            <a href="{% url 'all_findings' %}">All Findings</a>
+                                        </li>
                                         <li>
                                             <a href="{% url 'open_findings' %}">Open Findings</a>
                                         </li>

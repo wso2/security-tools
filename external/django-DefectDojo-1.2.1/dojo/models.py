@@ -547,6 +547,18 @@ class Notes(models.Model):
     def __unicode__(self):
         return self.entry
 
+class Multi_Usage_Notes(models.Model):
+    entry = models.CharField(max_length=2400)
+    date = models.DateTimeField(null=False, editable=False,
+                                default=get_current_datetime)
+    occurrence_number=models.CharField(max_length=2000)
+    note = models.ForeignKey(Notes)
+
+    class Meta:
+        ordering = ['-date']
+
+    def __unicode__(self):
+        return self.entry
 
 class Development_Environment(models.Model):
     name = models.CharField(max_length=200)
@@ -618,7 +630,7 @@ class Finding(models.Model):
     false_p = models.BooleanField(default=False, verbose_name="False Positive")
     duplicate = models.BooleanField(default=False)
     duplicate_finding = models.ForeignKey('self', editable=False, null=True, related_name='original_finding', blank=True)
-    duplicate_list = models.ManyToManyField("self",editable=False, null=True, blank=True)
+    duplicate_list = models.ManyToManyField("self",editable=False,  blank=True)
     out_of_scope = models.BooleanField(default=False)
     under_review = models.BooleanField(default=False)
     review_requested_by = models.ForeignKey(Dojo_User, null=True, blank=True, related_name='review_requested_by')
@@ -1212,6 +1224,7 @@ admin.site.register(Product_Type)
 admin.site.register(Dojo_User)
 admin.site.register(UserContactInfo)
 admin.site.register(Notes)
+admin.site.register(Multi_Usage_Notes)
 admin.site.register(Report)
 admin.site.register(Scan)
 admin.site.register(ScanSettings)

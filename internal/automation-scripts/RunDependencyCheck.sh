@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#############################################################
+##   This script will run the dependency scan for the      ##
+##    products which are in the HOME/products folder.      ##
+#############################################################
+
 TOOL_VERSION="3.0.2"
 DEPENDENCY_HOME="$HOME/env-dependency-check"
 PRODUCT_HOME="$HOME/products"

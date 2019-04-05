@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+##################################################################
+##      This script will run the dependency check scan daily.   ##
+##################################################################
+
 LOG_HOME="$HOME/outputs"
 
 date=$(date -d "today" +"%Y-%m-%d")
