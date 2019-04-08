@@ -14,8 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.common;
@@ -25,15 +23,15 @@ package org.wso2.security.tools.scanmanager.common;
  */
 public class ScanResponse {
 
-    private String scanID;
+    private String scanId;
     private boolean isSuccessful;
 
-    public String getScanID() {
-        return scanID;
+    public String getScanId() {
+        return scanId;
     }
 
-    public void setScanID(String scanID) {
-        this.scanID = scanID;
+    public void setScanId(String scanId) {
+        this.scanId = scanId;
     }
 
     public boolean getIsSuccessful() {

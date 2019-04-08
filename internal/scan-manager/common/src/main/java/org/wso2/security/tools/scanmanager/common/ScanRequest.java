@@ -14,8 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.common;
@@ -27,6 +25,7 @@ import java.util.Map;
  * Class to represent the object that comes with the Scan operation http servlet request.
  */
 public class ScanRequest {
+
     private String appId;
     private String jobId;
     private String productName;
@@ -72,5 +71,4 @@ public class ScanRequest {
     public void setAppId(String appId) {
         this.appId = appId;
     }
-
 }
