@@ -51,7 +51,9 @@ public class ScannerController {
     private static final Logger log = Logger.getLogger(ScannerController.class);
 
     @Autowired
-    Scanner scanner;
+  public ScannerController(Scanner scanner) {
+  this.scanner = scanner;
+  }
 
     public ScannerController(Scanner scanner) throws IOException {
         log.info("Scanner Service is initialised in the container...");
@@ -109,5 +111,4 @@ public class ScannerController {
         }
         return responseEntity;
     }
-
 }

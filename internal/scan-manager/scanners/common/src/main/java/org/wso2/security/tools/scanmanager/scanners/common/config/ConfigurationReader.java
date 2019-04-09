@@ -62,7 +62,6 @@ public class ConfigurationReader {
         Yaml yaml = new Yaml();
 
         try(InputStream inputStream = new FileInputStream(configFileLocation)){
-
             configObjectMap = yaml.load(inputStream);
             String scanManagerCallbackURL = ScannerConstants.HTTP_PROTOCOL + System.getenv(
                     ScannerConstants.SCAN_MANAGER_HOST) + ":" + System.getenv(ScannerConstants.SCAN_MANAGER_PORT)
