@@ -21,8 +21,7 @@
 package org.wso2.security.tools.scanmanager.scanners.common.exception;
 
 /**
- * The invalid request exception,
- * for all operations dealing with Scan Manager.
+ * The invalid request exception, for all operations dealing with Scan Manager.
  */
 public class InvalidRequestException extends Exception {
 

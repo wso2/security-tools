@@ -36,8 +36,7 @@ import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import java.io.IOException;
 
 /**
- * Web controller which defines the routines for initiating
- * scanner operations.
+ * Web controller which defines the routines for initiating scanner operations.
  */
 @Controller
 @RequestMapping("scanner")
