@@ -79,7 +79,6 @@ public class FileUtil {
 
         File file = new File(zipFilePath);
         try(ZipFile zip = new ZipFile(file)) {
-
             String newPath = file.getParent();
             String fileName = file.getName();
 
@@ -139,7 +138,6 @@ public class FileUtil {
             } else {
                 log.warn("File list that needs to be archived cannot be null. ");
             }
-
             archive.finish();
         }
     }

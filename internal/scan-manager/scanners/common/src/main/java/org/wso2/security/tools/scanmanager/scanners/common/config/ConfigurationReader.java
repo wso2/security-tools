@@ -31,7 +31,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 /**
- * Class to get the configurations from the configuration file.
+ * Read configurations from the configuration file.
  */
 public class ConfigurationReader {
 
@@ -72,7 +72,7 @@ public class ConfigurationReader {
     }
 
     /**
-     * Reads the required property from the property file using the given key and returns the corresponding value.
+     * Reads the required property from the YAML file using the given key and returns the corresponding value.
      *
      * @param key The key mapping to the required value of the property file.
      * @return returns the value corresponding to the given key value.
@@ -82,7 +82,7 @@ public class ConfigurationReader {
     }
 
     /**
-     * Reads the required property from the property file using the given key and returns the corresponding value.
+     * Reads the required property from the YAML file using the given key and returns the corresponding value.
      *
      * @return returns the config object.
      */

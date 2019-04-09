@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.wso2.security.tools.scanmanager.common.ErrorMessage;
 
 /**
- * Global Exception handler class for Scanner exceptions.
+ * Global exception handler class for Scanner exceptions.
  */
 @ControllerAdvice
 public class ScannerExceptionHandler {
@@ -53,7 +53,6 @@ public class ScannerExceptionHandler {
      */
     @ExceptionHandler(InvalidRequestException.class)
     ResponseEntity<ErrorMessage> invalidRequestExceptionHandler(Exception e) {
-
         return new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                 "Bad request. " + e.getMessage()), HttpStatus.BAD_REQUEST);
     }

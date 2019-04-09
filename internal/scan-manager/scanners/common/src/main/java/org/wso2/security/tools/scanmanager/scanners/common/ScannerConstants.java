@@ -38,14 +38,14 @@ public final class ScannerConstants {
     public static final String RESOURCE_FILE_PATH = "src/main/resources";
     public static final String DEFAULT_FTP_PRODUCT_PATH = "default_product_path";
 
-    // ftp configuration
+    // FTP configuration.
     public static final String FTP_USERNAME = "ftp_username";
     public static final String FTP_PASSWORD = "ftp_password";
     public static final String FTP_HOST = "ftp_host";
     public static final String FTP_PORT = "ftp_port";
     public static final String SFTP = "sftp";
 
-    // scan manager config
+    // Scan manager config.
     public static final String SCAN_MANAGER_CALLBACK_URL_ENDPOINT = "scan_manager_callback_url_endpoint";
     public static final String SCAN_MANAGER_CALLBACK_URL = "scan_manager_callback_url";
     public static final String SCAN_MANAGER_CALLBACK_STATUS = "scan_manager_callback_status";
@@ -54,7 +54,7 @@ public final class ScannerConstants {
     public static final String SCAN_MANAGER_PORT = "scan.manager.port";
     public static final String HTTP_PROTOCOL = "http://";
 
-    // log types
+    // Log types.
     public static final String INFO = "info";
     public static final String WARN = "warn";
     public static final String DEBUG = "debug";

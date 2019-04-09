@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Util class to represent the scan manager callback operations.
+ * Util class to handle scan-manager callback operations.
  */
 public class CallbackUtil {
 
@@ -68,7 +68,7 @@ public class CallbackUtil {
             } catch (InterruptedException e) {
                 log.error(e);
             }
-            //re-trying updating the scan status in scan manager
+            // Re-trying updating the scan status in scan manager.
             updateScanStatus(jobId, scanStatus, reportPath, scannerScanId);
         } else {
             log.warn("Callback status update failed with the response code : " + responseCode);
@@ -114,7 +114,7 @@ public class CallbackUtil {
             } catch (InterruptedException e) {
                 log.error(e);
             }
-            //re-trying updating the scan status in scan manager
+            // Re-trying updating the scan status in scan manager.
             persistScanLog(jobId, message, type);
         } else {
             log.warn("Callback log persistence failed with the response code : " + responseCode);

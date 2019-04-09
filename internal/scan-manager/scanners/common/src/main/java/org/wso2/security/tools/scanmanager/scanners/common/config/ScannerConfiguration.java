@@ -21,7 +21,7 @@
 package org.wso2.security.tools.scanmanager.scanners.common.config;
 
 /**
- * Class to represent the scanner configuration.
+ * Represents scanner configuration.
  */
 public abstract class ScannerConfiguration implements Configuration {
 

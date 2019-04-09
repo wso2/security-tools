@@ -21,7 +21,7 @@
 package org.wso2.security.tools.scanmanager.scanners.common.exception;
 
 /**
- * ScannerException -- This class is exclusively for handling exceptions in this project.
+ * Wrapper for scanner related exceptions.
  */
 public class ScannerException extends Exception {
 

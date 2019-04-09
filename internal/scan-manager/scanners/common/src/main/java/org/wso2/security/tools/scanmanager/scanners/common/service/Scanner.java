@@ -45,7 +45,7 @@ public interface Scanner {
     ResponseEntity startScan(ScanRequest scanRequest);
 
     /**
-     * Controller method to stop the last scan for a given application.
+     * Stop the last scan for a given application.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
      * @return whether delete scan operation success

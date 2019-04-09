@@ -21,7 +21,7 @@
 package org.wso2.security.tools.scanmanager.scanners.common.exception;
 
 /**
- * The class {@code InvalidRequestException} extends {@link Exception}, is the invalid request exception,
+ * The invalid request exception,
  * for all operations dealing with Scan Manager.
  */
 public class InvalidRequestException extends Exception {

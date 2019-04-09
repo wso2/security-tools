@@ -39,14 +39,14 @@ import org.wso2.security.tools.scanmanager.common.ScanRequest;
 import java.io.IOException;
 
 /**
- * The class {@code ScannerController} is the web controller which defines the routines for initiating
+ * Web controller which defines the routines for initiating
  * scanner operations.
  */
 @Controller
 @RequestMapping("scanner")
 public class ScannerController {
 
-    // This represents if a scan is started
+    // This represents if a scan is started.
     private boolean hasScanStarted = false;
     private static final Logger log = Logger.getLogger(ScannerController.class);
 
@@ -61,7 +61,7 @@ public class ScannerController {
     /**
      * Controller method to start scan.
      *
-     * @param scanRequest Object that represent the required information for tha scanner operation
+     * @param scanRequest Object that represent the required information for the scanner operation
      * @return Path to the scan report or status of the scan
      * @throws ScannerException
      */
@@ -87,9 +87,9 @@ public class ScannerController {
     }
 
     /**
-     * Controller method to stop the last scan for a given application.
+     * Stop the last scan for a given application.
      *
-     * @param scanRequest Object that represent the required information for tha scanner operation
+     * @param scanRequest Object that represent the required information for the scanner operation
      * @return
      */
     @DeleteMapping("scan")
@@ -98,13 +98,13 @@ public class ScannerController {
         ResponseEntity responseEntity;
 
         if (!hasScanStarted) {
-            String message = "First you should have started a scan to proceed with the cancel scan operation. ";
+            String message = "No scan running to perform cancellation.";
             responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(),
                     message), HttpStatus.BAD_REQUEST);
             log.error(message);
             CallbackUtil.persistScanLog(scanRequest.getJobId(), message, ScannerConstants.ERROR);
         } else {
-            log.info("Cancel scan API is being called. ");
+            log.info("Invoking cancel scan API.");
             responseEntity = scanner.cancelScan(scanRequest);
         }
         return responseEntity;
