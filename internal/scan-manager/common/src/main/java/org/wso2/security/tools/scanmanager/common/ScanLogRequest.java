@@ -19,7 +19,7 @@
 package org.wso2.security.tools.scanmanager.common;
 
 /**
- * Model class to represent a scan log request object coming from scanner micro services.
+ * Represents a scan log request coming from scanner micro services.
  */
 public class ScanLogRequest {
 

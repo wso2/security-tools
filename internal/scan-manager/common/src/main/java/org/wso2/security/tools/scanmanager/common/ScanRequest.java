@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class to represent the object that comes with the Scan operation http servlet request.
+ * Represents a scan request coming from scanner micro services.
  */
 public class ScanRequest {
 
