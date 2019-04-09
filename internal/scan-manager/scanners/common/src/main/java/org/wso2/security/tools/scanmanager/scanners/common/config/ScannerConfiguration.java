@@ -14,8 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.scanners.common.config;
@@ -26,13 +24,6 @@ package org.wso2.security.tools.scanmanager.scanners.common.config;
 public abstract class ScannerConfiguration implements Configuration {
 
     private String scannerClass;
-    private String productPathForZipFileUpload;
-    private String productPathForGitFileClone;
-
-    @Override
-    public void setScannerClass(String scannerClass) {
-        this.scannerClass = scannerClass;
-    }
 
     @Override
     public String getScannerClass() {
@@ -40,23 +31,7 @@ public abstract class ScannerConfiguration implements Configuration {
     }
 
     @Override
-    public void setProductPathForZipFileUpload(String productPath) {
-        this.productPathForZipFileUpload = productPath;
+    public void setScannerClass(String scannerClass) {
+        this.scannerClass = scannerClass;
     }
-
-    @Override
-    public void setProductPathForGitClone(String productPath) {
-        this.productPathForGitFileClone = productPath;
-    }
-
-    @Override
-    public String getProductPathForZipFileUpload() {
-        return productPathForZipFileUpload;
-    }
-
-    @Override
-    public String getProductPathForGitClone() {
-        return productPathForGitFileClone;
-    }
-
 }

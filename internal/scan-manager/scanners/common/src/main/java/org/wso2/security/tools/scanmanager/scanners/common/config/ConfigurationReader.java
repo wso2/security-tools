@@ -14,78 +14,18 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.scanners.common.config;
 
-import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
-/**
- * Read configurations from the configuration file.
- */
-public class ConfigurationReader {
+public interface ConfigurationReader {
 
-    private static Map<String, Object> configObjectMap;
+    public void loadConfiguration() throws IOException;
 
-    private ConfigurationReader() {
-    }
+    public String getConfigProperty(String key);
 
-    /**
-     * Load configuration into JVM.
-     *
-     * @throws ScannerException
-     */
-    public static void loadConfiguration() throws IOException {
-        String configurationFile = ScannerConstants.RESOURCE_FILE_PATH + File.separator +
-                ScannerConstants.CONFIGURTION_FILE_NAME;
-
-        loadConfiguration(configurationFile);
-    }
-
-    /**
-     * Load the properties from the property file.
-     *
-     * @param configFileLocation Path to configuration file
-     * @throws ScannerException
-     */
-    private static void loadConfiguration(String configFileLocation) throws IOException {
-        Yaml yaml = new Yaml();
-
-        try(InputStream inputStream = new FileInputStream(configFileLocation)){
-            configObjectMap = yaml.load(inputStream);
-            String scanManagerCallbackURL = ScannerConstants.HTTP_PROTOCOL + System.getenv(
-                    ScannerConstants.SCAN_MANAGER_HOST) + ":" + System.getenv(ScannerConstants.SCAN_MANAGER_PORT)
-                    + ConfigurationReader.getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
-            configObjectMap.put(ScannerConstants.SCAN_MANAGER_CALLBACK_URL, scanManagerCallbackURL);
-        }
-    }
-
-    /**
-     * Reads the required property from the YAML file using the given key and returns the corresponding value.
-     *
-     * @param key The key mapping to the required value of the property file.
-     * @return returns the value corresponding to the given key value.
-     */
-    public static String getConfigProperty(String key) {
-        return String.valueOf(configObjectMap.get(key));
-    }
-
-    /**
-     * Reads the required property from the YAML file using the given key and returns the corresponding value.
-     *
-     * @return returns the config object.
-     */
-    public static Map getConfigs() {
-        return configObjectMap;
-    }
+    public Map getConfigs();
 }

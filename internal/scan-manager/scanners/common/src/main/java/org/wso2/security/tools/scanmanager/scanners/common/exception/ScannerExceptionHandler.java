@@ -14,8 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.scanners.common.exception;
@@ -36,7 +34,7 @@ public class ScannerExceptionHandler {
      * Exception handler for type Exception.
      *
      * @param e
-     * @return
+     * @return Response Entity with error details
      */
     @ExceptionHandler(Exception.class)
     ResponseEntity<ErrorMessage> exceptionHandler(Exception e) {
@@ -49,7 +47,7 @@ public class ScannerExceptionHandler {
      * Exception handler for type InvalidRequestException.
      *
      * @param e
-     * @return
+     * @return Response Entity with error details
      */
     @ExceptionHandler(InvalidRequestException.class)
     ResponseEntity<ErrorMessage> invalidRequestExceptionHandler(Exception e) {

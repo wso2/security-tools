@@ -14,8 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.scanners.common;
@@ -30,11 +28,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.common.ErrorMessage;
+import org.wso2.security.tools.scanmanager.common.ScanRequest;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
-import org.wso2.security.tools.scanmanager.common.ScanRequest;
 
 import java.io.IOException;
 
@@ -46,26 +43,22 @@ import java.io.IOException;
 @RequestMapping("scanner")
 public class ScannerController {
 
+    private static final Logger log = Logger.getLogger(ScannerController.class);
+    Scanner scanner;
     // This represents if a scan is started.
     private boolean hasScanStarted = false;
-    private static final Logger log = Logger.getLogger(ScannerController.class);
 
     @Autowired
-  public ScannerController(Scanner scanner) {
-  this.scanner = scanner;
-  }
-
     public ScannerController(Scanner scanner) throws IOException {
         log.info("Scanner Service is initialised in the container...");
         scanner.init();
     }
 
     /**
-     * Controller method to start scan.
+     * Start a new scan.
      *
      * @param scanRequest Object that represent the required information for the scanner operation
-     * @return Path to the scan report or status of the scan
-     * @throws ScannerException
+     * @return whether the start scan request is accepted
      */
     @PostMapping("scan")
     @ResponseBody
@@ -73,13 +66,13 @@ public class ScannerController {
         ResponseEntity responseEntity;
 
         if (!hasScanStarted) {
-            log.info("Start scan API is being called. ");
+            log.info("Invoking start scan API.");
             responseEntity = scanner.startScan(scanRequest);
             if (responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)) {
                 hasScanStarted = true;
             }
         } else {
-            String message = "You already has initialised an scan. You can't proceed with another scan now.";
+            String message = "Cannot start a new scan since another scan is in progress.";
             responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                     message), HttpStatus.BAD_REQUEST);
             log.error(message);
@@ -89,10 +82,10 @@ public class ScannerController {
     }
 
     /**
-     * Stop the last scan for a given application.
+     * Stop the scan.
      *
      * @param scanRequest Object that represent the required information for the scanner operation
-     * @return
+     * @return whether the cancel scan request is accepted
      */
     @DeleteMapping("scan")
     @ResponseBody

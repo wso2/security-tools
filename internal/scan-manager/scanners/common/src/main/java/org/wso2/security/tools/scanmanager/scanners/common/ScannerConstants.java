@@ -14,8 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.scanners.common;
@@ -24,9 +22,6 @@ package org.wso2.security.tools.scanmanager.scanners.common;
  * Class to represent the Scanner constant.
  */
 public final class ScannerConstants {
-
-    private ScannerConstants() {
-    }
 
     public static final String ZIP_FILE_EXTENSION = ".zip";
     public static final String POM_FILE = "pom.xml";
@@ -37,6 +32,8 @@ public final class ScannerConstants {
     public static final String CONFIGURTION_FILE_NAME = "scanner-config.yaml";
     public static final String RESOURCE_FILE_PATH = "src/main/resources";
     public static final String DEFAULT_FTP_PRODUCT_PATH = "default_product_path";
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String APPLICATION_JSON = "application/json";
 
     // FTP configuration.
     public static final String FTP_USERNAME = "ftp_username";
@@ -60,4 +57,6 @@ public final class ScannerConstants {
     public static final String DEBUG = "debug";
     public static final String ERROR = "error";
 
+    private ScannerConstants() {
+    }
 }

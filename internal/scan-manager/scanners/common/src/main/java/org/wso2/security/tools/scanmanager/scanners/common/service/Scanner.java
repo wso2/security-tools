@@ -35,14 +35,14 @@ public interface Scanner {
      *
      * @throws IOException
      */
-    void init() throws IOException;
+    public void init() throws IOException;
 
     /**
      * Run scan.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
      */
-    ResponseEntity startScan(ScanRequest scanRequest);
+    public ResponseEntity startScan(ScanRequest scanRequest);
 
     /**
      * Stop the last scan for a given application.
@@ -50,6 +50,6 @@ public interface Scanner {
      * @param scanRequest Object that represent the required information for tha scanner operation
      * @return whether delete scan operation success
      */
-    ResponseEntity cancelScan(ScanRequest scanRequest);
+    public ResponseEntity cancelScan(ScanRequest scanRequest);
 
 }

@@ -14,8 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
 
 package org.wso2.security.tools.scanmanager.scanners.common.config;
@@ -26,45 +24,16 @@ package org.wso2.security.tools.scanmanager.scanners.common.config;
 public interface Configuration {
 
     /**
-     * Set the scanner class dynamically in the container environment.
-     *
-     * @param scannerClass
-     */
-    void setScannerClass(String scannerClass);
-
-    /**
      * Get the scanner class name that should be engaged.
      *
-     * @return
+     * @return scanner class name
      */
-    String getScannerClass();
+    public String getScannerClass();
 
     /**
-     * Set the directory that the product packs are stored.
+     * Set the scanner class dynamically in the container environment.
      *
-     * @param productPath The path to directory
+     * @param scannerClass implementation of the Scanner.
      */
-    void setProductPathForZipFileUpload(String productPath);
-
-    /**
-     * Get the directory that the product packs are stored.
-     *
-     * @return directory path
-     */
-    String getProductPathForZipFileUpload();
-
-    /**
-     * Set the directory that the github products should be cloned.
-     *
-     * @param productPath The path to directory which products should be cloned
-     */
-    void setProductPathForGitClone(String productPath);
-
-    /**
-     * Get the directory that the github product are cloned.
-     *
-     * @return local git repository path
-     */
-    String getProductPathForGitClone();
-
+    public void setScannerClass(String scannerClass);
 }

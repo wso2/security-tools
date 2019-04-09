@@ -27,8 +27,7 @@ package org.wso2.security.tools.scanmanager.scanners.common.exception;
 public class InvalidRequestException extends Exception {
 
     /**
-     * Constructs a new runtime exception with {@code null} as its
-     * detail message.
+     * Constructs a new runtime exception with {@code null} as its detail message.
      */
     public InvalidRequestException() {
         super();
@@ -44,8 +43,7 @@ public class InvalidRequestException extends Exception {
     }
 
     /**
-     * Constructs a new runtime exception with the specified detail message and
-     * cause.
+     * Constructs a new runtime exception with the specified detail message and cause.
      */
     public InvalidRequestException(String message, Throwable e) {
         super(message, e);
