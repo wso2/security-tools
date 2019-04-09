@@ -78,7 +78,7 @@ public class VeracodeScannerConfiguration extends ScannerConfiguration {
         this.logFilePath = logFilePath;
     }
 
-    public String getApiID() {
+    public String getApiId() {
         return apiID;
     }
 
