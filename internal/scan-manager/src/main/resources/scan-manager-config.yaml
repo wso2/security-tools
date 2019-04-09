@@ -1,0 +1,23 @@
+#Scan Manager Configuration
+
+databaseUrl : 
+userName : 
+password : 
+
+ftpHost :
+ftpPort :
+ftpUsername :
+ftpPassword :
+queueUsername :
+queuePassword :
+brokerHostname : 
+brokerPort : 
+
+scanners:
+ - name:
+   id:
+   scannerType:
+   fields:
+    - id:
+      displayName:
+      type:
