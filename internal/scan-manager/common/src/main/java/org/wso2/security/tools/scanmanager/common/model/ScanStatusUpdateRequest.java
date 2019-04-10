@@ -15,20 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.wso2.security.tools.scanmanager.common;
+package org.wso2.security.tools.scanmanager.common.model;
 
 /**
- * Model class to represent a Scan status request object coming from Scanner Side.
+ * Model class to represent a Scan status request object coming from Scanner.
  */
 public class ScanStatusUpdateRequest {
 
     private String jobId;
-
-    private String scanStatus;
-
+    private ScanStatus scanStatus;
     private String scannerScanId;
-
     private String scanReportPath;
 
     public String getScanReportPath() {
@@ -47,13 +43,11 @@ public class ScanStatusUpdateRequest {
         this.jobId = jobId;
     }
 
-    public String getScanStatus() {
-
+    public ScanStatus getScanStatus() {
         return scanStatus;
     }
 
-    public void setScanStatus(String scanStatus) {
-
+    public void setScanStatus(ScanStatus scanStatus) {
         this.scanStatus = scanStatus;
     }
 

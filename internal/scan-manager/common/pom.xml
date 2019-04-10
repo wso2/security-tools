@@ -23,6 +23,46 @@ under the License.
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.security.tools.scanmanager</groupId>
-    <artifactId>common</artifactId>
-    <version>1.0.0</version>
+    <artifactId>org.wso2.security.tools.scanmanager.common</artifactId>
+    <version>1.1.0</version>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.verson}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <configLocation>
+                                https://raw.githubusercontent.com/wso2/code-quality-tools/v1.2/checkstyle/checkstyle.xml
+                            </configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.verson}</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+        <maven.compiler.plugin.verson>3.8.0</maven.compiler.plugin.verson>
+        <maven.checkstyle.plugin.verson>2.16</maven.checkstyle.plugin.verson>
+    </properties>
 </project>
