@@ -14,19 +14,13 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
-
 package org.wso2.security.tools.scanmanager.scanners.veracode;
 
 /**
- * VeracodeScannerConstants of the application.
+ * Veracode Scanner Constants of the application.
  */
 public final class VeracodeScannerConstants {
-
-    private VeracodeScannerConstants() {
-    }
 
     //Veracode configuration properties
     public static final String VERACODE_API_ID = "veracode_apiID";
@@ -53,7 +47,6 @@ public final class VeracodeScannerConstants {
     public static final String WORK_DIRECTORY_SUFIX = "-work";
     public static final String SUMMARY = "_summary";
     public static final String THIRD_PARTY = "_third_party";
-
     // Veracode Scanner Status
     public static final String INCOMPLETE = "Incomplete";
     public static final String NOT_SUBMITTED_TO_ENGINE = "Not Submitted to Engine";
@@ -73,5 +66,7 @@ public final class VeracodeScannerConstants {
     public static final String NO_MODULES_SELECTED = "No modules selected";
     public static final String SCAN_ALL_MODULE = "scan_all_top_level_modules";
     public static final String PENDING_INTERVAL = "Pending Internal Review";
+    private VeracodeScannerConstants() {
+    }
 
 }

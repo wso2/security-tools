@@ -14,7 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 package org.wso2.security.tools.scanmanager.scanners.veracode;
 
@@ -22,7 +21,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * App.
+ * Represent the Veracode Scanner micro-service application.
  */
 @SpringBootApplication
 public class App {

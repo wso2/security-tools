@@ -14,10 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
-
 package org.wso2.security.tools.scanmanager.scanners.veracode.handler;
 
 import com.veracode.parser.util.XmlUtils;
@@ -26,10 +23,9 @@ import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
-import org.wso2.security.tools.scanmanager.scanners.common.config.ConfigurationReader;
 import org.wso2.security.tools.scanmanager.common.ScanStatus;
-import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
+import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
+import org.wso2.security.tools.scanmanager.scanners.veracode.Util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.veracode.VeracodeScannerConstants;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -55,7 +51,6 @@ public class VeracodeResultProcessor {
     private static final Logger log = Logger.getLogger(VeracodeResultProcessor.class);
 
     private VeracodeResultProcessor() {
-
     }
 
     /**
@@ -101,7 +96,6 @@ public class VeracodeResultProcessor {
         } else {
             log.warn("Veracode returned the following message : " + errorString);
         }
-
         return isValidXML;
     }
 
@@ -110,14 +104,32 @@ public class VeracodeResultProcessor {
      *
      * @param result Result that we got from the Veracode
      * @return the Scan's status
-     * @throws ScannerException
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     * @throws XPathExpressionException
+     * @throws IOException
      */
     public static String getActualScanStatus(String result) throws SAXException, ParserConfigurationException,
             XPathExpressionException, IOException {
-        String xPath = ConfigurationReader.getConfigProperty(VeracodeScannerConstants.SCAN_STATUS_XPATH);
-        String statusAttribute = ConfigurationReader.getConfigProperty(VeracodeScannerConstants.SCAN_STATUS_ATTRIBUTE);
+        String xPath = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants
+                .SCAN_STATUS_XPATH);
+        String statusAttribute = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants
+                .SCAN_STATUS_ATTRIBUTE);
 
         return getElementByXMLResult(result, xPath, statusAttribute);
+    }
+
+    /**
+     * Build the Error String by Throwable.
+     *
+     * @param e throwable
+     * @return the build error string
+     */
+    public static String getFullErrorMessage(Throwable e) {
+        if (e.getCause() == null) {
+            return e.getMessage();
+        }
+        return e.getMessage() + "\n\nCaused by: " + getFullErrorMessage(e.getCause());
     }
 
     /**
@@ -132,8 +144,8 @@ public class VeracodeResultProcessor {
      * @throws XPathExpressionException
      * @throws IOException
      */
-    private static String getElementByXMLResult(String result, String xPath, String attribute)
-            throws XPathExpressionException, IOException, SAXException, ParserConfigurationException {
+    private static String getElementByXMLResult(String result, String xPath, String attribute) throws
+            XPathExpressionException, IOException, SAXException, ParserConfigurationException {
         String status = null;
         XPathFactory xPathfactory = XPathFactory.newInstance();
         XPath xpath = xPathfactory.newXPath();
@@ -143,8 +155,8 @@ public class VeracodeResultProcessor {
         Document doc = convertStringToDocument(result);
 
         SimpleNamespaceContext namespaces = new SimpleNamespaceContext();
-        namespaces.bindNamespaceUri(VeracodeScannerConstants.VERACODE,
-                ConfigurationReader.getConfigProperty(VeracodeScannerConstants.NAMESPACE));
+        namespaces.bindNamespaceUri(VeracodeScannerConstants.VERACODE, YAMLConfigurationReader.getInstance()
+                .getConfigProperty(VeracodeScannerConstants.NAMESPACE));
         xpath.setNamespaceContext(namespaces);
         expr = xpath.compile(xPath);
 
@@ -154,7 +166,6 @@ public class VeracodeResultProcessor {
             Node currentItem = nl.item(i);
             status = currentItem.getAttributes().getNamedItem(attribute).getNodeValue();
         }
-
         return status;
     }
 
@@ -163,10 +174,12 @@ public class VeracodeResultProcessor {
      *
      * @param xmlStr XML string that needs to convert
      * @return converted XML Document
-     * @throws ScannerException
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
      */
-    private static Document convertStringToDocument(String xmlStr) throws ParserConfigurationException,
-            IOException, SAXException {
+    private static Document convertStringToDocument(String xmlStr) throws ParserConfigurationException, IOException,
+            SAXException {
         DocumentBuilderFactory factory = FileUtil.getSecuredDocumentBuilderFactory();
         DocumentBuilder builder = factory.newDocumentBuilder();
 
@@ -183,8 +196,8 @@ public class VeracodeResultProcessor {
      * @throws XPathExpressionException
      * @throws IOException
      */
-    public static ScanStatus getScanStatus(String result) throws SAXException,
-            ParserConfigurationException, XPathExpressionException, IOException {
+    public static ScanStatus getScanStatus(String result) throws SAXException, ParserConfigurationException,
+            XPathExpressionException, IOException {
         ScanStatus scanStatus = ScanStatus.COMPLETED;
         String status = null;
         boolean isValidXML = VeracodeResultProcessor.isOperationProceedWithoutError(result);
@@ -257,10 +270,11 @@ public class VeracodeResultProcessor {
      * @throws XPathExpressionException
      * @throws IOException
      */
-    public static String getBuildIdByResponse(String apiResult) throws SAXException,
-            ParserConfigurationException, XPathExpressionException, IOException {
-        String xPath = ConfigurationReader.getConfigProperty(VeracodeScannerConstants.BUILD_ID_XPATH);
-        String buildIdAttribute = ConfigurationReader.getConfigProperty(VeracodeScannerConstants.BUILD_ID_ATTRIBUTE);
+    public static String getBuildIdByResponse(String apiResult) throws SAXException, ParserConfigurationException,
+            XPathExpressionException, IOException {
+        String xPath = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants.BUILD_ID_XPATH);
+        String buildIdAttribute = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants
+                .BUILD_ID_ATTRIBUTE);
 
         return getElementByXMLResult(apiResult, xPath, buildIdAttribute);
     }

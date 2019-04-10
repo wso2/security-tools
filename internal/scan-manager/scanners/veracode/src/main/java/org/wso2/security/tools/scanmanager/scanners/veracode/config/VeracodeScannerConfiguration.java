@@ -14,10 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
- *
  */
-
 package org.wso2.security.tools.scanmanager.scanners.veracode.config;
 
 import org.wso2.security.tools.scanmanager.scanners.common.config.Configuration;
@@ -32,7 +29,7 @@ public class VeracodeScannerConfiguration extends ScannerConfiguration {
     private String outputFilePath;
     private String logFilePath;
     private char[] apiKey;
-    private String apiID;
+    private String apiId;
 
     private VeracodeScannerConfiguration() {
     }
@@ -79,11 +76,11 @@ public class VeracodeScannerConfiguration extends ScannerConfiguration {
     }
 
     public String getApiId() {
-        return apiID;
+        return apiId;
     }
 
-    public void setApiID(String apiID) {
-        this.apiID = apiID;
+    public void setApiId(String apiId) {
+        this.apiId = apiId;
     }
 
     public char[] getApiKey() {
@@ -93,5 +90,4 @@ public class VeracodeScannerConfiguration extends ScannerConfiguration {
     public void setApiKey(char[] apiKey) {
         this.apiKey = apiKey;
     }
-
 }
