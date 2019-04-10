@@ -1,9 +1,0 @@
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/MavenBuildReceiver.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/JiraAttachmentUpdater.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/JiraRestClient.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/JiraIssueCreatorAPI.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/JiraIssueCreatorExtension.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/FileHandleUtill.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/XmlDomParser.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/LastScanReport.class
-org/wso2/security/tools/zap/ext/zapwso2jiraplugin/IssueCreatorConstants.class
