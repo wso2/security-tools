@@ -20,6 +20,9 @@ package org.wso2.security.tools.scanmanager.webapp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * The main class that starts the spring boot application.
+ */
 @SpringBootApplication
 public class Application {
 

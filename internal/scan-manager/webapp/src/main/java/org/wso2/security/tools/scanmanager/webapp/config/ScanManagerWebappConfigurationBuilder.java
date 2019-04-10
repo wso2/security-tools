@@ -39,7 +39,7 @@ public class ScanManagerWebappConfigurationBuilder {
     }
 
     /**
-     * Reading the scan manager webapp configuration from scan-manager-webapp-config.yaml
+     * Reading the scan manager webapp configuration from scan-manager-webapp-config.yaml.
      *
      * @return
      * @throws ScanManagerWebappException

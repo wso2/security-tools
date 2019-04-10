@@ -32,7 +32,7 @@ import java.util.Map;
 public class HttpRequestHandler {
 
     /**
-     * Send a POST Request
+     * Send a POST Request.
      * @param url
      * @param requestHeaders
      * @param requestParams
@@ -47,7 +47,7 @@ public class HttpRequestHandler {
     }
 
     /**
-     * Send a GET request
+     * Send a GET request.
      * @param url
      * @param requestHeaders
      * @param requestParams

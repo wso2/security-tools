@@ -19,5 +19,5 @@
 clientId:
 clientSecret:
 
-scanManagerHost:
-scanManagerPort:
+scanManagerHost: localhost
+scanManagerPort: 8080

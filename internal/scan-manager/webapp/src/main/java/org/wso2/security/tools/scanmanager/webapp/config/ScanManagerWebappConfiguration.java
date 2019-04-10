@@ -18,8 +18,8 @@
 package org.wso2.security.tools.scanmanager.webapp.config;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.wso2.security.tools.scanmanager.webapp.util.Constants;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
+import org.wso2.security.tools.scanmanager.webapp.util.Constants;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,14 +29,19 @@ import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANNERS
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANS_URI;
 
 /**
- * Scan Manager webapp configuration model class
+ * Scan Manager webapp configuration model class.
  */
 public class ScanManagerWebappConfiguration {
 
     private char[] clientId;
     private char[] clientSecret;
     private String scanManagerHost;
-    private String scanManagerPort;
+    private Integer scanManagerPort;
+
+    private static final String CLIENT_ID_KEY = "clientId";
+    private static final String CLIENT_SECRET_KEY = "clientSecret";
+    private static final String SCAN_MANAGER_HOST_KEY = "scanManagerHost";
+    private static final String SCAN_MANAGER_PORT_KEY = "scanManagerPort";
 
     private static final ScanManagerWebappConfiguration scanManagerWebappConfiguration =
             new ScanManagerWebappConfiguration();
@@ -45,10 +50,10 @@ public class ScanManagerWebappConfiguration {
     }
 
     public void init(Map<String, Object> configObjectMap) {
-        this.clientId = (char[]) configObjectMap.get("clientId");
-        this.clientSecret = (char[]) configObjectMap.get("clientSecret");
-        this.scanManagerHost = (String) configObjectMap.get("scanManagerHost");
-        this.scanManagerPort = (String) configObjectMap.get("scanManagerPort");
+        this.clientId = (char[]) configObjectMap.get(CLIENT_ID_KEY);
+        this.clientSecret = (char[]) configObjectMap.get(CLIENT_SECRET_KEY);
+        this.scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
+        this.scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
     }
 
     public static ScanManagerWebappConfiguration getInstance() {
@@ -68,30 +73,41 @@ public class ScanManagerWebappConfiguration {
     }
 
     public int getScanManagerPort() throws NumberFormatException {
-        return Integer.parseInt(scanManagerPort);
+        return scanManagerPort;
     }
 
+    /**
+     * Building the scans URL.
+     *
+     * @return
+     * @throws ScanManagerWebappException
+     */
     public URI getScanURL() throws ScanManagerWebappException {
         URI uri = null;
         try {
             uri = (new URIBuilder())
                     .setHost(scanManagerHost)
-                    .setPort(Integer.parseInt(scanManagerPort))
+                    .setPort(scanManagerPort)
                     .setScheme(Constants.SCHEME).setPath(SCANS_URI)
                     .build();
         } catch (URISyntaxException e) {
-            throw new ScanManagerWebappException("Unable to build the start scan URL", e);
+            throw new ScanManagerWebappException("Unable to build the scanS URL", e);
         }
         return uri;
     }
 
-
+    /**
+     * Building the scanners URL.
+     *
+     * @return
+     * @throws ScanManagerWebappException
+     */
     public URI getScannersURL() throws ScanManagerWebappException {
         URI uri = null;
         try {
             uri = (new URIBuilder())
                     .setHost(scanManagerHost)
-                    .setPort(Integer.parseInt(scanManagerPort))
+                    .setPort(scanManagerPort)
                     .setScheme(Constants.SCHEME).setPath(SCANNERS_URI)
                     .build();
         } catch (URISyntaxException e) {

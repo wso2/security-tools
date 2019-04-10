@@ -24,85 +24,67 @@
     <version>1.0-SNAPSHOT</version>
     <name>scan manager webapp</name>
     <url>http://maven.apache.org</url>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.6.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+            <version>${org.springframework.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>4.3.10.RELEASE</version>
+            <version>${org.springframework.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <version>1.2</version>
+            <version>${javax.servlet.jstl.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <version>${tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20131018</version>
+            <version>${org.json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.24</version>
+            <version>${org.yaml.sankeyaml.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>2.26.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-            <version>1.2.1.RELEASE</version>
+            <version>${com.nimbusds.jose.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.3.0</version>
+            <version>${com.fasterxml.jackson.dataformat.yaml.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.7.3</version>
+            <version>${com.fasterxml.jackson.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${com.fasterxml.jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
+            <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
-        <!-- Apache HttpClient Mime -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.5.3</version>
+            <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
     </dependencies>
 
@@ -112,6 +94,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${org.springframework.version}</version>
                 <configuration>
                     <mainClass>org.wso2.security.tools.scanmanager.webapp.Application</mainClass>
                 </configuration>
@@ -125,7 +108,30 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.verson}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <configLocation>
+                                https://raw.githubusercontent.com/wso2/code-quality-tools/v1.2/checkstyle/checkstyle.xml
+                            </configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.verson}</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -133,4 +139,17 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <org.json.version>20131018</org.json.version>
+        <org.yaml.sankeyaml.version>1.24</org.yaml.sankeyaml.version>
+        <com.nimbusds.jose.version>2.26.1</com.nimbusds.jose.version>
+        <org.springframework.version>1.5.6.RELEASE</org.springframework.version>
+        <com.fasterxml.jackson.dataformat.yaml.version>2.3.0</com.fasterxml.jackson.dataformat.yaml.version>
+        <com.fasterxml.jackson.core.version>2.7.3</com.fasterxml.jackson.core.version>
+        <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
+        <tomcat.version>8.5.16</tomcat.version>
+        <javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
+        <maven.compiler.plugin.verson>3.8.0</maven.compiler.plugin.verson>
+        <maven.checkstyle.plugin.verson>2.16</maven.checkstyle.plugin.verson>
+    </properties>
 </project>

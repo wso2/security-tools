@@ -17,6 +17,9 @@
  */
 package org.wso2.security.tools.scanmanager.webapp.util;
 
+/**
+ * Constants class for scan manager webapp.
+ */
 public class Constants {
 
     private Constants() {

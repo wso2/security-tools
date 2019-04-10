@@ -22,6 +22,9 @@ import org.wso2.security.tools.scanmanager.webapp.model.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility class for scan manager webapp.
+ */
 public class Utils {
 
     private Utils() {

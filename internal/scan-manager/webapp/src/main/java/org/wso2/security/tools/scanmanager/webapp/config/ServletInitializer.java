@@ -20,6 +20,9 @@ package org.wso2.security.tools.scanmanager.webapp.config;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 
+/**
+ * Spring boot servlet initializer class.
+ */
 public class ServletInitializer extends SpringBootServletInitializer {
 
     @Override

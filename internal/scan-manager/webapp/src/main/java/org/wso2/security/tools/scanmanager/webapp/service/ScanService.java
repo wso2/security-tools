@@ -68,7 +68,7 @@ public class ScanService {
     private static final String CONTENT_TYPE_HEADER_VALUE = "application/json";
 
     /**
-     * Start a scan
+     * Start a scan.
      *
      * @param multipartFileMultiValueMap
      * @param parameterMap
@@ -104,7 +104,7 @@ public class ScanService {
     }
 
     /**
-     * Get the list of scanners
+     * Get the list of scanners.
      *
      * @return
      */

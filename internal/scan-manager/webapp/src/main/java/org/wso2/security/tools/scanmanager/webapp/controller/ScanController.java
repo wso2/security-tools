@@ -41,7 +41,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 /**
- * Controller methods to resolve views
+ * Controller methods to resolve views.
  */
 @Controller
 @RequestMapping("scanManager")
@@ -87,8 +87,7 @@ public class ScanController {
         if (status == HttpStatus.SC_OK) {
             return successView;
         } else {
-            failureView.addObject(MESSAGE_ATTRIBUTE, "An error occurred while " +
-                    "initiating the scan.");
+            failureView.addObject(MESSAGE_ATTRIBUTE, "An error occurred while initiating the scan.");
             return failureView;
         }
     }
@@ -132,7 +131,7 @@ public class ScanController {
     }
 
     @PostMapping(value = "/scanConfiguration")
-    public ModelAndView upload(@RequestParam("scannerID") String scannerID) {
+    public ModelAndView upload(@RequestParam("scannerId") String scannerId) {
         List<Scanner> scannerList = null;
         Scanner selectedScanner = new Scanner();
 
@@ -145,7 +144,7 @@ public class ScanController {
             context.setAttribute(SCANNERS_CONTEXT_ATTRIBUTE, scannerList);
         }
         for (Scanner scanner : scannerList) {
-            if (scanner.getId().equals(scannerID)) {
+            if (scanner.getId().equals(scannerId)) {
                 selectedScanner.setId(scanner.getId());
                 selectedScanner.setName(scanner.getName());
                 selectedScanner.setType(scanner.getType());

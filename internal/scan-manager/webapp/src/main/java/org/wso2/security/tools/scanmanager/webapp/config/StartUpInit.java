@@ -25,7 +25,7 @@ import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappExc
 import javax.annotation.PostConstruct;
 
 /**
- * This class defines start up methods of the application
+ * This class defines start up methods of the application.
  */
 @Component
 public class StartUpInit {
