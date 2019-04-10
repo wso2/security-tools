@@ -4,7 +4,7 @@ now="$(date +'%d_%m_%Y_%H')"
 filename="db_backup_$now".gz
 backupfolder="$HOME/database_backup"
 fullpathbackupfile="$backupfolder/$filename"
-logfile="$backupfolder/"backup_log_"$(date +'%Y_%m')".txt
+logfile="$backupfolder/backup_log_$(date +'%Y_%m').txt"
 
 mysqlpassword=$(cat $HOME/script/config/mysqlPassword.conf)
 
@@ -13,8 +13,9 @@ mysqldump --user=mysqlusername --password=mysqlpassword --default-character-set=
 echo "mysqldump finished at $(date +'%d-%m-%Y %H:%M:%S')" >> "$logfile"
 
 find "$backupfolder" -name db_backup_* -mtime +8 -exec rm {} \;
-echo "old files deleted" >> "$logfile"
+echo "Deleted old files" >> "$logfile"
 
-echo "operation finished at $(date +'%d-%m-%Y %H:%M:%S')" >> "$logfile"
-echo "*****************" >> "$logfile"
+echo "Operation finished at $(date +'%d-%m-%Y %H:%M:%S')" >> "$logfile"
+echo " " >> "$logfile"
+echo " " >> "$logfile"
 
