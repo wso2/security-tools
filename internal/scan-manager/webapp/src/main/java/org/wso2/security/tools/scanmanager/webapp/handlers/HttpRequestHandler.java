@@ -33,6 +33,7 @@ public class HttpRequestHandler {
 
     /**
      * Send a POST Request.
+
      * @param url
      * @param requestHeaders
      * @param requestParams
@@ -48,6 +49,7 @@ public class HttpRequestHandler {
 
     /**
      * Send a GET request.
+
      * @param url
      * @param requestHeaders
      * @param requestParams

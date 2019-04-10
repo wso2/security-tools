@@ -34,7 +34,7 @@ public class Utils {
      * Filter the scanners by given scanner type.
      *
      * @param scannerList list of scanner objects
-     * @param type        scanner type
+     * @param type scanner type
      * @return a list of scanner objects with the given type
      */
     public static List<Scanner> getScannersByType(List<Scanner> scannerList, String type) {
