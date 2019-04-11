@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.wso2.security.tools.scanmanager.controller.ScanController;
 import org.wso2.security.tools.scanmanager.model.Log;
 /**
  * The class {@code LogDAOImpl} is the DAO class that manage the persistence method implementations of the,
@@ -22,7 +21,7 @@ public class LogDAOImpl implements LogDAO {
     /**
      * Persist logs.
      *
-     * @param Log 
+     * @param log
      * @return status
      */
     @Override

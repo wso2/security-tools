@@ -57,7 +57,7 @@ public class CallbackController {
                 Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                 scan.setStartTimestamp(timestamp);
             } else if (scanStatus.equals(ScanStatus.SUBMITTED.toString())) {
-                scan.setActualScannerIdl(scanStatusUpdateObject.getActualScannerId());
+                scan.setActualScannerId(scanStatusUpdateObject.getActualScannerId());
             }
 
             scanService.persist(scan);
