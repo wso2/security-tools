@@ -3,6 +3,7 @@ codecov:
     - travis
 
 ignore:
+  - "external"
   - "internal/advisory-tool"
   - "internal/automation-manager"
   - "internal/automation-scripts"
@@ -12,3 +13,32 @@ ignore:
   - "internal/security-mail-automation"
   - "internal/support-jira-announcement-tool"
   - "internal/zap-extensions"
+
+coverage:
+  status:
+    project:
+      default: off
+      config_checker:
+        flags: config_checker
+      scan_manager:
+        flags: scan_manager
+      scan_manager_main:
+        flags: scan_manager_main
+      scan_manager_scans:
+        flags: scan_manager_scans
+
+flags:
+  config_checker:
+    paths:
+      - internal/config-checker/
+  scan_manager:
+    paths:
+      - internal/scan-manager/
+  scan_manager_main:
+    paths:
+      - internal/scan-manager/common
+      - internal/scan-manager/core
+      - internal/scan-manager/webapp
+  scan_manager_scans:
+    paths:
+      - internal/scan-manager/scanners

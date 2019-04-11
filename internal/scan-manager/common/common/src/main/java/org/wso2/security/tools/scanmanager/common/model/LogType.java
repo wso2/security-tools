@@ -15,35 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.wso2.security.tools.scanmanager.common;
+package org.wso2.security.tools.scanmanager.common.model;
 
 /**
- * Error message model class.
+ * An enumeration of types describing the type of Log message.
  */
-public class ErrorMessage {
-
-    private int code;
-    private String message;
-
-    public ErrorMessage(int code, String message) {
-        this.code = code;
-        this.message = message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
+public enum LogType {
+    ERROR, WARN, INFO, DEBUG
 }

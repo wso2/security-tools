@@ -48,7 +48,10 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>common</module>
+                <module>common/common</module>
+                <module>common/external</module>
+                <module>common/internal</module>
+
                 <module>core</module>
                 <module>webapp</module>
 

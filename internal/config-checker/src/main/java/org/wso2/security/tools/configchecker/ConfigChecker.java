@@ -220,11 +220,11 @@ public class ConfigChecker {
             HashMap<String, ParentProperty> parentPropertiesHashMap, String productPath)
             throws ConfigCheckerException {
         List<String> excludeListForParentConfig = new ArrayList<>();
-        List<ConfigElement> childConfigElementsResultList = new ArrayList<>();
+        List<ConfigElement> childConfigElementsResultList;
         List<ConfigElement> parentConfigElementsResultList = new ArrayList<>();
-        List<ConfigElement> mergedConfigElementsResultList = new ArrayList<>();
+        List<ConfigElement> mergedConfigElementsResultList;
         HashMap<String, List<ConfigElement>> configElementsResultMap = new HashMap<>();
-        HashMap<String, List<ConfigElement>> allconfigElementsResultMap = new HashMap<>();
+        HashMap<String, List<ConfigElement>> allconfigElementsResultMap;
 
         try {
             for (ChildProperty childProperty : childPropertyList) {
