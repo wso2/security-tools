@@ -34,4 +34,5 @@
     <artifactId>org.wso2.security.tools.scanmanager.common</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
+    <name>Scan Manager - Common</name>
 </project>
