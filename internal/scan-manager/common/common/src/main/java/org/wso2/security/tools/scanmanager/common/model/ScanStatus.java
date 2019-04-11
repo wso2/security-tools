@@ -16,29 +16,11 @@
  *  under the License.
  */
 
-package org.wso2.security.tools.scanmanager.common;
+package org.wso2.security.tools.scanmanager.common.model;
 
 /**
- * Class to represent the object that goes with the POST request.
+ * Enum to represent the scan status.
  */
-public class ScanResponse {
-
-    private String scanId;
-    private boolean isSuccessful;
-
-    public String getScanId() {
-        return scanId;
-    }
-
-    public void setScanId(String scanId) {
-        this.scanId = scanId;
-    }
-
-    public boolean getIsSuccessful() {
-        return isSuccessful;
-    }
-
-    public void setIsSuccessful(boolean isSuccessful) {
-        this.isSuccessful = isSuccessful;
-    }
+public enum ScanStatus {
+    PENDING, SUBMITTED, RUNNING, CANCELED, COMPLETED, FINISHED, ERROR, FAILED
 }

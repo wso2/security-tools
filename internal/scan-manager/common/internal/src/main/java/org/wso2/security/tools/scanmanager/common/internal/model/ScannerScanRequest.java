@@ -15,19 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.security.tools.scanmanager.common.internal.model;
 
-package org.wso2.security.tools.scanmanager.common;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Represents a scan log request coming from scanner micro services.
+ * Represents a scan request coming from scanner micro services.
  */
-public class ScanLogRequest {
+public class ScannerScanRequest {
 
+    private String appId;
     private String jobId;
-
-    private String type;
-
-    private String message;
+    private Map<String, List<String>> fileMap;
+    private Map<String, List<String>> propertyMap;
 
     public String getJobId() {
         return jobId;
@@ -37,19 +38,27 @@ public class ScanLogRequest {
         this.jobId = jobId;
     }
 
-    public String getType() {
-        return type;
+    public Map<String, List<String>> getFileMap() {
+        return fileMap;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setFileMap(Map<String, List<String>> fileMap) {
+        this.fileMap = fileMap;
     }
 
-    public String getMessage() {
-        return message;
+    public Map<String, List<String>> getPropertyMap() {
+        return propertyMap;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setPropertyMap(Map<String, List<String>> propertyMap) {
+        this.propertyMap = propertyMap;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 }
