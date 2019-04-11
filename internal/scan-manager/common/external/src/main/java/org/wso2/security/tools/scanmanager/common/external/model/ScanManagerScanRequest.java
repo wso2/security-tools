@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.security.tools.scanmanager.common.model;
+package org.wso2.security.tools.scanmanager.common.external.model;
+
+import org.wso2.security.tools.scanmanager.common.model.ScanType;
 
 import java.io.Serializable;
 import java.util.Map;

@@ -15,14 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.security.tools.scanmanager.common.model;
+package org.wso2.security.tools.scanmanager.common.external.model;
+
+import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
+import org.wso2.security.tools.scanmanager.common.model.ScannerType;
 
 import java.sql.Timestamp;
 
 /**
  * Model class for representing the API response after initiating a scan.
  */
-public class ScanResponse {
+public class ScanManagerScanResponse {
 
     private String jobId;
     private String scanName;

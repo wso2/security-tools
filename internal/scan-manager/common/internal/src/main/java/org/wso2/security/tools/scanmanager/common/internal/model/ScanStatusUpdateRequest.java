@@ -15,7 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.security.tools.scanmanager.common.model;
+package org.wso2.security.tools.scanmanager.common.internal.model;
+
+import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 
 /**
  * Model class to represent a Scan status request object coming from Scanner.
