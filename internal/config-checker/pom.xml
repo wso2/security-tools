@@ -16,9 +16,11 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <groupId>org.wso2.security.tools</groupId>
         <artifactId>security-tools-parent</artifactId>
@@ -124,6 +126,7 @@
             </plugin>
         </plugins>
     </build>
+    
     <properties>
         <org.slf4j.api.version>1.7.25</org.slf4j.api.version>
         <org.slf4j.log4j12.version>1.7.25</org.slf4j.log4j12.version>
@@ -138,4 +141,5 @@
         <maven.jar.plugin.verson>2.4</maven.jar.plugin.verson>
         <maven.checkstyle.plugin.verson>2.16</maven.checkstyle.plugin.verson>
     </properties>
+
 </project>
