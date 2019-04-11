@@ -22,13 +22,13 @@ package org.wso2.security.tools.scanmanager.scanners.veracode.model;
  */
 public class ScanContext {
 
-    // jobId of the scan manager for the current scan
+    // Job ID of the scan manager for the current scan.
     String jobId;
 
-    // appId of the current scan
+    // Application ID of the current scan.
     String appId;
 
-    // location of the product artifact
+    // Location of the product artifact.
     String artifactLocation;
 
     public String getJobId() {

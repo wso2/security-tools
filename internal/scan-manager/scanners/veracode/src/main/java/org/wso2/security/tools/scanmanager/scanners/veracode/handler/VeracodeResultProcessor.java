@@ -135,8 +135,8 @@ public class VeracodeResultProcessor {
     /**
      * Get the required attribute from an XML sttring.
      *
-     * @param result    XML of the Veracode response
-     * @param xPath     to get the required attribute
+     * @param result XML of the Veracode response
+     * @param xPath XPath to select the required attribute
      * @param attribute tag name of the required attribute
      * @return attribute value
      * @throws SAXException

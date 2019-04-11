@@ -57,16 +57,16 @@ import java.nio.charset.StandardCharsets;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class VeracodeScanner implements Scanner {
 
-    // Veracode upload API wrapper
+    // Veracode upload API wrapper.
     private UploadAPIWrapper uploadAPIWrapper;
 
-    // Veracode results API wrapper
+    // Veracode results API wrapper.
     private ResultsAPIWrapper resultsAPIWrapper;
 
-    // scan context object for a particular container
+    // Scan context object for a particular container.
     private ScanContext scanContext;
 
-    // Veracode specific log writer
+    // Veracode specific log writer.
     private PrintStream logWriter;
 
     /**

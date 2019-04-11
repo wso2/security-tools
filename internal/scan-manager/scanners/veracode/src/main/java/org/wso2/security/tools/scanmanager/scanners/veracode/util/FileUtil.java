@@ -141,7 +141,7 @@ public class FileUtil {
      * @param productName      file name to download.
      * @throws ScannerException
      */
-    public static void downloadProduct(String productPathInFTP, String productName, File file) throws
+    public static void downloadProduct(String productPathInFtp, String productName, File file) throws
             IOException, SftpException, JSchException {
         ChannelSftp sftp = goToFTPProductLocation(productPathInFTP);
 
@@ -163,7 +163,7 @@ public class FileUtil {
         Channel channel;
         ChannelSftp sftp;
 
-        //get the FTP configuration to build the connection with FTP server.
+        // Get the FTP configuration to build the connection with FTP server.
         String ftpHost = YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants.FTP_HOST);
         String ftpUsername = YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME);
         char[] ftpPassword = (YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
@@ -235,7 +235,7 @@ public class FileUtil {
     /**
      * Upload the scan report to from container to the FTP location.
      *
-     * @param sftp         ChannelSFTP to connect t the FTP.
+     * @param sftp Channel to connect to the FTP.
      * @param fileToUpload scan report file that upload
      * @throws FileNotFoundException
      * @throws SftpException
@@ -247,7 +247,7 @@ public class FileUtil {
 
             sftp.put(new FileInputStream(file), file.getName());
         } else {
-            throw new ScannerException("File that going to upload cannot be null. ");
+            throw new ScannerException("Upload file cannot be null.");
         }
         sftp.disconnect();
     }
@@ -302,10 +302,10 @@ public class FileUtil {
                     printStatus = true;
                 }
             } else {
-                log.error("Resulted in the following error : Output filepath is missing.");
+                log.error("Output file path is missing.");
             }
         } else {
-            log.error("Unable to retrieve data from byte stream. ");
+            log.error("Unable to retrieve data from byte stream.");
         }
         return printStatus;
     }
