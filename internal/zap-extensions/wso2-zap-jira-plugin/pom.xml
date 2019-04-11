@@ -1,40 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-  ~
-  ~   WSO2 Inc. licenses this file to you under the Apache License,
-  ~   Version 2.0 (the "License"); you may not use this file except
-  ~   in compliance with the License.
-  ~   You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~   Unless required by applicable law or agreed to in writing,
-  ~   software distributed under the License is distributed on an
-  ~   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~   KIND, either express or implied.  See the License for the
-  ~   specific language governing permissions and limitations
-  ~   under the License.
-  -->
+~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~
+~   WSO2 Inc. licenses this file to you under the Apache License,
+~   Version 2.0 (the "License"); you may not use this file except
+~   in compliance with the License.
+~   You may obtain a copy of the License at
+~
+~      http://www.apache.org/licenses/LICENSE-2.0
+~
+~   Unless required by applicable law or agreed to in writing,
+~   software distributed under the License is distributed on an
+~   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~   KIND, either express or implied.  See the License for the
+~   specific language governing permissions and limitations
+~   under the License.
+-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.security.tools.zap.ext.jira</groupId>
     <artifactId>wso2jiraplugin</artifactId>
     <version>alpha-1</version>
-
-
     <packaging>jar</packaging>
-
-
-    <properties>
-        <!-- Encoding configuration -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
 
     <build>
         <plugins>
@@ -51,114 +43,108 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.zaproxy</groupId>
+            <artifactId>zaproxy</artifactId>
+            <version>2.5.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/log4j/log4j -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.4</version>
+            <classifier>jdk15</classifier>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20160212</version>
+        </dependency>
+        <dependency>
+            <groupId>org.owasp.zap</groupId>
+            <artifactId>zap-api</artifactId>
+            <version>2.4.7</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient-osgi -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-osgi</artifactId>
+            <version>4.3</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+        </dependency>
 
-        <dependencies>
-            <dependency>
-                <groupId>org.zaproxy</groupId>
-                <artifactId>zaproxy</artifactId>
-                <version>2.5.0</version>
-                <scope>provided</scope>
-            </dependency>
+        <!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-client -->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.19.2</version>
+        </dependency>
 
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.4</version>
-            </dependency>
+        <!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-core -->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
+            <version>1.19.2</version>
+        </dependency>
 
-            <!-- https://mvnrepository.com/artifact/log4j/log4j -->
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
-            </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.8.3</version>
+        </dependency>
 
-            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>4.5</version>
-            </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.james/apache-mime4j -->
+        <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-mime4j</artifactId>
+            <version>0.6.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.8.3</version>
+        </dependency>
 
-            <dependency>
-                <groupId>net.sf.json-lib</groupId>
-                <artifactId>json-lib</artifactId>
-                <version>2.4</version>
-                <classifier>jdk15</classifier>
-            </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+    </dependencies>
 
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>2.11.0</version>
-            </dependency>
-
-
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>20160212</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.owasp.zap</groupId>
-                <artifactId>zap-api</artifactId>
-                <version>2.4.7</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient-osgi -->
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient-osgi</artifactId>
-                <version>4.3</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.9</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-client -->
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-client</artifactId>
-                <version>1.19.2</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/com.sun.jersey/jersey-core -->
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-core</artifactId>
-                <version>1.19.2</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
-            <dependency>
-                <groupId>org.jsoup</groupId>
-                <artifactId>jsoup</artifactId>
-                <version>1.8.3</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.apache.james/apache-mime4j -->
-            <dependency>
-                <groupId>org.apache.james</groupId>
-                <artifactId>apache-mime4j</artifactId>
-                <version>0.6.1</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>1.8.3</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.0.1</version>
-            </dependency>
-
-        </dependencies>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
 </project>
