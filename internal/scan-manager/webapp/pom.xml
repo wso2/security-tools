@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -15,15 +16,25 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://maven.apache.org/POM/4.0.0"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.wso2.security.tools</groupId>
+        <artifactId>scan-manager-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.security.tools</groupId>
-    <artifactId>scan-manager-webapp</artifactId>
+    <groupId>org.wso2.security.tools.scanmanager</groupId>
+    <artifactId>webapp</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>scan manager webapp</name>
-    <url>http://maven.apache.org</url>
+
+    <name>Scan Manager - Webapp</name>
 
     <dependencies>
         <dependency>
@@ -106,37 +117,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven.checkstyle.plugin.verson}</version>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <configLocation>
-                                https://raw.githubusercontent.com/wso2/code-quality-tools/v1.2/checkstyle/checkstyle.xml
-                            </configLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.verson}</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
     <properties>
@@ -149,7 +129,5 @@
         <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
         <tomcat.version>8.5.16</tomcat.version>
         <javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
-        <maven.compiler.plugin.verson>3.8.0</maven.compiler.plugin.verson>
-        <maven.checkstyle.plugin.verson>2.16</maven.checkstyle.plugin.verson>
     </properties>
 </project>
