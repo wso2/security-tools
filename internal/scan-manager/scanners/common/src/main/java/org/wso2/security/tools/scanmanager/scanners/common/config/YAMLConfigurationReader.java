@@ -62,24 +62,6 @@ public class YAMLConfigurationReader implements ConfigurationReader {
     }
 
     /**
-     * Load the properties from the property file.
-     *
-     * @param configFileLocation Path to configuration file
-     * @throws IOException
-     */
-    private void loadConfiguration(String configFileLocation) throws IOException {
-        Yaml yaml = new Yaml();
-
-        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
-            configObjectMap = yaml.load(inputStream);
-            String scanManagerCallbackURL = ScannerConstants.HTTP_PROTOCOL + System.getenv(
-                    ScannerConstants.SCAN_MANAGER_HOST) + ":" + System.getenv(ScannerConstants.SCAN_MANAGER_PORT)
-                    + getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
-            configObjectMap.put(ScannerConstants.SCAN_MANAGER_CALLBACK_URL, scanManagerCallbackURL);
-        }
-    }
-
-    /**
      * Reads the required property from the property file using the given key and returns the corresponding value.
      *
      * @param key The key mapping to the required value of the property file.
@@ -96,5 +78,23 @@ public class YAMLConfigurationReader implements ConfigurationReader {
      */
     public Map getConfigs() {
         return configObjectMap;
+    }
+
+    /**
+     * Load the properties from the property file.
+     *
+     * @param configFileLocation Path to configuration file
+     * @throws IOException
+     */
+    private void loadConfiguration(String configFileLocation) throws IOException {
+        Yaml yaml = new Yaml();
+
+        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
+            configObjectMap = yaml.load(inputStream);
+            String scanManagerCallbackURL = ScannerConstants.HTTP_PROTOCOL + System.getenv(
+                    ScannerConstants.SCAN_MANAGER_HOST) + ":" + System.getenv(ScannerConstants.SCAN_MANAGER_PORT)
+                    + getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
+            configObjectMap.put(ScannerConstants.SCAN_MANAGER_CALLBACK_URL, scanManagerCallbackURL);
+        }
     }
 }

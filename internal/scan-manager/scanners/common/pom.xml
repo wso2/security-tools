@@ -40,47 +40,52 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>1.5.6.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${org.springframework.boot.starter.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
+            <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.54</version>
+            <version>${com.jcraft.jsch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.12.0.wso2v1</version>
+            <version>${org.wso2.orbit.xerces.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.16</version>
+            <version>${org.apache.commons.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.24</version>
+            <version>${org.yaml.snakeyaml.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.2</version>
+            <version>${com.google.code.gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>common-internal</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.internal.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>common</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -88,7 +93,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.1.4.RELEASE</version>
+                <version>${org.springframework.boot.maven.version}</version>
                 <configuration>
                     <fork>true</fork>
                     <mainClass>org.wso2.security.tools.scanmanager.scanners.common.App</mainClass>
@@ -106,4 +111,19 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <org.springframework.boot.starter.version>1.5.6.RELEASE</org.springframework.boot.starter.version>
+        <log4j.version>1.2.17</log4j.version>
+        <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
+        <org.wso2.orbit.xerces.version>2.12.0.wso2v1</org.wso2.orbit.xerces.version>
+        <org.apache.commons.version>1.16</org.apache.commons.version>
+        <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
+        <org.yaml.snakeyaml.version>1.24</org.yaml.snakeyaml.version>
+        <com.google.code.gson.version>2.8.2</com.google.code.gson.version>
+        <org.wso2.security.tools.scanmanager.common.internal.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.internal.version>
+        <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.version>
+        <org.springframework.boot.maven.version>2.1.4.RELEASE</org.springframework.boot.maven.version>
+    </properties>
 </project>

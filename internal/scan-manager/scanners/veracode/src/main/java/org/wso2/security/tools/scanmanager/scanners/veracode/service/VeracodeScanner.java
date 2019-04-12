@@ -28,10 +28,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.wso2.security.tools.scanmanager.common.ErrorMessage;
-import org.wso2.security.tools.scanmanager.common.ScanRequest;
-import org.wso2.security.tools.scanmanager.common.ScanStatus;
-import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
+import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
+import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
+import org.wso2.security.tools.scanmanager.common.model.LogType;
+import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
@@ -41,7 +41,6 @@ import org.wso2.security.tools.scanmanager.scanners.veracode.handler.ScanTask;
 import org.wso2.security.tools.scanmanager.scanners.veracode.handler.VeracodeResultProcessor;
 import org.wso2.security.tools.scanmanager.scanners.veracode.model.ScanContext;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -49,6 +48,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * Represents the Veracode Scanner.
@@ -58,16 +58,36 @@ import java.nio.charset.StandardCharsets;
 public class VeracodeScanner implements Scanner {
 
     // Veracode upload API wrapper.
-    private UploadAPIWrapper uploadAPIWrapper;
+    private UploadAPIWrapper uploadAPIWrapper = null;
 
     // Veracode results API wrapper.
-    private ResultsAPIWrapper resultsAPIWrapper;
+    private ResultsAPIWrapper resultsAPIWrapper = null;
 
     // Scan context object for a particular container.
     private ScanContext scanContext;
 
     // Veracode specific log writer.
     private PrintStream logWriter;
+
+    /**
+     * Initialising the Veracode Wrapper options.
+     *
+     * @throws IOException
+     */
+    public VeracodeScanner() throws IOException {
+        loadConfiguration();
+        VeracodeCommand.Options options;
+
+        options = new VeracodeCommand.Options();
+        options._output_folderpath = VeracodeScannerConfiguration.getInstance().getOutputFolderPath();
+        options._output_filepath = VeracodeScannerConfiguration.getInstance().getOutputFilePath();
+        options._log_filepath = VeracodeScannerConfiguration.getInstance().getLogFilePath();
+        options._vid = VeracodeScannerConfiguration.getInstance().getApiId();
+        options._vkey = String.valueOf(VeracodeScannerConfiguration.getInstance().getApiKey());
+        createLogWriter(options);
+        getUploadAPIWrapper(options);
+        getResultAPIWrapper(options);
+    }
 
     /**
      * Initialising the Veracode configurations.
@@ -96,33 +116,13 @@ public class VeracodeScanner implements Scanner {
     }
 
     /**
-     * Initialising the Veracode Wrapper options.
-     *
-     * @throws IOException
-     */
-    public void init() throws IOException {
-        loadConfiguration();
-        VeracodeCommand.Options options;
-
-        options = new VeracodeCommand.Options();
-        options._output_folderpath = VeracodeScannerConfiguration.getInstance().getOutputFolderPath();
-        options._output_filepath = VeracodeScannerConfiguration.getInstance().getOutputFilePath();
-        options._log_filepath = VeracodeScannerConfiguration.getInstance().getLogFilePath();
-        options._vid = VeracodeScannerConfiguration.getInstance().getApiId();
-        options._vkey = String.valueOf(VeracodeScannerConfiguration.getInstance().getApiKey());
-        createLogWriter(options);
-        getUploadAPIWrapper(options);
-        getResultAPIWrapper(options);
-    }
-
-    /**
      * Run the scan using product zip file.
      *
      * @param scanRequest Object that represent the required information for the scanner operation
      * @return ResponseEntity with status of the request
      */
     @Override
-    public ResponseEntity startScan(ScanRequest scanRequest) {
+    public ResponseEntity startScan(ScannerScanRequest scanRequest) {
         scanContext = new ScanContext();
         scanContext.setJobId(scanRequest.getJobId());
         scanContext.setAppId(scanRequest.getAppId());
@@ -140,7 +140,7 @@ public class VeracodeScanner implements Scanner {
                         message), HttpStatus.BAD_REQUEST);
                 CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null,
                         null);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), message, ScannerConstants.ERROR);
+                CallbackUtil.persistScanLog(scanContext.getJobId(), message, LogType.ERROR);
             }
         } else {
             String message = "Error occured while submitting the start scan request since " +
@@ -149,7 +149,7 @@ public class VeracodeScanner implements Scanner {
                     message), HttpStatus.BAD_REQUEST);
             CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null,
                     null);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), message, ScannerConstants.ERROR);
+            CallbackUtil.persistScanLog(scanContext.getJobId(), message, LogType.ERROR);
         }
         return responseEntity;
     }
@@ -161,7 +161,7 @@ public class VeracodeScanner implements Scanner {
      * @return ResponseEntity with status of the request
      */
     @Override
-    public ResponseEntity cancelScan(ScanRequest scanRequest) {
+    public ResponseEntity cancelScan(ScannerScanRequest scanRequest) {
 
         ResponseEntity responseEntity;
         String result;
@@ -179,7 +179,7 @@ public class VeracodeScanner implements Scanner {
                         message), HttpStatus.BAD_REQUEST);
                 CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null,
                         null);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), message, ScannerConstants.ERROR);
+                CallbackUtil.persistScanLog(scanContext.getJobId(), message, LogType.ERROR);
             }
         } catch (IOException e) {
             String message = "Error occured while deleting the last scan of the application : "
@@ -188,7 +188,7 @@ public class VeracodeScanner implements Scanner {
                     message), HttpStatus.INTERNAL_SERVER_ERROR);
             CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null,
                     null);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), message, ScannerConstants.ERROR);
+            CallbackUtil.persistScanLog(scanContext.getJobId(), message, LogType.ERROR);
         }
         return responseEntity;
     }

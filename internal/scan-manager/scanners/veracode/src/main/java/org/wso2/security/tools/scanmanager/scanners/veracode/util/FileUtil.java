@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.security.tools.scanmanager.scanners.veracode.Util;
+package org.wso2.security.tools.scanmanager.scanners.veracode.util;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -35,9 +35,6 @@ import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -53,6 +50,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Utility class for file handling.
@@ -113,8 +113,9 @@ public class FileUtil {
      * @throws IOException
      */
     public static void zipFiles(String source, String destination) throws ArchiveException, IOException {
-        try (ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream(
-                ArchiveStreamFactory.ZIP, new FileOutputStream(destination))) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(destination);
+             ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream(
+                     ArchiveStreamFactory.ZIP, fileOutputStream)) {
             File newFile = new File(source);
             File[] fileList = newFile.listFiles();
             if (fileList != null) {
@@ -128,7 +129,7 @@ public class FileUtil {
                     }
                 }
             } else {
-                log.warn("File list that needs to be archived cannot be null. ");
+                log.warn("File list that needs to be archived cannot be null.");
             }
             archive.finish();
         }
@@ -137,27 +138,27 @@ public class FileUtil {
     /**
      * Download the product pack from the FTP location.
      *
-     * @param productPathInFTP path to download pack in the FTP location.
+     * @param productPathInFtp path to download pack in the FTP location.
      * @param productName      file name to download.
      * @throws ScannerException
      */
     public static void downloadProduct(String productPathInFtp, String productName, File file) throws
             IOException, SftpException, JSchException {
-        ChannelSftp sftp = goToFTPProductLocation(productPathInFTP);
+        ChannelSftp sftp = goToFtpProductLocation(productPathInFtp);
 
-        downloadFromFTP(sftp.get(productName), file);
+        downloadFromFtp(sftp.get(productName), file);
         sftp.disconnect();
     }
 
     /**
      * Go to the FTP location where the product pack is.
      *
-     * @param productPathInFTP path to the product pack
+     * @param productPathInFtp path to the product pack
      * @return SFTP channel to access the FTP location
      * @throws JSchException
      * @throws SftpException
      */
-    private static ChannelSftp goToFTPProductLocation(String productPathInFTP) throws JSchException, SftpException {
+    private static ChannelSftp goToFtpProductLocation(String productPathInFtp) throws JSchException, SftpException {
         JSch jsch = new JSch();
         Session session;
         Channel channel;
@@ -179,9 +180,9 @@ public class FileUtil {
         channel = session.openChannel(ScannerConstants.SFTP);
         sftp = (ChannelSftp) channel;
         sftp.connect();
-        sftp.cd(productPathInFTP);
+        sftp.cd(productPathInFtp);
 
-        cleanFTPPassword(ftpPassword);
+        cleanFtpPassword(ftpPassword);
 
         return sftp;
     }
@@ -193,7 +194,7 @@ public class FileUtil {
      * @param file  product file
      * @throws IOException
      */
-    private static void downloadFromFTP(InputStream input, File file) throws IOException {
+    private static void downloadFromFtp(InputStream input, File file) throws IOException {
         byte[] buffer = new byte[1024];
         int readCount;
 
@@ -210,7 +211,7 @@ public class FileUtil {
      *
      * @param ftpPassword
      */
-    private static void cleanFTPPassword(char[] ftpPassword) {
+    private static void cleanFtpPassword(char[] ftpPassword) {
         for (int i = 0; i < ftpPassword.length; i++) {
             ftpPassword[i] = '\0';
         }
@@ -227,25 +228,26 @@ public class FileUtil {
      * @throws ScannerException
      */
     public static void uploadReport(String ftpReportUploadPath, File fileToUpload) throws SftpException, JSchException,
-            FileNotFoundException, ScannerException {
-        ChannelSftp sftp = goToFTPProductLocation(ftpReportUploadPath);
-        uploadFileToFTP(sftp, fileToUpload);
+            IOException, ScannerException {
+        ChannelSftp sftp = goToFtpProductLocation(ftpReportUploadPath);
+        uploadFileToFtp(sftp, fileToUpload);
     }
 
     /**
      * Upload the scan report to from container to the FTP location.
      *
-     * @param sftp Channel to connect to the FTP.
+     * @param sftp         Channel to connect to the FTP.
      * @param fileToUpload scan report file that upload
      * @throws FileNotFoundException
      * @throws SftpException
      */
-    private static void uploadFileToFTP(ChannelSftp sftp, File fileToUpload) throws FileNotFoundException,
-            SftpException, ScannerException {
+    private static void uploadFileToFtp(ChannelSftp sftp, File fileToUpload) throws IOException, SftpException,
+            ScannerException {
         if (fileToUpload != null) {
             File file = new File(String.valueOf(fileToUpload));
-
-            sftp.put(new FileInputStream(file), file.getName());
+            try (InputStream inputStream = new FileInputStream(file)) {
+                sftp.put(inputStream, file.getName());
+            }
         } else {
             throw new ScannerException("Upload file cannot be null.");
         }

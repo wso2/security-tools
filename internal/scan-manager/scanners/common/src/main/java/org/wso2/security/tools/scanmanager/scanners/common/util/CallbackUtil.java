@@ -26,16 +26,14 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
-import org.wso2.security.tools.scanmanager.common.ScanLogRequest;
-import org.wso2.security.tools.scanmanager.common.ScanStatus;
-import org.wso2.security.tools.scanmanager.common.ScanStatusUpdateRequest;
+import org.wso2.security.tools.scanmanager.common.internal.model.ScanLogRequest;
+import org.wso2.security.tools.scanmanager.common.internal.model.ScanStatusUpdateRequest;
+import org.wso2.security.tools.scanmanager.common.model.LogType;
+import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -65,7 +63,7 @@ public class CallbackUtil {
         Long retryTimeInterval = Long.valueOf(0);
 
         scanStatusUpdateRequest.setJobId(jobId);
-        scanStatusUpdateRequest.setScanStatus(scanStatus.toString());
+        scanStatusUpdateRequest.setScanStatus(scanStatus);
         if (scanStatus.equals(ScanStatus.COMPLETED)) {
             scanStatusUpdateRequest.setScanReportPath(reportPath);
         }
@@ -106,7 +104,7 @@ public class CallbackUtil {
      * @param message log message
      * @param type    log type
      */
-    public static void persistScanLog(String jobId, String message, String type) {
+    public static void persistScanLog(String jobId, String message, LogType type) {
         int responseCode = -1;
         ScanLogRequest scanLogRequest = new ScanLogRequest();
         Gson gson = new Gson();
@@ -159,7 +157,6 @@ public class CallbackUtil {
     private static int doHttpPost(String urlString, StringEntity bodyEntity) throws IOException {
         int responseCode;
         String line;
-        StringBuilder result;
 
         HttpClient client = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost(urlString);
@@ -170,14 +167,6 @@ public class CallbackUtil {
         HttpResponse response = client.execute(post);
         responseCode = response.getStatusLine().getStatusCode();
 
-        try (BufferedReader rd = new BufferedReader(
-                new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8.name()))) {
-            result = new StringBuilder();
-
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-        }
         return responseCode;
     }
 }

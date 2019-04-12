@@ -32,6 +32,7 @@ public class VeracodeScannerConfiguration extends ScannerConfiguration {
     private String apiId;
 
     private VeracodeScannerConfiguration() {
+        apiKey = new char[0];
     }
 
     public static VeracodeScannerConfiguration getInstance() {
@@ -84,10 +85,10 @@ public class VeracodeScannerConfiguration extends ScannerConfiguration {
     }
 
     public char[] getApiKey() {
-        return apiKey;
+        return apiKey.clone();
     }
 
     public void setApiKey(char[] apiKey) {
-        this.apiKey = apiKey;
+        this.apiKey = apiKey.clone();
     }
 }

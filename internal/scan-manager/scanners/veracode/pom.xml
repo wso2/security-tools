@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 
-WSO2 Inc. licenses this file to you under the Apache License,
-Version 2.0 (the "License"); you may not use this file except
-in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
--->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -39,22 +40,27 @@ under the License.
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>1.5.6.RELEASE</version>
+            <version>${org.springframework.boot.starter.version}</version>
         </dependency>
         <dependency>
             <groupId>com.veracode.vosp.api.wrappers</groupId>
             <artifactId>vosp-api-wrappers-java</artifactId>
-            <version>18.6.5.3</version>
+            <version>${vosp.api.wrappers.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
             <artifactId>common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>common-internal</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.internal.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
@@ -67,7 +73,7 @@ under the License.
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.1.4.RELEASE</version>
+                <version>${org.springframework.boot.maven.version}</version>
                 <configuration>
                     <fork>true</fork>
                     <mainClass>org.wso2.security.tools.scanmanager.scanners.veracode.service.VeracodeScanner</mainClass>
@@ -83,20 +89,16 @@ under the License.
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.4</version>
-            </plugin>
         </plugins>
     </build>
+    <properties>
+        <vosp.api.wrappers.version>18.6.5.3</vosp.api.wrappers.version>
+        <org.springframework.boot.starter.version>1.5.6.RELEASE</org.springframework.boot.starter.version>
+        <log4j.version>1.2.17</log4j.version>
+        <org.wso2.security.tools.scanmanager.common.internal.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.internal.version>
+        <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.version>
+        <org.springframework.boot.maven.version>2.1.4.RELEASE</org.springframework.boot.maven.version>
+    </properties>
 </project>

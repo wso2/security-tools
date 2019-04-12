@@ -23,13 +23,17 @@ import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.security.tools.scanmanager.common.ScanStatus;
+import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
-import org.wso2.security.tools.scanmanager.scanners.veracode.Util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.veracode.VeracodeScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.veracode.util.FileUtil;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,10 +42,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * class to represent the processes of veracode responses.
@@ -135,8 +135,8 @@ public class VeracodeResultProcessor {
     /**
      * Get the required attribute from an XML sttring.
      *
-     * @param result XML of the Veracode response
-     * @param xPath XPath to select the required attribute
+     * @param result    XML of the Veracode response
+     * @param xPath     XPath to select the required attribute
      * @param attribute tag name of the required attribute
      * @return attribute value
      * @throws SAXException
@@ -150,7 +150,7 @@ public class VeracodeResultProcessor {
         XPathFactory xPathfactory = XPathFactory.newInstance();
         XPath xpath = xPathfactory.newXPath();
         XPathExpression expr;
-        NodeList nl;
+        NodeList nodelist;
 
         Document doc = convertStringToDocument(result);
 
@@ -160,10 +160,10 @@ public class VeracodeResultProcessor {
         xpath.setNamespaceContext(namespaces);
         expr = xpath.compile(xPath);
 
-        nl = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+        nodelist = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-        for (int i = 0; i < nl.getLength(); i++) {
-            Node currentItem = nl.item(i);
+        for (int i = 0; i < nodelist.getLength(); i++) {
+            Node currentItem = nodelist.item(i);
             status = currentItem.getAttributes().getNamedItem(attribute).getNodeValue();
         }
         return status;
@@ -198,7 +198,7 @@ public class VeracodeResultProcessor {
      */
     public static ScanStatus getScanStatus(String result) throws SAXException, ParserConfigurationException,
             XPathExpressionException, IOException {
-        ScanStatus scanStatus = ScanStatus.COMPLETED;
+        ScanStatus scanStatus = ScanStatus.UNKNOWN;
         String status = null;
         boolean isValidXML = VeracodeResultProcessor.isOperationProceedWithoutError(result);
 
