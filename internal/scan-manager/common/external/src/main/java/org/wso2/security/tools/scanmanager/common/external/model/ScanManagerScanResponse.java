@@ -18,7 +18,7 @@
 package org.wso2.security.tools.scanmanager.common.external.model;
 
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
-import org.wso2.security.tools.scanmanager.common.model.ScannerType;
+import org.wso2.security.tools.scanmanager.common.model.ScanType;
 
 import java.sql.Timestamp;
 
@@ -31,10 +31,60 @@ public class ScanManagerScanResponse {
     private String scanName;
     private String scanDescription;
     private String scannerId;
+    private String scannerName;
     private ScanStatus status;
     private String product;
-    private ScannerType scanType;
+    private ScanType scanType;
     private Timestamp submittedTimestamp;
+    private Timestamp startedTimestamp;
+    private String user;
+    private String scanReportPath;
+
+    public ScanManagerScanResponse(String jobId, String scanName, String scanDescription, String scannerId,
+                                   String scannerName, ScanStatus status, String product, ScanType scanType,
+                                   Timestamp submittedTimestamp, Timestamp startedTimestamp, String user,
+                                   String scanReportPath) {
+        this.jobId = jobId;
+        this.scanName = scanName;
+        this.scanDescription = scanDescription;
+        this.scannerId = scannerId;
+        this.scannerName = scannerName;
+        this.status = status;
+        this.product = product;
+        this.scanType = scanType;
+        this.user = user;
+        this.scanReportPath = scanReportPath;
+
+        if (submittedTimestamp != null) {
+            this.submittedTimestamp = new Timestamp(submittedTimestamp.getTime());
+        }
+        if (startedTimestamp != null) {
+            this.startedTimestamp = new Timestamp(startedTimestamp.getTime());
+        }
+    }
+
+    public ScanManagerScanResponse(Scan scan) {
+        if (scan != null) {
+            this.jobId = scan.getJobId();
+            this.scanName = scan.getScanName();
+            this.scanDescription = scan.getScanDescription();
+            this.status = scan.getStatus();
+            this.product = scan.getProduct();
+            this.scanType = scan.getScanType();
+            this.submittedTimestamp = scan.getSubmittedTimestamp();
+            this.startedTimestamp = scan.getStartTimestamp();
+            this.user = scan.getUser();
+            this.scanReportPath = scan.getReportPath();
+
+            if (scan.getScanner() != null) {
+                this.scannerId = scan.getScanner().getId();
+                this.scannerName = scan.getScanner().getName();
+            }
+        }
+    }
+
+    public ScanManagerScanResponse() {
+    }
 
     public String getJobId() {
         return jobId;
@@ -68,6 +118,14 @@ public class ScanManagerScanResponse {
         this.scannerId = scannerId;
     }
 
+    public String getScannerName() {
+        return scannerName;
+    }
+
+    public void setScannerName(String scannerName) {
+        this.scannerName = scannerName;
+    }
+
     public ScanStatus getStatus() {
         return status;
     }
@@ -84,19 +142,55 @@ public class ScanManagerScanResponse {
         this.product = product;
     }
 
-    public ScannerType getScanType() {
+    public ScanType getScanType() {
         return scanType;
     }
 
-    public void setScanType(ScannerType scanType) {
+    public void setScanType(ScanType scanType) {
         this.scanType = scanType;
     }
 
+    public Timestamp getStartedTimestamp() {
+        if (startedTimestamp != null) {
+            return new Timestamp(startedTimestamp.getTime());
+        } else {
+            return null;
+        }
+    }
+
+    public void setStartedTimestamp(Timestamp startedTimestamp) {
+        if (startedTimestamp != null) {
+            this.startedTimestamp = new Timestamp(startedTimestamp.getTime());
+        }
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getScanReportPath() {
+        return scanReportPath;
+    }
+
+    public void setScanReportPath(String scanReportPath) {
+        this.scanReportPath = scanReportPath;
+    }
+
     public Timestamp getSubmittedTimestamp() {
-        return submittedTimestamp;
+        if (submittedTimestamp != null) {
+            return new Timestamp(submittedTimestamp.getTime());
+        } else {
+            return null;
+        }
     }
 
     public void setSubmittedTimestamp(Timestamp submittedTimestamp) {
-        this.submittedTimestamp = submittedTimestamp;
+        if (submittedTimestamp != null) {
+            this.submittedTimestamp = new Timestamp(submittedTimestamp.getTime());
+        }
     }
 }

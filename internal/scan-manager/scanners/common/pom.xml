@@ -48,6 +48,11 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>common-internal</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.internal.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.3</version>
@@ -106,4 +111,8 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <org.wso2.security.tools.scanmanager.common.internal.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.internal.version>
+    </properties>
 </project>

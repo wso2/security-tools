@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.wso2.security.tools.scanmanager.common.ErrorMessage;
-import org.wso2.security.tools.scanmanager.common.ScanRequest;
+import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
+import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
+import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 
@@ -61,7 +62,7 @@ public class ScannerController {
      */
     @PostMapping("scan")
     @ResponseBody
-    public ResponseEntity startScan(@RequestBody ScanRequest scanRequest) {
+    public ResponseEntity startScan(@RequestBody ScannerScanRequest scanRequest) {
         ResponseEntity responseEntity;
 
         if (!hasScanStarted) {
@@ -75,7 +76,7 @@ public class ScannerController {
             responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                     message), HttpStatus.BAD_REQUEST);
             log.error(message);
-            CallbackUtil.persistScanLog(scanRequest.getJobId(), message, ScannerConstants.ERROR);
+            CallbackUtil.persistScanLog(scanRequest.getJobId(), message, LogType.ERROR);
         }
         return responseEntity;
     }
@@ -88,7 +89,7 @@ public class ScannerController {
      */
     @DeleteMapping("scan")
     @ResponseBody
-    public ResponseEntity cancelScan(@RequestBody ScanRequest scanRequest) {
+    public ResponseEntity cancelScan(@RequestBody ScannerScanRequest scanRequest) {
         ResponseEntity responseEntity;
 
         if (!hasScanStarted) {
@@ -96,7 +97,7 @@ public class ScannerController {
             responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(),
                     message), HttpStatus.BAD_REQUEST);
             log.error(message);
-            CallbackUtil.persistScanLog(scanRequest.getJobId(), message, ScannerConstants.ERROR);
+            CallbackUtil.persistScanLog(scanRequest.getJobId(), message, LogType.ERROR);
         } else {
             log.info("Invoking cancel scan API.");
             responseEntity = scanner.cancelScan(scanRequest);

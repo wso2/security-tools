@@ -23,6 +23,7 @@ import org.wso2.security.tools.scanmanager.webapp.util.Constants;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANNERS_URI;
@@ -61,11 +62,11 @@ public class ScanManagerWebappConfiguration {
     }
 
     public char[] getClientId() {
-        return clientId;
+        return Arrays.copyOf(clientId, 100);
     }
 
     public char[] getClientSecret() {
-        return clientSecret;
+        return Arrays.copyOf(clientSecret, 100);
     }
 
     public String getScanManagerHost() {
