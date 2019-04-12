@@ -21,9 +21,7 @@
 package org.wso2.security.tools.scanmanager.scanners.common.service;
 
 import org.springframework.http.ResponseEntity;
-import org.wso2.security.tools.scanmanager.common.ScanRequest;
-
-import java.io.IOException;
+import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
 
 /**
  * Interface for the scanner.
@@ -31,18 +29,11 @@ import java.io.IOException;
 public interface Scanner {
 
     /**
-     * Initialise the Scanner.
-     *
-     * @throws IOException
-     */
-    public void init() throws IOException;
-
-    /**
      * Run scan.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
      */
-    public ResponseEntity startScan(ScanRequest scanRequest);
+    public ResponseEntity startScan(ScannerScanRequest scanRequest);
 
     /**
      * Stop the last scan for a given application.
@@ -50,6 +41,6 @@ public interface Scanner {
      * @param scanRequest Object that represent the required information for tha scanner operation
      * @return whether delete scan operation success
      */
-    public ResponseEntity cancelScan(ScanRequest scanRequest);
+    public ResponseEntity cancelScan(ScannerScanRequest scanRequest);
 
 }
