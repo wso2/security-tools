@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class YAMLConfigurationReader implements ConfigurationReader {
 
-    private static Map<String, Object> configObjectMap;
+    private Map<String, Object> configObjectMap;
     private static volatile YAMLConfigurationReader instance;
 
     public YAMLConfigurationReader() {

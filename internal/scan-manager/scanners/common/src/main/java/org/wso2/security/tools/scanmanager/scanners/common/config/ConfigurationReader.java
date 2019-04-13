@@ -21,6 +21,9 @@ package org.wso2.security.tools.scanmanager.scanners.common.config;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ *  Represent the common interface for reading configurations from the configuration file.
+ */
 public interface ConfigurationReader {
 
     public void loadConfiguration() throws IOException;
