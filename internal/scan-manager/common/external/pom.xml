@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.security.tools.scanmanager</groupId>
-    <artifactId>org.wso2.security.tools.scanmanager.common.external</artifactId>
+    <artifactId>scan-manager-common-external</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <name>Scan Manager - Common - External</name>
@@ -39,7 +39,7 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>org.wso2.security.tools.scanmanager.common</artifactId>
+            <artifactId>scan-manager-common</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
