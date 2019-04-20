@@ -97,6 +97,36 @@
             <artifactId>httpmime</artifactId>
             <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>common</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>common-external</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons.net.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${com.jcraft.jsch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -108,11 +138,34 @@
                 <version>${org.springframework.version}</version>
                 <configuration>
                     <mainClass>org.wso2.security.tools.scanmanager.webapp.Application</mainClass>
+                    <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</jvmArguments>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
                             <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.verson}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <configLocation>
+                                https://raw.githubusercontent.com/wso2/code-quality-tools/v1.2/checkstyle/checkstyle.xml
+                            </configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -129,5 +182,12 @@
         <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
         <tomcat.version>8.5.16</tomcat.version>
         <javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
+        <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.version>
+        <commons.net.version>3.6</commons.net.version>
+        <commons.lang.version>3.9</commons.lang.version>
+        <com.jcraft.jsch.version>0.1.55</com.jcraft.jsch.version>
+        <commons.io.version>2.6</commons.io.version>
+        <maven.checkstyle.plugin.verson>2.16</maven.checkstyle.plugin.verson>
     </properties>
 </project>

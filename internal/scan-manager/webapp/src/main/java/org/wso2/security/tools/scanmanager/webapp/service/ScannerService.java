@@ -15,27 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.security.tools.scanmanager.webapp.controller;
+package org.wso2.security.tools.scanmanager.webapp.service;
 
-import org.springframework.boot.autoconfigure.web.ErrorController;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
+import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
+
+import java.util.List;
 
 /**
- * Controller class to display errors.
+ * Scanner service interface that defines the scanner service methods.
  */
-@Controller
-public class CustomErrorController implements ErrorController {
+public interface ScannerService {
 
-    private static final String PATH = "/error";
-
-    @RequestMapping(value = PATH)
-    public String error() {
-        return "error_page";
-    }
-
-    @Override
-    public String getErrorPath() {
-        return PATH;
-    }
+    /**
+     * Get the list of scanners.
+     *
+     * @return a list of scanners
+     * @throws ScanManagerWebappException when an error occurs when getting the list of scanners
+     */
+    public List<Scanner> getScanners() throws ScanManagerWebappException;
 }

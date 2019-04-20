@@ -1,0 +1,115 @@
+<!--
+~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~
+~ WSO2 Inc. licenses this file to you under the Apache License,
+~ Version 2.0 (the "License"); you may not use this file except
+~ in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing,
+~ software distributed under the License is distributed on an
+~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~ KIND, either express or implied. See the License for the
+~ specific language governing permissions and limitations
+~ under the License.
+-->
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <%@ include file="../fragments/header.html" %>
+</head>
+<body>
+<%@ include file="../fragments/nav_bar.jsp" %>
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h1>Scans</h1>
+        </div>
+        <c:choose>
+            <c:when test="${scanListResponse.scanList.size() > 0}">
+                <ul class="list-group">
+                    <div class="col-lg-6 col-md-12 col-sm-">
+                        <div class="row">
+                            <c:forEach begin="0" end="${scanListResponse.scanList.size()-1}" var="index">
+                                <div class="jumbotron"
+                                     style="padding-top: 10px; padding-bottom: 15px; padding-left: 20px">
+                                    <br class="list-group-item clearfix">
+                                    <b>Name: </b>${scanListResponse.scanList.get(index).scanName}</br>
+                                    <b> Status: </b> ${scanListResponse.scanList.get(index).status}</br>
+                                    <b>Created time: </b>${scanListResponse.scanList.get(index).submittedTimestamp}
+                                    <div class="pull-right">
+                                        <form action="/scan-manager/report" method="get"
+                                              style="float: left; padding: 5px;">
+                                            <input type="hidden" name="jobId"
+                                                   value="${scanListResponse.scanList.get(index).jobId}"/>
+                                            <c:choose>
+                                                <c:when test="${scanListResponse.scanList.get(index)
+                                                .status.name().equals('COMPLETED')}">
+                                                    <button class="btn btn-primary">Report</button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <button class="btn btn-primary" disabled>Report</button>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </form>
+                                        <form action="/scan-manager/stop" method="post"
+                                              style="float: left; padding: 5px;">
+                                            <input type="hidden" name="jobId"
+                                                   value="${scanListResponse.scanList.get(index).jobId}"/>
+                                            <c:choose>
+                                                <c:when
+                                                        test="${scanListResponse.scanList.get(index).status.name()
+                                                .equals('RUNNING') ||
+                                             scanListResponse.scanList.get(index).status.name()
+                                             .equals('SCAN_PENDING') ||
+                                             scanListResponse.scanList.get(index).status.name()
+                                             .equals('SUBMITTED')}">
+                                                    <button class="btn btn-danger">Stop</button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <button class="btn btn-danger" disabled>Stop</button>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </form>
+                                        <form action="/scan-manager/logs" method="get"
+                                              style="float: left; padding: 5px;">
+                                            <input type="hidden" name="jobId"
+                                                   value="${scanListResponse.scanList.get(index).jobId}"/>
+                                            <button class="btn btn-warning">Logs</button>
+                                        </form>
+                                        </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                            <form action="/scan-manager/scans" method="get">
+                                <input type="hidden" name="page" value="${scanListResponse.currentPage - 1}"/>
+                                <c:if test="${!scanListResponse.isFirstPage()}">
+                                    <button class="btn btn-primary">Previous Page</button>
+                                </c:if>
+                            </form>
+                            <form action="/scan-manager/scans" method="get">
+                                <input type="hidden" name="page" value="${scanListResponse.currentPage + 1}"/>
+                                <c:if test="${!scanListResponse.isLastPage()}">
+                                    <button class="btn btn-primary">Next Page</button>
+                                </c:if>
+                            </form>
+                        
+                        </div>
+                    </div>
+                </ul>
+            </c:when>
+            <c:otherwise>
+                <div>
+                    <h4>No Scans found</h4>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</div>
+<%@ include file="../fragments/footer.jsp" %>
+</body>
+</html>

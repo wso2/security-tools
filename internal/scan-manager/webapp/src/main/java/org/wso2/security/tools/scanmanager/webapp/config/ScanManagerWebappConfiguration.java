@@ -17,31 +17,42 @@
  */
 package org.wso2.security.tools.scanmanager.webapp.config;
 
+import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
+import org.bouncycastle.util.Arrays;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 import org.wso2.security.tools.scanmanager.webapp.util.Constants;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 
+import static org.wso2.security.tools.scanmanager.webapp.util.Constants.LOGS_URI;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANNERS_URI;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANS_URI;
+import static org.wso2.security.tools.scanmanager.webapp.util.Constants.URL_SEPARATOR;
 
 /**
  * Scan Manager webapp configuration model class.
  */
 public class ScanManagerWebappConfiguration {
 
-    private char[] clientId;
-    private char[] clientSecret;
     private String scanManagerHost;
     private Integer scanManagerPort;
+    private String ftpHost;
+    private Integer ftpPort;
+    private String ftpUsername;
+    private char[] ftpPassword;
+    private String ftpBasePath;
 
-    private static final String CLIENT_ID_KEY = "clientId";
-    private static final String CLIENT_SECRET_KEY = "clientSecret";
     private static final String SCAN_MANAGER_HOST_KEY = "scanManagerHost";
     private static final String SCAN_MANAGER_PORT_KEY = "scanManagerPort";
+    private static final String FTP_HOST_KEY = "ftpHost";
+    private static final String FTP_PORT_KEY = "ftpPort";
+    private static final String FTP_USERNAME_KEY = "ftpUsername";
+    private static final String FTP_PASSWORD_KEY = "ftpPassword";
+    private static final String FTP_BASE_PATH = "ftpBasePath";
 
     private static final ScanManagerWebappConfiguration scanManagerWebappConfiguration =
             new ScanManagerWebappConfiguration();
@@ -49,23 +60,46 @@ public class ScanManagerWebappConfiguration {
     private ScanManagerWebappConfiguration() {
     }
 
-    public void init(Map<String, Object> configObjectMap) {
-        this.clientId = (char[]) configObjectMap.get(CLIENT_ID_KEY);
-        this.clientSecret = (char[]) configObjectMap.get(CLIENT_SECRET_KEY);
-        this.scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
-        this.scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
+    public void init(Map<String, Object> configObjectMap) throws ScanManagerWebappException {
+        if (configObjectMap.get(SCAN_MANAGER_HOST_KEY) != null) {
+            this.scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
+        } else {
+            throw new ScanManagerWebappException("Unable to get the scan manager host configuration");
+        }
+        if (configObjectMap.get(SCAN_MANAGER_PORT_KEY) != null) {
+            this.scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
+        } else {
+            throw new ScanManagerWebappException("Unable to get the scan manager port configuration");
+        }
+        if (configObjectMap.get(FTP_HOST_KEY) != null) {
+            this.ftpHost = (String) configObjectMap.get(FTP_HOST_KEY);
+        } else {
+            throw new ScanManagerWebappException("Unable to get the FTP host configuration");
+        }
+        if (configObjectMap.get(FTP_PORT_KEY) != null) {
+            this.ftpPort = (Integer) configObjectMap.get(FTP_PORT_KEY);
+        } else {
+            throw new ScanManagerWebappException("Unable to get the FTP port configuration");
+        }
+        if (configObjectMap.get(FTP_USERNAME_KEY) != null) {
+            this.ftpUsername = (String) configObjectMap.get(FTP_USERNAME_KEY);
+        } else {
+            throw new ScanManagerWebappException("Unable to get the FTP server username configuration");
+        }
+        if (configObjectMap.get(FTP_PASSWORD_KEY) != null) {
+            this.ftpPassword = configObjectMap.get(FTP_PASSWORD_KEY).toString().toCharArray();
+        } else {
+            throw new ScanManagerWebappException("Unable to get the FTP server password configuration");
+        }
+        if (configObjectMap.get(FTP_BASE_PATH) != null) {
+            this.ftpBasePath = (String) configObjectMap.get(FTP_BASE_PATH);
+        } else {
+            throw new ScanManagerWebappException("Unable to get the FTP server base path configuration");
+        }
     }
 
     public static ScanManagerWebappConfiguration getInstance() {
         return scanManagerWebappConfiguration;
-    }
-
-    public char[] getClientId() {
-        return clientId;
-    }
-
-    public char[] getClientSecret() {
-        return clientSecret;
     }
 
     public String getScanManagerHost() {
@@ -76,22 +110,58 @@ public class ScanManagerWebappConfiguration {
         return scanManagerPort;
     }
 
+    public String getFtpHost() {
+        return ftpHost;
+    }
+
+    public Integer getFtpPort() {
+        return ftpPort;
+    }
+
+    public String getFtpUsername() {
+        return ftpUsername;
+    }
+
+    public char[] getFtpPassword() {
+        return Arrays.copyOf(ftpPassword, ftpPassword.length);
+    }
+
+    public String getFtpBasePath() {
+        return ftpBasePath;
+    }
+
     /**
      * Building the scans URL.
      *
-     * @return
-     * @throws ScanManagerWebappException
+     * @param path           additional params that needs to be appended to the scans path (e.g. path params)
+     * @param nameValuePairs request param names and their values
+     * @return scan manager scans URI
+     * @throws ScanManagerWebappException when an error occurs when building the scan manager scans URI
      */
-    public URI getScanURL() throws ScanManagerWebappException {
+    public URI getScanURL(String path, List<NameValuePair> nameValuePairs) throws ScanManagerWebappException {
         URI uri = null;
         try {
-            uri = (new URIBuilder())
-                    .setHost(scanManagerHost)
-                    .setPort(scanManagerPort)
-                    .setScheme(Constants.SCHEME).setPath(SCANS_URI)
-                    .build();
+            uri = buildURI(SCANS_URI, path, nameValuePairs);
         } catch (URISyntaxException e) {
-            throw new ScanManagerWebappException("Unable to build the scanS URL", e);
+            throw new ScanManagerWebappException("Unable to build the scans URL", e);
+        }
+        return uri;
+    }
+
+    /**
+     * Building the logs URL.
+     *
+     * @param path           additional params that needs to be appended to the logs path (e.g. path params)
+     * @param nameValuePairs request param names and their values
+     * @return scan manager logs URI
+     * @throws ScanManagerWebappException when an error occurs when building the scan manager logs URI
+     */
+    public URI getLogURL(String path, List<NameValuePair> nameValuePairs) throws ScanManagerWebappException {
+        URI uri = null;
+        try {
+            uri = buildURI(LOGS_URI, path, nameValuePairs);
+        } catch (URISyntaxException e) {
+            throw new ScanManagerWebappException("Unable to build the logs URL", e);
         }
         return uri;
     }
@@ -99,20 +169,30 @@ public class ScanManagerWebappConfiguration {
     /**
      * Building the scanners URL.
      *
-     * @return
-     * @throws ScanManagerWebappException
+     * @param path           additional params that needs to be appended to the scanners path (e.g. path params)
+     * @param nameValuePairs request param names and their values
+     * @return scan manager scanners URI
+     * @throws ScanManagerWebappException when an error occurs when building the scan manager scanners URI
      */
-    public URI getScannersURL() throws ScanManagerWebappException {
+    public URI getScannersURL(String path, List<NameValuePair> nameValuePairs) throws ScanManagerWebappException {
         URI uri = null;
         try {
-            uri = (new URIBuilder())
-                    .setHost(scanManagerHost)
-                    .setPort(scanManagerPort)
-                    .setScheme(Constants.SCHEME).setPath(SCANNERS_URI)
-                    .build();
+            uri = buildURI(SCANNERS_URI, path, nameValuePairs);
         } catch (URISyntaxException e) {
             throw new ScanManagerWebappException("Unable to build the scanners URL", e);
         }
+        return uri;
+    }
+
+    private URI buildURI(String basePath, String path, List<NameValuePair> nameValuePairs) throws URISyntaxException {
+        URI uri = null;
+        uri = (new URIBuilder())
+                .setHost(scanManagerHost)
+                .setPort(scanManagerPort)
+                .setScheme(Constants.SCHEME)
+                .setPath(basePath + URL_SEPARATOR + path)
+                .addParameters(nameValuePairs)
+                .build();
         return uri;
     }
 }

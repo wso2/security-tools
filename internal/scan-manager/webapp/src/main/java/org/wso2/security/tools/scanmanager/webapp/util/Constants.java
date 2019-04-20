@@ -25,11 +25,24 @@ public class Constants {
     private Constants() {
     }
 
-    public static final String STATIC_SCANNER_TYPE = "static";
-    public static final String DYNAMIC_SCANNER_TYPE = "dynamic";
-    public static final String DEPENDENCY_SCANNER_TYPE = "dependency";
     public static final String SCHEME = "http";
     public static final String SCAN_MANAGER_ENDPOINT = "scan-manager";
-    public static final String SCANS_URI =  SCAN_MANAGER_ENDPOINT + "/scans";
+    public static final String SCAN_MANAGER_VIEW = "scan-manager";
+    public static final String SCANNERS_VIEW_NAME = "scanners";
+    public static final String SCAN_CONFIGURATION_VIEW = "scan_configuration";
+    public static final String SCANS_VIEW = "scans";
+    public static final String LOGS_VIEW = "logs";
+    public static final String ERROR_PAGE_VIEW = "error-page";
+
+    public static final String SCANS_URI = SCAN_MANAGER_ENDPOINT + "/scans";
+    public static final String LOGS_URI = SCAN_MANAGER_ENDPOINT + "/logs";
     public static final String SCANNERS_URI = SCAN_MANAGER_ENDPOINT + "/scanners";
+
+    public static final String URL_SEPARATOR = "/";
+    public static final String DEFAULT_ERROR_PAGE_VIEW = "scanManager/errorPage";
+
+    public static final String FTP_SCAN_DATA_DIRECTORY_NAME = "scandata";
+
+    public static final String PAGE_PARAM_NAME = "page";
+    public static final String JOB_ID_PARAM_NAME = "jobId";
 }

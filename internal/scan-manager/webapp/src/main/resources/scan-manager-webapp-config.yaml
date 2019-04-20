@@ -16,8 +16,12 @@
 
 # Scan Manager webapp configuration.
 
-clientId:
-clientSecret:
+scanManagerHost:
+scanManagerPort:
 
-scanManagerHost: localhost
-scanManagerPort: 8080
+ftpHost:
+ftpPort:
+ftpUsername:
+ftpPassword:
+ftpBasePath:
+

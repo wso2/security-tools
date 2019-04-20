@@ -23,7 +23,6 @@
 <div class="navbar navbar-fixed-bottom">
 <footer class="footer">
     <div class="container">
-        <p class="text-muted">WSO2 Platform Security Team | 2018</p>
     </div>
 </footer>
 </div>
