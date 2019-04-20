@@ -47,11 +47,9 @@ public interface ScannerService {
     /**
      * Get all available scanners.
      *
-     * @param pageNumber page number
-     * @param pageSize   size of the page
-     * @return a list of all the scanners for the given page
+     * @return a list of all the scanners
      */
-    public List<Scanner> getScanners(Integer pageNumber, Integer pageSize);
+    public List<Scanner> getScanners();
 
     /**
      * Get the list of apps for a given scanner and a product name.

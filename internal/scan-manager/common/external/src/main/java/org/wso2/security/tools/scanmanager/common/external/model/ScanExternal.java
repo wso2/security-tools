@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 /**
  * Model class for representing the API response after initiating a scan.
  */
-public class ScanManagerScanResponse {
+public class ScanExternal {
 
     private String jobId;
     private String scanName;
@@ -40,10 +40,10 @@ public class ScanManagerScanResponse {
     private String user;
     private String scanReportPath;
 
-    public ScanManagerScanResponse(String jobId, String scanName, String scanDescription, String scannerId,
-                                   String scannerName, ScanStatus status, String product, ScanType scanType,
-                                   Timestamp submittedTimestamp, Timestamp startedTimestamp, String user,
-                                   String scanReportPath) {
+    public ScanExternal(String jobId, String scanName, String scanDescription, String scannerId,
+                        String scannerName, ScanStatus status, String product, ScanType scanType,
+                        Timestamp submittedTimestamp, Timestamp startedTimestamp, String user,
+                        String scanReportPath) {
         this.jobId = jobId;
         this.scanName = scanName;
         this.scanDescription = scanDescription;
@@ -63,7 +63,7 @@ public class ScanManagerScanResponse {
         }
     }
 
-    public ScanManagerScanResponse(Scan scan) {
+    public ScanExternal(Scan scan) {
         if (scan != null) {
             this.jobId = scan.getJobId();
             this.scanName = scan.getScanName();
@@ -83,7 +83,7 @@ public class ScanManagerScanResponse {
         }
     }
 
-    public ScanManagerScanResponse() {
+    public ScanExternal() {
     }
 
     public String getJobId() {

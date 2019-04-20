@@ -18,8 +18,6 @@
 package org.wso2.security.tools.scanmanager.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
@@ -47,7 +45,7 @@ public class ScannerServiceImpl implements ScannerService {
 
     @Transactional
     public Scanner persistScanner(Scanner scanner) {
-        return scannerDAO.save(scanner);
+        return scannerDAO.saveAndFlush(scanner);
     }
 
     @Transactional
@@ -56,9 +54,8 @@ public class ScannerServiceImpl implements ScannerService {
     }
 
     @Transactional
-    public List<Scanner> getScanners(Integer pageNumber, Integer pageSize) {
-        Pageable pageable = new PageRequest(pageNumber, pageSize);
-        return scannerDAO.findAll(pageable).getContent();
+    public List<Scanner> getScanners() {
+        return scannerDAO.findAll();
     }
 
     @Transactional

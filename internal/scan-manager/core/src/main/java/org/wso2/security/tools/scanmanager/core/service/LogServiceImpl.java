@@ -19,6 +19,7 @@ package org.wso2.security.tools.scanmanager.core.service;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,6 @@ import org.wso2.security.tools.scanmanager.core.dao.LogDAO;
 import org.wso2.security.tools.scanmanager.core.dao.ScanDAO;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 /**
  * The class {@code LogServiceImpl} is the service class that manage the method implementations of the Scan logs.
@@ -92,9 +92,9 @@ public class LogServiceImpl implements LogService {
 
     @Override
     @Transactional
-    public List<Log> getLogsByScan(Scan scan, Integer pageNumber, Integer pageSize) {
+    public Page<Log> getLogsByScan(Scan scan, Integer pageNumber, Integer pageSize) {
         Pageable pageable = new PageRequest(pageNumber, pageSize);
-        return logDAO.getByScanOrderByTimeStampDesc(scan, pageable).getContent();
+        return logDAO.getByScanOrderByTimeStampDesc(scan, pageable);
     }
 
     private String getFullErrorMessage(Throwable e) {

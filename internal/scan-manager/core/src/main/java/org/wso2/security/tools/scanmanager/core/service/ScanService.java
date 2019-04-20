@@ -16,6 +16,7 @@
  */
 package org.wso2.security.tools.scanmanager.core.service;
 
+import org.springframework.data.domain.Page;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
@@ -53,9 +54,9 @@ public interface ScanService {
      *
      * @param pageNumber page number
      * @param pageSize   size of the page
-     * @return a list of scans on the requested page
+     * @return a page containing the requested scans
      */
-    public List<Scan> findAll(Integer pageNumber, Integer pageSize);
+    public Page<Scan> findAll(Integer pageNumber, Integer pageSize);
 
     /**
      * Get scan by job id.

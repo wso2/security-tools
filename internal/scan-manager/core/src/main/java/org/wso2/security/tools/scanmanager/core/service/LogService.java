@@ -17,12 +17,12 @@
  */
 package org.wso2.security.tools.scanmanager.core.service;
 
+import org.springframework.data.domain.Page;
 import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 /**
  * The class {@code LogService} is the service class that manage the methods of the Scan logs.
@@ -57,7 +57,7 @@ public interface LogService {
      * @param scan       scan object
      * @param pageNumber required page number
      * @param pageSize   required page size
-     * @return a list of logs for the requested page
+     * @return requested page containing the logs
      */
-    public List<Log> getLogsByScan(Scan scan, Integer pageNumber, Integer pageSize);
+    public Page<Log> getLogsByScan(Scan scan, Integer pageNumber, Integer pageSize);
 }

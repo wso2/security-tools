@@ -18,6 +18,7 @@ package org.wso2.security.tools.scanmanager.core.service;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -117,9 +118,9 @@ public class ScanServiceImpl implements ScanService {
 
     @Override
     @Transactional
-    public List<Scan> findAll(Integer pageNumber, Integer pageSize) {
+    public Page<Scan> findAll(Integer pageNumber, Integer pageSize) {
         Pageable pageable = new PageRequest(pageNumber, pageSize);
-        return scanDAO.findAllByOrderBySubmittedTimestampDesc(pageable).getContent();
+        return scanDAO.findAllByOrderBySubmittedTimestampDesc(pageable);
     }
 
     @Override

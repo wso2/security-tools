@@ -18,6 +18,7 @@
 package org.wso2.security.tools.scanmanager.core.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +33,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
+import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanFile;
+import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogResponse;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScanRequest;
-import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScanResponse;
+import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanPriorityUpdateRequest;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanProperty;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
@@ -59,9 +62,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.wso2.security.tools.scanmanager.core.util.Constants.DEFAULT_LOG_PAGE_SIZE;
-import static org.wso2.security.tools.scanmanager.core.util.Constants.DEFAULT_SCANNER_PAGE_SIZE;
-import static org.wso2.security.tools.scanmanager.core.util.Constants.DEFAULT_SCAN_PAGE_SIZE;
 import static org.wso2.security.tools.scanmanager.core.util.Constants.SCAN_ARTIFACT;
 import static org.wso2.security.tools.scanmanager.core.util.Constants.SCAN_URL;
 
@@ -92,7 +92,7 @@ public class ScanController {
      * @throws InvalidRequestException when the submitted request is invalid
      */
     @PostMapping(value = "scans", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ScanManagerScanResponse> startScan(@RequestBody ScanManagerScanRequest scanRequest)
+    public ResponseEntity<ScanExternal> startScan(@RequestBody ScanManagerScanRequest scanRequest)
             throws InvalidRequestException {
         Scanner scanner = validateScanRequest(scanRequest);
         Scan scan = new Scan();
@@ -116,7 +116,7 @@ public class ScanController {
         }
         scan = scanService.update(scan);
         new Thread(() -> scanService.beginPendingScans()).start();
-        return new ResponseEntity<>(new ScanManagerScanResponse(scan), HttpStatus.OK);
+        return new ResponseEntity<>(new ScanExternal(scan), HttpStatus.OK);
     }
 
     private Scanner validateScanRequest(ScanManagerScanRequest scanRequest) throws InvalidRequestException {
@@ -142,21 +142,26 @@ public class ScanController {
      * Get the list of available scans by page.
      *
      * @param page required page number
-     * @return a list of available scans for a given page
+     * @return the requested scans page
      */
     @GetMapping(path = "scans")
     @ResponseBody
-    public ResponseEntity<List<ScanManagerScanResponse>> getScans(@RequestParam("page") Integer page) {
-        List<ScanManagerScanResponse> scanManagerScanResponseList = new ArrayList<>();
-
+    public ResponseEntity<ScanManagerScansResponse> getScans(@RequestParam(name = "page", required = false)
+                                                                     Integer page) {
+        List<ScanExternal> scanExternalList = new ArrayList<>();
         Integer scanPageSize = ScanManagerConfiguration.getInstance().getScanPageSize();
-        if (scanPageSize == null) {
-            scanPageSize = DEFAULT_SCAN_PAGE_SIZE;
+        if (page == null) {
+            page = 1;  //initialize to first page if no page number is defined.
         }
-        for (Scan scan : scanService.findAll(page, scanPageSize)) {
-            scanManagerScanResponseList.add(new ScanManagerScanResponse(scan));
+
+        //internal page indexing starts at 0
+        Page<Scan> scansPage = scanService.findAll(page - 1, scanPageSize);
+        for (Scan scan : scansPage.getContent()) {
+            scanExternalList.add(new ScanExternal(scan));
         }
-        return new ResponseEntity<>(scanManagerScanResponseList, HttpStatus.OK);
+        return new ResponseEntity<>(new ScanManagerScansResponse(scanExternalList, scansPage.getTotalPages(),
+                page, scansPage.getSize(), scansPage.hasNext(), scansPage.hasPrevious(), scansPage.isFirst(),
+                scansPage.isLast()), HttpStatus.OK);
     }
 
     /**
@@ -167,11 +172,11 @@ public class ScanController {
      * @throws ResourceNotFoundException when the requested scan is not found
      */
     @GetMapping(value = "scans/{id}")
-    public ResponseEntity<ScanManagerScanResponse> getScan(@PathVariable("id") String jobId)
+    public ResponseEntity<ScanExternal> getScan(@PathVariable("id") String jobId)
             throws ResourceNotFoundException {
         Scan scan = scanService.getScanByJobId(jobId);
         if (scan != null) {
-            return new ResponseEntity<>(new ScanManagerScanResponse(scan), HttpStatus.OK);
+            return new ResponseEntity<>(new ScanExternal(scan), HttpStatus.OK);
         } else {
             throw new ResourceNotFoundException("Unable to find a scan for the given job Id:` " + jobId);
         }
@@ -220,10 +225,10 @@ public class ScanController {
      * @return list of scans for a given status
      */
     @GetMapping(value = "scans/status/{status}")
-    public ResponseEntity<List<ScanManagerScanResponse>> getScansByState(@PathVariable("status") ScanStatus status) {
-        List<ScanManagerScanResponse> scanManagerScanResponseList = new ArrayList<>();
+    public ResponseEntity<List<ScanExternal>> getScansByState(@PathVariable("status") ScanStatus status) {
+        List<ScanExternal> scanManagerScanResponseList = new ArrayList<>();
         for (Scan scan : scanService.getScansByStatus(status)) {
-            scanManagerScanResponseList.add(new ScanManagerScanResponse(scan));
+            scanManagerScanResponseList.add(new ScanExternal(scan));
         }
         return new ResponseEntity<>(scanManagerScanResponseList, HttpStatus.OK);
     }
@@ -284,19 +289,14 @@ public class ScanController {
     }
 
     /**
-     * Get the list  of available scanners by page.
+     * Get the list  of available scanners.
      *
-     * @param page required page number
-     * @return a list of available scanners in the requested page
+     * @return a list of available scanners
      */
     @GetMapping(path = "scanners")
     @ResponseBody
-    public ResponseEntity<List<Scanner>> getScanners(@RequestParam("page") Integer page) {
-        Integer scannerPageSize = ScanManagerConfiguration.getInstance().getScannerPageSize();
-        if (scannerPageSize == null) {
-            scannerPageSize = DEFAULT_SCANNER_PAGE_SIZE;
-        }
-        return new ResponseEntity<>(scannerService.getScanners(page, scannerPageSize), HttpStatus.OK);
+    public ResponseEntity<List<Scanner>> getScanners() {
+        return new ResponseEntity<>(scannerService.getScanners(), HttpStatus.OK);
     }
 
     /**
@@ -339,6 +339,7 @@ public class ScanController {
     }
 
     /**
+     * }
      * Get logs by scan.
      *
      * @param jobId job id of the scan
@@ -347,19 +348,24 @@ public class ScanController {
      * @throws ResourceNotFoundException if the scan cannot be found for the given job id
      */
     @GetMapping(value = "logs")
-    public ResponseEntity<List<Log>> getLogs(@RequestParam("jobId") String jobId,
-                                             @RequestParam("page") Integer page)
+    public ResponseEntity<ScanManagerLogResponse> getLogs(@RequestParam("jobId") String jobId,
+                                                          @RequestParam(name = "page", required = false) Integer page)
             throws ResourceNotFoundException {
         Integer logPageSize = ScanManagerConfiguration.getInstance().getLogPageSize();
-        if (logPageSize == null) {
-            logPageSize = DEFAULT_LOG_PAGE_SIZE;
+        if (page == null) {
+            page = 1;  //initialize to first page if no page number is defined.
         }
 
         Scan scan = scanService.getScanByJobId(jobId);
+
+        //internal page indexing starts at 0
+        Page<Log> logs = logService.getLogsByScan(scan, page - 1, logPageSize);
         if (scan != null) {
-            return new ResponseEntity<>(logService.getLogsByScan(scan, page, logPageSize), HttpStatus.OK);
+            return new ResponseEntity<>(new ScanManagerLogResponse(logs.getContent(), new ScanExternal(scan),
+                    logs.getTotalPages(), page, logs.getSize(), logs.hasNext(), logs.hasPrevious(), logs.isFirst(),
+                    logs.isLast()), HttpStatus.OK);
         } else {
-            throw new ResourceNotFoundException("Unable to find logs for the given job Id:` " + jobId);
+            throw new ResourceNotFoundException("Unable to find logs for the given job Id:`" + jobId);
         }
     }
 }

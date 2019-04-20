@@ -17,18 +17,18 @@
  */
 package org.wso2.security.tools.scanmanager.core.dao;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
+
+import java.util.List;
 
 /**
  * The class {@code ScannerDAO} is the DAO class that manage the persistence methods of the
  * scanners.
  */
 @Repository
-public interface ScannerDAO extends PagingAndSortingRepository<Scanner, String> {
+public interface ScannerDAO extends JpaRepository<Scanner, String> {
 
     /**
      * Remove a scanner by id.
@@ -41,10 +41,9 @@ public interface ScannerDAO extends PagingAndSortingRepository<Scanner, String> 
     /**
      * Find all scanners.
      *
-     * @param pageable page details
-     * @return requested page with the scanners
+     * @return a list of scanners
      */
-    public Page<Scanner> findAll(Pageable pageable);
+    public List<Scanner> findAll();
 
     /**
      * Get scanner by id.
