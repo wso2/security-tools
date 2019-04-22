@@ -64,6 +64,17 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
     public int updateScanStatus(ScanStatus status, String jobId);
 
     /**
+     * Update scanner app id that has been selected for the scan.
+     *
+     * @param scannerAppId scanner app id
+     * @param jobId  scan job id
+     * @return number of rows that were updated
+     */
+    @Modifying
+    @Query("update Scan u set u.scannerAppId = ?1 where u.jobId = ?2")
+    public int updateScannerAppId(String scannerAppId, String jobId);
+
+    /**
      * Update scan priority.
      *
      * @param priority priority level to be updated

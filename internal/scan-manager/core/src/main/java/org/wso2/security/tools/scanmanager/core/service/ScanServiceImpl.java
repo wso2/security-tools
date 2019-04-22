@@ -143,6 +143,12 @@ public class ScanServiceImpl implements ScanService {
 
     @Override
     @Transactional
+    public Integer updateScannerAppId(String jobId, String scannerAppId) {
+        return scanDAO.updateScannerAppId(scannerAppId, jobId);
+    }
+
+    @Override
+    @Transactional
     public List<Scan> getScansByStatus(ScanStatus status) {
         return scanDAO.getByStatus(status);
     }
@@ -205,6 +211,7 @@ public class ScanServiceImpl implements ScanService {
                         freeAppFound = true;
                         initiateScanRequest(scan, scannerApp);
                         updateScanStatus(scan.getJobId(), ScanStatus.SUBMITTED);
+                        updateScannerAppId(scan.getJobId(), scannerApp.getAppId());
                         logService.persist(scan, LogType.INFO, new Timestamp(System.currentTimeMillis()), "Scan " +
                                 "submitted");
                         break;
@@ -219,6 +226,7 @@ public class ScanServiceImpl implements ScanService {
                     ScannerApp scannerApp = scannerApps.get(0); //get the first available app
                     initiateScanRequest(scan, scannerApp);
                     updateScanStatus(scan.getJobId(), ScanStatus.SUBMITTED);
+                    updateScannerAppId(scan.getJobId(), scannerApp.getAppId());
                     logService.persist(scan, LogType.INFO, new Timestamp(System.currentTimeMillis()), "Scan " +
                             "submitted");
                 }
@@ -244,23 +252,19 @@ public class ScanServiceImpl implements ScanService {
 
     @Override
     public Map<String, List<String>> getOccupiedApps() {
-        Map<String, List<String>> occupiedApps = new ConcurrentHashMap<>();
+        Map<String, List<String>> occupiedApps = new HashMap<>();
         List<Scan> initiatedScans = new ArrayList<>();
 
         initiatedScans.addAll(getScansByStatus(ScanStatus.SUBMITTED));
         initiatedScans.addAll(getScansByStatus(ScanStatus.RUNNING));
         initiatedScans.addAll(getScansByStatus(ScanStatus.CANCEL_PENDING));
         for (Scan scan : initiatedScans) {
-            List<ScannerApp> scannerApps = scannerService.getAppsByScannerAndAssignedProduct(scan.getScanner(),
-                    scan.getProduct());
-            for (ScannerApp scannerApp : scannerApps) {
-                if (occupiedApps.containsKey(scan.getScanner().getId())) {
-                    occupiedApps.get(scan.getScanner().getId()).add(scannerApp.getAppId());
-                } else {
-                    List<String> scannerAppIds = new ArrayList<>();
-                    scannerAppIds.add(scannerApp.getAppId());
-                    occupiedApps.put(scan.getScanner().getId(), scannerAppIds);
-                }
+            if (occupiedApps.containsKey(scan.getScanner().getId())) {
+                occupiedApps.get(scan.getScanner().getId()).add(scan.getScannerAppId());
+            } else {
+                List<String> scannerAppIds = new ArrayList<>();
+                scannerAppIds.add(scan.getScannerAppId());
+                occupiedApps.put(scan.getScanner().getId(), scannerAppIds);
             }
         }
         return occupiedApps;

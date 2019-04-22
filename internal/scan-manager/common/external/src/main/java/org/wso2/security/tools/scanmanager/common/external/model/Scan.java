@@ -85,6 +85,9 @@ public class Scan {
     @Column(name = "SCANNER_SCAN_ID")
     private String scannerScanId;
 
+    @Column(name = "SCANNER_APP_ID")
+    private String scannerAppId;
+
     @Column(name = "REPORT_PATH")
     private String reportPath;
 
@@ -111,6 +114,14 @@ public class Scan {
 
     public void setScannerScanId(String scannerScanId) {
         this.scannerScanId = scannerScanId;
+    }
+
+    public String getScannerAppId() {
+        return scannerAppId;
+    }
+
+    public void setScannerAppId(String scannerAppId) {
+        this.scannerAppId = scannerAppId;
     }
 
     public String getScanDescription() {

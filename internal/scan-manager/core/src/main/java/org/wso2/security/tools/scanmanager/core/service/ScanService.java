@@ -85,6 +85,15 @@ public interface ScanService {
     public Integer updateScanPriority(String jobId, ScanPriority priority);
 
     /**
+     * Update scanner app id.
+     *
+     * @param jobId    job id of the scan
+     * @param scannerAppId scanner app id
+     * @return number of rows updated
+     */
+    public Integer updateScannerAppId(String jobId, String scannerAppId);
+
+    /**
      * Get scans with a given status.
      *
      * @param status status of the scan
