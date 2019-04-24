@@ -47,8 +47,8 @@ import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerC
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanType;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScannerApplianceType;
-import org.wso2.security.tools.scanmanagers.scanners.qualys.handler.QualysApiInvoker;
-import org.wso2.security.tools.scanmanagers.scanners.qualys.handler.QualysScanHandler;
+import org.wso2.security.tools.scanmanagers.scanner.qualys.handler.QualysApiInvoker;
+import org.wso2.security.tools.scanmanagers.scanner.qualys.handler.QualysScanHandler;
 import org.wso2.security.tools.scanmanger.scanners.qualys.QualysScannerConstants;
 import org.xml.sax.SAXException;
 
