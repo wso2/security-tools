@@ -31,11 +31,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanFile;
-import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogResponse;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScanRequest;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanPriorityUpdateRequest;
@@ -50,6 +48,7 @@ import org.wso2.security.tools.scanmanager.core.exception.InvalidRequestExceptio
 import org.wso2.security.tools.scanmanager.core.exception.ResourceNotFoundException;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.service.LogService;
+import org.wso2.security.tools.scanmanager.core.service.ScanEngineService;
 import org.wso2.security.tools.scanmanager.core.service.ScanService;
 import org.wso2.security.tools.scanmanager.core.service.ScannerService;
 
@@ -66,8 +65,7 @@ import static org.wso2.security.tools.scanmanager.core.util.Constants.SCAN_ARTIF
 import static org.wso2.security.tools.scanmanager.core.util.Constants.SCAN_URL;
 
 /**
- * The class {@code ScanController} is the web controller which defines the routines for managing
- * scans.
+ * The Web controller which defines the routines for managing scans.
  */
 @Controller
 @RequestMapping("scan-manager")
@@ -76,12 +74,15 @@ public class ScanController {
     private ScannerService scannerService;
     private ScanService scanService;
     private LogService logService;
+    private ScanEngineService scanEngineService;
 
     @Autowired
-    public ScanController(ScannerService scannerService, ScanService scanService, LogService logService) {
+    public ScanController(ScannerService scannerService, ScanService scanService, LogService logService,
+                          ScanEngineService scanEngineService) {
         this.scannerService = scannerService;
         this.scanService = scanService;
         this.logService = logService;
+        this.scanEngineService = scanEngineService;
     }
 
     /**
@@ -105,8 +106,8 @@ public class ScanController {
         scan.setScanName(scanRequest.getScanName());
         scan.setScanDescription(scanRequest.getScanDescription());
         scan.setProduct(scanRequest.getProductName());
-        scan.setStatus(ScanStatus.SCAN_PENDING);
-        scan.setPriority(ScanPriority.MEDIUM);
+        scan.setStatus(ScanStatus.SUBMIT_PENDING);
+        scan.setPriority(ScanPriority.MEDIUM.getValue());
 
         if (scanRequest.getPropertyMap() != null) {
             scan.setScanPropertyList(buildScanPropertyList(scanRequest.getPropertyMap(), scan));
@@ -114,9 +115,11 @@ public class ScanController {
         if (scanRequest.getFileMap() != null) {
             scan.setScanFileList(buildScanFileList(scanRequest.getFileMap(), scan));
         }
-        scan = scanService.update(scan);
-        new Thread(() -> scanService.beginPendingScans()).start();
-        return new ResponseEntity<>(new ScanExternal(scan), HttpStatus.OK);
+        scan = scanService.insert(scan);
+
+        //starting the pending scans
+        new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromStartScanRequest").start();
+        return new ResponseEntity<>(new ScanExternal(scan), HttpStatus.ACCEPTED);
     }
 
     private Scanner validateScanRequest(ScanManagerScanRequest scanRequest) throws InvalidRequestException {
@@ -131,7 +134,7 @@ public class ScanController {
             throw new InvalidRequestException("Scan artifact field is mandatory for Dependency scans");
         }
 
-        Scanner scanner = scannerService.getScannerById(scanRequest.getScannerId());
+        Scanner scanner = scannerService.getById(scanRequest.getScannerId());
         if (scanner == null) {
             throw new InvalidRequestException("Invalid scanner id");
         }
@@ -174,11 +177,11 @@ public class ScanController {
     @GetMapping(value = "scans/{id}")
     public ResponseEntity<ScanExternal> getScan(@PathVariable("id") String jobId)
             throws ResourceNotFoundException {
-        Scan scan = scanService.getScanByJobId(jobId);
+        Scan scan = scanService.getByJobId(jobId);
         if (scan != null) {
             return new ResponseEntity<>(new ScanExternal(scan), HttpStatus.OK);
         } else {
-            throw new ResourceNotFoundException("Unable to find a scan for the given job Id:` " + jobId);
+            throw new ResourceNotFoundException("Unable to find a scan for the given job Id: " + jobId);
         }
     }
 
@@ -193,27 +196,20 @@ public class ScanController {
     @DeleteMapping(value = "scans/{id}")
     public ResponseEntity cancelScan(@PathVariable("id") String jobId) throws ResourceNotFoundException,
             ScanManagerException {
-        Scan scan = scanService.getScanByJobId(jobId);
+        Scan scan = scanService.getByJobId(jobId);
         if (scan != null) {
-            logService.persist(scan, LogType.INFO, new Timestamp(System.currentTimeMillis()),
-                    "Scan cancel requested");
+            logService.insert(scan, LogType.INFO, "Scan cancel requested for the scan: " + jobId);
             ScanStatus scanStatus = scan.getStatus();
-            switch (scanStatus) {
-                case SCAN_PENDING:
-                    scanService.updateScanStatus(jobId, ScanStatus.CANCELED);
-                    break;
-                case SUBMITTED:
-                case RUNNING:
-                    scanService.updateScanStatus(jobId, ScanStatus.CANCEL_PENDING);
-                    scanService.cancelScan(scan);
-                    break;
-                default:
-                    String errorMessage = "The scan is not in a running state";
-                    logService.persist(scan, LogType.ERROR, new Timestamp(System.currentTimeMillis()), errorMessage);
-                    throw new ScanManagerException(errorMessage);
+            if (scanStatus == ScanStatus.SUBMIT_PENDING || scanStatus == ScanStatus.SUBMITTED ||
+                    scanStatus == ScanStatus.RUNNING) {
+                scanEngineService.cancelScan(scan);
+            } else {
+                String errorMessage = "The scan is not in a running state";
+                logService.insert(scan, LogType.ERROR, errorMessage);
+                throw new ScanManagerException(errorMessage);
             }
         } else {
-            throw new ResourceNotFoundException("Unable to find a scan for the given job Id:` " + jobId);
+            throw new ResourceNotFoundException("Unable to find a scan for the given job Id: " + jobId);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -227,7 +223,7 @@ public class ScanController {
     @GetMapping(value = "scans/status/{status}")
     public ResponseEntity<List<ScanExternal>> getScansByState(@PathVariable("status") ScanStatus status) {
         List<ScanExternal> scanManagerScanResponseList = new ArrayList<>();
-        for (Scan scan : scanService.getScansByStatus(status)) {
+        for (Scan scan : scanService.getByStatus(status)) {
             scanManagerScanResponseList.add(new ScanExternal(scan));
         }
         return new ResponseEntity<>(scanManagerScanResponseList, HttpStatus.OK);
@@ -243,17 +239,15 @@ public class ScanController {
     @PostMapping(value = "scans/{jobId}")
     public ResponseEntity updateScanPriority(@PathVariable("jobId") String jobId,
                                              @RequestBody ScanPriorityUpdateRequest scanPriorityUpdateRequest)
-            throws ResourceNotFoundException {
-        Scan scan = scanService.getScanByJobId(jobId);
+            throws ResourceNotFoundException, ScanManagerException {
+        Scan scan = scanService.getByJobId(jobId);
         if (scan != null) {
-            Integer updatedRows = scanService.updateScanPriority(jobId, scanPriorityUpdateRequest.getPriority());
-            if (updatedRows == 1) {
-                return new ResponseEntity(HttpStatus.OK);
-            } else {
-                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            scanService.updatePriority(jobId, scanPriorityUpdateRequest.getPriority());
+            logService.insert(scan, LogType.INFO, "Updated scan priority: " +
+                    scanPriorityUpdateRequest.getPriority());
+            return new ResponseEntity(HttpStatus.OK);
         } else {
-            throw new ResourceNotFoundException("Unable to find a scan for the given job Id:` " + jobId);
+            throw new ResourceNotFoundException("Unable to find a scan for the given job Id: " + jobId);
         }
     }
 
@@ -286,86 +280,5 @@ public class ScanController {
             paramIterator.remove();
         }
         return scanPropertyList;
-    }
-
-    /**
-     * Get the list  of available scanners.
-     *
-     * @return a list of available scanners
-     */
-    @GetMapping(path = "scanners")
-    @ResponseBody
-    public ResponseEntity<List<Scanner>> getScanners() {
-        return new ResponseEntity<>(scannerService.getScanners(), HttpStatus.OK);
-    }
-
-    /**
-     * Add or update a scanner.
-     *
-     * @param scanner scanner details to be added or updated
-     * @return inserted scanner details
-     */
-    @PostMapping(path = "scanners", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity<Scanner> addOrUpdateScanner(@RequestBody Scanner scanner) {
-        if (scannerService.persistScanner(scanner) != null) {
-            return new ResponseEntity<>(scannerService.getScannerById(scanner.getId()), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Remove a scanner.
-     *
-     * @param scannerId scanner id of the scanner to be removed
-     * @return success response if the scanner was removed successfully
-     * @throws InvalidRequestException when the provided scanner id is invalid
-     */
-    @DeleteMapping(path = "scanners/{scannerId}")
-    @ResponseBody
-    public ResponseEntity removeScanner(@PathVariable("scannerId") String scannerId) throws InvalidRequestException {
-        Scanner scanner = scannerService.getScannerById(scannerId);
-        if (scanner != null) {
-            Integer count = scannerService.removeByScannerId(scannerId);
-            if (count == 1) {
-                return new ResponseEntity<>(scanner, HttpStatus.OK);
-            } else {
-                return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } else {
-            throw new InvalidRequestException("Invalid scanner id: " + scannerId);
-        }
-    }
-
-    /**
-     * }
-     * Get logs by scan.
-     *
-     * @param jobId job id of the scan
-     * @param page  required page number
-     * @return a list of logs for the given scan
-     * @throws ResourceNotFoundException if the scan cannot be found for the given job id
-     */
-    @GetMapping(value = "logs")
-    public ResponseEntity<ScanManagerLogResponse> getLogs(@RequestParam("jobId") String jobId,
-                                                          @RequestParam(name = "page", required = false) Integer page)
-            throws ResourceNotFoundException {
-        Integer logPageSize = ScanManagerConfiguration.getInstance().getLogPageSize();
-        if (page == null) {
-            page = 1;  //initialize to first page if no page number is defined.
-        }
-
-        Scan scan = scanService.getScanByJobId(jobId);
-
-        //internal page indexing starts at 0
-        Page<Log> logs = logService.getLogsByScan(scan, page - 1, logPageSize);
-        if (scan != null) {
-            return new ResponseEntity<>(new ScanManagerLogResponse(logs.getContent(), new ScanExternal(scan),
-                    logs.getTotalPages(), page, logs.getSize(), logs.hasNext(), logs.hasPrevious(), logs.isFirst(),
-                    logs.isLast()), HttpStatus.OK);
-        } else {
-            throw new ResourceNotFoundException("Unable to find logs for the given job Id:`" + jobId);
-        }
     }
 }

@@ -24,11 +24,12 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
+import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.Image;
 import com.spotify.docker.client.messages.PortBinding;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
-import org.wso2.security.tools.scanmanager.core.model.ContainerInfo;
+import org.wso2.security.tools.scanmanager.core.model.ScanManagerContainer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,11 +38,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The class {@code DockerHandlerImpl} provides the implementation for the DockerHandler interface.
+ * This class provides the implementation for the Docker containers.
  */
-public class DockerHandlerImpl implements DockerHandler {
+public class DockerContainerHandler implements ContainerHandler {
 
-    private static final String CONTAINER_STATUS_RUNNING = "running";
+    private static final int SECONDS_TO_WAIT_BEFORE_KILLING_CONTAINER = 5;
+    private static final int CONTAINER_HOST_PORT_MINIMUM_VALUE = 20000;
 
     private DockerClient getNewDockerClient() throws DockerCertificateException {
         return DefaultDockerClient.fromEnv().build();
@@ -73,9 +75,15 @@ public class DockerHandlerImpl implements DockerHandler {
         return imageAvailable;
     }
 
+    /**
+     * Generates a host port by checking the ports used by existing containers.
+     *
+     * @return port
+     * @throws ScanManagerException when an error occurs when checking the ports used by existing containers
+     */
     private Integer generateHostPort() throws ScanManagerException {
         List<Integer> allocatedHostPorts = findAllocatedHostPorts();
-        Integer newHostPort = 9080;
+        Integer newHostPort = CONTAINER_HOST_PORT_MINIMUM_VALUE;
         do {
             newHostPort++;
         } while (allocatedHostPorts.contains(newHostPort));
@@ -85,22 +93,19 @@ public class DockerHandlerImpl implements DockerHandler {
     private List<Integer> findAllocatedHostPorts() throws ScanManagerException {
         List<Integer> allocatedHostPorts = new ArrayList<>();
         try (DockerClient dockerClient = getNewDockerClient()) {
-            for (Container container : dockerClient.listContainers()) {
-                for (Container.PortMapping portMapping : container.ports()) {
-                    if (!allocatedHostPorts.contains(portMapping.publicPort())) {
-                        allocatedHostPorts.add(portMapping.publicPort());
-                    }
-                }
-            }
+            dockerClient.listContainers()
+                    .forEach(container -> container.ports()
+                            .forEach(portMapping -> allocatedHostPorts.add(portMapping.publicPort())));
         } catch (DockerCertificateException | InterruptedException | DockerException e) {
             throw new ScanManagerException("Unable to identify the allocated ports", e);
         }
         return allocatedHostPorts;
     }
 
-    public ContainerInfo createContainer(String imageName, String ipAddress, Integer containerPort,
-                                         Map<String, String> labels, List<String> commands,
-                                         String[] environmentVariables) throws ScanManagerException {
+    @Override
+    public ScanManagerContainer createContainer(String imageName, String ipAddress, Integer containerPort,
+                                                Map<String, String> labels, List<String> commands,
+                                                String[] environmentVariables) throws ScanManagerException {
         try (DockerClient dockerClient = getNewDockerClient()) {
             String[] exposedPorts = {containerPort.toString()};
             HashMap<String, List<PortBinding>> portBindings = new HashMap<>();
@@ -126,50 +131,66 @@ public class DockerHandlerImpl implements DockerHandler {
                     .env(environmentVariables)
                     .build();
             ContainerCreation containerCreation = dockerClient.createContainer(containerConfig);
-            return new ContainerInfo(containerCreation.id(), portMapping, commands,
+            return new ScanManagerContainer(containerCreation.id(), false, portMapping, commands,
                     Arrays.asList(environmentVariables), labels);
         } catch (DockerCertificateException | DockerException | InterruptedException e) {
             throw new ScanManagerException("Error occurred while creating the docker container", e);
         }
     }
 
-    public boolean startContainer(String containerId) throws ScanManagerException {
+    @Override
+    public void startContainer(String containerId) throws ScanManagerException {
         try (DockerClient dockerClient = getNewDockerClient()) {
             dockerClient.startContainer(containerId);
-            return CONTAINER_STATUS_RUNNING.equals(inspectContainer(dockerClient, containerId).state().status());
+        } catch (DockerCertificateException | DockerException | InterruptedException e) {
+            throw new ScanManagerException("Error occurred while starting the docker container with container id: " +
+                    containerId, e);
+        }
+    }
+
+    @Override
+    public ScanManagerContainer inspectContainer(String containerId) throws ScanManagerException {
+        ContainerInfo containerInfo = null;
+
+        try (DockerClient dockerClient = getNewDockerClient()) {
+            containerInfo = dockerClient.inspectContainer(containerId);
         } catch (DockerCertificateException | DockerException | InterruptedException e) {
             throw new ScanManagerException("Error occurred while starting the docker container with container id: " +
                     containerId, e);
         }
 
-    }
-
-    private com.spotify.docker.client.messages.ContainerInfo inspectContainer(DockerClient dockerClient,
-                                                                              String containerId)
-            throws DockerException, InterruptedException {
-        return dockerClient.inspectContainer(containerId);
-    }
-
-    public void killContainer(String containerId) throws ScanManagerException {
-        try (DockerClient dockerClient = getNewDockerClient()) {
-            dockerClient.killContainer(containerId);
-        } catch (DockerCertificateException | DockerException | InterruptedException e) {
-            throw new ScanManagerException("Error occurred while killing the docker container with container id: " +
-                    containerId, e);
+        //extracting data from the docker container and populating scan manager container
+        if (containerInfo != null) {
+            Map<Integer, Integer> portMappings = new HashMap<>();
+            for (Map.Entry<String, List<PortBinding>> entry : containerInfo.hostConfig().portBindings().entrySet()) {
+                if (!entry.getValue().isEmpty()) {
+                    portMappings.put(Integer.parseInt(entry.getKey()),
+                            Integer.parseInt(entry.getValue().get(0).hostPort()));
+                }
+            }
+            return new ScanManagerContainer(containerInfo.id(), containerInfo.state().running(), portMappings,
+                    containerInfo.config().cmd(), containerInfo.config().env(), containerInfo.config().labels());
+        } else {
+            return null;
         }
     }
 
-    public void removeContainer(String containerId) throws ScanManagerException {
+    @Override
+    public void cleanContainer(String containerId) throws ScanManagerException {
         try (DockerClient dockerClient = getNewDockerClient()) {
+            if (dockerClient.inspectContainer(containerId).state().running()) {
+                dockerClient.stopContainer(containerId, SECONDS_TO_WAIT_BEFORE_KILLING_CONTAINER);
+            }
             dockerClient.removeContainer(containerId);
         } catch (DockerCertificateException | DockerException | InterruptedException e) {
-            throw new ScanManagerException("Error occurred while removing the docker container with container id: " +
+            throw new ScanManagerException("Error occurred while cleaning the docker container with container id: " +
                     containerId, e);
         }
     }
 
-    public List<ContainerInfo> getContainersList() throws ScanManagerException {
-        List<ContainerInfo> runningContainers = new ArrayList<>();
+    @Override
+    public List<ScanManagerContainer> getContainersList() throws ScanManagerException {
+        List<ScanManagerContainer> containers = new ArrayList<>();
         try (DockerClient dockerClient = getNewDockerClient()) {
             for (Container container : dockerClient.listContainers()) {
 
@@ -177,14 +198,15 @@ public class DockerHandlerImpl implements DockerHandler {
                 for (Container.PortMapping portMapping : container.ports()) {
                     portMappings.put(portMapping.privatePort(), portMapping.publicPort());
                 }
-                ContainerInfo containerInfo = new ContainerInfo(container.id());
-                containerInfo.setPortMappings(portMappings);
-                containerInfo.setLabels(container.labels());
-                runningContainers.add(containerInfo);
+                ContainerInfo containerInfo = dockerClient.inspectContainer(container.id());
+                ScanManagerContainer scanManagerContainer = new ScanManagerContainer(container.id(),
+                        containerInfo.state().running(), portMappings, containerInfo.config().cmd(),
+                        containerInfo.config().env(), container.labels());
+                containers.add(scanManagerContainer);
             }
         } catch (DockerCertificateException | DockerException | InterruptedException e) {
             throw new ScanManagerException("Error occurred while getting the running containers list", e);
         }
-        return runningContainers;
+        return containers;
     }
 }

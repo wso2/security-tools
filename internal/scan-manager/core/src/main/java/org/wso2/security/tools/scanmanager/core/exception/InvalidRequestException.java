@@ -18,14 +18,12 @@
 package org.wso2.security.tools.scanmanager.core.exception;
 
 /**
- * The class {@code InvalidRequestException} extends {@link Exception}, is the invalid request exception,
- * for all invalid request operations dealing with Scan Manager.
+ * This class contains invalid request exception for all invalid request operations dealing with Scan Manager.
  */
 public class InvalidRequestException extends Exception {
 
     /**
-     * Constructs a new exception with {@code null} as its
-     * detail message.
+     * Constructs a new exception.
      */
     public InvalidRequestException() {
 

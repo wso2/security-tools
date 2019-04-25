@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
@@ -94,12 +95,21 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
     public List<Scan> getByStatus(ScanStatus status);
 
     /**
-     * Get the scans by a given status, scanner and a product.
+     * Get scan by status and order by priority and submitted timestamp
+     * @param status status of the scan
+     * @return a list of scans with given priority and ordered by priority and submitted timestamp
+     */
+    public List<Scan> getByStatusOrderByPriorityAscSubmittedTimestampAsc(ScanStatus status);
+
+    /**
+     * Get the scans by a given set of statuses, scanner and a product.
      *
-     * @param status  scan status
+     * @param statuses  list of scan statuses
      * @param scanner assigned scanner
      * @param product assigned product
      * @return list of scans for the given status, scanner and the product
      */
-    public List<Scan> getByStatusAndScannerAndProduct(ScanStatus status, Scanner scanner, String product);
+    @Query("select o from Scan o where o.status in :statuses and o.scanner = :scanner and o.product = :product")
+    public List<Scan> getByStatusInAndScannerAndProduct(@Param("statuses") List<ScanStatus> statuses, @Param(
+            "scanner") Scanner scanner, @Param("product") String product);
 }

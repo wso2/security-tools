@@ -32,14 +32,12 @@ import org.wso2.security.tools.scanmanager.common.internal.model.ScanStatusUpdat
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.core.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.core.exception.ResourceNotFoundException;
+import org.wso2.security.tools.scanmanager.core.service.CallbackService;
 import org.wso2.security.tools.scanmanager.core.service.LogService;
 import org.wso2.security.tools.scanmanager.core.service.ScanService;
 
-import java.sql.Timestamp;
-
 /**
- * The class {@code CallbackController} is the web controller that provides an endpoint to interact with scanner
- * services.
+ * The web controller that provides an endpoint to interact with scanner services.
  */
 @Controller
 @RequestMapping("callback")
@@ -47,11 +45,13 @@ public class CallbackController {
 
     private LogService logService;
     private ScanService scanService;
+    private CallbackService callbackService;
 
     @Autowired
-    public CallbackController(ScanService scanService, LogService logService) {
+    public CallbackController(ScanService scanService, LogService logService, CallbackService callbackService) {
         this.scanService = scanService;
         this.logService = logService;
+        this.callbackService = callbackService;
     }
 
     /**
@@ -64,63 +64,38 @@ public class CallbackController {
     @PostMapping(value = "persist-scan-log")
     @ResponseBody
     public ResponseEntity persistScanLog(@RequestBody ScanLogRequest scanLogRequest) throws InvalidRequestException {
-        if (scanService.getScanByJobId(scanLogRequest.getJobId()) == null) {
+        if (scanService.getByJobId(scanLogRequest.getJobId()) == null) {
             throw new InvalidRequestException("Invalid job id");
         }
-        logService.persist(new Scan(scanLogRequest.getJobId()), scanLogRequest.getType(), scanLogRequest.getTimestamp(),
+        logService.insert(new Scan(scanLogRequest.getJobId()), scanLogRequest.getType(), scanLogRequest.getTimestamp(),
                 scanLogRequest.getMessage());
         return new ResponseEntity(HttpStatus.OK);
     }
 
     /**
-     * Update the scan status.
+     * Update a created scan.
      *
      * @param scanStatusUpdateRequest scan status update request
      * @return success response if the scan is successfully updated
      * @throws ResourceNotFoundException when unable to retrieve the scan for the given job id
      * @throws InvalidRequestException   when the request parameters are invalid
      */
-    @PostMapping(value = "update-scan-status")
+    @PostMapping(value = "update-scan")
     @ResponseBody
-    public ResponseEntity updateScanStatus(@RequestBody ScanStatusUpdateRequest scanStatusUpdateRequest)
+    public ResponseEntity updateScan(@RequestBody ScanStatusUpdateRequest scanStatusUpdateRequest)
             throws ResourceNotFoundException, InvalidRequestException {
         Scan scan;
         ScanStatus scanStatus;
 
         if (StringUtils.isNotEmpty(scanStatusUpdateRequest.getJobId())) {
             scanStatus = scanStatusUpdateRequest.getScanStatus();
-            scan = scanService.getScanByJobId(scanStatusUpdateRequest.getJobId());
+            scan = scanService.getByJobId(scanStatusUpdateRequest.getJobId());
         } else {
             throw new InvalidRequestException("parameter jobId cannot be found");
         }
         if (scan != null) {
-            scan.setStatus(scanStatus);
-            switch (scanStatus) {
-                case RUNNING:
-                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                    scan.setStartTimestamp(timestamp);
-                    scan.setScannerScanId(scanStatusUpdateRequest.getScannerScanId());
-                    scanService.update(scan);
-                    break;
-                case COMPLETED:
-                    scan.setReportPath(scanStatusUpdateRequest.getScanReportPath());
-                    scanService.update(scan);
-                    new Thread(() -> scanService.removeContainer(scan)).start();
-                    new Thread(() -> scanService.beginPendingScans()).start();
-                    break;
-                case ERROR:
-                    scanService.updateScanStatus(scan.getJobId(), ScanStatus.ERROR);
-                    new Thread(() -> scanService.removeContainer(scan)).start();
-                    new Thread(() -> scanService.beginPendingScans()).start();
-                    break;
-                case CANCELED:
-                    scanService.updateScanStatus(scan.getJobId(), ScanStatus.CANCELED);
-                    new Thread(() -> scanService.removeContainer(scan)).start();
-                    new Thread(() -> scanService.beginPendingScans()).start();
-                    break;
-                default:
-                    throw new InvalidRequestException("Unsupported scan status: " + scanStatus);
-            }
+            callbackService.updateScan(scan, scanStatus, scanStatusUpdateRequest.getScannerScanId(),
+                    scanStatusUpdateRequest.getScanReportPath());
         } else {
             throw new ResourceNotFoundException("Unable to retrieve the Scan for the job id: " +
                     scanStatusUpdateRequest.getJobId());

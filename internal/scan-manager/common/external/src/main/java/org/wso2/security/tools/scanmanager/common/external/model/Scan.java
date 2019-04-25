@@ -20,7 +20,6 @@ package org.wso2.security.tools.scanmanager.common.external.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.common.model.ScanType;
 
@@ -63,8 +62,7 @@ public class Scan {
     private ScanStatus status;
 
     @Column(name = "PRIORITY")
-    @Enumerated(EnumType.STRING)
-    private ScanPriority priority;
+    private int priority;
 
     @Column(name = "PRODUCT")
     private String product;
@@ -174,7 +172,7 @@ public class Scan {
 
     public Timestamp getStartTimestamp() {
         if (startTimestamp != null) {
-        return new Timestamp(startTimestamp.getTime());
+            return new Timestamp(startTimestamp.getTime());
         } else {
             return null;
         }
@@ -182,7 +180,7 @@ public class Scan {
 
     public Timestamp getSubmittedTimestamp() {
         if (submittedTimestamp != null) {
-        return new Timestamp(submittedTimestamp.getTime());
+            return new Timestamp(submittedTimestamp.getTime());
         } else {
             return null;
         }
@@ -196,7 +194,7 @@ public class Scan {
 
     public void setStartTimestamp(Timestamp startTimestamp) {
         if (startTimestamp != null) {
-        this.startTimestamp = new Timestamp(startTimestamp.getTime());
+            this.startTimestamp = new Timestamp(startTimestamp.getTime());
         }
     }
 
@@ -232,11 +230,11 @@ public class Scan {
         this.status = status;
     }
 
-    public ScanPriority getPriority() {
+    public int getPriority() {
         return priority;
     }
 
-    public void setPriority(ScanPriority priority) {
+    public void setPriority(int priority) {
         this.priority = priority;
     }
 

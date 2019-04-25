@@ -23,21 +23,22 @@ import java.util.Map;
 /**
  * Model class to represent a container.
  */
-public class ContainerInfo {
+public class ScanManagerContainer {
 
     private String containerId;
+    private boolean isRunning;
     private Map<Integer, Integer> portMappings;
     private List<String> commands;
     private List<String> envVariables;
     private Map<String, String> labels;
 
-    public ContainerInfo(String containerId) {
-        this.containerId = containerId;
+    public ScanManagerContainer() {
     }
 
-    public ContainerInfo(String containerId, Map<Integer, Integer> portMappings, List<String> commands,
-                         List<String> envVariables, Map<String, String> labels) {
+    public ScanManagerContainer(String containerId, boolean isRunning, Map<Integer, Integer> portMappings,
+                                List<String> commands, List<String> envVariables, Map<String, String> labels) {
         this.containerId = containerId;
+        this.isRunning = isRunning;
         this.portMappings = portMappings;
         this.commands = commands;
         this.envVariables = envVariables;
@@ -50,6 +51,14 @@ public class ContainerInfo {
 
     public void setContainerId(String containerId) {
         this.containerId = containerId;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setRunning(boolean running) {
+        isRunning = running;
     }
 
     public Map<Integer, Integer> getPortMappings() {

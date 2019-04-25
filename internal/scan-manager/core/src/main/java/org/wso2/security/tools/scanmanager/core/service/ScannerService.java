@@ -19,22 +19,30 @@ package org.wso2.security.tools.scanmanager.core.service;
 
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.common.external.model.ScannerApp;
+import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 
 import java.util.List;
 
 /**
- * The class {@code ScannerService} is the service class that manage the methods of the
- * scanners.
+ * Scanner service class that manage the methods of the scanners.
  */
 public interface ScannerService {
 
     /**
-     * Persisting a Scanner entity.
+     * Insert a Scanner entity.
      *
      * @param scanner scanner object
-     * @return persisted scanner object
+     * @return inserted scanner object
      */
-    public Scanner persistScanner(Scanner scanner);
+    public Scanner insert(Scanner scanner);
+
+    /**
+     * Update a Scanner.
+     *
+     * @param scanner scanner object
+     * @return updated scanner object
+     */
+    public Scanner update(Scanner scanner);
 
     /**
      * Get scanner by scanner id.
@@ -42,14 +50,14 @@ public interface ScannerService {
      * @param scannerId scanner id
      * @return scanner for a given scanner id
      */
-    public Scanner getScannerById(String scannerId);
+    public Scanner getById(String scannerId);
 
     /**
      * Get all available scanners.
      *
      * @return a list of all the scanners
      */
-    public List<Scanner> getScanners();
+    public List<Scanner> getAll();
 
     /**
      * Get the list of apps for a given scanner and a product name.
@@ -64,8 +72,8 @@ public interface ScannerService {
      * Remove a scanner by id.
      *
      * @param scannerId scanner id of the scanner to be removed
-     * @return updated row count
+     * @throws ScanManagerException when an error occurs while removing the scanner
      */
-    public Integer removeByScannerId(String scannerId);
+    public void removeByScannerId(String scannerId) throws ScanManagerException;
 
 }

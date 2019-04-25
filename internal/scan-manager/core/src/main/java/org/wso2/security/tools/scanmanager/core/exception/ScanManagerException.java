@@ -18,8 +18,7 @@
 package org.wso2.security.tools.scanmanager.core.exception;
 
 /**
- * The class {@code ScanManagerException} extends {@link Exception}, is the general Scan Manager exception,
- * for all operations dealing with Scan Manager.
+ * This is the general Scan Manager exception class for all operations dealing with Scan Manager.
  */
 public class ScanManagerException extends Exception {
 
@@ -40,8 +39,7 @@ public class ScanManagerException extends Exception {
     }
 
     /**
-     * Constructs a new exception with the specified detail message and
-     * cause.
+     * Constructs a new exception with the specified detail message and cause.
      */
     public ScanManagerException(String message, Throwable e) {
         super(message, e);

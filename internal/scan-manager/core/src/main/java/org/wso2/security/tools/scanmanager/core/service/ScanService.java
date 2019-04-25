@@ -22,13 +22,11 @@ import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
-import org.wso2.security.tools.scanmanager.core.model.ContainerInfo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * The class {@code ScanService} is the service class that manage the methods of the scans.
+ * The service class that manage the methods of the scans.
  */
 public interface ScanService {
 
@@ -41,13 +39,12 @@ public interface ScanService {
     public Scan update(Scan scan);
 
     /**
-     * Cancel a scan.
+     * Insert a Scan entity.
      *
-     * @param scan details of the scan that needs to be canceled
-     * @return canceled scan details
-     * @throws ScanManagerException when an error occurs while cancelling the scan
+     * @param scan scan object
+     * @return inserted scan object
      */
-    public Scan cancelScan(Scan scan) throws ScanManagerException;
+    public Scan insert(Scan scan);
 
     /**
      * Get all scans by page.
@@ -64,34 +61,33 @@ public interface ScanService {
      * @param jobId job id for the scan
      * @return scan object for the given job id
      */
-    public Scan getScanByJobId(String jobId);
+    public Scan getByJobId(String jobId);
 
     /**
      * Update the scan status.
      *
      * @param jobId  job id for the scan
      * @param status status of the scan
-     * @return number of rows updated
      */
-    public Integer updateScanStatus(String jobId, ScanStatus status);
+    public void updateStatus(String jobId, ScanStatus status) throws ScanManagerException;
 
     /**
      * Update scan priority.
      *
      * @param jobId    job id of the scan
      * @param priority priority of the scan
-     * @return number of rows updated
+     * @throws ScanManagerException when an error occurs while updating the scan priority
      */
-    public Integer updateScanPriority(String jobId, ScanPriority priority);
+    public void updatePriority(String jobId, ScanPriority priority) throws ScanManagerException;
 
     /**
      * Update scanner app id.
      *
-     * @param jobId    job id of the scan
+     * @param jobId        job id of the scan
      * @param scannerAppId scanner app id
-     * @return number of rows updated
+     * @throws ScanManagerException when an error occurs while updating the scanner app id for the scan
      */
-    public Integer updateScannerAppId(String jobId, String scannerAppId);
+    public void updateScannerAppId(String jobId, String scannerAppId) throws ScanManagerException;
 
     /**
      * Get scans with a given status.
@@ -99,35 +95,23 @@ public interface ScanService {
      * @param status status of the scan
      * @return list of scan objects with the given status
      */
-    public List<Scan> getScansByStatus(ScanStatus status);
+    public List<Scan> getByStatus(ScanStatus status);
 
     /**
-     * Get scans with a given status, scanner and product.
+     * Get scan by status and order by priority and submitted timestamp
      *
-     * @param status  status of the scan
-     * @param scanner scanner object
-     * @param product scanning product
+     * @param status status of the scan
+     * @return a list of scans with given priority and ordered by priority and submitted timestamp
+     */
+    public List<Scan> getPendingScans(ScanStatus status);
+
+    /**
+     * Get scans with a given list of statuses, scanner and product.
+     *
+     * @param statuses statuses of the scan
+     * @param scanner  scanner object
+     * @param product  scanning product
      * @return list of scan objects with a given status, scanner and product
      */
-    public List<Scan> getScansByStatusAndScannerAndProduct(ScanStatus status, Scanner scanner, String product);
-
-    /**
-     * Get the map of occupied scanner apps.
-     *
-     * @return a map containing scanner id as the key and list of scanner apps as the value
-     */
-    public Map<String, List<String>> getOccupiedApps();
-
-    /**
-     * Remove the container created to a given scan.
-     *
-     * @param scan scan details of the container that needs to be removed
-     * @return container information of the removed container
-     */
-    public ContainerInfo removeContainer(Scan scan);
-
-    /**
-     * Begin all pending scans.
-     */
-    public void beginPendingScans();
+    public List<Scan> getByStatusesAndScannerAndProduct(List<ScanStatus> statuses, Scanner scanner, String product);
 }

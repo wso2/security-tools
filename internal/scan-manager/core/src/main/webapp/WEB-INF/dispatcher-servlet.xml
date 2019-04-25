@@ -52,7 +52,7 @@
         <property name="suffix" value=".jsp"/>
     </bean>
     <bean id="dockerHandler"
-          class="org.wso2.security.tools.scanmanager.core.handler.DockerHandlerImpl">
+          class="org.wso2.security.tools.scanmanager.core.handler.DockerContainerHandler">
     </bean>
     <bean id="dataSource"
           class="org.springframework.jdbc.datasource.DriverManagerDataSource">

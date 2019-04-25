@@ -18,55 +18,55 @@
 package org.wso2.security.tools.scanmanager.core.handler;
 
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
-import org.wso2.security.tools.scanmanager.core.model.ContainerInfo;
+import org.wso2.security.tools.scanmanager.core.model.ScanManagerContainer;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * The class {@code DockerHandler} provides an interface to handle Docker related operations.
+ * This class provides an interface to handle container related operations.
  */
-public interface DockerHandler {
+public interface ContainerHandler {
 
     /**
      * Create a container.
      *
-     * @param imageName            Docker image
+     * @param imageName            container image
      * @param ipAddress            IP address to bind
      * @param containerPort        Container port to bind to a host port
      * @param commands             Container startup commands
      * @param environmentVariables Environment variables of the container
-     * @return container info object if the container is successfully created, or {@code null}
+     * @return container info object if the container is successfully created
      * @throws ScanManagerException when an error occurs while creating a container
      */
-    public ContainerInfo createContainer(String imageName, String ipAddress, Integer containerPort,
-                                         Map<String, String> labels, List<String> commands,
-                                         String[] environmentVariables) throws ScanManagerException;
+    public ScanManagerContainer createContainer(String imageName, String ipAddress, Integer containerPort,
+                                                Map<String, String> labels, List<String> commands,
+                                                String[] environmentVariables) throws ScanManagerException;
 
     /**
      * Start a container.
      *
      * @param containerId Container id
-     * @return Boolean value to indicate the container is started
-     * @throws ScanManagerException when an error occurs while starting the docker container
+     * @throws ScanManagerException when an error occurs while starting the container
      */
-    public boolean startContainer(String containerId) throws ScanManagerException;
+    public void startContainer(String containerId) throws ScanManagerException;
 
     /**
-     * Stop a running container.
+     * Stop and remove a container.
      *
-     * @param containerId container id of the container to be killed
-     * @throws ScanManagerException when an error occurs while terminating the container
+     * @param containerId container id of the container to be cleaned
+     * @throws ScanManagerException when an error occurs while cleaning the container
      */
-    public void killContainer(String containerId) throws ScanManagerException;
+    public void cleanContainer(String containerId) throws ScanManagerException;
 
     /**
-     * Remove a container.
+     * Inspect a container.
      *
-     * @param containerId container id of the container to be removed
-     * @throws ScanManagerException when an error occurs while removing the container
+     * @param containerId Container id
+     * @return container information object
+     * @throws ScanManagerException when an error occurs while inspecting the container
      */
-    public void removeContainer(String containerId) throws ScanManagerException;
+    public ScanManagerContainer inspectContainer(String containerId) throws ScanManagerException;
 
     /**
      * Get the list of existing containers.
@@ -74,5 +74,5 @@ public interface DockerHandler {
      * @return a list of existing containers
      * @throws ScanManagerException when an error occurs while getting the list of containers
      */
-    public List<ContainerInfo> getContainersList() throws ScanManagerException;
+    public List<ScanManagerContainer> getContainersList() throws ScanManagerException;
 }

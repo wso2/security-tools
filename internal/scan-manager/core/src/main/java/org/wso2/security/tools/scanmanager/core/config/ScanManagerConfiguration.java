@@ -52,6 +52,12 @@ public class ScanManagerConfiguration {
         return scanManagerConfiguration;
     }
 
+    /**
+     * Initializing the configuration.
+     *
+     * @param configObjectMap configuration map read from the scan-manager-config.yaml
+     * @throws ScanManagerException when the required configurations are not found
+     */
     public void initScanConfiguration(Map<String, Object> configObjectMap) throws ScanManagerException {
         if (configObjectMap.get(SCAN_MANAGER_HOST_KEY) != null) {
             this.scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);

@@ -25,23 +25,31 @@ import org.wso2.security.tools.scanmanager.common.model.LogType;
 import java.sql.Timestamp;
 
 /**
- * The class {@code LogService} is the service class that manage the methods of the Scan logs.
+ * The log service class that manage the methods of the Scan logs.
  */
 public interface LogService {
 
     /**
-     * Persisting a log entity during an exception.
+     * Insert an error log entity during an exception.
      *
      * @param scan      scan details
-     * @param type      log type
-     * @param timestamp timestamp for the log
      * @param e         throwable error message
      * @return true if a scan id found for the given scan.
      */
-    public boolean persist(Scan scan, LogType type, Timestamp timestamp, Throwable e);
+    public boolean insertError(Scan scan, Throwable e);
 
     /**
-     * Persisting a log entity.
+     * Insert a log entity.
+     *
+     * @param scan      scan details
+     * @param type      log type
+     * @param message   log message
+     * @return true if a scan id found for the given scan.
+     */
+    public boolean insert(Scan scan, LogType type, String message);
+
+    /**
+     * Insert a log entity with timestamp.
      *
      * @param scan      scan details
      * @param type      log type
@@ -49,7 +57,7 @@ public interface LogService {
      * @param message   log message
      * @return true if a scan id found for the given scan.
      */
-    public boolean persist(Scan scan, LogType type, Timestamp timestamp, String message);
+    public boolean insert(Scan scan, LogType type, Timestamp timestamp, String message);
 
     /**
      * Get logs for a given scan.
@@ -59,5 +67,5 @@ public interface LogService {
      * @param pageSize   required page size
      * @return requested page containing the logs
      */
-    public Page<Log> getLogsByScan(Scan scan, Integer pageNumber, Integer pageSize);
+    public Page<Log> getByScan(Scan scan, Integer pageNumber, Integer pageSize);
 }
