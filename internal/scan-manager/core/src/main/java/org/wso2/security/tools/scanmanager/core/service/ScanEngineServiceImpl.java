@@ -90,12 +90,12 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     private void beginScan(Scan scan) {
         synchronized (Constants.LOCK) {
 
-            //check if the scan status have been changed before entering the synchronized block
+            // Check if the scan status have been changed before entering the synchronized block.
             Scan newScanObject = scanService.getByJobId(scan.getJobId());
             if (newScanObject.getStatus() == ScanStatus.SUBMIT_PENDING) {
                 try {
 
-                    //there can be multiple scanner apps for a given product in a particular scanner. We need to
+                    // There can be multiple scanner apps for a given product in a particular scanner. We need to
                     // identify the currently occupied apps and check for any available free app to start the scan.
                     List<String> occupiedApps = getOccupiedAppsByScannerAndProduct(newScanObject.getScanner(),
                             newScanObject.getProduct());
@@ -114,8 +114,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                                     "Free scanner app found. Initiating the scan with the scanner app id: " +
                                             scannerApp.getAppId());
 
-                            //initiating the scan request to create a scanner container and send the start scan request
-                            // to the container micro service
+                            // Initiating the scan request to create a scanner container and send the start scan request
+                            // to the container micro service.
                             initiateScanRequest(newScanObject, scannerApp);
 
                             newScanObject.setStatus(ScanStatus.SUBMITTED);
@@ -242,7 +242,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             logService.insert(scan, LogType.INFO,
                     "Scanner container started. Container id: " + containerInfo.getContainerId());
 
-            //send the start scan request to the scanner container
+            // Send the start scan request to the scanner container.
             sendStartScanRequest(containerInfo, scannerApp, scan);
         } catch (ScanManagerException e) {
             logService.insertError(scan, e);
@@ -263,13 +263,13 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             for (ScanFile scanFile : scan.getScanFileList()) {
                 List<String> fileLocations = new ArrayList<>();
                 fileLocations.add(scanFile.getScanFileLocation());
-                fileMap.put(scanFile.getScanFileName(), fileLocations);
+                fileMap.put(scanFile.getScanFileName(), Collections.singletonList(scanFile.getScanFileLocation()));
             }
             Map<String, List<String>> propertyMap = new HashMap<>();
             for (ScanProperty scanProperty : scan.getScanPropertyList()) {
                 List<String> params = new ArrayList<>();
                 params.add(scanProperty.getPropertyValue());
-                propertyMap.put(scanProperty.getPropertyName(), params);
+                propertyMap.put(scanProperty.getPropertyName(), Collections.singletonList(scanProperty.getPropertyValue()));
             }
             requestParams.put(FILE_MAP_PARAMETER_NAME, fileMap);
             requestParams.put(PROPERTY_MAP_PARAMETER_NAME, propertyMap);

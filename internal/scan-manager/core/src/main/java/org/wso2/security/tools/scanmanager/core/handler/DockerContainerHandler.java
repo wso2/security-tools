@@ -119,7 +119,7 @@ public class DockerContainerHandler implements ContainerHandler {
             portBindings.put(containerPort.toString(), hostPorts);
             HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
 
-            //pull the image from the docker registry.
+            // Pull the image from the docker registry.
             pullImage(dockerClient, imageName);
 
             ContainerConfig containerConfig = ContainerConfig.builder()
@@ -159,7 +159,7 @@ public class DockerContainerHandler implements ContainerHandler {
                     containerId, e);
         }
 
-        //extracting data from the docker container and populating scan manager container
+        // Extracting data from the docker container and populating scan manager container.
         if (containerInfo != null) {
             Map<Integer, Integer> portMappings = new HashMap<>();
             for (Map.Entry<String, List<PortBinding>> entry : containerInfo.hostConfig().portBindings().entrySet()) {

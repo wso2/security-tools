@@ -117,7 +117,7 @@ public class ScanController {
         }
         scan = scanService.insert(scan);
 
-        //starting the pending scans
+        // Starting the pending scans.
         new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromStartScanRequest").start();
         return new ResponseEntity<>(new ScanExternal(scan), HttpStatus.ACCEPTED);
     }

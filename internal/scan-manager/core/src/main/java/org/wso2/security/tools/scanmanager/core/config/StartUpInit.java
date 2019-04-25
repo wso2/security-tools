@@ -46,7 +46,7 @@ public class StartUpInit {
             ScanManagerConfiguration.getInstance()
                     .initScanConfiguration(ScanMangerConfigurationBuilder.getConfiguration());
 
-            //starting all pending scans during the application startup
+            // Starting all pending scans during the application startup.
             scanEngineService.beginPendingScans();
         } catch (ScanManagerException e) {
             logger.error("Error occurred while initializing", e);
