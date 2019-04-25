@@ -32,7 +32,7 @@ import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import java.util.List;
 
 /**
- * The class {@code ScanDAO} is the DAO class that manage the persistence methods of the scans.
+ * The DAO class that manage the persistence methods of the scans.
  */
 @Repository
 public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {

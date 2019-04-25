@@ -25,7 +25,7 @@ import org.wso2.security.tools.scanmanager.common.external.model.ScannerApp;
 import java.util.List;
 
 /**
- * The class {@code ScannerAppDAO} is the DAO class that manage the persistence methods of the scanner apps files.
+ * The DAO class that manage the persistence methods of the scanner apps files.
  */
 @Repository
 public interface ScannerAppDAO extends JpaRepository<ScannerApp, Integer> {

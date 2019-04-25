@@ -25,8 +25,7 @@ import org.wso2.security.tools.scanmanager.common.external.model.ScannerField;
 import java.util.List;
 
 /**
- * The class {@code ScannerFieldDAO} is the DAO class that manage the persistence methods of the
- * scanner fields.
+ * The DAO class that manage the persistence methods of the scanner fields.
  */
 @Repository
 public interface ScannerFieldDAO extends JpaRepository<ScannerField, Integer> {
