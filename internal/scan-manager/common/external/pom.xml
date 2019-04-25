@@ -20,6 +20,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <groupId>org.wso2.security.tools</groupId>
         <artifactId>scan-manager-parent</artifactId>
@@ -30,15 +31,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.security.tools.scanmanager</groupId>
-    <artifactId>common-external</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>scan-manager-common-external</artifactId>
+    <version>1.0.SNAPSHOT</version>
 
     <name>Scan Manager - Common - External</name>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>scan-manager-common</artifactId>
             <version>${org.wso2.security.tools.scanmanager.common.version}</version>
         </dependency>
         <dependency>

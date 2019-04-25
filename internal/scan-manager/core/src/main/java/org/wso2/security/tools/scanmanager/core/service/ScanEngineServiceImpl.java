@@ -103,6 +103,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                             scannerService.getAppsByScannerAndAssignedProduct(newScanObject.getScanner(),
                                     newScanObject.getProduct());
 
+                    logService.insert(newScanObject, LogType.INFO,
+                            "Checking for a free scanner application for the scan: " + scan.getJobId());
                     boolean freeAppFound = false;
                     for (ScannerApp scannerApp : scannerApps) {
                         if (!occupiedApps.contains(scannerApp.getAppId())) {
