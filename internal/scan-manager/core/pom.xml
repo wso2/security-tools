@@ -142,17 +142,17 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>scan-manager-common</artifactId>
             <version>${org.wso2.security.tools.scanmanager.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>common-internal</artifactId>
+            <artifactId>scan-manager-common-internal</artifactId>
             <version>${org.wso2.security.tools.scanmanager.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>common-external</artifactId>
+            <artifactId>scan-manager-common-external</artifactId>
             <version>${org.wso2.security.tools.scanmanager.common.version}</version>
         </dependency>
     </dependencies>
