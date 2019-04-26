@@ -48,10 +48,10 @@ public class Scanner {
 
     @Column(name = "SCANNER_TYPE")
     @Enumerated(EnumType.STRING)
-    private ScannerType scannerType;
+    private ScannerType type;
 
     @Column(name = "SCANNER_IMAGE")
-    private String scannerImage;
+    private String image;
 
     @OneToMany(mappedBy = "scanner", fetch = FetchType.EAGER)
     @Cascade(CascadeType.ALL)
@@ -102,19 +102,19 @@ public class Scanner {
         this.name = name;
     }
 
-    public ScannerType getScannerType() {
-        return scannerType;
+    public ScannerType getType() {
+        return type;
     }
 
-    public void setScannerType(ScannerType scannerType) {
-        this.scannerType = scannerType;
+    public void setType(ScannerType type) {
+        this.type = type;
     }
 
-    public String getScannerImage() {
-        return scannerImage;
+    public String getImage() {
+        return image;
     }
 
-    public void setScannerImage(String scannerImage) {
-        this.scannerImage = scannerImage;
+    public void setImage(String image) {
+        this.image = image;
     }
 }

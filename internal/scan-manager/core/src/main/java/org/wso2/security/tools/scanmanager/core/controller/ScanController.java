@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.wso2.security.tools.scanmanager.core.util.Constants.SCAN_ARTIFACT;
 import static org.wso2.security.tools.scanmanager.core.util.Constants.SCAN_URL;
@@ -101,23 +102,23 @@ public class ScanController {
 
         String jobId = UUID.randomUUID().toString();
         scan.setJobId(jobId);
-        scan.setScanType(scanRequest.getScanType());
+        scan.setType(scanRequest.getScanType());
         scan.setSubmittedTimestamp(new Timestamp(System.currentTimeMillis()));
-        scan.setScanName(scanRequest.getScanName());
-        scan.setScanDescription(scanRequest.getScanDescription());
+        scan.setName(scanRequest.getScanName());
+        scan.setDescription(scanRequest.getScanDescription());
         scan.setProduct(scanRequest.getProductName());
         scan.setStatus(ScanStatus.SUBMIT_PENDING);
         scan.setPriority(ScanPriority.MEDIUM.getValue());
 
         if (scanRequest.getPropertyMap() != null) {
-            scan.setScanPropertyList(buildScanPropertyList(scanRequest.getPropertyMap(), scan));
+            scan.setPropertyList(buildScanPropertyList(scanRequest.getPropertyMap(), scan));
         }
         if (scanRequest.getFileMap() != null) {
-            scan.setScanFileList(buildScanFileList(scanRequest.getFileMap(), scan));
+            scan.setFileList(buildScanFileList(scanRequest.getFileMap(), scan));
         }
         scan = scanService.insert(scan);
 
-        //starting the pending scans
+        // Starting the pending scans.
         new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromStartScanRequest").start();
         return new ResponseEntity<>(new ScanExternal(scan), HttpStatus.ACCEPTED);
     }
@@ -151,17 +152,17 @@ public class ScanController {
     @ResponseBody
     public ResponseEntity<ScanManagerScansResponse> getScans(@RequestParam(name = "page", required = false)
                                                                      Integer page) {
-        List<ScanExternal> scanExternalList = new ArrayList<>();
         Integer scanPageSize = ScanManagerConfiguration.getInstance().getScanPageSize();
         if (page == null) {
-            page = 1;  //initialize to first page if no page number is defined.
+            page = 1;  // Initialize to first page if no page number is defined.
         }
 
-        //internal page indexing starts at 0
+        // Internal page indexing starts at 0
         Page<Scan> scansPage = scanService.findAll(page - 1, scanPageSize);
-        for (Scan scan : scansPage.getContent()) {
-            scanExternalList.add(new ScanExternal(scan));
-        }
+        List<ScanExternal> scanExternalList =
+                scansPage.getContent().parallelStream()
+                        .map(ScanExternal::new)
+                        .collect(Collectors.toList());
         return new ResponseEntity<>(new ScanManagerScansResponse(scanExternalList, scansPage.getTotalPages(),
                 page, scansPage.getSize(), scansPage.hasNext(), scansPage.hasPrevious(), scansPage.isFirst(),
                 scansPage.isLast()), HttpStatus.OK);
@@ -222,11 +223,9 @@ public class ScanController {
      */
     @GetMapping(value = "scans/status/{status}")
     public ResponseEntity<List<ScanExternal>> getScansByState(@PathVariable("status") ScanStatus status) {
-        List<ScanExternal> scanManagerScanResponseList = new ArrayList<>();
-        for (Scan scan : scanService.getByStatus(status)) {
-            scanManagerScanResponseList.add(new ScanExternal(scan));
-        }
-        return new ResponseEntity<>(scanManagerScanResponseList, HttpStatus.OK);
+        return new ResponseEntity<>(scanService.getByStatus(status).parallelStream()
+                .map(ScanExternal::new)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     /**
@@ -258,8 +257,8 @@ public class ScanController {
             Map.Entry pair = (Map.Entry) fileIterator.next();
             ScanFile scanFile = new ScanFile();
             scanFile.setScan(scan);
-            scanFile.setScanFileName(pair.getKey().toString());
-            scanFile.setScanFileLocation(pair.getValue().toString());
+            scanFile.setName(pair.getKey().toString());
+            scanFile.setLocation(pair.getValue().toString());
             scanFileList.add(scanFile);
             fileIterator.remove();
         }
@@ -272,8 +271,8 @@ public class ScanController {
         while (paramIterator.hasNext()) {
             Map.Entry pair = (Map.Entry) paramIterator.next();
             ScanProperty scanProperty = new ScanProperty();
-            scanProperty.setPropertyName(pair.getKey().toString());
-            scanProperty.setPropertyValue(pair.getValue().toString());
+            scanProperty.setName(pair.getKey().toString());
+            scanProperty.setValue(pair.getValue().toString());
             scanProperty.setScan(scan);
 
             scanPropertyList.add(scanProperty);

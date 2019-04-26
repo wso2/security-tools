@@ -43,7 +43,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      * @param pageable page request object
      * @return page containing the list of requested scans
      */
-    public Page<Scan> findAllByOrderBySubmittedTimestampDesc(Pageable pageable);
+    public Page<Scan> getAllByOrderBySubmittedTimestampDesc(Pageable pageable);
 
     /**
      * Get scan by job id.
@@ -62,7 +62,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      */
     @Modifying
     @Query("update Scan u set u.status = ?1 where u.jobId = ?2")
-    public int updateScanStatus(ScanStatus status, String jobId);
+    public int updateStatus(ScanStatus status, String jobId);
 
     /**
      * Update scanner app id that has been selected for the scan.
@@ -84,7 +84,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      */
     @Modifying
     @Query("update Scan u set u.priority = ?1 where u.jobId = ?2")
-    public int updateScanPriority(ScanPriority priority, String jobId);
+    public int updatePriority(ScanPriority priority, String jobId);
 
     /**
      * Get scan by status.

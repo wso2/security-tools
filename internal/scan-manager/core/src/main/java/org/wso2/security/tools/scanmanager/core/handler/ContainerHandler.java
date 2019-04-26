@@ -18,7 +18,7 @@
 package org.wso2.security.tools.scanmanager.core.handler;
 
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
-import org.wso2.security.tools.scanmanager.core.model.ScanManagerContainer;
+import org.wso2.security.tools.scanmanager.core.model.Container;
 
 import java.util.List;
 import java.util.Map;
@@ -39,9 +39,9 @@ public interface ContainerHandler {
      * @return container info object if the container is successfully created
      * @throws ScanManagerException when an error occurs while creating a container
      */
-    public ScanManagerContainer createContainer(String imageName, String ipAddress, Integer containerPort,
-                                                Map<String, String> labels, List<String> commands,
-                                                String[] environmentVariables) throws ScanManagerException;
+    public Container create(String imageName, String ipAddress, Integer containerPort,
+                            Map<String, String> labels, List<String> commands,
+                            String[] environmentVariables) throws ScanManagerException;
 
     /**
      * Start a container.
@@ -49,7 +49,7 @@ public interface ContainerHandler {
      * @param containerId Container id
      * @throws ScanManagerException when an error occurs while starting the container
      */
-    public void startContainer(String containerId) throws ScanManagerException;
+    public void start(String containerId) throws ScanManagerException;
 
     /**
      * Stop and remove a container.
@@ -57,7 +57,7 @@ public interface ContainerHandler {
      * @param containerId container id of the container to be cleaned
      * @throws ScanManagerException when an error occurs while cleaning the container
      */
-    public void cleanContainer(String containerId) throws ScanManagerException;
+    public void clean(String containerId) throws ScanManagerException;
 
     /**
      * Inspect a container.
@@ -66,7 +66,7 @@ public interface ContainerHandler {
      * @return container information object
      * @throws ScanManagerException when an error occurs while inspecting the container
      */
-    public ScanManagerContainer inspectContainer(String containerId) throws ScanManagerException;
+    public Container inspect(String containerId) throws ScanManagerException;
 
     /**
      * Get the list of existing containers.
@@ -74,5 +74,5 @@ public interface ContainerHandler {
      * @return a list of existing containers
      * @throws ScanManagerException when an error occurs while getting the list of containers
      */
-    public List<ScanManagerContainer> getContainersList() throws ScanManagerException;
+    public List<Container> list() throws ScanManagerException;
 }

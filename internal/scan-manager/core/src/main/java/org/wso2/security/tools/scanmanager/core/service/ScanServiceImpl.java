@@ -60,7 +60,7 @@ public class ScanServiceImpl implements ScanService {
     @Override
     public Page<Scan> findAll(Integer pageNumber, Integer pageSize) {
         Pageable pageable = new PageRequest(pageNumber, pageSize);
-        return scanDAO.findAllByOrderBySubmittedTimestampDesc(pageable);
+        return scanDAO.getAllByOrderBySubmittedTimestampDesc(pageable);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ScanServiceImpl implements ScanService {
 
     @Override
     public void updateStatus(String jobId, ScanStatus status) throws ScanManagerException {
-        Integer updatedRows = scanDAO.updateScanStatus(status, jobId);
+        Integer updatedRows = scanDAO.updateStatus(status, jobId);
         if (updatedRows != 1) {
             throw new ScanManagerException("Error occurred while updating scan status of the scan: " + jobId);
         }
@@ -78,7 +78,7 @@ public class ScanServiceImpl implements ScanService {
 
     @Override
     public void updatePriority(String jobId, ScanPriority priority) throws ScanManagerException {
-        Integer updatedRows = scanDAO.updateScanPriority(priority, jobId);
+        Integer updatedRows = scanDAO.updatePriority(priority, jobId);
         if (updatedRows != 1) {
             throw new ScanManagerException("Error occurred while updating scan priority of the scan: " + jobId);
         }

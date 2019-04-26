@@ -28,30 +28,30 @@ import java.sql.Timestamp;
 public class ScanExternal {
 
     private String jobId;
-    private String scanName;
-    private String scanDescription;
+    private String name;
+    private String description;
     private String scannerId;
     private String scannerName;
     private ScanStatus status;
     private String product;
-    private ScanType scanType;
+    private ScanType type;
     private Timestamp submittedTimestamp;
     private Timestamp startedTimestamp;
     private String user;
     private String scanReportPath;
 
-    public ScanExternal(String jobId, String scanName, String scanDescription, String scannerId,
-                        String scannerName, ScanStatus status, String product, ScanType scanType,
+    public ScanExternal(String jobId, String name, String description, String scannerId,
+                        String scannerName, ScanStatus status, String product, ScanType type,
                         Timestamp submittedTimestamp, Timestamp startedTimestamp, String user,
                         String scanReportPath) {
         this.jobId = jobId;
-        this.scanName = scanName;
-        this.scanDescription = scanDescription;
+        this.name = name;
+        this.description = description;
         this.scannerId = scannerId;
         this.scannerName = scannerName;
         this.status = status;
         this.product = product;
-        this.scanType = scanType;
+        this.type = type;
         this.user = user;
         this.scanReportPath = scanReportPath;
 
@@ -66,11 +66,11 @@ public class ScanExternal {
     public ScanExternal(Scan scan) {
         if (scan != null) {
             this.jobId = scan.getJobId();
-            this.scanName = scan.getScanName();
-            this.scanDescription = scan.getScanDescription();
+            this.name = scan.getName();
+            this.description = scan.getDescription();
             this.status = scan.getStatus();
             this.product = scan.getProduct();
-            this.scanType = scan.getScanType();
+            this.type = scan.getType();
             this.submittedTimestamp = scan.getSubmittedTimestamp();
             this.startedTimestamp = scan.getStartTimestamp();
             this.user = scan.getUser();
@@ -94,20 +94,20 @@ public class ScanExternal {
         this.jobId = jobId;
     }
 
-    public String getScanName() {
-        return scanName;
+    public String getName() {
+        return name;
     }
 
-    public void setScanName(String scanName) {
-        this.scanName = scanName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getScanDescription() {
-        return scanDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setScanDescription(String scanDescription) {
-        this.scanDescription = scanDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getScannerId() {
@@ -142,12 +142,12 @@ public class ScanExternal {
         this.product = product;
     }
 
-    public ScanType getScanType() {
-        return scanType;
+    public ScanType getType() {
+        return type;
     }
 
-    public void setScanType(ScanType scanType) {
-        this.scanType = scanType;
+    public void setType(ScanType type) {
+        this.type = type;
     }
 
     public Timestamp getStartedTimestamp() {

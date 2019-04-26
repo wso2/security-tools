@@ -68,7 +68,7 @@ public class ScannerServiceImpl implements ScannerService {
 
     @Override
     public List<ScannerApp> getAppsByScannerAndAssignedProduct(Scanner scanner, String productName) {
-        return scannerAppDAO.findByScannerAndAssignedProduct(scanner, productName);
+        return scannerAppDAO.getByScannerAndAssignedProduct(scanner, productName);
     }
 
     @Override

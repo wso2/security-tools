@@ -80,7 +80,7 @@ public class ScanManagerConfiguration {
             throw new ScanManagerException("Unable to find scaner service port configuration");
         }
 
-        //not mandatory as there are default values
+        // Not mandatory as there are default values.
         this.scanPageSize = (Integer) configObjectMap.get(SCAN_PAGE_SIZE);
         this.logPageSize = (Integer) configObjectMap.get(LOG_PAGE_SIZE);
     }

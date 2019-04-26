@@ -38,7 +38,7 @@ public interface ScannerDAO extends JpaRepository<Scanner, String> {
     public Integer removeById(String scannerId);
 
     /**
-     * Find all scanners.
+     * Get all scanners.
      *
      * @return a list of scanners
      */

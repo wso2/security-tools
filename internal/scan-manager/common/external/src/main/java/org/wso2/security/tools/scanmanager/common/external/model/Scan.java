@@ -48,10 +48,10 @@ public class Scan {
     private String jobId;
 
     @Column(name = "SCAN_NAME")
-    private String scanName;
+    private String name;
 
     @Column(name = "SCAN_DESCRIPTION")
-    private String scanDescription;
+    private String description;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "SCANNER_ID")
@@ -69,7 +69,7 @@ public class Scan {
 
     @Column(name = "TYPE")
     @Enumerated(EnumType.STRING)
-    private ScanType scanType;
+    private ScanType type;
 
     @Column(name = "USER")
     private String user;
@@ -92,12 +92,12 @@ public class Scan {
     @OneToMany(mappedBy = "scan", fetch = FetchType.EAGER)
     @Cascade(CascadeType.ALL)
     @JsonManagedReference
-    private Set<ScanFile> scanFileList;
+    private Set<ScanFile> fileList;
 
     @OneToMany(mappedBy = "scan", fetch = FetchType.EAGER)
     @Cascade(CascadeType.ALL)
     @JsonManagedReference
-    private Set<ScanProperty> scanPropertyList;
+    private Set<ScanProperty> propertyList;
 
     public Scan() {
     }
@@ -122,20 +122,20 @@ public class Scan {
         this.scannerAppId = scannerAppId;
     }
 
-    public String getScanDescription() {
-        return scanDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setScanDescription(String scanDescription) {
-        this.scanDescription = scanDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getScanName() {
-        return scanName;
+    public String getName() {
+        return name;
     }
 
-    public void setScanName(String scanName) {
-        this.scanName = scanName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getJobId() {
@@ -206,20 +206,20 @@ public class Scan {
         this.reportPath = reportPath;
     }
 
-    public Set<ScanFile> getScanFileList() {
-        return scanFileList;
+    public Set<ScanFile> getFileList() {
+        return fileList;
     }
 
-    public void setScanFileList(Set<ScanFile> scanFileList) {
-        this.scanFileList = scanFileList;
+    public void setFileList(Set<ScanFile> fileList) {
+        this.fileList = fileList;
     }
 
-    public Set<ScanProperty> getScanPropertyList() {
-        return scanPropertyList;
+    public Set<ScanProperty> getPropertyList() {
+        return propertyList;
     }
 
-    public void setScanPropertyList(Set<ScanProperty> scanPropertyList) {
-        this.scanPropertyList = scanPropertyList;
+    public void setPropertyList(Set<ScanProperty> propertyList) {
+        this.propertyList = propertyList;
     }
 
     public ScanStatus getStatus() {
@@ -238,11 +238,11 @@ public class Scan {
         this.priority = priority;
     }
 
-    public ScanType getScanType() {
-        return scanType;
+    public ScanType getType() {
+        return type;
     }
 
-    public void setScanType(ScanType scanType) {
-        this.scanType = scanType;
+    public void setType(ScanType type) {
+        this.type = type;
     }
 }

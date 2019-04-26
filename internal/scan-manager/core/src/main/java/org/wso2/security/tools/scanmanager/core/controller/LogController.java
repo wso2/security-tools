@@ -64,7 +64,7 @@ public class LogController {
             throws ResourceNotFoundException {
         Integer logPageSize = ScanManagerConfiguration.getInstance().getLogPageSize();
         if (page == null) {
-            page = 1;  //initialize to first page if no page number is defined.
+            page = 1;  // Initialize to first page if no page number is defined.
         }
         Scan scan = scanService.getByJobId(jobId);
 

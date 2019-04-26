@@ -36,7 +36,7 @@ public interface ScannerFieldDAO extends JpaRepository<ScannerField, Integer> {
      * @param scanner scanner object
      * @return list of scanner fields for the given scanner
      */
-    public List<ScannerField> findByScanner(Scanner scanner);
+    public List<ScannerField> getByScanner(Scanner scanner);
 
     /**
      * Get scanner field by scanner id, field id and field type.
@@ -46,5 +46,5 @@ public interface ScannerFieldDAO extends JpaRepository<ScannerField, Integer> {
      * @param type    field type
      * @return scanner field object for the given scanner, field id and type
      */
-    public ScannerField findByScannerAndFieldIdAndType(Scanner scanner, String fieldId, String type);
+    public ScannerField getByScannerAndFieldIdAndType(Scanner scanner, String fieldId, String type);
 }

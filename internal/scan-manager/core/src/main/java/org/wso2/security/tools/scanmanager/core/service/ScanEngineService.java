@@ -19,7 +19,7 @@ package org.wso2.security.tools.scanmanager.core.service;
 
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
-import org.wso2.security.tools.scanmanager.core.model.ScanManagerContainer;
+import org.wso2.security.tools.scanmanager.core.model.Container;
 
 /**
  * Scan engine service class that holds the scan engine service methods.
@@ -45,5 +45,5 @@ public interface ScanEngineService {
      * @param scan scan object
      * @return scan manager container model representing the removed scanner
      */
-    public ScanManagerContainer removeContainer(Scan scan);
+    public Container removeContainer(Scan scan);
 }
