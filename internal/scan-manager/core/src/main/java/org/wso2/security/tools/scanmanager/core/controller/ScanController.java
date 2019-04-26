@@ -42,7 +42,6 @@ import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
-import org.wso2.security.tools.scanmanager.common.model.ScanType;
 import org.wso2.security.tools.scanmanager.core.config.ScanManagerConfiguration;
 import org.wso2.security.tools.scanmanager.core.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.core.exception.ResourceNotFoundException;
