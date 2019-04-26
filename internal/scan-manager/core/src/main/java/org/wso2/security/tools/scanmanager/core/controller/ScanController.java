@@ -53,7 +53,6 @@ import org.wso2.security.tools.scanmanager.core.service.ScanService;
 import org.wso2.security.tools.scanmanager.core.service.ScannerService;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;

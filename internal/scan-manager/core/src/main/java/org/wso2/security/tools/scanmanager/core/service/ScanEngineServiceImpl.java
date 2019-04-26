@@ -113,8 +113,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                                     "Free scanner app found. Initiating the scan with the scanner app id: " +
                                             scannerApp.getAppId());
 
-                            //initiating the scan request to create a scanner container and send the start scan request
-                            // to the container micro service
+                            // Initiating the scan request to create a scanner container and send the start scan request
+                            // to the container micro service.
                             initiateScanRequest(newScanObject, scannerApp);
 
                             newScanObject.setStatus(ScanStatus.SUBMITTED);
@@ -236,7 +236,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             logService.insert(scan, LogType.INFO,
                     "Scanner container started. Container id: " + containerInfo.getId());
 
-            //send the start scan request to the scanner container
+            // Send the start scan request to the scanner container.
             sendStartScanRequest(containerInfo, scannerApp, scan);
         } catch (ScanManagerException e) {
             logService.insertError(scan, e);

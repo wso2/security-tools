@@ -25,14 +25,12 @@ import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
-import com.spotify.docker.client.messages.Image;
 import com.spotify.docker.client.messages.PortBinding;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.model.Container;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +61,7 @@ public class DockerContainerHandler implements ContainerHandler {
             portBindings.put(containerPort.toString(), hostPorts);
             HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
 
-            //pull the image from the docker registry.
+            // Pull the image from the docker registry.
             pullImage(dockerClient, imageName);
 
             ContainerConfig containerConfig = ContainerConfig.builder()
@@ -145,7 +143,7 @@ public class DockerContainerHandler implements ContainerHandler {
                     containerId, e);
         }
 
-        //extracting data from the docker container and populating scan manager container
+        // Extracting data from the docker container and populating scan manager container.
         if (containerInfo != null) {
             Map<Integer, Integer> portMappings = new HashMap<>();
             for (Map.Entry<String, List<PortBinding>> entry : containerInfo.hostConfig().portBindings().entrySet()) {
