@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
             <artifactId>scan-manager-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
@@ -114,5 +114,7 @@
     <properties>
         <org.wso2.security.tools.scanmanager.common.internal.version>1.0-SNAPSHOT
         </org.wso2.security.tools.scanmanager.common.internal.version>
+        <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.version>
     </properties>
 </project>

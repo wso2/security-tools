@@ -123,15 +123,24 @@ public class ScanController {
     }
 
     private Scanner validateScanRequest(ScanManagerScanRequest scanRequest) throws InvalidRequestException {
-        if (ScanType.DYNAMIC.equals(scanRequest.getScanType())
-                && ((scanRequest.getPropertyMap() == null) || !scanRequest.getPropertyMap().containsKey(SCAN_URL))) {
-            throw new InvalidRequestException("Scan URL field is mandatory for Dynamic scans");
-        } else if (ScanType.STATIC.equals(scanRequest.getScanType())
-                && ((scanRequest.getFileMap() == null) || !scanRequest.getFileMap().containsKey(SCAN_ARTIFACT))) {
-            throw new InvalidRequestException("Scan artifact field is mandatory for Static scans");
-        } else if (ScanType.DEPENDENCY.equals(scanRequest.getScanType())
-                && ((scanRequest.getFileMap() == null) || !scanRequest.getFileMap().containsKey(SCAN_ARTIFACT))) {
-            throw new InvalidRequestException("Scan artifact field is mandatory for Dependency scans");
+        switch (scanRequest.getScanType()) {
+            case DYNAMIC:
+                if (scanRequest.getPropertyMap() == null || !scanRequest.getPropertyMap().containsKey(SCAN_URL)) {
+                    throw new InvalidRequestException("Scan URL field is mandatory for Dynamic scans");
+                }
+                break;
+            case STATIC:
+                if (scanRequest.getFileMap() == null || !scanRequest.getFileMap().containsKey(SCAN_ARTIFACT)) {
+                    throw new InvalidRequestException("Scan artifact field is mandatory for Static scans");
+                }
+                break;
+            case DEPENDENCY:
+                if (scanRequest.getFileMap() == null || !scanRequest.getFileMap().containsKey(SCAN_ARTIFACT)) {
+                    throw new InvalidRequestException("Scan artifact field is mandatory for Dependency scans");
+                }
+                break;
+            default:
+                throw new InvalidRequestException("Invalid scan type");
         }
 
         Scanner scanner = scannerService.getById(scanRequest.getScannerId());
@@ -157,7 +166,7 @@ public class ScanController {
         }
 
         // Internal page indexing starts at 0
-        Page<Scan> scansPage = scanService.findAll(page - 1, scanPageSize);
+        Page<Scan> scansPage = scanService.getAll(page - 1, scanPageSize);
         List<ScanExternal> scanExternalList =
                 scansPage.getContent().parallelStream()
                         .map(ScanExternal::new)

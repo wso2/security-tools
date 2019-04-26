@@ -53,7 +53,7 @@ public interface ScanService {
      * @param pageSize   size of the page
      * @return a page containing the requested scans
      */
-    public Page<Scan> findAll(Integer pageNumber, Integer pageSize);
+    public Page<Scan> getAll(Integer pageNumber, Integer pageSize);
 
     /**
      * Get scan by job id.

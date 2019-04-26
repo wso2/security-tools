@@ -58,7 +58,7 @@ public class ScanServiceImpl implements ScanService {
     }
 
     @Override
-    public Page<Scan> findAll(Integer pageNumber, Integer pageSize) {
+    public Page<Scan> getAll(Integer pageNumber, Integer pageSize) {
         Pageable pageable = new PageRequest(pageNumber, pageSize);
         return scanDAO.getAllByOrderBySubmittedTimestampDesc(pageable);
     }
