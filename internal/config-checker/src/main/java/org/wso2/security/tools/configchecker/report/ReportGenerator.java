@@ -34,5 +34,5 @@ public interface ReportGenerator {
      * @throws ConfigCheckerException when an error occurs while generating the report
      */
     public void generateReport(HashMap<String, List<ConfigElement>> configElementsResultMap,
-                        String outputPath) throws ConfigCheckerException;
+                               String outputPath) throws ConfigCheckerException;
 }

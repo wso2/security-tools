@@ -25,7 +25,7 @@ import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 public class ScanStatusUpdateRequest {
 
     private String jobId;
-    private ScanStatus scanStatus;
+    private ScanStatus status;
     private String scannerScanId;
     private String scanReportPath;
 
@@ -46,11 +46,11 @@ public class ScanStatusUpdateRequest {
     }
 
     public ScanStatus getScanStatus() {
-        return scanStatus;
+        return status;
     }
 
-    public void setScanStatus(ScanStatus scanStatus) {
-        this.scanStatus = scanStatus;
+    public void setScanStatus(ScanStatus status) {
+        this.status = status;
     }
 
     public String getScannerScanId() {

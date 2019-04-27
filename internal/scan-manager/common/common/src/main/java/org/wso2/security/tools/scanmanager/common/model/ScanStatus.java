@@ -22,5 +22,5 @@ package org.wso2.security.tools.scanmanager.common.model;
  * Enum to represent the scan status.
  */
 public enum ScanStatus {
-    PENDING, SUBMITTED, RUNNING, CANCELED, COMPLETED, FINISHED, ERROR, FAILED
+    SUBMIT_PENDING, SUBMITTED, RUNNING, CANCEL_PENDING, CANCELED, COMPLETED, ERROR, UNKNOWN
 }

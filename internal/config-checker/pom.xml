@@ -126,7 +126,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <properties>
         <org.slf4j.api.version>1.7.25</org.slf4j.api.version>
         <org.slf4j.log4j12.version>1.7.25</org.slf4j.log4j12.version>
@@ -139,7 +139,6 @@
         <maven.compiler.plugin.verson>3.8.0</maven.compiler.plugin.verson>
         <maven.assembly.plugin.verson>3.1.1</maven.assembly.plugin.verson>
         <maven.jar.plugin.verson>2.4</maven.jar.plugin.verson>
-        <maven.checkstyle.plugin.verson>2.16</maven.checkstyle.plugin.verson>
     </properties>
 
 </project>

@@ -123,7 +123,7 @@ public class ScanController {
     @PostMapping(value = "/stop")
     public String stopScan(@RequestParam String id) {
         ResponseEntity<String> responseEntity = scanService.stopScan(id);
-        if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
             return "redirect:scans";
         } else {
             return SCAN_MANAGER_VIEW + File.separator + ERROR_PAGE_VIEW;

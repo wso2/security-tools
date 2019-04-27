@@ -84,8 +84,9 @@ public class ConfigChecker {
             File parentPropertiesFile = new File(applicationPath + File.separator + ConfigCheckerSettings
                     .getInstance().getParentPropertiesFile());
 
-            HashMap<String, List<ConfigElement>> configCheckResultsMap = validateConfigurations(childPropertiesFile,
-                    parentPropertiesFile, productPath, applicationPath);
+            HashMap<String, List<ConfigElement>> configCheckResultsMap =
+                    configChecker.validateConfigurations(childPropertiesFile,
+                            parentPropertiesFile, productPath, applicationPath);
             log.info("CONFIGURATION CHECK completed.");
 
             ReportGenerator reportGenerator = Utils.getConfigCheckerReportGenerator(reportOutFormat);
@@ -98,13 +99,14 @@ public class ConfigChecker {
     /**
      * This method is used to parse the configurations into ConfigNode objects and compare.
      *
-     * @param refConfigFilePath
-     * @param productConfigFilePath
-     * @param fileFormat
-     * @param excludeConfigs
+     * @param refConfigFilePath     reference config file path
+     * @param productConfigFilePath product config file path
+     * @param fileFormat            file format of the configuration
+     * @param excludeConfigs        configurations to be excluded
+     * @throws ConfigCheckerException when an error occurs when parsing config from file
      */
-    private static List<ConfigElement> compareConfigFiles(String refConfigFilePath, String productConfigFilePath,
-                                                          String fileFormat, List<String> excludeConfigs)
+    private List<ConfigElement> compareConfigFiles(String refConfigFilePath, String productConfigFilePath,
+                                                   String fileFormat, List<String> excludeConfigs)
             throws ConfigCheckerException {
         List<ConfigElement> configElementsResultList = new ArrayList<>();
 
@@ -155,14 +157,14 @@ public class ConfigChecker {
     /**
      * This method is used to compare all the parent configurations.
      *
-     * @param parentPropertiesHashMap
-     * @param excludedConfigFilePaths
-     * @param configElementsResultMap
-     * @param productPath
-     * @return
-     * @throws ConfigCheckerException
+     * @param parentPropertiesHashMap parent properties map
+     * @param excludedConfigFilePaths file path to be excluded from paren configurations
+     * @param configElementsResultMap results of the configuration check
+     * @param productPath             base path for the product pack
+     * @return result list of the compared parent configurations
+     * @throws ConfigCheckerException when an error occurs while comparing parent configurations
      */
-    private static HashMap<String, List<ConfigElement>> compareAllParentConfigurations(HashMap<String,
+    private HashMap<String, List<ConfigElement>> compareAllParentConfigurations(HashMap<String,
             ParentProperty> parentPropertiesHashMap, List<String> excludedConfigFilePaths, HashMap<String,
             List<ConfigElement>> configElementsResultMap, String productPath) throws ConfigCheckerException {
         List<ConfigElement> parentConfigElementsResultList;
@@ -208,14 +210,14 @@ public class ConfigChecker {
     /**
      * This method is used to compare child configurations.
      *
-     * @param childPropertyList
-     * @param excludedConfigFilePaths
-     * @param parentPropertiesHashMap
-     * @param productPath
-     * @return
-     * @throws ConfigCheckerException
+     * @param childPropertyList       child config properties
+     * @param excludedConfigFilePaths file paths to be excluded from parent configurations
+     * @param parentPropertiesHashMap parent properties map
+     * @param productPath             base path for the product
+     * @return result map of the compared configurations
+     * @throws ConfigCheckerException when an error occurs while comparing child and parent configurations
      */
-    private static HashMap<String, List<ConfigElement>> compareChildAndParentConfigurations(
+    private HashMap<String, List<ConfigElement>> compareChildAndParentConfigurations(
             List<ChildProperty> childPropertyList, List<String> excludedConfigFilePaths,
             HashMap<String, ParentProperty> parentPropertiesHashMap, String productPath)
             throws ConfigCheckerException {
@@ -292,17 +294,17 @@ public class ConfigChecker {
     /**
      * This method is used to compare all the configuration files in the product.
      *
-     * @param childPropertiesFile
-     * @param parentPropertiesFile
-     * @param productPath
-     * @param applicationPath
-     * @return
-     * @throws ConfigCheckerException
+     * @param childPropertiesFile  child properties file
+     * @param parentPropertiesFile parent properties file
+     * @param productPath          base path for the product
+     * @param applicationPath      base path for the config checker application
+     * @return result map of the compared configurations
+     * @throws ConfigCheckerException when an error occurs while validating configuration
      */
-    private static HashMap<String, List<ConfigElement>> validateConfigurations(File childPropertiesFile,
-                                                                               File parentPropertiesFile,
-                                                                               String productPath,
-                                                                               String applicationPath)
+    private HashMap<String, List<ConfigElement>> validateConfigurations(File childPropertiesFile,
+                                                                        File parentPropertiesFile,
+                                                                        String productPath,
+                                                                        String applicationPath)
             throws ConfigCheckerException {
         List<String> excludedConfigFilePaths;
         List<ChildProperty> childPropertyList;
