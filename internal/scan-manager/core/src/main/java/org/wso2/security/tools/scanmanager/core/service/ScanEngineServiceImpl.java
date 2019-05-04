@@ -35,6 +35,7 @@ import org.wso2.security.tools.scanmanager.core.config.ScanManagerConfiguration;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.handler.ContainerHandler;
 import org.wso2.security.tools.scanmanager.core.model.Container;
+import org.wso2.security.tools.scanmanager.core.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.core.util.Constants;
 import org.wso2.security.tools.scanmanager.core.util.HTTPUtil;
 
@@ -136,10 +137,10 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     }
 
     private List<String> getOccupiedApps(Scanner scanner, String product) {
-       return scanService.getByStatusesAndScannerAndProduct(new ArrayList<>(Arrays.asList(ScanStatus.SUBMITTED,
+        return scanService.getByStatusesAndScannerAndProduct(new ArrayList<>(Arrays.asList(ScanStatus.SUBMITTED,
                 ScanStatus.RUNNING, ScanStatus.CANCEL_PENDING)), scanner, product).stream()
-               .map(Scan::getScannerAppId)
-               .collect(Collectors.toList());
+                .map(Scan::getScannerAppId)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -169,8 +170,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                         requestParams.put(JOB_ID_PARAMETER_NAME, scan.getJobId());
                         requestParams.put(SCANNER_APP_ID_PARAMETER_NAME, labels.get(CONTAINER_APP_LABEL_NAME));
                         MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
-                        ResponseEntity response = HTTPUtil.sendDelete(uri.toString(), requestHeaders,
-                                requestParams);
+                        HTTPRequest scanCancelRequest = new HTTPRequest(uri.toString(), requestHeaders, requestParams);
+                        ResponseEntity response = HTTPUtil.sendDelete(scanCancelRequest);
                         if (response.getStatusCode().isError()) {
                             throw new ScanManagerException("Unable to submit the cancel scan request");
                         }
@@ -204,6 +205,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
         }
     }
 
+    @Override
     public Container removeContainer(Scan scan) {
         Container removedContainerInfo = null;
 
@@ -263,8 +265,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             requestParams.put(FILE_MAP_PARAMETER_NAME, fileMap);
             requestParams.put(PROPERTY_MAP_PARAMETER_NAME, propertyMap);
             MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
-            ResponseEntity response = HTTPUtil.sendPOST(uri.toString(), requestHeaders,
-                    requestParams);
+            HTTPRequest startScanRequest = new HTTPRequest(uri.toString(), requestHeaders, requestParams);
+            ResponseEntity response = HTTPUtil.sendPOST(startScanRequest);
 
             if (response.getStatusCode().isError()) {
                 throw new ScanManagerException("Error occurred while sending start scan request to the scanner " +
@@ -284,8 +286,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
 
         String[] envVariables =
                 new String[]{CONTAINER_ENV_NAME_SCAN_MANAGER_HOST + "=" + ScanManagerConfiguration.getInstance()
-                .getScanManagerHost(), CONTAINER_ENV_NAME_SCAN_MANAGER_PORT + "=" + ScanManagerConfiguration
-                .getInstance().getScanManagerPort()};
+                        .getScanManagerHost(), CONTAINER_ENV_NAME_SCAN_MANAGER_PORT + "=" + ScanManagerConfiguration
+                        .getInstance().getScanManagerPort()};
         return dockerHandler.create(scannerApp.getScanner().getImage(),
                 containerHost, containerPort, labels, new ArrayList<>(), envVariables);
     }
