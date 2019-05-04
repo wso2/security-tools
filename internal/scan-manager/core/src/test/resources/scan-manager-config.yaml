@@ -16,11 +16,11 @@
 
 # Scan Manager Configuration
 
-scanManagerHost:
-scanManagerPort:
+scanManagerHost: localhost
+scanManagerPort: 8081
 
-scannerServiceHost:
-scannerServicePort:
+scannerServiceHost: localhost
+scannerServicePort: 8080
 
 scanPageSize:
 logPageSize:
