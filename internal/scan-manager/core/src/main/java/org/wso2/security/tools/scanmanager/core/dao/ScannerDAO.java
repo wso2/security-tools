@@ -24,8 +24,7 @@ import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import java.util.List;
 
 /**
- * The class {@code ScannerDAO} is the DAO class that manage the persistence methods of the
- * scanners.
+ * The the DAO class that manage the persistence methods of the scanners.
  */
 @Repository
 public interface ScannerDAO extends JpaRepository<Scanner, String> {
@@ -39,7 +38,7 @@ public interface ScannerDAO extends JpaRepository<Scanner, String> {
     public Integer removeById(String scannerId);
 
     /**
-     * Find all scanners.
+     * Get all scanners.
      *
      * @return a list of scanners
      */

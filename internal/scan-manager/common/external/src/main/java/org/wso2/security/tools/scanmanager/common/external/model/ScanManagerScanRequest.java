@@ -17,6 +17,8 @@
  */
 package org.wso2.security.tools.scanmanager.common.external.model;
 
+import org.wso2.security.tools.scanmanager.common.model.ScanType;
+
 import java.util.Map;
 
 /**

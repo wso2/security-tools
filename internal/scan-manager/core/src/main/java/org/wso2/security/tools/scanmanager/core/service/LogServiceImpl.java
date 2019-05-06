@@ -23,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
@@ -33,9 +35,10 @@ import org.wso2.security.tools.scanmanager.core.dao.ScanDAO;
 import java.sql.Timestamp;
 
 /**
- * The class {@code LogServiceImpl} is the service class that manage the method implementations of the Scan logs.
+ * The service class that manage the method implementations of the Scan logs.
  */
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class LogServiceImpl implements LogService {
 
     private static final Logger logger = Logger.getLogger(LogServiceImpl.class);
@@ -50,13 +53,12 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
-    @Transactional
-    public boolean persist(Scan scan, LogType type, Timestamp timestamp, Throwable e) {
+    public boolean insertError(Scan scan, Throwable e) {
         logger.error(e);
 
         boolean isScanFound = false;
         if (scanDAO.getByJobId(scan.getJobId()) != null) {
-            Log log = new Log(scan, type, timestamp, getFullErrorMessage(e));
+            Log log = new Log(scan, LogType.ERROR, new Timestamp(System.currentTimeMillis()), getFullErrorMessage(e));
             logDAO.save(log);
             isScanFound = true;
         }
@@ -64,8 +66,12 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
-    @Transactional
-    public boolean persist(Scan scan, LogType type, Timestamp timestamp, String message) {
+    public boolean insert(Scan scan, LogType type, String message) {
+        return insert(scan, type, new Timestamp(System.currentTimeMillis()), message);
+    }
+
+    @Override
+    public boolean insert(Scan scan, LogType type, Timestamp timestamp, String message) {
         switch (type) {
             case ERROR:
                 logger.error(message);
@@ -91,8 +97,7 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
-    @Transactional
-    public Page<Log> getLogsByScan(Scan scan, Integer pageNumber, Integer pageSize) {
+    public Page<Log> getByScan(Scan scan, Integer pageNumber, Integer pageSize) {
         Pageable pageable = new PageRequest(pageNumber, pageSize);
         return logDAO.getByScanOrderByTimeStampDesc(scan, pageable);
     }

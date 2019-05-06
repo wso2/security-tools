@@ -19,19 +19,22 @@ package org.wso2.security.tools.scanmanager.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.common.external.model.ScannerApp;
 import org.wso2.security.tools.scanmanager.core.dao.ScannerAppDAO;
 import org.wso2.security.tools.scanmanager.core.dao.ScannerDAO;
+import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 
 import java.util.List;
 
 /**
- * The class {@code ScannerServiceImpl} is the service class that manage the method implementations of the
- * scanners.
+ * Scanner Service class that manage the method implementations of the scanners.
  */
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class ScannerServiceImpl implements ScannerService {
 
     private ScannerDAO scannerDAO;
@@ -43,29 +46,36 @@ public class ScannerServiceImpl implements ScannerService {
         this.scannerAppDAO = scannerAppDAO;
     }
 
-    @Transactional
-    public Scanner persistScanner(Scanner scanner) {
+    @Override
+    public Scanner insert(Scanner scanner) {
         return scannerDAO.saveAndFlush(scanner);
     }
 
-    @Transactional
-    public Scanner getScannerById(String scannerId) {
-        return scannerDAO.getScannerById(scannerId);
-    }
-
-    @Transactional
-    public List<Scanner> getScanners() {
-        return scannerDAO.findAll();
-    }
-
-    @Transactional
-    public List<ScannerApp> getAppsByScannerAndAssignedProduct(Scanner scanner, String productName) {
-        return scannerAppDAO.findByScannerAndAssignedProduct(scanner, productName);
+    @Override
+    public Scanner update(Scanner scanner) {
+        return scannerDAO.saveAndFlush(scanner);
     }
 
     @Override
-    @Transactional
-    public Integer removeByScannerId(String scannerId) {
-        return scannerDAO.removeById(scannerId);
+    public Scanner getById(String scannerId) {
+        return scannerDAO.getScannerById(scannerId);
+    }
+
+    @Override
+    public List<Scanner> getAll() {
+        return scannerDAO.findAll();
+    }
+
+    @Override
+    public List<ScannerApp> getAppsByScannerAndAssignedProduct(Scanner scanner, String productName) {
+        return scannerAppDAO.getByScannerAndAssignedProduct(scanner, productName);
+    }
+
+    @Override
+    public void removeByScannerId(String scannerId) throws ScanManagerException {
+        Integer updatedRows = scannerDAO.removeById(scannerId);
+        if (updatedRows != 1) {
+            throw new ScanManagerException("Error occurred while removing scanner: " + scannerId);
+        }
     }
 }

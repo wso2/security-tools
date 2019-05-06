@@ -25,8 +25,7 @@ import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 
 /**
- * The class {@code LogDAO} is the DAO class that manage the persistence methods of the
- * Scan logs.
+ * The DAO class that manage the persistence methods of the scan logs.
  */
 @Repository
 public interface LogDAO extends PagingAndSortingRepository<Log, Integer> {

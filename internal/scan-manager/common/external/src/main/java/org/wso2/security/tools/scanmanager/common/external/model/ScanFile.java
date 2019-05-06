@@ -39,7 +39,7 @@ public class ScanFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", updatable = false, nullable = false)
-    private Integer scanFileId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "JOB_ID")
@@ -47,26 +47,26 @@ public class ScanFile {
     private Scan scan;
 
     @Column(name = "SCAN_FILE_NAME")
-    private String scanFileName;
+    private String name;
 
     @Column(name = "SCAN_FILE_LOCATION")
-    private String scanFileLocation;
+    private String location;
 
     public ScanFile() {
     }
 
-    public ScanFile(Scan scan, String scanFileName, String scanFileLocation) {
+    public ScanFile(Scan scan, String name, String location) {
         this.scan = scan;
-        this.scanFileName = scanFileName;
-        this.scanFileLocation = scanFileLocation;
+        this.name = name;
+        this.location = location;
     }
 
-    public Integer getScanFileId() {
-        return scanFileId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setScanFileId(Integer scanFileId) {
-        this.scanFileId = scanFileId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Scan getScan() {
@@ -77,19 +77,19 @@ public class ScanFile {
         this.scan = scan;
     }
 
-    public String getScanFileName() {
-        return scanFileName;
+    public String getName() {
+        return name;
     }
 
-    public void setScanFileName(String scanFileName) {
-        this.scanFileName = scanFileName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getScanFileLocation() {
-        return scanFileLocation;
+    public String getLocation() {
+        return location;
     }
 
-    public void setScanFileLocation(String scanFileLocation) {
-        this.scanFileLocation = scanFileLocation;
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

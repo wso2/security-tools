@@ -18,8 +18,7 @@
 package org.wso2.security.tools.scanmanager.core.exception;
 
 /**
- * The class {@code ResourceNotFoundException} extends {@link Exception}, is the resource not found exception,
- * for all resource not found operations dealing with Scan Manager.
+ * This is the resource not found exception class for all resource not found operations dealing with Scan Manager.
  */
 public class ResourceNotFoundException extends Exception {
 
@@ -40,8 +39,7 @@ public class ResourceNotFoundException extends Exception {
     }
 
     /**
-     * Constructs a new exception with the specified detail message and
-     * cause.
+     * Constructs a new exception with the specified detail message and cause.
      */
     public ResourceNotFoundException(String message, Throwable e) {
         super(message, e);

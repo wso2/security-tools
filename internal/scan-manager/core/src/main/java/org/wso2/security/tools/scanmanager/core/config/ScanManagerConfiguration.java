@@ -21,6 +21,9 @@ import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 
 import java.util.Map;
 
+import static org.wso2.security.tools.scanmanager.core.util.Constants.DEFAULT_LOG_PAGE_SIZE;
+import static org.wso2.security.tools.scanmanager.core.util.Constants.DEFAULT_SCAN_PAGE_SIZE;
+
 /**
  * Scan Manager configuration model class.
  */
@@ -49,6 +52,12 @@ public class ScanManagerConfiguration {
         return scanManagerConfiguration;
     }
 
+    /**
+     * Initializing the configuration.
+     *
+     * @param configObjectMap configuration map read from the scan-manager-config.yaml
+     * @throws ScanManagerException when the required configurations are not found
+     */
     public void initScanConfiguration(Map<String, Object> configObjectMap) throws ScanManagerException {
         if (configObjectMap.get(SCAN_MANAGER_HOST_KEY) != null) {
             this.scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
@@ -71,7 +80,7 @@ public class ScanManagerConfiguration {
             throw new ScanManagerException("Unable to find scaner service port configuration");
         }
 
-        //not mandatory as there are default values
+        // Not mandatory as there are default values.
         this.scanPageSize = (Integer) configObjectMap.get(SCAN_PAGE_SIZE);
         this.logPageSize = (Integer) configObjectMap.get(LOG_PAGE_SIZE);
     }
@@ -88,31 +97,21 @@ public class ScanManagerConfiguration {
         return scannerServicePort;
     }
 
-    public void setScannerServicePort(Integer scannerServicePort) {
-        this.scannerServicePort = scannerServicePort;
-    }
-
     public String getScannerServiceHost() {
         return scannerServiceHost;
     }
 
-    public void setScannerServiceHost(String scannerServiceHost) {
-        this.scannerServiceHost = scannerServiceHost;
-    }
-
     public Integer getScanPageSize() {
+        if (scanPageSize == null) {
+            return DEFAULT_SCAN_PAGE_SIZE;
+        }
         return scanPageSize;
     }
 
-    public void setScanPageSize(Integer scanPageSize) {
-        this.scanPageSize = scanPageSize;
-    }
-
     public Integer getLogPageSize() {
+        if (logPageSize == null) {
+            return DEFAULT_LOG_PAGE_SIZE;
+        }
         return logPageSize;
-    }
-
-    public void setLogPageSize(Integer logPageSize) {
-        this.logPageSize = logPageSize;
     }
 }

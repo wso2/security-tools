@@ -39,7 +39,7 @@ public class ScanProperty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", updatable = false, nullable = false)
-    private Integer scanPropertyId;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "JOB_ID")
@@ -47,26 +47,26 @@ public class ScanProperty {
     private Scan scan;
 
     @Column(name = "PROPERTY_NAME")
-    private String propertyName;
+    private String name;
 
     @Column(name = "PROPERTY_VALUE")
-    private String propertyValue;
+    private String value;
 
     public ScanProperty() {
     }
 
-    public ScanProperty(Scan scan, String propertyName, String propertyValue) {
+    public ScanProperty(Scan scan, String name, String value) {
         this.scan = scan;
-        this.propertyName = propertyName;
-        this.propertyValue = propertyValue;
+        this.name = name;
+        this.value = value;
     }
 
-    public Integer getScanPropertyId() {
-        return scanPropertyId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setScanPropertyId(Integer scanPropertyId) {
-        this.scanPropertyId = scanPropertyId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Scan getScan() {
@@ -77,19 +77,19 @@ public class ScanProperty {
         this.scan = scan;
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    public String getName() {
+        return name;
     }
 
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getPropertyValue() {
-        return propertyValue;
+    public String getValue() {
+        return value;
     }
 
-    public void setPropertyValue(String propertyValue) {
-        this.propertyValue = propertyValue;
+    public void setValue(String value) {
+        this.value = value;
     }
 }

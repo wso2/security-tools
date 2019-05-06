@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
-import org.wso2.security.tools.scanmanager.core.service.ScanService;
+import org.wso2.security.tools.scanmanager.core.service.ScanEngineService;
 
 import javax.annotation.PostConstruct;
 
@@ -33,11 +33,11 @@ public class StartUpInit {
 
     private static final Logger logger = Logger.getLogger(StartUpInit.class);
 
-    private ScanService scanService;
+    private ScanEngineService scanEngineService;
 
     @Autowired
-    public StartUpInit(ScanService scanService) {
-        this.scanService = scanService;
+    public StartUpInit(ScanEngineService scanEngineService) {
+        this.scanEngineService = scanEngineService;
     }
 
     @PostConstruct
@@ -46,7 +46,8 @@ public class StartUpInit {
             ScanManagerConfiguration.getInstance()
                     .initScanConfiguration(ScanMangerConfigurationBuilder.getConfiguration());
 
-            scanService.beginPendingScans();
+            // Starting all pending scans during the application startup.
+            scanEngineService.beginPendingScans();
         } catch (ScanManagerException e) {
             logger.error("Error occurred while initializing", e);
         }

@@ -18,7 +18,7 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -31,7 +31,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.security.tools.scanmanager</groupId>
-    <artifactId>scanners-common</artifactId>
+    <artifactId>scan-manager-scanners-common</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <name>Scan Manager - Scanner - Common</name>
@@ -44,8 +44,13 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>common</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>scan-manager-common</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>scan-manager-common-internal</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.internal.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -106,4 +111,10 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <org.wso2.security.tools.scanmanager.common.internal.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.internal.version>
+        <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.version>
+    </properties>
 </project>

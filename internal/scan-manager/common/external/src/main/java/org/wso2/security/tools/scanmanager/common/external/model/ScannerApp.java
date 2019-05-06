@@ -52,7 +52,7 @@ public class ScannerApp {
     private String appId;
 
     @Column(name = "APP_NAME")
-    private String appName;
+    private String name;
 
     @Column(name = "PRODUCT")
     private String assignedProduct;
@@ -81,12 +81,12 @@ public class ScannerApp {
         this.appId = appId;
     }
 
-    public String getAppName() {
-        return appName;
+    public String getName() {
+        return name;
     }
 
-    public void setAppName(String appName) {
-        this.appName = appName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getAssignedProduct() {

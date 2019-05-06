@@ -22,28 +22,15 @@ import java.util.List;
 /**
  * Model class to represent scans response for scan manager.
  */
-public class ScanManagerScansResponse {
+public class ScanManagerScansResponse extends ScanManagerPagedResponse {
 
     private List<ScanExternal> scanList;
-    private Integer totalPages;
-    private Integer currentPage;
-    private Integer pageSize;
-    private boolean hasNextPage;
-    private boolean hasPreviousPage;
-    private boolean isFirstPage;
-    private boolean isLastPage;
 
     public ScanManagerScansResponse(List<ScanExternal> scanList, Integer totalPages, Integer currentPage,
-                                   Integer pageSize, boolean hasNextPage, boolean hasPreviousPage,
-                                   boolean isFirstPage, boolean isLastPage) {
+                                    Integer pageSize, boolean hasNextPage, boolean hasPreviousPage,
+                                    boolean isFirstPage, boolean isLastPage) {
+        super(totalPages, currentPage, pageSize, hasNextPage, hasPreviousPage, isFirstPage, isLastPage);
         this.scanList = scanList;
-        this.totalPages = totalPages;
-        this.currentPage = currentPage;
-        this.pageSize = pageSize;
-        this.hasNextPage = hasNextPage;
-        this.hasPreviousPage = hasPreviousPage;
-        this.isFirstPage = isFirstPage;
-        this.isLastPage = isLastPage;
     }
 
     public ScanManagerScansResponse() {
@@ -55,61 +42,5 @@ public class ScanManagerScansResponse {
 
     public void setScanList(List<ScanExternal> scanList) {
         this.scanList = scanList;
-    }
-
-    public Integer getTotalPages() {
-        return totalPages;
-    }
-
-    public void setTotalPages(Integer totalPages) {
-        this.totalPages = totalPages;
-    }
-
-    public Integer getCurrentPage() {
-        return currentPage;
-    }
-
-    public void setCurrentPage(Integer currentPage) {
-        this.currentPage = currentPage;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public boolean isHasNextPage() {
-        return hasNextPage;
-    }
-
-    public void setHasNextPage(boolean hasNextPage) {
-        this.hasNextPage = hasNextPage;
-    }
-
-    public boolean isHasPreviousPage() {
-        return hasPreviousPage;
-    }
-
-    public void setHasPreviousPage(boolean hasPreviousPage) {
-        this.hasPreviousPage = hasPreviousPage;
-    }
-
-    public boolean isFirstPage() {
-        return isFirstPage;
-    }
-
-    public void setFirstPage(boolean firstPage) {
-        isFirstPage = firstPage;
-    }
-
-    public boolean isLastPage() {
-        return isLastPage;
-    }
-
-    public void setLastPage(boolean lastPage) {
-        isLastPage = lastPage;
     }
 }

@@ -20,6 +20,18 @@ package org.wso2.security.tools.scanmanager.common.model;
 /**
  * An enumeration of priorities describing the priority of a scan.
  */
-public enum  ScanPriority {
-    HIGH, MEDIUM, LOW
+public enum ScanPriority {
+    HIGH(1),
+    MEDIUM(2),
+    LOW(3);
+
+    private final int value;
+
+    ScanPriority(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
 }

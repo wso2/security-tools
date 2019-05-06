@@ -22,6 +22,8 @@ package org.wso2.security.tools.scanmanager.core.util;
  */
 public class Constants {
 
+    public static final Object LOCK = new Object();
+
     public static final String SCAN_URL = "scanURL";
     public static final String SCAN_ARTIFACT = "scanArtifact";
     public static final String SCHEME = "http";
@@ -34,6 +36,5 @@ public class Constants {
     public static final String CONTAINER_ENV_NAME_SCAN_MANAGER_PORT = "SCAN_MANAGER_PORT";
 
     public static final Integer DEFAULT_SCAN_PAGE_SIZE = 10;
-    public static final Integer DEFAULT_SCANNER_PAGE_SIZE = 10;
     public static final Integer DEFAULT_LOG_PAGE_SIZE = 10;
 }

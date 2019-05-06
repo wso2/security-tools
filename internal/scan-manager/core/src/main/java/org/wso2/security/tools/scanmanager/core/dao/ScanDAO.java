@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
@@ -31,7 +32,7 @@ import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import java.util.List;
 
 /**
- * The class {@code ScanDAO} is the DAO class that manage the persistence methods of the scans.
+ * The DAO class that manage the persistence methods of the scans.
  */
 @Repository
 public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
@@ -42,7 +43,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      * @param pageable page request object
      * @return page containing the list of requested scans
      */
-    public Page<Scan> findAllByOrderBySubmittedTimestampDesc(Pageable pageable);
+    public Page<Scan> getAllByOrderBySubmittedTimestampDesc(Pageable pageable);
 
     /**
      * Get scan by job id.
@@ -61,7 +62,18 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      */
     @Modifying
     @Query("update Scan u set u.status = ?1 where u.jobId = ?2")
-    public int updateScanStatus(ScanStatus status, String jobId);
+    public int updateStatus(ScanStatus status, String jobId);
+
+    /**
+     * Update scanner app id that has been selected for the scan.
+     *
+     * @param scannerAppId scanner app id
+     * @param jobId  scan job id
+     * @return number of rows that were updated
+     */
+    @Modifying
+    @Query("update Scan u set u.scannerAppId = ?1 where u.jobId = ?2")
+    public int updateScannerAppId(String scannerAppId, String jobId);
 
     /**
      * Update scan priority.
@@ -72,7 +84,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      */
     @Modifying
     @Query("update Scan u set u.priority = ?1 where u.jobId = ?2")
-    public int updateScanPriority(ScanPriority priority, String jobId);
+    public int updatePriority(ScanPriority priority, String jobId);
 
     /**
      * Get scan by status.
@@ -83,12 +95,21 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
     public List<Scan> getByStatus(ScanStatus status);
 
     /**
-     * Get the scans by a given status, scanner and a product.
+     * Get scan by status and order by priority and submitted timestamp
+     * @param status status of the scan
+     * @return a list of scans with given priority and ordered by priority and submitted timestamp
+     */
+    public List<Scan> getByStatusOrderByPriorityAscSubmittedTimestampAsc(ScanStatus status);
+
+    /**
+     * Get the scans by a given set of statuses, scanner and a product.
      *
-     * @param status  scan status
+     * @param statuses  list of scan statuses
      * @param scanner assigned scanner
      * @param product assigned product
      * @return list of scans for the given status, scanner and the product
      */
-    public List<Scan> getByStatusAndScannerAndProduct(ScanStatus status, Scanner scanner, String product);
+    @Query("select o from Scan o where o.status in :statuses and o.scanner = :scanner and o.product = :product")
+    public List<Scan> getByStatusInAndScannerAndProduct(@Param("statuses") List<ScanStatus> statuses, @Param(
+            "scanner") Scanner scanner, @Param("product") String product);
 }
