@@ -138,7 +138,6 @@
                 <version>${org.springframework.version}</version>
                 <configuration>
                     <mainClass>org.wso2.security.tools.scanmanager.webapp.Application</mainClass>
-                    <jvmArguments>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</jvmArguments>
                 </configuration>
                 <executions>
                     <execution>

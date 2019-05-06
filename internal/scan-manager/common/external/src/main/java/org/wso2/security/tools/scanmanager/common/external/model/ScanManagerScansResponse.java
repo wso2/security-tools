@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Model class to represent scans response for scan manager.
  */
-public class ScanManagerScansReponse {
+public class ScanManagerScansResponse {
 
     private List<ScanExternal> scanList;
     private Integer totalPages;
@@ -33,7 +33,7 @@ public class ScanManagerScansReponse {
     private boolean isFirstPage;
     private boolean isLastPage;
 
-    public ScanManagerScansReponse(List<ScanExternal> scanList, Integer totalPages, Integer currentPage,
+    public ScanManagerScansResponse(List<ScanExternal> scanList, Integer totalPages, Integer currentPage,
                                    Integer pageSize, boolean hasNextPage, boolean hasPreviousPage,
                                    boolean isFirstPage, boolean isLastPage) {
         this.scanList = scanList;
@@ -46,7 +46,7 @@ public class ScanManagerScansReponse {
         this.isLastPage = isLastPage;
     }
 
-    public ScanManagerScansReponse() {
+    public ScanManagerScansResponse() {
     }
 
     public List<ScanExternal> getScanList() {

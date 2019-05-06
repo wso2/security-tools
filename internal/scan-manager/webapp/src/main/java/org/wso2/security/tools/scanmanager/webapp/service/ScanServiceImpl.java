@@ -24,7 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
-import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansReponse;
+import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
 import org.wso2.security.tools.scanmanager.webapp.config.ScanManagerWebappConfiguration;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 import org.wso2.security.tools.scanmanager.webapp.util.FTPUtil;
@@ -80,8 +80,8 @@ public class ScanServiceImpl implements ScanService {
     }
 
     @Override
-    public ScanManagerScansReponse getScans(Integer pageNumber) throws ScanManagerWebappException {
-        ScanManagerScansReponse scansResponse = null;
+    public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException {
+        ScanManagerScansResponse scansResponse = null;
         List<NameValuePair> nameValuePairs = new ArrayList<>();
 
         try {
@@ -92,7 +92,7 @@ public class ScanServiceImpl implements ScanService {
                     HTTPUtil.sendGET(ScanManagerWebappConfiguration.getInstance()
                             .getScanURL("", nameValuePairs).toString(), null, null);
             ObjectMapper mapper = new ObjectMapper();
-            scansResponse = mapper.readValue(responseEntity.getBody(), ScanManagerScansReponse.class);
+            scansResponse = mapper.readValue(responseEntity.getBody(), ScanManagerScansResponse.class);
         } catch (IOException e) {
             throw new ScanManagerWebappException("Unable to get the scans", e);
         }

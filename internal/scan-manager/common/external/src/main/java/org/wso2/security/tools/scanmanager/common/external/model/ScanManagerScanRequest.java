@@ -17,15 +17,12 @@
  */
 package org.wso2.security.tools.scanmanager.common.external.model;
 
-import org.wso2.security.tools.scanmanager.common.model.ScanType;
-
-import java.io.Serializable;
 import java.util.Map;
 
 /**
- * Model class to represent a scan request.
+ * Model class to represent a scan request for scan manager.
  */
-public class ScanManagerScanRequest implements Serializable {
+public class ScanManagerScanRequest {
 
     private String scanName;
     private String scanDescription;

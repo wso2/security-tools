@@ -20,7 +20,7 @@ package org.wso2.security.tools.scanmanager.webapp.service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
-import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansReponse;
+import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 
 import java.util.Map;
@@ -49,7 +49,7 @@ public interface ScanService {
      * @return scan manager response containing a list of scans for the given page number
      * @throws ScanManagerWebappException when an error occurs when getting the list of scans
      */
-    public ScanManagerScansReponse getScans(Integer pageNumber) throws ScanManagerWebappException;
+    public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException;
 
     /**
      * Get details of a scan.
