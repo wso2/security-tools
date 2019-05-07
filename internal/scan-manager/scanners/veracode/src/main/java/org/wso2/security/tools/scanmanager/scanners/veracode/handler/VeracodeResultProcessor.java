@@ -242,10 +242,10 @@ public class VeracodeResultProcessor {
                     scanStatus = ScanStatus.CANCELED;
                     break;
                 case VeracodeScannerConstants.PRESCAN_FAILED:
-                    scanStatus = ScanStatus.FAILED;
+                    scanStatus = ScanStatus.ERROR;
                     break;
                 case VeracodeScannerConstants.NO_MODULES_DEFINED:
-                    scanStatus = ScanStatus.FAILED;
+                    scanStatus = ScanStatus.ERROR;
                     break;
                 case VeracodeScannerConstants.RESULTS_READY:
                     scanStatus = ScanStatus.COMPLETED;

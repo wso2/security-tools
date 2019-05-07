@@ -26,6 +26,7 @@ import java.util.Map;
  */
 public interface ConfigurationReader {
 
+
     public void loadConfiguration() throws IOException;
 
     public String getConfigProperty(String key);

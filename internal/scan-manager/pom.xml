@@ -58,6 +58,7 @@
                 <module>webapp</module>
 
                 <module>scanners/common</module>
+                <module>scanners/veracode</module>
             </modules>
             <properties>
                 <skipBenchmarks>true</skipBenchmarks>

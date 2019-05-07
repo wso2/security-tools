@@ -31,6 +31,18 @@ public class ScanLogRequest {
     private String message;
     private Timestamp timestamp;
 
+    public ScanLogRequest(String jobId, LogType type, String message, Timestamp timestamp) {
+        this.jobId = jobId;
+        this.type = type;
+        this.message = message;
+        if (timestamp != null) {
+            this.timestamp = new Timestamp(timestamp.getTime());
+        }
+    }
+
+    public ScanLogRequest() {
+    }
+
     public String getJobId() {
         return jobId;
     }
@@ -56,10 +68,16 @@ public class ScanLogRequest {
     }
 
     public Timestamp getTimestamp() {
-        return timestamp;
+        if (timestamp != null) {
+        return new Timestamp(timestamp.getTime());
+        } else {
+            return null;
+        }
     }
 
     public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
+        if (timestamp != null) {
+        this.timestamp = new Timestamp(timestamp.getTime());
+        }
     }
 }
