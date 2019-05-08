@@ -24,25 +24,18 @@ import org.wso2.security.tools.scanmanager.scanners.common.config.ScannerConfigu
  * Veracode specific configuration class.
  */
 public class VeracodeScannerConfiguration extends ScannerConfiguration {
-    private static volatile VeracodeScannerConfiguration instance;
     private String outputFolderPath;
     private String outputFilePath;
     private String logFilePath;
     private char[] apiKey;
     private String apiId;
+    private static final VeracodeScannerConfiguration instance = new VeracodeScannerConfiguration();
 
     private VeracodeScannerConfiguration() {
         apiKey = new char[0];
     }
 
     public static VeracodeScannerConfiguration getInstance() {
-        if (instance == null) {
-            synchronized (Configuration.class) {
-                if (instance == null) {
-                    instance = new VeracodeScannerConfiguration();
-                }
-            }
-        }
         return instance;
     }
 

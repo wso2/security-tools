@@ -33,19 +33,12 @@ import java.util.Map;
 public class YAMLConfigurationReader implements ConfigurationReader {
 
     private Map<String, Object> configObjectMap;
-    private static volatile YAMLConfigurationReader instance;
+    private static final YAMLConfigurationReader instance = new YAMLConfigurationReader();
 
-    public YAMLConfigurationReader() {
+    private YAMLConfigurationReader() {
     }
 
     public static YAMLConfigurationReader getInstance() {
-        if (instance == null) {
-            synchronized (YAMLConfigurationReader.class) {
-                if (instance == null) {
-                    instance = new YAMLConfigurationReader();
-                }
-            }
-        }
         return instance;
     }
 

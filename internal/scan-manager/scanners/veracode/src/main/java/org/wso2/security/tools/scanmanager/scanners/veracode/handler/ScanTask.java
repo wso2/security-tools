@@ -68,9 +68,8 @@ public class ScanTask implements Runnable {
 
     public ScanTask(UploadAPIWrapper uploadAPIWrapper, ScanContext scanContext,
                     ResultsAPIWrapper resultsAPIWrapper) {
-        String logMessage;
         if (log.isDebugEnabled()) {
-            logMessage = "Upload Artifact Handler thread is being initialized for the application:"
+            String logMessage = "Upload Artifact Handler thread is being initialized for the application:"
                     + scanContext.getAppId();
             log.debug(logMessage);
             CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.DEBUG);

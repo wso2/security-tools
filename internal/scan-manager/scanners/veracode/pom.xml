@@ -50,29 +50,26 @@
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
             <artifactId>scan-manager-scanners-common</artifactId>
-            <version>${org.wso2.security.tools.scanmanager.scanner.common.version}</version>
+            <version>${scanmanager.scanner.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
             <artifactId>scan-manager-common-internal</artifactId>
-            <version>${org.wso2.security.tools.scanmanager.common.internal.version}</version>
+            <version>${scanmanager.common.internal.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
             <artifactId>scan-manager-common</artifactId>
-            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
+            <version>${scanmanager.common.version}</version>
         </dependency>
     </dependencies>
     <properties>
         <vosp.api.wrappers.version>18.6.5.3</vosp.api.wrappers.version>
         <org.springframework.boot.starter.version>1.5.6.RELEASE</org.springframework.boot.starter.version>
         <log4j.version>1.2.17</log4j.version>
-        <org.wso2.security.tools.scanmanager.common.internal.version>1.0-SNAPSHOT
-        </org.wso2.security.tools.scanmanager.common.internal.version>
-        <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
-        </org.wso2.security.tools.scanmanager.common.version>
-        <org.wso2.security.tools.scanmanager.scanner.common.version>1.0-SNAPSHOT
-        </org.wso2.security.tools.scanmanager.scanner.common.version>
+        <scanmanager.common.internal.version>1.0-SNAPSHOT</scanmanager.common.internal.version>
+        <scanmanager.common.version>1.0-SNAPSHOT</scanmanager.common.version>
+        <scanmanager.scanner.common.version>1.0-SNAPSHOT</scanmanager.scanner.common.version>
         <org.springframework.boot.maven.version>2.1.4.RELEASE</org.springframework.boot.maven.version>
     </properties>
 </project>
