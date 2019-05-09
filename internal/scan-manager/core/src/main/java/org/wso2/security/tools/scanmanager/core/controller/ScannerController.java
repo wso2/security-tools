@@ -63,6 +63,18 @@ public class ScannerController {
     }
 
     /**
+     * Get scanner by id.
+     *
+     * @param id scanner id
+     * @return the scanner object for the given id
+     */
+    @GetMapping(path = "scanners/{id}")
+    @ResponseBody
+    public ResponseEntity<Scanner> getScanner(@PathVariable("id") String id) {
+        return new ResponseEntity<>(scannerService.getById(id), HttpStatus.OK);
+    }
+
+    /**
      * Add a scanner.
      *
      * @param scanner scanner details to be added or updated

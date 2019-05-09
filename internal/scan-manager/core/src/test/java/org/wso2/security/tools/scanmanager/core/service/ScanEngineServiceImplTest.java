@@ -52,6 +52,7 @@ import java.util.Map;
 
 import static org.wso2.security.tools.scanmanager.core.util.Constants.CONTAINER_ENV_NAME_SCAN_MANAGER_HOST;
 import static org.wso2.security.tools.scanmanager.core.util.Constants.CONTAINER_ENV_NAME_SCAN_MANAGER_PORT;
+import static org.wso2.security.tools.scanmanager.core.util.Constants.CONTAINER_SCAN_JOB_ID_LABEL_NAME;
 import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.SCANNER_APP_ID;
 import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.SCANNER_APP_NAME;
 
@@ -199,7 +200,9 @@ public class ScanEngineServiceImplTest {
                 Mockito.when(containerHandler.list()).thenReturn(Collections.singletonList(container));
                 Mockito.doNothing().when(containerHandler).clean(container.getId());
 
-                scanEngineService.removeContainer(scan);
+                Container removedTestContainer = scanEngineService.removeContainer(scan);
+                Assert.assertEquals(scan.getJobId(),
+                        removedTestContainer.getLabels().get(CONTAINER_SCAN_JOB_ID_LABEL_NAME));
             } else {
                 throw new ScanManagerException("Unable to get the scan test data");
             }

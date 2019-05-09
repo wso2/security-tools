@@ -21,6 +21,7 @@ package org.wso2.security.tools.scanmanager.core.util;
  */
 public final class ScanManagerTestConstants {
 
+    public static final String TEST_SCAN_ID = "scan1234";
     public static final String TEST_SCANNER_ID = "testScanner";
     public static final String TEST_PRODUCT_ID = "WSO2Test";
     public static final String SCANNER_APP_ID = "testScannerAppId";

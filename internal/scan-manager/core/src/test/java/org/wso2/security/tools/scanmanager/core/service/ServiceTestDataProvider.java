@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.wso2.security.tools.scanmanager.core.util.Constants.CONTAINER_APP_LABEL_NAME;
 import static org.wso2.security.tools.scanmanager.core.util.Constants.CONTAINER_ENV_NAME_SCAN_MANAGER_HOST;
@@ -53,6 +52,7 @@ import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConst
 import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.SCANNER_APP_NAME;
 import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.TEST_PRODUCT_ID;
 import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.TEST_SCANNER_ID;
+import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.TEST_SCAN_ID;
 
 /**
  * Base class for service tests.
@@ -91,7 +91,7 @@ public class ServiceTestDataProvider {
         Set scanPropertySet = new HashSet<>();
         scanPropertySet.add(scanProperty);
 
-        scan = new Scan(UUID.randomUUID().toString(), "testScan", "testScan", scanner, ScanStatus.SUBMITTED,
+        scan = new Scan(TEST_SCAN_ID, "testScan", "testScan", scanner, ScanStatus.SUBMITTED,
                 ScanPriority.MEDIUM.getValue(), TEST_PRODUCT_ID, ScanType.STATIC, "testUser", null,
                 SCANNER_APP_ID, null, scanFileSet, scanPropertySet,
                 new Timestamp(System.currentTimeMillis()), null);
