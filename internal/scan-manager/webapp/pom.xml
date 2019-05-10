@@ -147,28 +147,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven.checkstyle.plugin.verson}</version>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <configLocation>
-                                https://raw.githubusercontent.com/wso2/code-quality-tools/v1.2/checkstyle/checkstyle.xml
-                            </configLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -188,7 +166,6 @@
         <commons.lang.version>3.9</commons.lang.version>
         <com.jcraft.jsch.version>0.1.55</com.jcraft.jsch.version>
         <commons.io.version>2.6</commons.io.version>
-        <maven.checkstyle.plugin.verson>2.16</maven.checkstyle.plugin.verson>
     </properties>
 
 </project>

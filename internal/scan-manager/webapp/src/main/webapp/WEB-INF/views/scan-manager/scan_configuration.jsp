@@ -127,7 +127,8 @@
                                                    id="${field.fieldId}"
                                                    name="${field.fieldId}" style="margin-left: 15px;" required>
                                             <c:if test="${field.hasDefault}">
-                                                <input type="checkbox" name="${field.fieldId}DefaultCheckbox" style="margin-left:
+                                                <input type="checkbox" name="${field.fieldId}DefaultCheckbox"
+                                                       style="margin-left:
                                                  15px;" id="${field.fieldId}DefaultCheckbox" value="true"
                                                        onclick="javascript:useDefault('${field.fieldId}');">
                                                 <label class="form-check-label" for="${field.fieldId}DefaultCheckbox"
