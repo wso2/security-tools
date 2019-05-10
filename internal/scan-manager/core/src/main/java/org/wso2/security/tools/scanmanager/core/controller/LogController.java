@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
-import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogResponse;
 import org.wso2.security.tools.scanmanager.core.config.ScanManagerConfiguration;
 import org.wso2.security.tools.scanmanager.core.exception.ResourceNotFoundException;
@@ -71,7 +70,7 @@ public class LogController {
         //internal page indexing starts at 0
         Page<Log> logs = logService.getByScan(scan, page - 1, logPageSize);
         if (scan != null) {
-            return new ResponseEntity<>(new ScanManagerLogResponse(logs.getContent(), new ScanExternal(scan),
+            return new ResponseEntity<>(new ScanManagerLogResponse(logs.getContent(),
                     logs.getTotalPages(), page, logs.getSize(), logs.hasNext(), logs.hasPrevious(), logs.isFirst(),
                     logs.isLast()), HttpStatus.OK);
         } else {

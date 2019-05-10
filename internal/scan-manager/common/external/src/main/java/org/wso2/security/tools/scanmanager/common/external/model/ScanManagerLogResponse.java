@@ -17,6 +17,7 @@
  */
 package org.wso2.security.tools.scanmanager.common.external.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,15 +25,13 @@ import java.util.List;
  */
 public class ScanManagerLogResponse extends ScanManagerPagedResponse {
 
-    private List<Log> logs;
-    private ScanExternal scan;
+    private List<Log> logs = new ArrayList<>();
 
-    public ScanManagerLogResponse(List<Log> logs, ScanExternal scan, Integer totalPages, Integer currentPage,
+    public ScanManagerLogResponse(List<Log> logs, Integer totalPages, Integer currentPage,
                                   Integer pageSize, boolean hasNextPage, boolean hasPreviousPage, boolean isFirstPage
             , boolean isLastPage) {
         super(totalPages, currentPage, pageSize, hasNextPage, hasPreviousPage, isFirstPage, isLastPage);
         this.logs = logs;
-        this.scan = scan;
     }
 
     public ScanManagerLogResponse() {
@@ -44,13 +43,5 @@ public class ScanManagerLogResponse extends ScanManagerPagedResponse {
 
     public void setLogs(List<Log> logs) {
         this.logs = logs;
-    }
-
-    public ScanExternal getScan() {
-        return scan;
-    }
-
-    public void setScan(ScanExternal scan) {
-        this.scan = scan;
     }
 }
