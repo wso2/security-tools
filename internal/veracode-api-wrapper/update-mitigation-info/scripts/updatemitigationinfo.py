@@ -60,7 +60,7 @@ if (args.buildID == None):
     print PREFIX, '- Retrieving the build id of application id : ', args.applicationID
     payload = {'app_id': args.applicationID}
     response = requests.post(GET_BUILD_API, params=payload, files=None, auth=(args.username, password))
-    if response.status_code == '200':
+    if response.status_code == 200:
         matchObj = re.search(BUILD_REGEX, response.text, re.M | re.I)
         if matchObj:
             args.buildID = matchObj.group(2)
@@ -70,22 +70,22 @@ if (args.buildID == None):
             sys.exit()
     else:
         print PREFIX, "- Error occurred while invoking the API to retrieve build ID of given application. " \
-                      "Response code :" + response.status_code
+                      "Response code :", response.status_code
         sys.exit()
+
 
 # Update mitigation comment.
 def updateComment(flowId, comment, action):
     updateCommentPayload = {'build_id': args.buildID, 'action': action, 'comment': comment, 'flaw_id_list': flowId}
-    print updateCommentPayload
     response = requests.post(UPDATE_MITIGATION_API, params=updateCommentPayload, files=None,
                              auth=(args.username, password))
-    if response.status_code == '200':
-        if SUCCESS_RESPONSE_KEY not in response.text:
-            output = "SUCCESS , Response : ", response.content
+    if response.status_code == 200:
+        if SUCCESS_RESPONSE_KEY in response.text:
+            output = "Flow ID : " + flowId + " mitigation info is updated success fully. "
         else:
-            output = "ERROR , Response : ", response.content
+            output = "Flow ID : " + flowId + "ERROR Response : " + response.text
     else:
-        output = "ERROR , Response : ", response.content
+        output = "Flow ID : " + flowId + "ERROR Response : " + response.text
     return output
 
 print PREFIX, "- Reading the CSV entries from analysed report"
@@ -96,13 +96,20 @@ with open(args.csvFilePath, 'r') as csvfile:
     with open(args.outputFilePath, 'a') as outputFile:
         for row in reader:
             flowId = dict(row).get("issue_id")
+            print PREFIX, "- Updating mitigation info for flow ID " + flowId
             if (dict(row).get("WSO2_resolution") == 'False Positive'):
                 action = ACTION_FALSEPOSITIVE
             else:
                 action = ACTION_APPDESIGN
-            comment = "Resolution: " + dict(row).get("WSO2_resolution") + "\n\n" + \
-                      "Use case: " + dict(row).get("Use_Case") + "\n\n" \
+            comment = "Resolution: " + dict(row).get("WSO2_resolution") + '\n\n' + \
+                      "Use case: " + dict(row).get("Use_Case") + '\n\n' + \
                       "Vulnerability Influence: " + dict(row).get("Vulnerability_Influence")
             output = updateComment(flowId, comment, action)
-            outputFile.write("Flow ID : " + flowId + " " + output)
-            file.write("\n")
+            outputFile.write('\n')
+            outputFile.write(output)
+            outputFile.write('\n')
+            outputFile.write(comment)
+            outputFile.write('\n')
+            outputFile.write("--------------------------------------------------------------------------------------")
+            outputFile.write('\n')
+    print PREFIX, "- END"
