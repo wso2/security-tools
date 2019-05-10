@@ -52,19 +52,19 @@ args = parser.parse_args()
 password = raw_input("Enter password: ")
 
 if (args.applicationID == None):
-    print PREFIX, '- Application ID is not provided. Either Application ID or Build Id should be provided.'
+    print PREFIX, '- Application ID is not provided. Either Application ID or Build ID should be provided.'
     sys.exit()
 
 # Get build id of particular application if build id is not provided.
 if (args.buildID == None):
-    print PREFIX, '- Retrieving the build id of application id : ', args.applicationID
+    print PREFIX, '- Retrieving the build ID of application ID : ', args.applicationID
     payload = {'app_id': args.applicationID}
     response = requests.post(GET_BUILD_API, params=payload, files=None, auth=(args.username, password))
     if response.status_code == 200:
         matchObj = re.search(BUILD_REGEX, response.text, re.M | re.I)
         if matchObj:
             args.buildID = matchObj.group(2)
-            print PREFIX, "- Build Id of given application : " + args.buildID
+            print PREFIX, "- Build ID of given application : " + args.buildID
         else:
             print PREFIX, "- Error occurred while retrieving build ID of given application."
             sys.exit()
