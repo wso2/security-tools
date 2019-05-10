@@ -36,7 +36,6 @@ before_install:
 
 script:
   - if [ "$BUILD_TYPE" = "MAVEN" ]; then cd internal; mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN; fi
-  - "mvn cobertura:cobertura"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
