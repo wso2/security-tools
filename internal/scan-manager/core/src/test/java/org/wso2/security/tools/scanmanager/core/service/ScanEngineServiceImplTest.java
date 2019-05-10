@@ -134,6 +134,7 @@ public class ScanEngineServiceImplTest {
 
                 scanEngineService.beginPendingScans();
 
+                // Verify the request object passed to the POST request to start the scan.
                 ArgumentCaptor<HTTPRequest> startScanRequestCaptor = ArgumentCaptor.forClass(HTTPRequest.class);
                 PowerMockito.verifyStatic();
                 HTTPUtil.sendPOST(startScanRequestCaptor.capture());
@@ -175,6 +176,7 @@ public class ScanEngineServiceImplTest {
 
                 scanEngineService.cancelScan(scan);
 
+                // Verify the request object passed to the DELETE request to cancel a scan.
                 PowerMockito.verifyStatic();
                 ArgumentCaptor<HTTPRequest> requestParamsCaptor = ArgumentCaptor.forClass(HTTPRequest.class);
                 HTTPUtil.sendDelete(requestParamsCaptor.capture());
