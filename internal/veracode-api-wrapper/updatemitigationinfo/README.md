@@ -1,14 +1,14 @@
-#**Veracode API Wrapper - Update Mitigation Info**
+**Veracode API Wrapper - Update Mitigation Info**
 
 Calls the Veracode api to update the mitigation comment of a build id. This is effectively used in updating the comment 
 in veracode which is maintained in CSV files.
 
-##**Prerequisite**
+**Prerequisite**
 
 Prerequesties specific to Veracode :  Veracode Subcription , User role with "Mitigation" and "Mitigation and Comments"
 Prerequesties specif to program    :  <a href="https://github.com/wso2/security-tools/blob/master/internal/veracode-api-wrapper/updatemitigationinfo/requirements.txt">requirements.txt</a>
 
-##**Local Installation**
+**Local Installation**
 
 `$ virtualenv veracodeApiWrapper<br/>`
 
@@ -20,7 +20,7 @@ Prerequesties specif to program    :  <a href="https://github.com/wso2/security-
 ``(veracodeApiWrapper) $ python updatemitigationinfo.py -h<br/>`
 ``
 
-##**Help**
+**Help**
 
 ````
 usage: updatemitigationinfo.py [-h] [-a APPLICATIONID] [-b BUILDID]
@@ -38,11 +38,11 @@ optional arguments:
   -of OUTPUTFILEPATH  Output file path`
 ````
   
-##**How it works**
+**How it works**
 
 updatemitigationinfo.py reads the given CSV file path and construct a string for mitigation comment from the relevant 
 coloumns in CSV file. Then it calls the veracode api to update the mitigation comment.
 
-##**Note**  
+**Note**  
 This script is written to support the WSO2 Feedback Report of Veracode Scan.  
          
