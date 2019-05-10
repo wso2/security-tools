@@ -39,10 +39,12 @@ public class Constants {
     public static final String SCANNERS_URI = SCAN_MANAGER_ENDPOINT + "/scanners";
 
     public static final String URL_SEPARATOR = "/";
-    public static final String DEFAULT_ERROR_PAGE_VIEW = "scanManager/errorPage";
+    public static final String DEFAULT_ERROR_PAGE_VIEW = "scan-manager/errorPage";
 
     public static final String FTP_SCAN_DATA_DIRECTORY_NAME = "scandata";
+    public static final String SCAN_REPORT_DATA_DIRECTORY_NAME = "reports";
 
     public static final String PAGE_PARAM_NAME = "page";
     public static final String JOB_ID_PARAM_NAME = "jobId";
+    public static final String PRE_JOB_ID_PREFIX = "pre_job_id_";
 }

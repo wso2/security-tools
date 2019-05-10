@@ -41,8 +41,8 @@ public class ScanManagerWebappConfigurationBuilder {
     /**
      * Reading the scan manager webapp configuration from scan-manager-webapp-config.yaml.
      *
-     * @return
-     * @throws ScanManagerWebappException
+     * @return a map containing the scan manager webapp configurations
+     * @throws ScanManagerWebappException when an error occurs while reading the scan manager webapp configurations
      */
     public static Map<String, Object> getConfiguration() throws ScanManagerWebappException {
         Map<String, Object> configObjectMap = null;
@@ -60,9 +60,9 @@ public class ScanManagerWebappConfigurationBuilder {
     /**
      * Reading the scan manager webapp configuration from a given config file.
      *
-     * @param configFile
-     * @return
-     * @throws ScanManagerWebappException
+     * @param configFile scan manager configuration file
+     * @return a map containing the scan manager webapp configurations
+     * @throws ScanManagerWebappException when an error occurs while reading the scan manager webapp configurations
      */
     public static Map<String, Object> getConfiguration(File configFile) throws ScanManagerWebappException {
         Yaml yaml = new Yaml();

@@ -29,11 +29,21 @@ public class CustomErrorController implements ErrorController {
 
     private static final String PATH = "/error";
 
+    /**
+     * Default error controller method.
+     *
+     * @return an error view
+     */
     @RequestMapping(value = PATH)
     public String error() {
         return "error_page";
     }
 
+    /**
+     * Get the error path.
+     *
+     * @return the error path
+     */
     @Override
     public String getErrorPath() {
         return PATH;

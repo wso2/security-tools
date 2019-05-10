@@ -26,25 +26,21 @@ import com.jcraft.jsch.SftpException;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartFile;
-import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
-import org.wso2.security.tools.scanmanager.common.model.ScannerType;
 import org.wso2.security.tools.scanmanager.webapp.config.ScanManagerWebappConfiguration;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.FTP_SCAN_DATA_DIRECTORY_NAME;
@@ -56,25 +52,10 @@ public class FTPUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FTPUtil.class);
 
+    private static final String STRICT_HOST_KEY_CHECKING_CONFIG_NAME = "StrictHostKeyChecking";
+    private static final String PREFERRED_AUTHENTICATIONS_CONFIG_NAME = "PreferredAuthentications";
+
     private FTPUtil() {
-    }
-
-    /**
-     * Filter the scanners by given scanner type.
-     *
-     * @param scannerList list of scanner objects
-     * @param type        scanner type
-     * @return a list of scanner objects with the given type
-     */
-    public static List<Scanner> getScannersByType(List<Scanner> scannerList, ScannerType type) {
-        List<Scanner> filteredScannerList = new ArrayList<>();
-
-        for (Scanner scanner : scannerList) {
-            if (scanner.getScannerType().equals(type)) {
-                filteredScannerList.add(scanner);
-            }
-        }
-        return filteredScannerList;
     }
 
     /**
@@ -104,8 +85,8 @@ public class FTPUtil {
             ftpPassword = ScanManagerWebappConfiguration.getInstance().getFtpPassword();
             int ftpPort = ScanManagerWebappConfiguration.getInstance().getFtpPort();
             session = jsch.getSession(ftpUsername, ftpHost, ftpPort);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.setConfig("PreferredAuthentications", "password");
+            session.setConfig(STRICT_HOST_KEY_CHECKING_CONFIG_NAME, "no");
+            session.setConfig(PREFERRED_AUTHENTICATIONS_CONFIG_NAME, "password");
             session.setPassword(toBytes(ftpPassword));
             session.connect();
 
@@ -141,11 +122,11 @@ public class FTPUtil {
      * Upload files to FTP server.
      *
      * @param remoteScanDirectory destination file directory
-     * @param fileMap             file map
+     * @param storedFileMap       file map
      * @return a map containing the paths of the uploaded files
      * @throws ScanManagerWebappException
      */
-    public static Map<String, String> uploadFilesToFTP(String remoteScanDirectory, Map<String, MultipartFile> fileMap)
+    public static Map<String, String> uploadFilesToFTP(String remoteScanDirectory, Map<String, String> storedFileMap)
             throws ScanManagerWebappException {
         ChannelSftp channelSftp = null;
         Channel channel;
@@ -160,8 +141,8 @@ public class FTPUtil {
             ftpPassword = ScanManagerWebappConfiguration.getInstance().getFtpPassword();
             int ftpPort = ScanManagerWebappConfiguration.getInstance().getFtpPort();
             session = jsch.getSession(ftpUsername, ftpHost, ftpPort);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.setConfig("PreferredAuthentications", "password");
+            session.setConfig(STRICT_HOST_KEY_CHECKING_CONFIG_NAME, "no");
+            session.setConfig(PREFERRED_AUTHENTICATIONS_CONFIG_NAME, "password");
             session.setPassword(toBytes(ftpPassword));
             session.connect();
 
@@ -173,17 +154,17 @@ public class FTPUtil {
             channelSftp.mkdir(remoteScanDirectory);
             channelSftp.cd(remoteScanDirectory);
 
-            for (Map.Entry<String, MultipartFile> fileEntry : fileMap.entrySet()) {
+            for (Map.Entry<String, String> fileEntry : storedFileMap.entrySet()) {
                 String unifiedFileName = fileEntry.getKey() + "." +
-                        FilenameUtils.getExtension(fileEntry.getValue().getOriginalFilename());
-                channelSftp.put(fileEntry.getValue().getInputStream(), unifiedFileName);
+                        FilenameUtils.getExtension(fileEntry.getValue());
+                channelSftp.put(new FileInputStream(fileEntry.getValue()), unifiedFileName);
                 uploadedFileMetaData.put(fileEntry.getKey(),
                         ScanManagerWebappConfiguration.getInstance().getFtpBasePath() + File.separator +
                                 FTP_SCAN_DATA_DIRECTORY_NAME + File.separator + remoteScanDirectory + File.separator +
                                 unifiedFileName);
             }
         } catch (IOException | JSchException | SftpException e) {
-            throw new ScanManagerWebappException("Error occurred while downloading from FTP.", e);
+            throw new ScanManagerWebappException("Error occurred while uploading files to FTP.", e);
         } finally {
             if (channelSftp != null) {
                 channelSftp.disconnect();

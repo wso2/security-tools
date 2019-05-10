@@ -19,10 +19,12 @@ package org.wso2.security.tools.scanmanager.webapp.service;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,11 +38,10 @@ public interface ScanService {
      * @param fileMap       file map containing the required files
      * @param parameterMap  parameter map containing the required parameters
      * @param scanDirectory scan directory to upload scan files in FTP server
-     * @return HTTP response code from scan manager
-     * @throws ScanManagerWebappException when an error occurs when submitting scan data.
+     * @return Scan object that was received by the webapp
      */
-    public int submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap,
-                          String scanDirectory) throws ScanManagerWebappException;
+    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap,
+                           String scanDirectory);
 
     /**
      * Get the list of scans for a given page.
@@ -50,6 +51,13 @@ public interface ScanService {
      * @throws ScanManagerWebappException when an error occurs when getting the list of scans
      */
     public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException;
+
+    /**
+     * Get the list of scans waiting to be submitted to scan manager API.
+     *
+     * @return scan manager response containing a list of scans waiting to be submitted to scan manager API
+     */
+    public List<ScanExternal> getWaitingScans();
 
     /**
      * Get details of a scan.

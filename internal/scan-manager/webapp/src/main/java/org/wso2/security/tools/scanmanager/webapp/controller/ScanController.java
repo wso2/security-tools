@@ -18,9 +18,6 @@
 package org.wso2.security.tools.scanmanager.webapp.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,15 +30,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
+import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogResponse;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
-import org.wso2.security.tools.scanmanager.common.model.ScannerType;
+import org.wso2.security.tools.scanmanager.common.external.model.ScannerApp;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 import org.wso2.security.tools.scanmanager.webapp.service.LogService;
 import org.wso2.security.tools.scanmanager.webapp.service.ScanService;
 import org.wso2.security.tools.scanmanager.webapp.service.ScannerService;
-import org.wso2.security.tools.scanmanager.webapp.util.FTPUtil;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -50,51 +47,46 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-import javax.servlet.ServletContext;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.LOGS_VIEW;
-import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANNERS_VIEW_NAME;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANS_VIEW;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_CONFIGURATION_VIEW;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_MANAGER_VIEW;
+import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_REPORT_DATA_DIRECTORY_NAME;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.URL_SEPARATOR;
 
 /**
- * Controller methods to resolve views.
+ * Controller methods to resolve views for scans.
  */
 @Controller
 @RequestMapping("scan-manager")
 public class ScanController {
 
-    private ServletContext context;
     private ScanService scanService;
     private ScannerService scannerService;
     private LogService logService;
 
     private static final String CONTENT_DISPOSITION_HEADER_NAME = "Content-Disposition";
     private static final String SCAN_LIST_RESPONSE_ATTRIBUTE_NAME = "scanListResponse";
+    private static final String WAITING_SCAN_LIST_ATTRIBUTE_NAME = "waitingScanList";
+
     private static final String LOG_RESPONSE_ATTRIBUTE_NAME = "logListResponse";
-    private static final String SCANNERS_CONTEXT_ATTRIBUTE = "scanners";
-    private static final String STATIC_SCANNERS_ATTRIBUTE = "staticScanners";
-    private static final String DYNAMIC_SCANNERS_ATTRIBUTE = "dynamicScanners";
-    private static final String DEPENDENCY_SCANNERS_ATTRIBUTE = "dependencyScanners";
-    private static final String MESSAGE_ATTRIBUTE = "message";
     private static final String SCANNER_DATA_ATTRIBUTE_NAME = "scannerData";
+    private static final String PRODUCT_DATA_ATTRIBUTE_NAME = "productData";
     private static final String SCAN_DATA_ATTRIBUTE_NAME = "scanData";
     private static final String SCAN_NAME_PARAMETER_KEY = "scanName";
 
-    private static final Logger logger = LoggerFactory.getLogger(ScanController.class);
-
     @Autowired
-    public ScanController(ScanService scanService, ServletContext context, ScannerService scannerService,
-                          LogService logService) {
+    public ScanController(ScanService scanService, ScannerService scannerService, LogService logService) {
         this.scanService = scanService;
         this.scannerService = scannerService;
-        this.context = context;
         this.logService = logService;
     }
 
@@ -121,38 +113,12 @@ public class ScanController {
         Map<String, MultipartFile> fileMap = multipartHttpServletRequest.getFileMap();
         String scanDirectory = parameterMap.get(SCAN_NAME_PARAMETER_KEY) + "_" +
                 UUID.randomUUID().toString();
-        int status = scanService.submitScan(fileMap, parameterMap, scanDirectory);
-        if (status == HttpStatus.SC_OK) {
+        Scan scan = scanService.submitScan(fileMap, parameterMap, scanDirectory);
+        if (scan != null) {
             return "redirect:scans";
         } else {
             throw new ScanManagerWebappException("An error occurred while submitting the scan");
         }
-    }
-
-    /**
-     * Get the list of scanners.
-     *
-     * @return scanners view
-     * @throws ScanManagerWebappException when an error occurs while getting the list of scanners
-     */
-    @GetMapping(value = "scanners")
-    public ModelAndView getScanners() throws ScanManagerWebappException {
-        ModelAndView scannerView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + SCANNERS_VIEW_NAME);
-        List<Scanner> scannerList;
-
-        if (context.getAttribute(SCANNERS_CONTEXT_ATTRIBUTE) != null) {
-            scannerList = (List<Scanner>) context.getAttribute(SCANNERS_CONTEXT_ATTRIBUTE);
-        } else {
-            scannerList = scannerService.getScanners();
-            context.setAttribute(SCANNERS_CONTEXT_ATTRIBUTE, scannerList);
-        }
-        scannerView.addObject(STATIC_SCANNERS_ATTRIBUTE, FTPUtil.getScannersByType(scannerList,
-                ScannerType.STATIC));
-        scannerView.addObject(DYNAMIC_SCANNERS_ATTRIBUTE, FTPUtil.getScannersByType(scannerList,
-                ScannerType.DYNAMIC));
-        scannerView.addObject(DEPENDENCY_SCANNERS_ATTRIBUTE, FTPUtil.getScannersByType(scannerList,
-                ScannerType.DEPENDENCY));
-        return scannerView;
     }
 
     /**
@@ -166,12 +132,17 @@ public class ScanController {
     public ModelAndView getScans(@RequestParam(name = "page", required = false) Integer page)
             throws ScanManagerWebappException {
         ModelAndView scansView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + SCANS_VIEW);
+
+        // list of scans submitted to scan manager API.
         scansView.addObject(SCAN_LIST_RESPONSE_ATTRIBUTE_NAME, scanService.getScans(page));
+
+        // list of scan waiting to be submitted to scan manager API.
+        scansView.addObject(WAITING_SCAN_LIST_ATTRIBUTE_NAME, scanService.getWaitingScans());
         return scansView;
     }
 
     /**
-     * Getting the logs for a scan.
+     * Get the logs for a scan.
      *
      * @param page  required page number
      * @param jobId scan id of the required logs
@@ -183,9 +154,8 @@ public class ScanController {
                                 @RequestParam("jobId") String jobId) throws ScanManagerWebappException {
         ModelAndView logsView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + LOGS_VIEW);
         ScanManagerLogResponse scanManagerLogResponse = logService.getLogs(jobId, page);
-        ScanExternal scan = scanManagerLogResponse.getScan();
         logsView.addObject(LOG_RESPONSE_ATTRIBUTE_NAME, scanManagerLogResponse);
-        logsView.addObject(SCAN_DATA_ATTRIBUTE_NAME, scan);
+        logsView.addObject(SCAN_DATA_ATTRIBUTE_NAME, scanService.getScan(jobId));
         return logsView;
     }
 
@@ -223,8 +193,16 @@ public class ScanController {
             if (StringUtils.isBlank(scan.getScanReportPath())) {
                 throw new ScanManagerWebappException("Scan report path is empty");
             }
+
+            // Download the scan report temporally into the local machine.
             File file = new File(scan.getScanReportPath());
-            scanService.getScanReport(scan.getScanReportPath(), file.getName());
+            File reportDirectory = new File(SCAN_REPORT_DATA_DIRECTORY_NAME);
+            if (!reportDirectory.exists() && !reportDirectory.mkdir()) {
+                throw new ScanManagerWebappException("Error occurred while creating the report output directory");
+            }
+            scanService.getScanReport(scan.getScanReportPath(),
+                    SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + file.getName());
+
             downloadedFile = new File(file.getName());
             String mimeType = URLConnection.guessContentTypeFromName(file.getName());
             if (mimeType == null) {
@@ -237,7 +215,7 @@ public class ScanController {
         } else {
             throw new ScanManagerWebappException("Unable to find a scan for the given id: " + jobId);
         }
-        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(downloadedFile));) {
+        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(downloadedFile))) {
             FileCopyUtils.copy(inputStream, response.getOutputStream());
         } catch (IOException e) {
             throw new ScanManagerWebappException("Error occurred while downloading scan report for the scan: " + jobId,
@@ -254,21 +232,20 @@ public class ScanController {
      */
     @PostMapping(value = "configuration")
     public ModelAndView getScanConfig(@RequestParam("scannerId") String scannerId) throws ScanManagerWebappException {
-        List<Scanner> scannerList = null;
+        Scanner scanner = null;
         ModelAndView scannerConfigModel = new ModelAndView(SCAN_MANAGER_VIEW +
                 File.separator + SCAN_CONFIGURATION_VIEW);
-        if (context.getAttribute(SCANNERS_CONTEXT_ATTRIBUTE) != null) {
-            scannerList = (List<Scanner>) context.getAttribute(SCANNERS_CONTEXT_ATTRIBUTE);
-        } else {
-            scannerList = scannerService.getScanners();
-            context.setAttribute(SCANNERS_CONTEXT_ATTRIBUTE, scannerList);
-        }
-        for (Scanner scanner : scannerList) {
-            if (scanner.getId().equals(scannerId)) {
-                scannerConfigModel.addObject(SCANNER_DATA_ATTRIBUTE_NAME, scanner);
-                break;
-            }
-        }
+
+        scanner = scannerService.getScanner(scannerId);
+        scannerConfigModel.addObject(SCANNER_DATA_ATTRIBUTE_NAME, scanner);
+
+        // List the applicable products for the given scanner.
+        List<String> productLst =
+                scanner.getApps().stream().map(ScannerApp::getAssignedProduct).collect(Collectors.toList());
+        Set<String> set = new HashSet<>(productLst);
+        productLst.clear();
+        productLst.addAll(set);
+        scannerConfigModel.addObject(PRODUCT_DATA_ATTRIBUTE_NAME, productLst);
         return scannerConfigModel;
     }
 }

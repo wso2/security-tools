@@ -67,6 +67,22 @@ public class HTTPUtil {
     }
 
     /**
+     * Send a HEAD request.
+     *
+     * @param url            target URL
+     * @param requestHeaders request headers map
+     * @param requestParams  request params map
+     * @return a response entity object
+     * @throws RestClientException when an error occurs while initiating the request
+     */
+    public static ResponseEntity<String> sendHEAD(String url, MultiValueMap<String, String> requestHeaders, Map<String
+            , Object> requestParams) throws RestClientException {
+        HttpEntity<?> request = new HttpEntity<>(requestParams, requestHeaders);
+        ResponseEntity<String> response = new RestTemplate().exchange(url, HttpMethod.HEAD, request, String.class);
+        return response;
+    }
+
+    /**
      * Send a DELETE request.
      *
      * @param url            target URL

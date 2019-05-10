@@ -16,6 +16,8 @@
 ~ under the License.
 -->
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions"
+           prefix="fn" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -25,10 +27,11 @@
 <%@ include file="../fragments/nav_bar.jsp" %>
 <div class="container">
     <div class="row">
+<c:choose>
+    <c:when test="${scanData != null}">
         <div class="page-header">
             <h1>Logs</h1>
-            <h3><b>Scan: </b>${scanData.scanName}</h3>
-           
+            <h3><b>Scan: </b>${scanData.name}</h3>
         </div>
         <div>
             <c:if test="${logListResponse.logs.size() == 0}">
@@ -63,56 +66,76 @@
                     </c:forEach>
                     </tbody>
                 </table>
-                <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
-                    <input type="hidden" name="page" value="1"/>
-                    <input type="hidden" name="jobId" value="${scanData.jobId}"/>
-                    <c:choose>
-                        <c:when test="${!logListResponse.isFirstPage()}">
-                            <button class="btn btn-primary">First</button>
-                        </c:when>
-                        <c:otherwise>
-                            <button class="btn btn-primary" disabled>First</button>
-                        </c:otherwise>
-                    </c:choose>
-                </form>
-                <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
-                    <input type="hidden" name="page" value="${logListResponse.currentPage - 1}"/>
-                    <input type="hidden" name="jobId" value="${scanData.jobId}"/>
-                    <c:choose>
-                        <c:when test="${!logListResponse.isFirstPage()}">
-                            <button class="btn btn-primary">Previous Page</button>
-                        </c:when>
-                        <c:otherwise>
-                            <button class="btn btn-primary" disabled>Previous Page</button>
-                        </c:otherwise>
-                    </c:choose>
-                </form>
-                <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
-                    <input type="hidden" name="page" value="${logListResponse.currentPage + 1}"/>
-                    <input type="hidden" name="jobId" value="${scanData.jobId}"/>
-                    <c:choose>
-                        <c:when test="${!logListResponse.isLastPage()}">
-                            <button class="btn btn-primary">Next Page</button>
-                        </c:when>
-                        <c:otherwise>
-                            <button class="btn btn-primary" disabled>Next Page</button>
-                        </c:otherwise>
-                    </c:choose>
-                </form>
-                <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
-                    <input type="hidden" name="page" value="${logListResponse.totalPages}"/>
-                    <input type="hidden" name="jobId" value="${scanData.jobId}"/>
-                    <c:choose>
-                        <c:when test="${!logListResponse.isLastPage()}">
-                            <button class="btn btn-primary">Last</button>
-                        </c:when>
-                        <c:otherwise>
-                            <button class="btn btn-primary" disabled>Last</button>
-                        </c:otherwise>
-                    </c:choose>
-                </form>
+                
+                <c:if test="${!fn:contains(scanData.jobId, 'pre_job_id')}">
+                    <div class="col-md-5">
+                        <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="1"/>
+                            <input type="hidden" name="jobId" value="${scanData.jobId}"/>
+                            <c:choose>
+                                <c:when test="${!logListResponse.isFirstPage()}">
+                                    <button class="btn btn-primary">First</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>First</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                        <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="${logListResponse.currentPage - 1}"/>
+                            <input type="hidden" name="jobId" value="${scanData.jobId}"/>
+                            <c:choose>
+                                <c:when test="${!logListResponse.isFirstPage()}">
+                                    <button class="btn btn-primary">Previous Page</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>Previous Page</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                        <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="${logListResponse.currentPage + 1}"/>
+                            <input type="hidden" name="jobId" value="${scanData.jobId}"/>
+                            <c:choose>
+                                <c:when test="${!logListResponse.isLastPage()}">
+                                    <button class="btn btn-primary">Next Page</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>Next Page</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                        <form action="/scan-manager/logs" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="${logListResponse.totalPages}"/>
+                            <input type="hidden" name="jobId" value="${scanData.jobId}"/>
+                            <c:choose>
+                                <c:when test="${!logListResponse.isLastPage()}">
+                                    <button class="btn btn-primary">Last</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>Last</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                    </div>
+                    <div class="col-md-7">
+                        <p style="padding-top: 14px;">page ${logListResponse.currentPage} of
+                                ${logListResponse.totalPages}</p>
+                    </div>
+                </c:if>
             </c:when>
         </c:choose>
+    </c:when>
+    <c:otherwise>
+        <div class="page-header">
+            <h1>Logs</h1>
+        </div>
+        <div style="float: left; padding: 5px;">
+            <h4>Provided scan cannot be found. Please check the <a href="/scan-manager/scans">scans page</a> for the
+                available scans.</h4>
+        </div>
+    </c:otherwise>
+</c:choose>
     </div>
 </div>
 <%@ include file="../fragments/footer.jsp" %>

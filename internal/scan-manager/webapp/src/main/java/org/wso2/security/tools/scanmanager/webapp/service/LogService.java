@@ -18,8 +18,12 @@
 
 package org.wso2.security.tools.scanmanager.webapp.service;
 
+import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogResponse;
+import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
+
+import java.sql.Timestamp;
 
 /**
  * Log service interface that defines the log service methods.
@@ -35,4 +39,39 @@ public interface LogService {
      * @throws ScanManagerWebappException when an error occurs when getting the list of logs
      */
     public ScanManagerLogResponse getLogs(String jobId, Integer pageNumber) throws ScanManagerWebappException;
+
+    /**
+     * Insert an error log entity during an exception.
+     *
+     * @param scan scan details
+     * @param e    throwable error message
+     */
+    public void insertError(Scan scan, Throwable e);
+
+    /**
+     * Insert a log entity.
+     *
+     * @param scan    scan details
+     * @param type    log type
+     * @param message log message
+     */
+    public void insert(Scan scan, LogType type, String message);
+
+    /**
+     * Insert a log entity with timestamp.
+     *
+     * @param scan      scan details
+     * @param type      log type
+     * @param timestamp timestamp for the log
+     * @param message   log message
+     */
+    public void insert(Scan scan, LogType type, Timestamp timestamp, String message);
+
+    /**
+     * Remove log entries for a waiting scan.
+     *
+     * @param scanJobId waiting scan job id
+     * @return true if the scan is found among the waiting scan logs
+     */
+    public boolean removeLogsForWaitingScan(String scanJobId);
 }

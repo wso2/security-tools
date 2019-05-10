@@ -34,4 +34,13 @@ public interface ScannerService {
      * @throws ScanManagerWebappException when an error occurs when getting the list of scanners
      */
     public List<Scanner> getScanners() throws ScanManagerWebappException;
+
+    /**
+     * Get scanner by id.
+     *
+     * @param id scanner id
+     * @return the scanner object for the given id
+     * @throws ScanManagerWebappException when an error occurs when getting the scanner
+     */
+    public Scanner getScanner(String id) throws ScanManagerWebappException;
 }

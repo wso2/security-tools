@@ -25,91 +25,177 @@
 <%@ include file="../fragments/nav_bar.jsp" %>
 <div class="container">
     <div class="row">
-        <div class="page-header">
-            <h1>Scans</h1>
-        </div>
-        <c:choose>
-            <c:when test="${scanListResponse.scanList.size() > 0}">
-                <ul class="list-group">
-                    <div class="col-lg-6 col-md-12 col-sm-">
-                        <div class="row">
-                            <c:forEach begin="0" end="${scanListResponse.scanList.size()-1}" var="index">
-                                <div class="jumbotron"
-                                     style="padding-top: 10px; padding-bottom: 15px; padding-left: 20px">
-                                    <br class="list-group-item clearfix">
-                                    <b>Name: </b>${scanListResponse.scanList.get(index).scanName}</br>
-                                    <b> Status: </b> ${scanListResponse.scanList.get(index).status}</br>
-                                    <b>Created time: </b>${scanListResponse.scanList.get(index).submittedTimestamp}
-                                    <div class="pull-right">
-                                        <form action="/scan-manager/report" method="get"
-                                              style="float: left; padding: 5px;">
-                                            <input type="hidden" name="jobId"
-                                                   value="${scanListResponse.scanList.get(index).jobId}"/>
-                                            <c:choose>
-                                                <c:when test="${scanListResponse.scanList.get(index)
+        <div class="col-md-12">
+            <div class="row">
+                <div class="page-header col-md-12">
+                    <h1>Scans</h1>
+                    <h5>To view the waiting scans
+                        <a href="${window.location.href}#waiting-scans">click here</a>
+                    </h5>
+                </div>
+            </div>
+            <c:choose>
+                <c:when test="${scanListResponse.scanList.size() > 0}">
+                    <c:forEach begin="0" end="${scanListResponse.scanList.size()-1}" var="index">
+                        <div class="row"
+                             style="margin-left: 0px; background-color: #a9a9a93b; border-radius: 10px;">
+                            <div class="col-md-8" style="margin-top: 10px; margin-bottom: 10px;">
+                                <b>Name: </b>${scanListResponse.scanList.get(index).name}</br>
+                                <b>Status: </b> ${scanListResponse.scanList.get(index).status}</br>
+                                <b>Product: </b> ${scanListResponse.scanList.get(index).product}</br>
+                                <b>Created time: </b>${scanListResponse.scanList.get(index).submittedTimestamp}
+                            </div>
+                            <div class="col-md-4" style="margin-top: 34px;">
+                                <form action="/scan-manager/report" method="get"
+                                      style="float: right;margin-bottom: 0px;margin-left: 6px;">
+                                    <input type="hidden" name="jobId"
+                                           value="${scanListResponse.scanList.get(index).jobId}"/>
+                                    <c:choose>
+                                        <c:when test="${scanListResponse.scanList.get(index)
                                                 .status.name().equals('COMPLETED')}">
-                                                    <button class="btn btn-primary">Report</button>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <button class="btn btn-primary" disabled>Report</button>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </form>
-                                        <form action="/scan-manager/stop" method="post"
-                                              style="float: left; padding: 5px;">
-                                            <input type="hidden" name="jobId"
-                                                   value="${scanListResponse.scanList.get(index).jobId}"/>
-                                            <c:choose>
-                                                <c:when
-                                                        test="${scanListResponse.scanList.get(index).status.name()
+                                            <button class="btn btn-primary">Scan Report</button>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <button class="btn btn-primary" disabled>Scan Report</button>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </form>
+                                <form action="/scan-manager/stop" method="post"
+                                      style="float: right;margin-bottom: 0px;margin-left: 6px;">
+                                    <input type="hidden" name="jobId"
+                                           value="${scanListResponse.scanList.get(index).jobId}"/>
+                                    <c:choose>
+                                        <c:when
+                                                test="${scanListResponse.scanList.get(index).status.name()
                                                 .equals('RUNNING') ||
                                              scanListResponse.scanList.get(index).status.name()
                                              .equals('SCAN_PENDING') ||
                                              scanListResponse.scanList.get(index).status.name()
                                              .equals('SUBMITTED')}">
-                                                    <button class="btn btn-danger">Stop</button>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <button class="btn btn-danger" disabled>Stop</button>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </form>
-                                        <form action="/scan-manager/logs" method="get"
-                                              style="float: left; padding: 5px;">
-                                            <input type="hidden" name="jobId"
-                                                   value="${scanListResponse.scanList.get(index).jobId}"/>
-                                            <button class="btn btn-warning">Logs</button>
-                                        </form>
-                                        </span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </c:forEach>
-                            <form action="/scan-manager/scans" method="get">
-                                <input type="hidden" name="page" value="${scanListResponse.currentPage - 1}"/>
-                                <c:if test="${!scanListResponse.isFirstPage()}">
-                                    <button class="btn btn-primary">Previous Page</button>
-                                </c:if>
-                            </form>
-                            <form action="/scan-manager/scans" method="get">
-                                <input type="hidden" name="page" value="${scanListResponse.currentPage + 1}"/>
-                                <c:if test="${!scanListResponse.isLastPage()}">
-                                    <button class="btn btn-primary">Next Page</button>
-                                </c:if>
-                            </form>
-                        
+                                            <button class="btn btn-danger">Stop</button>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <button class="btn btn-danger" disabled>Stop</button>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </form>
+                                <form action="/scan-manager/logs" method="get"
+                                      style="float: right;margin-bottom: 0px;margin-left: 6px;">
+                                    <input type="hidden" name="jobId"
+                                           value="${scanListResponse.scanList.get(index).jobId}"/>
+                                    <button class="btn btn-warning">Logs</button>
+                                </form>
+                                </span>
+                            </div>
                         </div>
+                        <br>
+                    </c:forEach>
+                    <div class="col-md-5">
+                        <form action="/scan-manager/scans" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="1"/>
+                            <c:choose>
+                                <c:when test="${!scanListResponse.isFirstPage()}">
+                                    <button class="btn btn-primary">First</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>First</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                        <form action="/scan-manager/scans" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="${scanListResponse.currentPage - 1}"/>
+                            <c:choose>
+                                <c:when test="${!scanListResponse.isFirstPage()}">
+                                    <button class="btn btn-primary">Previous Page</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>Previous Page</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                        <form action="/scan-manager/scans" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="${scanListResponse.currentPage + 1}"/>
+                            <c:choose>
+                                <c:when test="${!scanListResponse.isLastPage()}">
+                                    <button class="btn btn-primary">Next Page</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>Next Page</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                        <form action="/scan-manager/scans" method="get" style="float: left; padding: 5px;">
+                            <input type="hidden" name="page" value="${scanListResponse.totalPages}"/>
+                            <c:choose>
+                                <c:when test="${!scanListResponse.isLastPage()}">
+                                    <button class="btn btn-primary">Last</button>
+                                </c:when>
+                                <c:otherwise>
+                                    <button class="btn btn-primary" disabled>Last</button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
                     </div>
-                </ul>
-            </c:when>
-            <c:otherwise>
-                <div>
-                    <h4>No Scans found</h4>
+                    <div class="col-md-7">
+                        <p style="padding-top: 14px;">page ${scanListResponse.currentPage} of
+                                ${scanListResponse.totalPages}</p>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div>
+                        <h4>No Scans found</h4>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+            <br>
+        </div>
+    </div>
+    <div class="row">
+        <hr>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row" id="waiting-scans">
+                <div class="page-header">
+                    <h2>Waiting Scans</h2>
                 </div>
-            </c:otherwise>
-        </c:choose>
+            </div>
+            <c:choose>
+                <c:when test="${waitingScanList.size() > 0}">
+                    <c:forEach begin="0" end="${waitingScanList.size()-1}" var="index">
+                        <div class="row"
+                             style="margin-left: 0px; background-color: #a9a9a93b; border-radius: 10px;">
+                            <div class="col-md-10" style="margin-top: 10px; margin-bottom: 10px;">
+                                <b>Name: </b>${waitingScanList.get(index).name}</br>
+                                <b>Product: </b> ${waitingScanList.get(index).product}
+                            </div>
+                            <div class="col-md-2" style="margin-top: 15px;">
+                                <form action="/scan-manager/logs" method="get"
+                                      style="float: right;margin-bottom: 0px;margin-left: 6px;">
+                                    <input type="hidden" name="jobId"
+                                           value="${waitingScanList.get(index).jobId}"/>
+                                    <button class="btn btn-warning">Logs</button>
+                                </form>
+                                </span>
+                            </div>
+                        </div>
+                        <br>
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <div>
+                        <h4>No Waiting Scans found</h4>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
     </div>
 </div>
 <%@ include file="../fragments/footer.jsp" %>
 </body>
+<style type="text/css">
+    .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
+        opacity: .25;
+    }
+</style>
 </html>
