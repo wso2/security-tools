@@ -245,6 +245,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             if (containerInfo != null) {
                 dockerHandler.clean(containerInfo.getId());
             }
+            throw new ScanManagerException("Error occurred while initiating the scan request", e);
         }
     }
 
