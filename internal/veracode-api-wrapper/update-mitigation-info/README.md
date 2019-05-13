@@ -28,9 +28,8 @@ $ . env/bin/activate
 ### Help
 
 ```
-usage: updatemitigationinfo.py [-h] [-a APPLICATIONID] [-b BUILDID]
-                               [-u USERNAME] [-cf CSVFILEPATH]
-                               [-of OUTPUTFILEPATH]
+usage: updatemitigationinfo.py [-h] (-a APPLICATIONID | -b BUILDID) -u
+                               USERNAME -cf CSVFILEPATH -of OUTPUTFILEPATH
 
 Veracode API wrapper to update mitigation comment.
 
@@ -38,9 +37,11 @@ optional arguments:
   -h, --help          show this help message and exit
   -a APPLICATIONID    Veracode Application ID
   -b BUILDID          Build ID of the scan
+
+Required arguments:
   -u USERNAME         Username
   -cf CSVFILEPATH     CSV file path of feed back report
-  -of OUTPUTFILEPATH  Output file path`
+  -of OUTPUTFILEPATH  Output file path
 ```
   
 ---

@@ -32,27 +32,32 @@ ACTION_APPDESIGN = 'appdesign'
 
 print PREFIX, '- START'
 parser = argparse.ArgumentParser(description='Veracode API wrapper to update mitigation comment.')
-parser.add_argument('-a', action='store', dest='applicationID',
+
+group = parser.add_mutually_exclusive_group(required=True)
+
+group.add_argument('-a', action='store', dest='applicationID',
                     help='Veracode Application ID')
 
-parser.add_argument('-b', action='store', dest='buildID',
+group.add_argument('-b', action='store', dest='buildID',
                     help='Build ID of the scan')
 
-parser.add_argument('-u', type=str, action='store', dest='username', required=True,
+required = parser.add_argument_group('Required arguments')
+
+required.add_argument('-u', type=str, action='store', dest='username', required=True,
                     help='Username')
 
-parser.add_argument('-cf', type=str, action='store', dest='csvFilePath', required=True,
+required.add_argument('-cf', type=str, action='store', dest='csvFilePath', required=True,
                     help='CSV file path of feed back report')
 
-parser.add_argument('-of', type=str, action='store', dest='outputFilePath', required=True,
+required.add_argument('-of', type=str, action='store', dest='outputFilePath', required=True,
                     help='Output file path')
 
 args = parser.parse_args()
 
 password = raw_input("Enter password: ")
 
-if (args.applicationID == None):
-    print PREFIX, '- Application ID is not provided. Either Application ID or Build ID should be provided.'
+if (args.applicationID == None and args.buildID == None):
+    print PREFIX, '-    Either Application ID or Build ID should be provided.'
     sys.exit()
 
 # Get build id of particular application if build id is not provided.
