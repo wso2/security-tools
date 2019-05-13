@@ -18,6 +18,7 @@ package org.wso2.security.tools.scanmanager.core.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.apache.log4j.Logger;
 import org.testng.annotations.DataProvider;
 import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
@@ -59,6 +60,8 @@ import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConst
  */
 public class ServiceTestDataProvider {
 
+    private static final Logger logger = Logger.getLogger(ServiceTestDataProvider.class);
+
     @DataProvider(name = "getScannerData")
     public static Object[][] getScannerData() {
         Scan scan = buildScan();
@@ -66,16 +69,9 @@ public class ServiceTestDataProvider {
     }
 
     private static Scan buildScan() {
-        Scan scan = null;
-        Scanner scanner;
-        ScannerApp scannerApp;
-        ScannerField scannerField;
-        ScanFile scanFile;
-        ScanProperty scanProperty;
-
-        scanner = new Scanner();
-        scannerApp = new ScannerApp(null, SCANNER_APP_ID, SCANNER_APP_NAME, TEST_PRODUCT_ID);
-        scannerField = new ScannerField("testField", null, "testField", "file", true);
+        Scanner scanner = new Scanner();
+        ScannerApp scannerApp = new ScannerApp(null, SCANNER_APP_ID, SCANNER_APP_NAME, TEST_PRODUCT_ID);
+        ScannerField scannerField = new ScannerField("testField", null, "testField", "file", true);
 
         scanner.setId(TEST_SCANNER_ID);
         scanner.setName("testScanner");
@@ -84,14 +80,14 @@ public class ServiceTestDataProvider {
         scanner.setApps(Collections.singleton(scannerApp));
         scanner.setFields(Collections.singleton(scannerField));
 
-        scanFile = new ScanFile(null, "testScanFile", "testScanFileLocation");
+        ScanFile scanFile = new ScanFile(null, "testScanFile", "testScanFileLocation");
         Set scanFileSet = new HashSet<>();
         scanFileSet.add(scanFile);
-        scanProperty = new ScanProperty(null, "testScanProperty", "testScanPropertyValue");
+        ScanProperty scanProperty = new ScanProperty(null, "testScanProperty", "testScanPropertyValue");
         Set scanPropertySet = new HashSet<>();
         scanPropertySet.add(scanProperty);
 
-        scan = new Scan(TEST_SCAN_ID, "testScan", "testScan", scanner, ScanStatus.SUBMITTED,
+        Scan scan = new Scan(TEST_SCAN_ID, "testScan", "testScan", scanner, ScanStatus.SUBMITTED,
                 ScanPriority.MEDIUM.getValue(), TEST_PRODUCT_ID, ScanType.STATIC, "testUser", null,
                 SCANNER_APP_ID, null, scanFileSet, scanPropertySet,
                 new Timestamp(System.currentTimeMillis()), null);
@@ -140,6 +136,7 @@ public class ServiceTestDataProvider {
             String json = ow.writeValueAsString(obj);
             return new ObjectMapper().readValue(json, Scan.class);
         } catch (IOException e) {
+            logger.error("Error occurred while parsing the scan object", e);
             return null;
         }
     }
@@ -156,6 +153,7 @@ public class ServiceTestDataProvider {
             String json = ow.writeValueAsString(obj);
             return new ObjectMapper().readValue(json, Container.class);
         } catch (IOException e) {
+            logger.error("Error occurred while parsing the container object", e);
             return null;
         }
     }
