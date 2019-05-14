@@ -78,7 +78,7 @@ public class ScanServiceImpl implements ScanService {
 
     @Override
     public void updatePriority(String jobId, ScanPriority priority) throws ScanManagerException {
-        Integer updatedRows = scanDAO.updatePriority(priority, jobId);
+        Integer updatedRows = scanDAO.updatePriority(priority.getValue(), jobId);
         if (updatedRows != 1) {
             throw new ScanManagerException("Error occurred while updating scan priority of the scan: " + jobId);
         }

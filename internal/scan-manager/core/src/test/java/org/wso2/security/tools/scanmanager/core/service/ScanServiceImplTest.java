@@ -101,7 +101,7 @@ public class ScanServiceImplTest {
     @Test(dataProvider = "getScanData", dataProviderClass = ServiceTestDataProvider.class, expectedExceptions =
             ScanManagerException.class)
     public void testUpdatePriorityException(Scan scan) throws ScanManagerException {
-        Mockito.when(mockScanDAO.updatePriority(ScanPriority.MEDIUM, scan.getJobId())).thenReturn(-1);
+        Mockito.when(mockScanDAO.updatePriority(ScanPriority.MEDIUM.getValue(), scan.getJobId())).thenReturn(-1);
 
         scanService.updatePriority(scan.getJobId(), ScanPriority.MEDIUM);
     }

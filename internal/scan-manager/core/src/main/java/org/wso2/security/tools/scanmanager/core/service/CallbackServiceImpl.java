@@ -17,6 +17,7 @@
  */
 package org.wso2.security.tools.scanmanager.core.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
@@ -54,12 +55,20 @@ public class CallbackServiceImpl implements CallbackService {
                     if (newScanObject.getStatus() == ScanStatus.SUBMITTED) {
                         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
                         newScanObject.setStartTimestamp(timestamp);
-                        newScanObject.setScannerScanId(scannerScanId);
+                        if (StringUtils.isNotBlank(scannerScanId)) {
+                            newScanObject.setScannerScanId(scannerScanId);
+                        } else {
+                            throw new InvalidRequestException("Scanner scan id cannot be found");
+                        }
                         newScanObject.setStatus(scanStatus);
                     }
                     break;
                 case COMPLETED:
-                    newScanObject.setReportPath(scanReportPath);
+                    if (StringUtils.isNotBlank(scanReportPath)) {
+                        newScanObject.setReportPath(scanReportPath);
+                    } else {
+                        throw new InvalidRequestException("Scan report path cannot be found");
+                    }
                     newScanObject.setStatus(scanStatus);
                     scanEngineService.removeContainer(newScanObject);
                     new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromCallback").start();

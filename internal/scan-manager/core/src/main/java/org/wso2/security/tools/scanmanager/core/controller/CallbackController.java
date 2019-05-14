@@ -93,6 +93,10 @@ public class CallbackController {
         } else {
             throw new InvalidRequestException("parameter jobId cannot be found");
         }
+
+        if (scanStatus == null) {
+            throw new InvalidRequestException("parameter scanStatus cannot be found");
+        }
         if (scan != null) {
             callbackService.updateScan(scan, scanStatus, scanStatusUpdateRequest.getScannerScanId(),
                     scanStatusUpdateRequest.getScanReportPath());
