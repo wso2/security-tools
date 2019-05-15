@@ -35,8 +35,8 @@
                 </div>
             </div>
             <c:choose>
-                <c:when test="${scanListResponse.scanList.size() > 0}">
-                    <c:forEach begin="0" end="${scanListResponse.scanList.size()-1}" var="index">
+                <c:when test="${scanListResponse.scanList.size() gt 0}">
+                    <c:forEach begin="0" end="${scanListResponse.scanList.size() - 1}" var="index">
                         <div class="row"
                              style="margin-left: 0px; background-color: #a9a9a93b; border-radius: 10px;">
                             <div class="col-md-8" style="margin-top: 10px; margin-bottom: 10px;">
@@ -161,8 +161,8 @@
                 </div>
             </div>
             <c:choose>
-                <c:when test="${waitingScanList.size() > 0}">
-                    <c:forEach begin="0" end="${waitingScanList.size()-1}" var="index">
+                <c:when test="${waitingScanList.size() gt 0}">
+                    <c:forEach begin="0" end="${waitingScanList.size() - 1}" var="index">
                         <div class="row"
                              style="margin-left: 0px; background-color: #a9a9a93b; border-radius: 10px;">
                             <div class="col-md-10" style="margin-top: 10px; margin-bottom: 10px;">

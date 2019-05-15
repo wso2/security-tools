@@ -38,7 +38,7 @@
                 <form action="/scan-manager/configuration" method="post"
                       enctype="multipart/form-data">
                     <div class="col-md-12">
-                        <c:if test="${staticScanners.size() > 0}">
+                        <c:if test="${staticScanners.size() gt 0}">
                             <c:if test="${!staticScanners.get(0).name.equals('')
                         && !staticScanners.get(0).id.equals('')}">
                                 <div class="row"
@@ -47,7 +47,7 @@
                                     <div class="col-md-12" style="font-weight: 600; margin-left: 15px; padding-left: 0px;
                                  padding-right: 0px;">
                                         <h3 style="margin-top: 0px; margin-bottom: 15px;">Static</h3>
-                                        <c:forEach begin="0" end="${staticScanners.size()-1}"
+                                        <c:forEach begin="0" end="${staticScanners.size() - 1}"
                                                    var="index">
                                             <input type="radio" name="scannerId" id="${staticScanners.get(index).id}"
                                                    value="${staticScanners.get(index).id}" checked>
@@ -60,7 +60,7 @@
                             </c:if>
                         </c:if>
                         <br>
-                        <c:if test="${dynamicScanners.size() > 0}">
+                        <c:if test="${dynamicScanners.size() gt 0}">
                             <c:if test="${!dynamicScanners.get(0).name.equals('')
                         && !dynamicScanners.get(0).id.equals('')}">
                                 <div class="row"
@@ -69,7 +69,7 @@
                                     <div class="col-md-12" style="font-weight: 600; margin-left: 15px; padding-left: 0px;
                                  padding-right: 0px;">
                                         <h3 style="margin-top: 0px; margin-bottom: 15px;">Dynamic</h3>
-                                        <c:forEach begin="0" end="${dynamicScanners.size()-1}"
+                                        <c:forEach begin="0" end="${dynamicScanners.size() - 1}"
                                                    var="index">
                                             <input type="radio" name="scannerId"
                                                    value="${dynamicScanners.get(index).id}" checked>
@@ -82,7 +82,7 @@
                             </c:if>
                         </c:if>
                         <br>
-                        <c:if test="${dependencyScanners.size() > 0}">
+                        <c:if test="${dependencyScanners.size() gt 0}">
                             <c:if test="${!dependencyScanners.get(0).name.equals('')
                         && !dependencyScanners.get(0).id.equals('')}">
                                 <div class="row"
@@ -91,7 +91,7 @@
                                     <div class="col-md-12" style="font-weight: 600; margin-left: 15px; padding-left: 0px;
                                  padding-right: 0px;">
                                         <h3 style="margin-top: 0px; margin-bottom: 15px;">Dependency</h3>
-                                        <c:forEach begin="0" end="${dependencyScanners.size()-1}" var="index">
+                                        <c:forEach begin="0" end="${dependencyScanners.size() - 1}" var="index">
                                             <input type="radio" name="scannerId"
                                                    value="${dependencyScanners.get(index).id}"
                                                    checked>

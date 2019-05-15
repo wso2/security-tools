@@ -48,7 +48,7 @@
                         <input type="hidden" class="form-control" id="scanType"
                                name="scanType" value="${scannerData.type}">
                         
-                        <c:if test="${productData.size() > 0}">
+                        <c:if test="${productData.size() gt 0}">
                             <div class="form-group">
                                 <label for="productName" style="margin-left: 15px; margin-top: 20px;">Product
                                     Name</label>
@@ -61,10 +61,10 @@
                                 </select>
                             </div>
                         </c:if>
-                        <c:if test="${scannerData.fields.size() > 0}">
+                        <c:if test="${scannerData.fields.size() gt 0}">
                             <c:forEach items="${scannerData.fields}" var="field">
                                 <c:choose>
-                                    <c:when test="${field.type == 'file'}">
+                                    <c:when test="${field.type eq 'file'}">
                                         <div class="form-group">
                                             <label for="${field.fieldId}" style="margin-left: 15px; margin-top:
                                 20px;">${field.displayName}</label>

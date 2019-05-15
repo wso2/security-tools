@@ -34,7 +34,7 @@
             <h3><b>Scan: </b>${scanData.name}</h3>
         </div>
         <div>
-            <c:if test="${logListResponse.logs.size() == 0}">
+            <c:if test="${logListResponse.logs.size() eq 0}">
                 <br/><br/>
                 <div style="float: left; padding: 5px;">
                     <h4>No Logs found</h4>
@@ -47,7 +47,7 @@
             </form>
         </div>
         <c:choose>
-            <c:when test="${logListResponse.logs.size() > 0}">
+            <c:when test="${logListResponse.logs.size() gt 0}">
                 <table class="table">
                     <thead>
                     <tr>
@@ -57,7 +57,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach begin="0" end="${logListResponse.logs.size()-1}" var="index">
+                    <c:forEach begin="0" end="${logListResponse.logs.size() - 1}" var="index">
                         <tr>
                             <th scope="row">${logListResponse.logs.get(index).timeStamp}</th>
                             <td>${logListResponse.logs.get(index).type.name()}</td>

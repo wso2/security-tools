@@ -133,7 +133,7 @@ public class ScanController {
             throws ScanManagerWebappException {
         ModelAndView scansView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + SCANS_VIEW);
 
-        // list of scans submitted to scan manager API.
+        // List of scans submitted to scan manager API.
         scansView.addObject(SCAN_LIST_RESPONSE_ATTRIBUTE_NAME, scanService.getScans(page));
 
         // list of scan waiting to be submitted to scan manager API.
