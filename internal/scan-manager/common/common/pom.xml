@@ -34,6 +34,17 @@
     <artifactId>scan-manager-common</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${org.yaml.snakeyaml.version}</version>
+        </dependency>
+    </dependencies>
+
     <name>Scan Manager - Common</name>
 
+    <properties>
+        <org.yaml.snakeyaml.version>1.24</org.yaml.snakeyaml.version>
+    </properties>
 </project>

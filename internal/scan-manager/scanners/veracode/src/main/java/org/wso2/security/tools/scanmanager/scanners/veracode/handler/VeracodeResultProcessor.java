@@ -21,24 +21,17 @@ import com.veracode.parser.util.XmlUtils;
 import org.apache.log4j.Logger;
 import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
-import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
+import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.veracode.VeracodeScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.veracode.util.FileUtil;
-import org.xml.sax.InputSource;
+import org.wso2.security.tools.scanmanager.scanners.veracode.config.VeracodeScannerConfiguration;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -51,30 +44,6 @@ public class VeracodeResultProcessor {
     private static final Logger log = Logger.getLogger(VeracodeResultProcessor.class);
 
     private VeracodeResultProcessor() {
-    }
-
-    /**
-     * filter error string from the Veracode response.
-     *
-     * @param xmlString
-     * @return the error string
-     */
-    private static String filterErrorString(String xmlString) {
-        String errorString;
-        StringBuilder builder = new StringBuilder();
-        Pattern pattern = Pattern.compile("<error>(.*?)</error>");
-        Matcher matcher = pattern.matcher(xmlString);
-
-        while (matcher.find()) {
-            builder.append(matcher.group(1) + "\r\n");
-        }
-
-        errorString = builder.toString();
-
-        if (errorString.contains("\r\n")) {
-            errorString = errorString.substring(0, builder.lastIndexOf("\r\n"));
-        }
-        return errorString;
     }
 
     /**
@@ -111,79 +80,12 @@ public class VeracodeResultProcessor {
      */
     public static String getActualScanStatus(String result) throws SAXException, ParserConfigurationException,
             XPathExpressionException, IOException {
-        String xPath = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants
+        String xPath = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
                 .SCAN_STATUS_XPATH);
-        String statusAttribute = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants
+        String statusAttribute = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
                 .SCAN_STATUS_ATTRIBUTE);
 
-        return getElementByXMLResult(result, xPath, statusAttribute);
-    }
-
-    /**
-     * Build the Error String by Throwable.
-     *
-     * @param e throwable
-     * @return the build error string
-     */
-    public static String getFullErrorMessage(Throwable e) {
-        if (e.getCause() == null) {
-            return e.getMessage();
-        }
-        return e.getMessage() + "\n\nCaused by: " + getFullErrorMessage(e.getCause());
-    }
-
-    /**
-     * Get the required attribute from an XML sttring.
-     *
-     * @param result    XML of the Veracode response
-     * @param xPath     XPath to select the required attribute
-     * @param attribute tag name of the required attribute
-     * @return attribute value
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     * @throws XPathExpressionException
-     * @throws IOException
-     */
-    private static String getElementByXMLResult(String result, String xPath, String attribute) throws
-            XPathExpressionException, IOException, SAXException, ParserConfigurationException {
-        String status = null;
-        XPathFactory xPathfactory = XPathFactory.newInstance();
-        XPath xpath = xPathfactory.newXPath();
-        XPathExpression expr;
-        NodeList nodelist;
-
-        Document doc = convertStringToDocument(result);
-
-        SimpleNamespaceContext namespaces = new SimpleNamespaceContext();
-        namespaces.bindNamespaceUri(VeracodeScannerConstants.VERACODE, YAMLConfigurationReader.getInstance()
-                .getConfigProperty(VeracodeScannerConstants.NAMESPACE));
-        xpath.setNamespaceContext(namespaces);
-        expr = xpath.compile(xPath);
-
-        nodelist = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-
-        for (int i = 0; i < nodelist.getLength(); i++) {
-            Node currentItem = nodelist.item(i);
-            status = currentItem.getAttributes().getNamedItem(attribute).getNodeValue();
-        }
-        return status;
-    }
-
-    /**
-     * Convert a given XML to XML Document.
-     *
-     * @param xmlStr XML string that needs to convert
-     * @return converted XML Document
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
-     */
-    private static Document convertStringToDocument(String xmlStr) throws ParserConfigurationException, IOException,
-            SAXException {
-        DocumentBuilderFactory factory = FileUtil.getSecuredDocumentBuilderFactory();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-
-        return builder.parse(new InputSource(new StringReader(xmlStr)));
+        return getElementByVeracodeXMLResult(result, xPath, statusAttribute);
     }
 
     /**
@@ -272,10 +174,64 @@ public class VeracodeResultProcessor {
      */
     public static String getBuildIdByResponse(String apiResult) throws SAXException, ParserConfigurationException,
             XPathExpressionException, IOException {
-        String xPath = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants.BUILD_ID_XPATH);
-        String buildIdAttribute = YAMLConfigurationReader.getInstance().getConfigProperty(VeracodeScannerConstants
+        String xPath = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
+                .BUILD_ID_XPATH);
+        String buildIdAttribute = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
                 .BUILD_ID_ATTRIBUTE);
 
-        return getElementByXMLResult(apiResult, xPath, buildIdAttribute);
+        return getElementByVeracodeXMLResult(apiResult, xPath, buildIdAttribute);
+    }
+
+    /**
+     * Get the required attribute from an XML string.
+     *
+     * @param result    XML of the Veracode response
+     * @param xPath     XPath to select the required attribute
+     * @param attribute tag name of the required attribute
+     * @return attribute value
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     * @throws XPathExpressionException
+     * @throws IOException
+     */
+    private static String getElementByVeracodeXMLResult(String result, String xPath, String attribute) throws
+            XPathExpressionException, IOException, SAXException, ParserConfigurationException {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        XPath xpath = xPathfactory.newXPath();
+        XPathExpression expr;
+
+        Document doc = XMLUtil.convertStringToDocument(result);
+
+        SimpleNamespaceContext namespaces = new SimpleNamespaceContext();
+        namespaces.bindNamespaceUri(VeracodeScannerConstants.VERACODE, VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(VeracodeScannerConstants.NAMESPACE));
+        xpath.setNamespaceContext(namespaces);
+        expr = xpath.compile(xPath);
+
+        return XMLUtil.getValueByXmlDocument(attribute, expr, doc);
+    }
+
+    /**
+     * filter error string from the Veracode response.
+     *
+     * @param xmlString
+     * @return the error string
+     */
+    private static String filterErrorString(String xmlString) {
+        String errorString;
+        StringBuilder builder = new StringBuilder();
+        Pattern pattern = Pattern.compile("<error>(.*?)</error>");
+        Matcher matcher = pattern.matcher(xmlString);
+
+        while (matcher.find()) {
+            builder.append(matcher.group(1) + "\r\n");
+        }
+
+        errorString = builder.toString();
+
+        if (errorString.contains("\r\n")) {
+            errorString = errorString.substring(0, builder.lastIndexOf("\r\n"));
+        }
+        return errorString;
     }
 }

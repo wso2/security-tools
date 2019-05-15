@@ -17,71 +17,19 @@
  */
 package org.wso2.security.tools.scanmanager.scanners.veracode.config;
 
-import org.wso2.security.tools.scanmanager.scanners.common.config.Configuration;
-import org.wso2.security.tools.scanmanager.scanners.common.config.ScannerConfiguration;
+import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
 
 /**
  * Veracode specific configuration class.
  */
-public class VeracodeScannerConfiguration extends ScannerConfiguration {
-    private String outputFolderPath;
-    private String outputFilePath;
-    private String logFilePath;
-    private char[] apiKey;
-    private String apiId;
-    private static final VeracodeScannerConfiguration instance = new VeracodeScannerConfiguration();
+public class VeracodeScannerConfiguration extends YAMLConfigurationReader {
+
+    private static final VeracodeScannerConfiguration INSTANCE = new VeracodeScannerConfiguration();
 
     private VeracodeScannerConfiguration() {
-        apiKey = new char[0];
     }
 
     public static VeracodeScannerConfiguration getInstance() {
-        return instance;
-    }
-
-    public void zeroingVeracodeApiKeyInMemory() {
-        for (int i = 0; i < apiKey.length - 1; i++) {
-            apiKey[i] = '\0';
-        }
-    }
-
-    public String getOutputFolderPath() {
-        return outputFolderPath;
-    }
-
-    public void setOutputFolderPath(String outputFolderPath) {
-        this.outputFolderPath = outputFolderPath;
-    }
-
-    public String getOutputFilePath() {
-        return this.outputFilePath;
-    }
-
-    public void setOutputFilePath(String outputFilePath) {
-        this.outputFilePath = outputFilePath;
-    }
-
-    public String getLogFilePath() {
-        return logFilePath;
-    }
-
-    public void setLogFilePath(String logFilePath) {
-        this.logFilePath = logFilePath;
-    }
-
-    public String getApiId() {
-        return apiId;
-    }
-
-    public void setApiId(String apiId) {
-        this.apiId = apiId;
-    }
-
-    public char[] getApiKey() {
-        return apiKey.clone();
-    }
-
-    public void setApiKey(char[] apiKey) {
-        this.apiKey = apiKey.clone();
+        return INSTANCE;
     }
 }

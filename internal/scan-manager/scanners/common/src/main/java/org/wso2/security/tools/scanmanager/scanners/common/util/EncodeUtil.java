@@ -15,23 +15,25 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.security.tools.scanmanager.scanners.common.util;
 
-package org.wso2.security.tools.scanmanager.scanners.common.config;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import javax.xml.bind.DatatypeConverter;
 
 /**
- * Represents scanner configuration.
+ * Utility class for Encode handling.
  */
-public abstract class ScannerConfiguration implements Configuration {
+public class EncodeUtil {
 
-    private String scannerClass;
-
-    @Override
-    public String getScannerClass() {
-        return scannerClass;
-    }
-
-    @Override
-    public void setScannerClass(String scannerClass) {
-        this.scannerClass = scannerClass;
+    /**
+     * Do base64 decode for a given encoded string.
+     *
+     * @param b64EncodedString encoded string that need to decode
+     * @return decoded string
+     * @throws UnsupportedEncodingException
+     */
+    public static String decodeB64(String b64EncodedString) throws UnsupportedEncodingException {
+        return new String(DatatypeConverter.parseBase64Binary(b64EncodedString), StandardCharsets.UTF_8.name());
     }
 }

@@ -15,13 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.security.tools.scanmanager.common.config;
 
-package org.wso2.security.tools.scanmanager.scanners.common.config;
-
-import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,26 +29,20 @@ import java.util.Map;
  */
 public class YAMLConfigurationReader implements ConfigurationReader {
 
-    private Map<String, Object> configObjectMap;
-    private static final YAMLConfigurationReader instance = new YAMLConfigurationReader();
-
-    private YAMLConfigurationReader() {
-    }
-
-    public static YAMLConfigurationReader getInstance() {
-        return instance;
-    }
+    private Map<String, Object> configObjectMap = null;
 
     /**
-     * Load configuration into JVM.
+     * Load the properties from the property file.
      *
+     * @param configFileLocation Path to configuration file
      * @throws IOException
      */
-    public void loadConfiguration() throws IOException {
-        String configurationFile = ScannerConstants.RESOURCE_FILE_PATH + File.separator +
-                ScannerConstants.CONFIGURTION_FILE_NAME;
+    public void loadConfiguration(String configFileLocation) throws IOException {
+        Yaml yaml = new Yaml();
 
-        loadConfiguration(configurationFile);
+        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
+            configObjectMap = yaml.load(inputStream);
+        }
     }
 
     /**
@@ -71,23 +62,5 @@ public class YAMLConfigurationReader implements ConfigurationReader {
      */
     public Map getConfigs() {
         return configObjectMap;
-    }
-
-    /**
-     * Load the properties from the property file.
-     *
-     * @param configFileLocation Path to configuration file
-     * @throws IOException
-     */
-    private void loadConfiguration(String configFileLocation) throws IOException {
-        Yaml yaml = new Yaml();
-
-        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
-            configObjectMap = yaml.load(inputStream);
-            String scanManagerCallbackURL = ScannerConstants.HTTP_PROTOCOL + System.getenv(
-                    ScannerConstants.SCAN_MANAGER_HOST) + ":" + System.getenv(ScannerConstants.SCAN_MANAGER_PORT)
-                    + getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
-            configObjectMap.put(ScannerConstants.SCAN_MANAGER_CALLBACK_URL, scanManagerCallbackURL);
-        }
     }
 }

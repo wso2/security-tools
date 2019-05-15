@@ -15,25 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.wso2.security.tools.scanmanager.scanners.common.config;
+package org.wso2.security.tools.scanmanager.scanners.common.util;
 
 /**
- * Interface for the configuration.
+ * Util class to represent the error processing.
  */
-public interface Configuration {
+public class ErrorProcessingUtil {
 
     /**
-     * Get the scanner class name that should be engaged.
+     * Build the Error String by Throwable.
      *
-     * @return scanner class name
+     * @param e throwable
+     * @return the build error string
      */
-    public String getScannerClass();
-
-    /**
-     * Set the scanner class dynamically in the container environment.
-     *
-     * @param scannerClass implementation of the Scanner.
-     */
-    public void setScannerClass(String scannerClass);
+    public static String getFullErrorMessage(Throwable e) {
+        if (e.getCause() == null) {
+            return e.getMessage();
+        }
+        return e.getMessage() + "\n\nCaused by: " + getFullErrorMessage(e.getCause());
+    }
 }
