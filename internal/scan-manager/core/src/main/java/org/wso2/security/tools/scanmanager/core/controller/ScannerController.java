@@ -112,6 +112,7 @@ public class ScannerController {
      * @param scannerId scanner id of the scanner to be removed
      * @return success response if the scanner was removed successfully
      * @throws InvalidRequestException when the provided scanner id is invalid
+     * @throws ScanManagerException    when an error occurs while removing the scanner
      */
     @DeleteMapping(path = "scanners/{scannerId}")
     @ResponseBody
