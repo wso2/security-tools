@@ -66,6 +66,16 @@ public class Scanner {
     public Scanner() {
     }
 
+    public Scanner(String id, String name, ScannerType type, String image, Set<ScannerField> fields,
+                   Set<ScannerApp> apps) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.image = image;
+        this.fields = fields;
+        this.apps = apps;
+    }
+
     public Scanner(String id) {
         this.id = id;
     }

@@ -68,6 +68,7 @@ public interface ScanService {
      *
      * @param jobId  job id for the scan
      * @param status status of the scan
+     * @throws ScanManagerException when an error occurs while updating the scan status
      */
     public void updateStatus(String jobId, ScanStatus status) throws ScanManagerException;
 
