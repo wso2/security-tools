@@ -80,7 +80,7 @@ public class ScanServiceImpl implements ScanService {
     private static final Integer ARTIFACT_DOWNLOAD_CONNECTION_TIMEOUT = 10000;
     private static final Integer ARTIFACT_DOWNLOAD_READ_TIMEOUT = 10000;
 
-    // temporary hold the scans till the pre scan tasks are completed.
+    // Temporary hold the scans till the pre-scan tasks are completed.
     private Map<String, Scan> waitingScans = new ConcurrentHashMap<>();
 
     @Autowired
@@ -104,7 +104,7 @@ public class ScanServiceImpl implements ScanService {
                 throw new ScanManagerWebappException("Error occurred while creating the scan directory");
             }
 
-            // store the uploaded files in a temp scan directory.
+            // Store the uploaded files in a temp scan directory.
             for (Map.Entry<String, MultipartFile> entry : fileMap.entrySet()) {
                 String unifiedFileName = entry.getKey() + "." +
                         FilenameUtils.getExtension(entry.getValue().getOriginalFilename());
