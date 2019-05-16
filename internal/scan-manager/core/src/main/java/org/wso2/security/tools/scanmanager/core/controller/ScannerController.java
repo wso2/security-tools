@@ -63,6 +63,18 @@ public class ScannerController {
     }
 
     /**
+     * Get scanner by id.
+     *
+     * @param id scanner id
+     * @return the scanner object for the given id
+     */
+    @GetMapping(path = "scanners/{id}")
+    @ResponseBody
+    public ResponseEntity<Scanner> getScanner(@PathVariable("id") String id) {
+        return new ResponseEntity<>(scannerService.getById(id), HttpStatus.OK);
+    }
+
+    /**
      * Add a scanner.
      *
      * @param scanner scanner details to be added or updated
@@ -100,6 +112,7 @@ public class ScannerController {
      * @param scannerId scanner id of the scanner to be removed
      * @return success response if the scanner was removed successfully
      * @throws InvalidRequestException when the provided scanner id is invalid
+     * @throws ScanManagerException    when an error occurs while removing the scanner
      */
     @DeleteMapping(path = "scanners/{scannerId}")
     @ResponseBody

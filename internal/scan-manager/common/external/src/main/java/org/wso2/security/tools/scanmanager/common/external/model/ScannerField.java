@@ -60,6 +60,17 @@ public class ScannerField {
     @Column(name = "HAS_DEFAULT")
     private boolean hasDefault;
 
+    public ScannerField() {
+    }
+
+    public ScannerField(String fieldId, Scanner scanner, String displayName, String type, boolean hasDefault) {
+        this.fieldId = fieldId;
+        this.scanner = scanner;
+        this.displayName = displayName;
+        this.type = type;
+        this.hasDefault = hasDefault;
+    }
+
     public Integer getId() {
         return id;
     }

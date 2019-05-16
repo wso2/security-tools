@@ -26,7 +26,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
-import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 
 import java.util.List;
@@ -68,7 +67,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      * Update scanner app id that has been selected for the scan.
      *
      * @param scannerAppId scanner app id
-     * @param jobId  scan job id
+     * @param jobId        scan job id
      * @return number of rows that were updated
      */
     @Modifying
@@ -84,7 +83,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
      */
     @Modifying
     @Query("update Scan u set u.priority = ?1 where u.jobId = ?2")
-    public int updatePriority(ScanPriority priority, String jobId);
+    public int updatePriority(Integer priority, String jobId);
 
     /**
      * Get scan by status.
@@ -96,6 +95,7 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
 
     /**
      * Get scan by status and order by priority and submitted timestamp
+     *
      * @param status status of the scan
      * @return a list of scans with given priority and ordered by priority and submitted timestamp
      */
@@ -104,9 +104,9 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
     /**
      * Get the scans by a given set of statuses, scanner and a product.
      *
-     * @param statuses  list of scan statuses
-     * @param scanner assigned scanner
-     * @param product assigned product
+     * @param statuses list of scan statuses
+     * @param scanner  assigned scanner
+     * @param product  assigned product
      * @return list of scans for the given status, scanner and the product
      */
     @Query("select o from Scan o where o.status in :statuses and o.scanner = :scanner and o.product = :product")
