@@ -32,6 +32,7 @@ public interface Scanner {
      * Run scan.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
+     * @return details of the start scan response from the scanner service
      */
     public ResponseEntity startScan(ScannerScanRequest scanRequest);
 
@@ -39,7 +40,7 @@ public interface Scanner {
      * Stop the last scan for a given application.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
-     * @return whether delete scan operation success
+     * @return details of the cancel scan response from the scanner service
      */
     public ResponseEntity cancelScan(ScannerScanRequest scanRequest);
 

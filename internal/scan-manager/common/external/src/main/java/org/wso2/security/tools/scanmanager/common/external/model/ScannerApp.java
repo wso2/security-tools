@@ -57,6 +57,16 @@ public class ScannerApp {
     @Column(name = "PRODUCT")
     private String assignedProduct;
 
+    public ScannerApp() {
+    }
+
+    public ScannerApp(Scanner scanner, String appId, String name, String assignedProduct) {
+        this.scanner = scanner;
+        this.appId = appId;
+        this.name = name;
+        this.assignedProduct = assignedProduct;
+    }
+
     public Integer getId() {
         return id;
     }

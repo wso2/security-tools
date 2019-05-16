@@ -40,7 +40,7 @@ public class VeracodeAPIUtil {
      * Build the upload wrap for Upload API.
      *
      * @return Veracode Upload API Wrapper
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException when setting credentials fails due to a unsupported encoding type
      */
     public static UploadAPIWrapper getUploadAPIWrapper() throws UnsupportedEncodingException {
         UploadAPIWrapper uploadAPIWrapper = new UploadAPIWrapper();
@@ -53,7 +53,7 @@ public class VeracodeAPIUtil {
      * Build the upload wrap for Result API.
      *
      * @return Veracode Result API Wrapper
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException when setting credentials fails due to a unsupported encoding type
      */
     public static ResultsAPIWrapper getResultAPIWrapper() throws UnsupportedEncodingException {
         ResultsAPIWrapper resultsAPIWrapper = new ResultsAPIWrapper();
@@ -66,7 +66,7 @@ public class VeracodeAPIUtil {
      * Set the Veracode credentials to the Veracode API wrappers.
      *
      * @param wrapper Wrapper that needs to be set credentials
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException when setting credentials fails due to a unsupported encoding type
      */
     private static void setUpWrapperCredentials(AbstractAPIWrapper wrapper) throws UnsupportedEncodingException {
         String apiID = options._vid;

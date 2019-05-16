@@ -60,7 +60,7 @@ public class FileUtil {
      * @param sourceFile  ZIP file path to be extracted
      * @param destination folder path of the destination
      * @return Extracted archive file
-     * @throws IOException
+     * @throws IOException when the required source or destination files are not found
      */
     public static String extractArchive(File sourceFile, String destination) throws IOException {
         BufferedInputStream inputStream = null;
@@ -110,9 +110,9 @@ public class FileUtil {
      *
      * @param source      source directory to be zipped
      * @param destination file of the created zip
-     * @throws ArchiveException
-     * @throws IOException
-     * @throws ScannerException
+     * @throws ArchiveException when unable to create the archive stream for the output file stream
+     * @throws IOException      when the required file is not found or fails to create the file streams
+     * @throws ScannerException when the file list that need to be archived is null
      */
     public static void zipFiles(String source, String destination) throws ArchiveException, IOException,
             ScannerException {
@@ -142,13 +142,18 @@ public class FileUtil {
      * Download a file from a FTP location to a local location.
      *
      * @param filePathInFtp path to download file in the FTP location
-     * @param fileName      outputFile to download
-     * @throws IOException
-     * @throws SftpException
-     * @throws JSchException
+     * @param fileName      file to download
+     * @param outputFile    output file
+     * @param ftpUsername   username of the ftp location where file is located
+     * @param ftpPassword   password of the ftp location where file is located
+     * @param ftpHost       host of the ftp location where file is located
+     * @param ftpPort       port of the ftp location where file is located
+     * @throws IOException   when unable to download the file from the FTP server due fails of streams
+     * @throws JSchException when unable to create the session for connecting the FTP server
+     * @throws SftpException when unable to connect to the FTP server
      */
     public static void downloadFromFtp(String filePathInFtp, String fileName, File outputFile, String ftpUsername
-            , char[] ftpPassword, String ftpHost, int ftpPort) throws IOException, SftpException, JSchException {
+            , char[] ftpPassword, String ftpHost, int ftpPort) throws IOException, JSchException, SftpException {
         ChannelSftp sftp = openFtpLocation(filePathInFtp, ftpUsername, ftpPassword, ftpHost, ftpPort);
 
         downloadFromFtp(sftp.get(fileName), outputFile);
@@ -158,12 +163,16 @@ public class FileUtil {
     /**
      * Upload the scan report to the FTP location.
      *
-     * @param ftpReportUploadPath path to upload the scan report in the FTP location.
-     * @param fileToUpload        scan report file to upload.
-     * @throws SftpException
-     * @throws JSchException
-     * @throws FileNotFoundException
-     * @throws ScannerException
+     * @param ftpReportUploadPath path to upload the scan report in the FTP location
+     * @param fileToUpload        scan report file to upload
+     * @param ftpUsername         username of the ftp location where file is located
+     * @param ftpPassword         password of the ftp location where file is located
+     * @param ftpHost             host of the ftp location where file is located
+     * @param ftpPort             port of the ftp location where file is located
+     * @throws JSchException    when unable to create the session for connecting the FTP server
+     * @throws SftpException    when unable to connect to the FTP server or unable to copy the file to the ftp location
+     * @throws IOException      when unable to crate stream using the upload file
+     * @throws ScannerException when the upload file is null
      */
     public static void uploadReport(String ftpReportUploadPath, File fileToUpload, String ftpUsername, char[]
             ftpPassword, String ftpHost, int ftpPort) throws SftpException, JSchException, IOException,
@@ -173,21 +182,22 @@ public class FileUtil {
     }
 
     /**
-     * Create the PDF report according to the Veracode response result report.
+     * Create the PDF report from the given byte stream.
      *
-     * @param bytesResult Veracode response result
+     * @param bytesResult byte stream of the report
+     * @param filePath    output file to be saved
      * @return whether report is successfully saved
-     * @throws FileNotFoundException
-     * @throws UnsupportedEncodingException
-     * @throws ScannerException
+     * @throws FileNotFoundException        when unable to find a file in the given file path
+     * @throws UnsupportedEncodingException when unable to create the print stream due to encoding type
+     * @throws ScannerException             when unable to find the file path or unable to retrieve data from stream
      */
     public static boolean saveReport(byte[] bytesResult, String filePath) throws FileNotFoundException,
             UnsupportedEncodingException, ScannerException {
 
         if (bytesResult != null) {
             if (!(filePath.isEmpty())) {
-                try (PrintStream writer = new PrintStream(new FileOutputStream(filePath), true,
-                        StandardCharsets.UTF_8.name())) {
+                try (PrintStream writer = new PrintStream(new FileOutputStream(filePath), true, StandardCharsets
+                        .UTF_8.name())) {
                     writer.write(bytesResult, 0, bytesResult.length);
                     return true;
                 }
@@ -203,9 +213,13 @@ public class FileUtil {
      * Open the FTP location of the file and return the created channel.
      *
      * @param filePathInFtp path to the file
+     * @param ftpUsername      username of the ftp location where file is located
+     * @param ftpPassword      password of the ftp location where file is located
+     * @param ftpHost      host of the ftp location where file is located
+     * @param ftpPort      port of the ftp location where file is located
      * @return SFTP channel to access the FTP location
-     * @throws JSchException
-     * @throws SftpException
+     * @throws JSchException when unable to create the session for connecting the FTP server
+     * @throws SftpException when unable to connect to the FTP server
      */
     private static ChannelSftp openFtpLocation(String filePathInFtp, String ftpUsername, char[] ftpPassword,
                                                String ftpHost, int ftpPort) throws JSchException, SftpException {
@@ -234,7 +248,7 @@ public class FileUtil {
      *
      * @param input      InputStream to the ftp file
      * @param outputFile output will be written to this file
-     * @throws IOException
+     * @throws IOException when unable to download the file from the FTP server
      */
     private static void downloadFromFtp(InputStream input, File outputFile) throws IOException {
         byte[] buffer = new byte[1024];
@@ -251,7 +265,7 @@ public class FileUtil {
     /**
      * Clean the FTP password from the variable.
      *
-     * @param ftpPassword
+     * @param ftpPassword password that needs to be cleared
      */
     private static void cleanFtpPassword(char[] ftpPassword) {
         for (int i = 0; i < ftpPassword.length; i++) {
@@ -264,9 +278,9 @@ public class FileUtil {
      *
      * @param sftp         Channel to connect to the FTP.
      * @param fileToUpload scan report file that upload
-     * @throws FileNotFoundException
-     * @throws SftpException
-     * @throws ScannerException
+     * @throws IOException      when unable to crate stream using the upload file
+     * @throws SftpException    when unable to copy the file to the ftp location
+     * @throws ScannerException when the upload file is null
      */
     private static void uploadFileToFtp(ChannelSftp sftp, File fileToUpload) throws IOException, SftpException,
             ScannerException {

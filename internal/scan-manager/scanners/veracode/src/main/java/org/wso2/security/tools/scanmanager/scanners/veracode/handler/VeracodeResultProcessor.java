@@ -73,10 +73,10 @@ public class VeracodeResultProcessor {
      *
      * @param result Result that we got from the Veracode
      * @return the Scan's status
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     * @throws XPathExpressionException
-     * @throws IOException
+     * @throws IOException                  when unable to retrieve scan status due to IO errors
+     * @throws XPathExpressionException     when the given expression is malformed or wrong
+     * @throws SAXException                 when unable to parse the XML to get status
+     * @throws ParserConfigurationException when unable to create a document builder
      */
     public static String getActualScanStatus(String result) throws SAXException, ParserConfigurationException,
             XPathExpressionException, IOException {
@@ -93,10 +93,10 @@ public class VeracodeResultProcessor {
      *
      * @param result Veracode API response
      * @return scan status
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     * @throws XPathExpressionException
-     * @throws IOException
+     * @throws IOException                  when unable to retrieve scan status due to IO errors
+     * @throws XPathExpressionException     when the given expression is malformed or wrong
+     * @throws SAXException                 when unable to parse the XML to get status
+     * @throws ParserConfigurationException when unable to create a document builder
      */
     public static ScanStatus getScanStatus(String result) throws SAXException, ParserConfigurationException,
             XPathExpressionException, IOException {
@@ -167,10 +167,10 @@ public class VeracodeResultProcessor {
      *
      * @param apiResult veracode response xml
      * @return build id of the scan
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     * @throws XPathExpressionException
-     * @throws IOException
+     * @throws IOException                  when unable to retrieve scan status due to IO errors
+     * @throws XPathExpressionException     when the given expression is malformed or wrong
+     * @throws SAXException                 when unable to parse the XML to get status
+     * @throws ParserConfigurationException when unable to create a document builder
      */
     public static String getBuildIdByResponse(String apiResult) throws SAXException, ParserConfigurationException,
             XPathExpressionException, IOException {
@@ -189,10 +189,10 @@ public class VeracodeResultProcessor {
      * @param xPath     XPath to select the required attribute
      * @param attribute tag name of the required attribute
      * @return attribute value
-     * @throws SAXException
-     * @throws ParserConfigurationException
-     * @throws XPathExpressionException
-     * @throws IOException
+     * @throws IOException                  when unable to retrieve scan status due to IO errors
+     * @throws XPathExpressionException     when the given expression is malformed or wrong
+     * @throws SAXException                 when unable to parse the XML to get status
+     * @throws ParserConfigurationException when unable to create a document builder
      */
     private static String getElementByVeracodeXMLResult(String result, String xPath, String attribute) throws
             XPathExpressionException, IOException, SAXException, ParserConfigurationException {

@@ -630,10 +630,10 @@ public class ScanTask implements Runnable {
      * Give the status of the scan of the current application.
      *
      * @return the Scan Status in the actual cloud Veracode scanner
-     * @throws IOException
-     * @throws XPathExpressionException
-     * @throws SAXException
-     * @throws ParserConfigurationException
+     * @throws IOException                  when unable to retrieve scan status due to IO errors
+     * @throws XPathExpressionException     when the given expression is malformed or wrong
+     * @throws SAXException                 when unable to parse the XML to get status
+     * @throws ParserConfigurationException when unable to create a document builder
      */
     public ScanStatus getScanStatus() throws IOException, XPathExpressionException, SAXException,
             ParserConfigurationException {
@@ -692,10 +692,10 @@ public class ScanTask implements Runnable {
      *
      * @param appId application id that is needed to upload
      * @return the buildId of the scan
-     * @throws IOException
-     * @throws XPathExpressionException
-     * @throws SAXException
-     * @throws ParserConfigurationException
+     * @throws IOException                  when unable to retrieve scan status due to IO errors
+     * @throws XPathExpressionException     when the given expression is malformed or wrong
+     * @throws SAXException                 when unable to parse the XML to get status
+     * @throws ParserConfigurationException when unable to create a document builder
      */
     private String getBuildIDByAppId(String appId) throws IOException, XPathExpressionException, SAXException,
             ParserConfigurationException {

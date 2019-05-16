@@ -35,7 +35,7 @@ public class YAMLConfigurationReader implements ConfigurationReader {
      * Load the properties from the property file.
      *
      * @param configFileLocation Path to configuration file
-     * @throws IOException
+     * @throws IOException when the required file is not found
      */
     public void loadConfiguration(String configFileLocation) throws IOException {
         Yaml yaml = new Yaml();

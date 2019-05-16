@@ -62,7 +62,7 @@ public class VeracodeScanner implements Scanner {
     /**
      * Initialising the Veracode Wrapper options.
      *
-     * @throws IOException
+     * @throws IOException when unable to load configurations due to IO error
      */
     public VeracodeScanner() throws IOException {
         loadConfiguration();
@@ -95,7 +95,7 @@ public class VeracodeScanner implements Scanner {
     /**
      * Initialising the Veracode configurations.
      *
-     * @throws IOException
+     * @throws IOException when unable to load configurations due to IO error
      */
     private static void loadConfiguration() throws IOException {
         if (VeracodeScannerConfiguration.getInstance().getConfigs() == null) {
@@ -194,7 +194,7 @@ public class VeracodeScanner implements Scanner {
      *
      * @param message    error message
      * @param httpStatus http status code of the error
-     * @return
+     * @return ResponseEntity with status of the updating the call back endpoint
      */
     private ResponseEntity callbackErrorReport(String message, HttpStatus httpStatus) {
         ResponseEntity responseEntity = new ResponseEntity<>(new ErrorMessage(httpStatus.value(), message),

@@ -48,9 +48,9 @@ public class XMLUtil {
      *
      * @param xmlStr XML string that needs to convert
      * @return converted XML Document
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
+     * @throws ParserConfigurationException when unable to create a document builder
+     * @throws IOException when unable to parse the XML string due to IO errors
+     * @throws SAXException when unable to parse the XML string to XML document due to parsing errors
      */
     public static Document convertStringToDocument(String xmlStr) throws ParserConfigurationException, IOException,
             SAXException {
@@ -67,7 +67,7 @@ public class XMLUtil {
      * @param xPathExpr XPath to select the required attribute
      * @param attribute tag name of the required attribute
      * @return attribute value
-     * @throws XPathExpressionException
+     * @throws XPathExpressionException when the given expression is malformed or wrong
      */
     public static String getValueByXmlDocument(String attribute, XPathExpression xPathExpr, Document xmlDoc) throws
             XPathExpressionException {

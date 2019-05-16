@@ -54,7 +54,7 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public boolean insertError(Scan scan, Throwable e) {
-        logger.error(e);
+        logger.error("An error occurred", e);
 
         boolean isScanFound = false;
         if (scanDAO.getByJobId(scan.getJobId()) != null) {

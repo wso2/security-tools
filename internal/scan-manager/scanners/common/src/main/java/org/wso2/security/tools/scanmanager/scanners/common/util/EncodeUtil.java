@@ -31,7 +31,7 @@ public class EncodeUtil {
      *
      * @param b64EncodedString encoded string that need to decode
      * @return decoded string
-     * @throws UnsupportedEncodingException
+     * @throws UnsupportedEncodingException when decoding fails due to a unsupported encoding
      */
     public static String decodeB64(String b64EncodedString) throws UnsupportedEncodingException {
         return new String(DatatypeConverter.parseBase64Binary(b64EncodedString), StandardCharsets.UTF_8.name());

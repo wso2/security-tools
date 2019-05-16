@@ -40,6 +40,9 @@ public class ScanManagerException extends Exception {
 
     /**
      * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param message error message
+     * @param e       throwable error object
      */
     public ScanManagerException(String message, Throwable e) {
         super(message, e);
