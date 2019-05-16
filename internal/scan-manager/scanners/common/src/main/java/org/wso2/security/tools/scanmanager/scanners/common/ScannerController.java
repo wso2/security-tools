@@ -51,7 +51,7 @@ public class ScannerController {
     @Autowired
     public ScannerController(Scanner scanner) throws IOException {
         log.info("Scanner Service is initialised in the container...");
-        scanner.init();
+        this.scanner = scanner;
     }
 
     /**

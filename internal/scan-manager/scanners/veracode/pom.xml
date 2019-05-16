@@ -27,23 +27,42 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
+    
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.security.tools.scanmanager</groupId>
-    <artifactId>scan-manager-common</artifactId>
+    <artifactId>scanners-veracode</artifactId>
     <version>1.0-SNAPSHOT</version>
-  
-    <name>Scan Manager - Common</name>
+
+    <name>Scan Manager - Scanner - Veracode</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${org.yaml.snakeyaml.version}</version>
+            <groupId>com.veracode.vosp.api.wrappers</groupId>
+            <artifactId>vosp-api-wrappers-java</artifactId>
+            <version>${vosp.api.wrappers.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>scan-manager-scanners-common</artifactId>
+            <version>${scanmanager.scanner.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>scan-manager-common-internal</artifactId>
+            <version>${scanmanager.common.internal.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>scan-manager-common</artifactId>
+            <version>${scanmanager.common.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -67,6 +86,12 @@
         </plugins>
     </build>
     <properties>
-        <org.yaml.snakeyaml.version>1.24</org.yaml.snakeyaml.version>
+        <vosp.api.wrappers.version>18.6.5.3</vosp.api.wrappers.version>
+        <org.springframework.boot.starter.version>1.5.6.RELEASE</org.springframework.boot.starter.version>
+        <log4j.version>1.2.17</log4j.version>
+        <scanmanager.common.internal.version>1.0-SNAPSHOT</scanmanager.common.internal.version>
+        <scanmanager.common.version>1.0-SNAPSHOT</scanmanager.common.version>
+        <scanmanager.scanner.common.version>1.0-SNAPSHOT</scanmanager.scanner.common.version>
+        <org.springframework.boot.maven.version>2.1.4.RELEASE</org.springframework.boot.maven.version>
     </properties>
 </project>

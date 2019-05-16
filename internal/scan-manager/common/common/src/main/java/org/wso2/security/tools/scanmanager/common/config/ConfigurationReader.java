@@ -15,8 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.wso2.security.tools.scanmanager.scanners.common.config;
+package org.wso2.security.tools.scanmanager.common.config;
 
 import java.io.IOException;
 import java.util.Map;
@@ -26,8 +25,7 @@ import java.util.Map;
  */
 public interface ConfigurationReader {
 
-
-    public void loadConfiguration() throws IOException;
+    public void loadConfiguration(String configFileLocation) throws IOException;
 
     public String getConfigProperty(String key);
 

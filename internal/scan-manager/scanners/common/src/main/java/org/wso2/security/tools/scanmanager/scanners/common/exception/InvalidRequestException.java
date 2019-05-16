@@ -43,6 +43,9 @@ public class InvalidRequestException extends Exception {
 
     /**
      * Constructs a new runtime exception with the specified detail message and cause.
+     *
+     * @param message Message for the exception
+     * @param e       throwable object
      */
     public InvalidRequestException(String message, Throwable e) {
         super(message, e);

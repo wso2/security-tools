@@ -15,23 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.security.tools.scanmanager.scanners.veracode.config;
 
-package org.wso2.security.tools.scanmanager.scanners.common.config;
+import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
 
 /**
- * Represents scanner configuration.
+ * Veracode specific configuration class.
  */
-public abstract class ScannerConfiguration implements Configuration {
+public class VeracodeScannerConfiguration extends YAMLConfigurationReader {
 
-    private String scannerClass;
+    private static final VeracodeScannerConfiguration INSTANCE = new VeracodeScannerConfiguration();
 
-    @Override
-    public String getScannerClass() {
-        return scannerClass;
+    private VeracodeScannerConfiguration() {
     }
 
-    @Override
-    public void setScannerClass(String scannerClass) {
-        this.scannerClass = scannerClass;
+    public static VeracodeScannerConfiguration getInstance() {
+        return INSTANCE;
     }
 }
