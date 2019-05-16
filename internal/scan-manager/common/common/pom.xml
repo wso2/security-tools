@@ -33,6 +33,8 @@
     <groupId>org.wso2.security.tools.scanmanager</groupId>
     <artifactId>scan-manager-common</artifactId>
     <version>1.0-SNAPSHOT</version>
+  
+    <name>Scan Manager - Common</name>
 
     <dependencies>
         <dependency>
@@ -41,8 +43,6 @@
             <version>${org.yaml.snakeyaml.version}</version>
         </dependency>
     </dependencies>
-
-    <name>Scan Manager - Common</name>
 
     <build>
         <plugins>
