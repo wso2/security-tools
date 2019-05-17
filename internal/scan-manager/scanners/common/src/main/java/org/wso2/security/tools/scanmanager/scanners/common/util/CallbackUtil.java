@@ -108,7 +108,7 @@ public class CallbackUtil {
             } catch (InterruptedException e) {
                 log.error(e);
             }
-            //re-trying updating the scan status in scan manager
+            // Retrying updating the scan status in scan manager.
             updateScanStatus(jobId, scanStatus, reportPath, scannerScanId, statusUpdateRetryTimeInterval);
         } else {
             log.warn("Callback status update failed with the response code : " + responseCode);
@@ -164,7 +164,7 @@ public class CallbackUtil {
             } catch (InterruptedException e) {
                 log.error(e);
             }
-            //re-trying updating the scan status in scan manager
+            // Retrying updating the scan status in scan manager.
             persistScanLog(jobId, message, type, logUpdateRetryTimeInterval);
         } else {
             log.warn("Callback log persistence failed with the response code : " + responseCode);
