@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.webapp.config.ScanManagerWebappConfiguration;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
+import org.wso2.security.tools.scanmanager.webapp.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.webapp.util.HTTPUtil;
 
 import java.io.IOException;
@@ -43,8 +44,9 @@ public class ScannerServiceImpl implements ScannerService {
         List<Scanner> scannerList = new ArrayList<>();
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         try {
-            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(ScanManagerWebappConfiguration.getInstance()
+            HTTPRequest getScannersRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
                     .getScannersURL("", nameValuePairs).toString(), null, null);
+            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScannersRequest);
             if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
                 JSONArray responseArray = new JSONArray(responseEntity.getBody());
                 for (int arrayIndex = 0; arrayIndex < responseArray.length(); arrayIndex++) {
@@ -65,20 +67,19 @@ public class ScannerServiceImpl implements ScannerService {
     @Override
     public Scanner getScanner(String id) throws ScanManagerWebappException {
         List<NameValuePair> nameValuePairs = new ArrayList<>();
-        Scanner scanner = null;
         try {
-            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(ScanManagerWebappConfiguration.getInstance()
+            HTTPRequest getScannerRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
                     .getScannersURL(id, nameValuePairs).toString(), null, null);
+            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScannerRequest);
             if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
                 JSONObject jsonObject = new JSONObject(responseEntity.getBody());
                 ObjectMapper mapper = new ObjectMapper();
-                scanner = mapper.readValue(jsonObject.toString(), Scanner.class);
+                return mapper.readValue(jsonObject.toString(), Scanner.class);
             } else {
                 throw new ScanManagerWebappException("Unable to get the scanner for the given id: " + id);
             }
         } catch (IOException e) {
             throw new ScanManagerWebappException("Unable to get the scanner for the given id: " + id, e);
         }
-        return scanner;
     }
 }

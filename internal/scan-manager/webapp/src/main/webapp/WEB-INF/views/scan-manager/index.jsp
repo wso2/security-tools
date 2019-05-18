@@ -21,20 +21,27 @@
 <head>
     <%@ include file="../fragments/header.html" %>
 </head>
-<body>
+<body style="min-height: 0px;">
 <%@ include file="../fragments/nav_bar.jsp" %>
 <div class="container">
     <div class="row">
-        <div class="page-header">
-            <h1>Security Scan Portal</h1>
+        <div class="col-md-12">
+            <h1 style="font-size: 55px;margin-top: 20px;text-align: center;">Security Scan Portal</h1>
         </div>
-        <div class="col-lg-6 col-md-12 col-sm-4">
-            <div class="btn-group-vertical">
-                <a class="btn btn-primary" href="/scan-manager/scanners" role="button">Start a New
-                    Scan</a>
-                <br>
-                <a class="btn btn-primary" href="/scan-manager/scans" role="button">View Scans</a>
-            </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 50px; text-align: center; margin-bottom: 20px;">
+            <a class="btn btn-primary scan-manager-index-page-button" href="/scan-manager/scanners"
+               role="button">Start a New
+                Scan</a>
+            <br>
+            <a class="btn btn-primary scan-manager-index-page-button" href="/scan-manager/scans"
+               role="button">View Scans</a>
+            <br>
+            <a class="btn btn-blue-grey scan-manager-index-page-button" href="/scan-manager/"
+               role="button">Help</a>
+            <br>
         </div>
     </div>
 </div>

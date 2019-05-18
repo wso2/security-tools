@@ -47,4 +47,6 @@ public class Constants {
     public static final String PAGE_PARAM_NAME = "page";
     public static final String JOB_ID_PARAM_NAME = "jobId";
     public static final String PRE_JOB_ID_PREFIX = "pre_job_id_";
+    public static final String FILES_BY_URL_SEPARATOR = "@";
+    public static final String FILES_BY_URL_POSTFIX = "byURL";
 }

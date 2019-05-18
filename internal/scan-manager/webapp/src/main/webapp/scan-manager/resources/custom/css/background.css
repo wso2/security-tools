@@ -1,0 +1,12 @@
+.scan-manager-background-grey {
+    background-color: #a9a9a93b;
+    border-radius: 10px;
+    padding-top: 15px;
+}
+
+.scan-manager-background-white {
+    background-color: #fffdfd;
+    border-radius: 10px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}

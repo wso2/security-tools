@@ -20,10 +20,19 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<div class="navbar navbar-fixed-bottom">
+<%--<div class="navbar" style="margin-top: 30px;">
 <footer class="footer">
     <div class="container">
+        <p style="margin-top: 20px;color: #12121294;text-align: center;">WSO2 Platform Security Team | 2019</p>
     </div>
 </footer>
-</div>
+
+</div>--%>
+<footer style="margin-top: 30px;">
+    <!-- Copyright -->
+    <div class="footer-copyright text-center py-3">
+        <p style="margin-top: 20px;color: #12121294;text-align: center;">WSO2 Platform Security Team | 2019</p>
+    </div>
+    <!-- Copyright -->
+</footer>
 </html>

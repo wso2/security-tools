@@ -61,38 +61,45 @@ public class ScanManagerWebappConfiguration {
     }
 
     public void init(Map<String, Object> configObjectMap) throws ScanManagerWebappException {
-        if (configObjectMap.get(SCAN_MANAGER_HOST_KEY) != null) {
-            this.scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
+        String scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
+        Integer scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
+        String ftpHost = (String) configObjectMap.get(FTP_HOST_KEY);
+        Integer ftpPort = (Integer) configObjectMap.get(FTP_PORT_KEY);
+        String ftpUsername = (String) configObjectMap.get(FTP_USERNAME_KEY);
+        String ftpBasePath = (String) configObjectMap.get(FTP_BASE_PATH);
+
+        if (scanManagerHost != null) {
+            this.scanManagerHost = scanManagerHost;
         } else {
             throw new ScanManagerWebappException("Unable to get the scan manager host configuration");
         }
-        if (configObjectMap.get(SCAN_MANAGER_PORT_KEY) != null) {
-            this.scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
+        if (scanManagerPort != null) {
+            this.scanManagerPort = scanManagerPort;
         } else {
             throw new ScanManagerWebappException("Unable to get the scan manager port configuration");
         }
-        if (configObjectMap.get(FTP_HOST_KEY) != null) {
-            this.ftpHost = (String) configObjectMap.get(FTP_HOST_KEY);
+        if (ftpHost != null) {
+            this.ftpHost = ftpHost;
         } else {
             throw new ScanManagerWebappException("Unable to get the FTP host configuration");
         }
-        if (configObjectMap.get(FTP_PORT_KEY) != null) {
-            this.ftpPort = (Integer) configObjectMap.get(FTP_PORT_KEY);
+        if (ftpPort != null) {
+            this.ftpPort = ftpPort;
         } else {
             throw new ScanManagerWebappException("Unable to get the FTP port configuration");
         }
-        if (configObjectMap.get(FTP_USERNAME_KEY) != null) {
-            this.ftpUsername = (String) configObjectMap.get(FTP_USERNAME_KEY);
+        if (ftpUsername != null) {
+            this.ftpUsername = ftpUsername;
         } else {
             throw new ScanManagerWebappException("Unable to get the FTP server username configuration");
         }
         if (configObjectMap.get(FTP_PASSWORD_KEY) != null) {
-            this.ftpPassword = configObjectMap.get(FTP_PASSWORD_KEY).toString().toCharArray();
+            this.ftpPassword = ((String) configObjectMap.get(FTP_PASSWORD_KEY)).toCharArray();
         } else {
             throw new ScanManagerWebappException("Unable to get the FTP server password configuration");
         }
-        if (configObjectMap.get(FTP_BASE_PATH) != null) {
-            this.ftpBasePath = (String) configObjectMap.get(FTP_BASE_PATH);
+        if (ftpBasePath != null) {
+            this.ftpBasePath = ftpBasePath;
         } else {
             throw new ScanManagerWebappException("Unable to get the FTP server base path configuration");
         }
@@ -131,7 +138,7 @@ public class ScanManagerWebappConfiguration {
     }
 
     /**
-     * Building the scans URL.
+     * Building the URL to get the scans from scan manager API.
      *
      * @param path           additional params that needs to be appended to the scans path (e.g. path params)
      * @param nameValuePairs request param names and their values
@@ -149,7 +156,7 @@ public class ScanManagerWebappConfiguration {
     }
 
     /**
-     * Building the logs URL.
+     * Building the URL to get the logs for a particular scan from scan manager API.
      *
      * @param path           additional params that needs to be appended to the logs path (e.g. path params)
      * @param nameValuePairs request param names and their values
@@ -167,7 +174,7 @@ public class ScanManagerWebappConfiguration {
     }
 
     /**
-     * Building the scanners URL.
+     * Building the URL to get all the scanners from scan manager API.
      *
      * @param path           additional params that needs to be appended to the scanners path (e.g. path params)
      * @param nameValuePairs request param names and their values

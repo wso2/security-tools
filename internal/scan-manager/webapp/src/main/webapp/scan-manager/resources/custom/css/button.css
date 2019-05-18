@@ -1,0 +1,28 @@
+.btn {
+    padding: .84rem 1.34rem !important;
+}
+
+.btn-primary {
+    background-color: #417cdee8 !important;
+}
+
+.btn-danger {
+    background-color: #d23341e6!important;
+}
+
+.scan-manager-page-nav-button {
+    float: left;
+}
+
+.scan-manager-scan-action-button {
+    float: right;
+    margin-bottom: 0px;
+    margin-left: 6px;
+}
+
+.scan-manager-index-page-button {
+    height: 60px;
+    width: 400px;
+    font-size: 25px;
+    margin-bottom: 15px;
+}

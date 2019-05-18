@@ -28,87 +28,91 @@
     <div class="row">
         <div class="page-header">
             <h1>Scanners</h1>
-            <h4>Select a scanner to start scanning process </h4>
+            <h5>Select a scanner to start scanning process </h5>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="row" style="margin-left: 0px; background-color: #a9a9a93b;
-                                 border-radius: 10px; padding-right: 15px; padding-top: 20px; padding-bottom: 20px;">
-            <div class="list-group">
-                <form action="/scan-manager/configuration" method="post"
-                      enctype="multipart/form-data">
-                    <div class="col-md-12">
-                        <c:if test="${staticScanners.size() gt 0}">
-                            <c:if test="${!staticScanners.get(0).name.equals('')
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row scan-manager-background-grey">
+                <div class="col-md-12 list-view">
+                    <form action="/scan-manager/configuration" method="get"
+                          enctype="multipart/form-data">
+                        <div class="col-md-12">
+                            <c:if test="${staticScanners.size() gt 0}">
+                                <c:if test="${!staticScanners.get(0).name.equals('')
                         && !staticScanners.get(0).id.equals('')}">
-                                <div class="row"
-                                     style="margin-left: 0px; background-color: #fffdfd;
-                                 border-radius: 10px; padding-right: 15px; padding-top: 20px; padding-bottom: 10px;">
-                                    <div class="col-md-12" style="font-weight: 600; margin-left: 15px; padding-left: 0px;
-                                 padding-right: 0px;">
-                                        <h3 style="margin-top: 0px; margin-bottom: 15px;">Static</h3>
-                                        <c:forEach begin="0" end="${staticScanners.size() - 1}"
-                                                   var="index">
-                                            <input type="radio" name="scannerId" id="${staticScanners.get(index).id}"
-                                                   value="${staticScanners.get(index).id}" checked>
-                                            <label class="form-check-label" for="${staticScanners.get(index).id}">
-                                                    ${staticScanners.get(index).name}</label>
-                                            <br>
-                                        </c:forEach>
+                                    <div class="row scan-manager-background-white">
+                                        <div class="col-md-12 scan-manager-column">
+                                            <h3 class="scan-manager-scanner-type-label">Static</h3>
+                                            <c:forEach begin="0" end="${staticScanners.size() - 1}"
+                                                       var="index">
+                                                <div class="col-md-10 custom-control custom-radio">
+                                                    <input type="radio" class="custom-control-input" name="scannerId"
+                                                           id="${staticScanners.get(index).id}"
+                                                           value="${staticScanners.get(index).id}" checked>
+                                                    <label class="custom-control-label" style="font-weight: 400;"
+                                                           for="${staticScanners.get(index).id}">
+                                                            ${staticScanners.get(index).name}</label>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
                                     </div>
-                                </div>
+                                </c:if>
                             </c:if>
-                        </c:if>
-                        <br>
-                        <c:if test="${dynamicScanners.size() gt 0}">
-                            <c:if test="${!dynamicScanners.get(0).name.equals('')
+                            <br>
+                            <c:if test="${dynamicScanners.size() gt 0}">
+                                <c:if test="${!dynamicScanners.get(0).name.equals('')
                         && !dynamicScanners.get(0).id.equals('')}">
-                                <div class="row"
-                                     style="margin-left: 0px; background-color: #fffdfd;
-                                 border-radius: 10px; padding-right: 15px; padding-top: 20px; padding-bottom: 10px;">
-                                    <div class="col-md-12" style="font-weight: 600; margin-left: 15px; padding-left: 0px;
-                                 padding-right: 0px;">
-                                        <h3 style="margin-top: 0px; margin-bottom: 15px;">Dynamic</h3>
-                                        <c:forEach begin="0" end="${dynamicScanners.size() - 1}"
-                                                   var="index">
-                                            <input type="radio" name="scannerId"
-                                                   value="${dynamicScanners.get(index).id}" checked>
-                                            <label class="form-check-label" for="${dynamicScanners.get(index).id}">
-                                                    ${dynamicScanners.get(index).name}</label>
-                                            <br>
-                                        </c:forEach>
+                                    <div class="row scan-manager-background-white">
+                                        <div class="col-md-12 scan-manager-column" >
+                                            <h3 class="scan-manager-scanner-type-label">
+                                                Dynamic</h3>
+                                            <c:forEach begin="0" end="${dynamicScanners.size() - 1}"
+                                                       var="index">
+                                                <div class="col-md-10 custom-control custom-radio">
+                                                    <input type="radio" class="custom-control-input" name="scannerId"
+                                                           id="${dynamicScanners.get(index).id}"
+                                                           value="${dynamicScanners.get(index).id}" checked>
+                                                    <label class="custom-control-label" style="font-weight: 400;"
+                                                           for="${dynamicScanners.get(index).id}">
+                                                            ${dynamicScanners.get(index).name}</label>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
                                     </div>
-                                </div>
+                                </c:if>
                             </c:if>
-                        </c:if>
-                        <br>
-                        <c:if test="${dependencyScanners.size() gt 0}">
-                            <c:if test="${!dependencyScanners.get(0).name.equals('')
+                            <br>
+                            <c:if test="${dependencyScanners.size() gt 0}">
+                                <c:if test="${!dependencyScanners.get(0).name.equals('')
                         && !dependencyScanners.get(0).id.equals('')}">
-                                <div class="row"
-                                     style="margin-left: 0px; background-color: #fffdfd;
-                                 border-radius: 10px; padding-right: 15px; padding-top: 20px; padding-bottom: 10px;">
-                                    <div class="col-md-12" style="font-weight: 600; margin-left: 15px; padding-left: 0px;
-                                 padding-right: 0px;">
-                                        <h3 style="margin-top: 0px; margin-bottom: 15px;">Dependency</h3>
-                                        <c:forEach begin="0" end="${dependencyScanners.size() - 1}" var="index">
-                                            <input type="radio" name="scannerId"
-                                                   value="${dependencyScanners.get(index).id}"
-                                                   checked>
-                                            <label class="form-check-label" for="${dependencyScanners.get(index).id}">
-                                                    ${dependencyScanners.get(index).name}</label>
-                                            <br>
-                                        </c:forEach>
+                                    <div class="row scan-manager-background-white">
+                                        <div class="col-md-12 scan-manager-column">
+                                            <h3 class="scan-manager-scanner-type-label">
+                                                Dependency</h3>
+                                            <c:forEach begin="0" end="${dependencyScanners.size() - 1}" var="index">
+                                                <div class="col-md-10 custom-control custom-radio">
+                                                    <input type="radio" class="custom-control-input" name="scannerId"
+                                                           id="${dependencyScanners.get(index).id}"
+                                                           value="${dependencyScanners.get(index).id}"
+                                                           checked>
+                                                    <label class="custom-control-label" style="font-weight: 400;"
+                                                           for="${dependencyScanners.get(index).id}">
+                                                            ${dependencyScanners.get(index).name}</label>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
                                     </div>
-                                </div>
+                                </c:if>
                             </c:if>
-                        </c:if>
-                        <div class="row" style="margin-top: 25px; margin-left: 0px;">
-                            <a class="btn btn-outline-primary" href="/scan-manager/" role="button">Back</a>
-                            <button class="btn btn-primary">Next</button>
+                            <div class="row" style="margin-top: 25px; margin-left: 0px;">
+                                <a class="btn btn-outline-primary" href="/scan-manager/" role="button">Back</a>
+                                <button class="btn btn-primary">Next</button>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

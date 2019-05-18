@@ -38,6 +38,7 @@ import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.common.model.ScanType;
 import org.wso2.security.tools.scanmanager.webapp.config.ScanManagerWebappConfiguration;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
+import org.wso2.security.tools.scanmanager.webapp.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.webapp.util.FTPUtil;
 import org.wso2.security.tools.scanmanager.webapp.util.HTTPUtil;
 
@@ -57,6 +58,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.security.tools.scanmanager.webapp.util.Constants.FILES_BY_URL_POSTFIX;
+import static org.wso2.security.tools.scanmanager.webapp.util.Constants.FILES_BY_URL_SEPARATOR;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.PAGE_PARAM_NAME;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.PRE_JOB_ID_PREFIX;
 
@@ -119,9 +122,9 @@ public class ScanServiceImpl implements ScanService {
                 if (param.getValue().isEmpty()) {
                     iter.remove();
                 } else {
-                    if (param.getKey().contains("@byURL")) {
+                    if (param.getKey().contains(FILES_BY_URL_SEPARATOR + FILES_BY_URL_POSTFIX)) {
 
-                        // if the param map contains files as a URL (param names containing "@byURL"), add them to
+                        // If the param map contains files as a URL (param names containing "@byURL"), add them to
                         // a separate map to download later.
                         String fileExtension = FilenameUtils.getExtension(param.getValue());
                         if (StringUtils.isBlank(fileExtension)) {
@@ -129,7 +132,8 @@ public class ScanServiceImpl implements ScanService {
                                     "file URL: " + param.getValue());
                         }
                         String fileName =
-                                StringUtils.substringBeforeLast(param.getKey(), "@") + "." + fileExtension;
+                                StringUtils.substringBeforeLast(param.getKey(),
+                                        FILES_BY_URL_SEPARATOR) + "." + fileExtension;
 
                         if (!filesToBeDownloadedFromURL.containsKey(fileName)) {
                             filesToBeDownloadedFromURL.put(fileName, param.getValue());
@@ -138,7 +142,7 @@ public class ScanServiceImpl implements ScanService {
                 }
             }
 
-            // begin the pre scans tasks and initiate the scan submission.
+            // Begin the pre scans tasks and initiate the scan submission.
             new Thread(() -> beginScanSubmit(storedFileMap, parameterMap, filesToBeDownloadedFromURL, scanDirectory,
                     scanWaiting), "BeginScanSubmitToScanManagerAPI").start();
         } catch (ScanManagerWebappException e) {
@@ -155,8 +159,8 @@ public class ScanServiceImpl implements ScanService {
     }
 
     private void writeToFile(MultipartFile file, Path filepath) throws ScanManagerWebappException {
-        try (OutputStream os = Files.newOutputStream(filepath)) {
-            os.write(file.getBytes());
+        try (OutputStream destinationOutputStream = Files.newOutputStream(filepath)) {
+            destinationOutputStream.write(file.getBytes());
         } catch (IOException e) {
             throw new ScanManagerWebappException("IO Exception occurred while writing files to the disk", e);
         }
@@ -164,17 +168,17 @@ public class ScanServiceImpl implements ScanService {
 
     private Scan addScanToWaiting(Map<String, String> parameterMap) {
         String preJobId = PRE_JOB_ID_PREFIX + UUID.randomUUID().toString();
-        Scan scanWaiting = new Scan(preJobId);
-        scanWaiting.setName(parameterMap.get(SCAN_REQUEST_SCAN_NAME_ATTRIBUTE_NAME));
-        scanWaiting.setDescription(parameterMap.get(SCAN_REQUEST_SCAN_DESCRIPTION_ATTRIBUTE_NAME));
-        scanWaiting.setScanner(new Scanner(parameterMap.get(SCAN_REQUEST_SCANNER_ID_ATTRIBUTE_NAME)));
-        scanWaiting.setStatus(ScanStatus.SUBMIT_PENDING);
-        scanWaiting.setPriority(ScanPriority.MEDIUM.getValue());
-        scanWaiting.setProduct(parameterMap.get(SCAN_REQUEST_PRODUCT_NAME_ATTRIBUTE_NAME));
-        scanWaiting.setType(ScanType.valueOf(parameterMap.get(SCAN_REQUEST_SCAN_TYPE_ATTRIBUTE_NAME)));
+        Scan waitingScan = new Scan(preJobId);
+        waitingScan.setName(parameterMap.get(SCAN_REQUEST_SCAN_NAME_ATTRIBUTE_NAME));
+        waitingScan.setDescription(parameterMap.get(SCAN_REQUEST_SCAN_DESCRIPTION_ATTRIBUTE_NAME));
+        waitingScan.setScanner(new Scanner(parameterMap.get(SCAN_REQUEST_SCANNER_ID_ATTRIBUTE_NAME)));
+        waitingScan.setStatus(ScanStatus.SUBMIT_PENDING);
+        waitingScan.setPriority(ScanPriority.MEDIUM.getValue());
+        waitingScan.setProduct(parameterMap.get(SCAN_REQUEST_PRODUCT_NAME_ATTRIBUTE_NAME));
+        waitingScan.setType(ScanType.valueOf(parameterMap.get(SCAN_REQUEST_SCAN_TYPE_ATTRIBUTE_NAME)));
 
-        waitingScans.put(preJobId, scanWaiting);
-        return scanWaiting;
+        waitingScans.put(preJobId, waitingScan);
+        return waitingScan;
     }
 
     private void beginScanSubmit(Map<String, String> storedFileMap, Map<String, String> parameterMap, Map<String,
@@ -188,6 +192,8 @@ public class ScanServiceImpl implements ScanService {
                 throw new ScanManagerWebappException("Error occurred while creating the scan directory");
             }
 
+            // If there are files that have been given as a URL, they needs to be downloaded from the given URL
+            // location and store temporally till there are being uploaded to the FTP server.
             if (!filesToBeDownloadedFromURL.isEmpty()) {
                 for (Map.Entry<String, String> file : filesToBeDownloadedFromURL.entrySet()) {
                     logService.insert(scan, LogType.INFO,
@@ -202,14 +208,18 @@ public class ScanServiceImpl implements ScanService {
                             "File download completed from the URL: " + file.getValue());
                 }
             }
+
+            // Upload the submitted files into the FTP server and include the file name and the location for each
+            // file in a separate map.
             if (!storedFileMap.isEmpty()) {
                 logService.insert(scan, LogType.INFO, "Uploading scan files to FTP.");
                 uploadedFileMap = FTPUtil.uploadFilesToFTP(scanDirectory, storedFileMap);
                 logService.insert(scan, LogType.INFO, "Uploading scan files to FTP is completed.");
             }
 
+            // Send scan submit request to scan manager API.
             ResponseEntity responseEntity = sendSubmitScanRequest(uploadedFileMap, parameterMap);
-            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            if (responseEntity != null && (responseEntity.getStatusCode().is2xxSuccessful())) {
                 if (waitingScans.containsKey(scan.getJobId())) {
                     waitingScans.remove(scan.getJobId());
                     logService.removeLogsForWaitingScan(scan.getJobId());
@@ -225,6 +235,7 @@ public class ScanServiceImpl implements ScanService {
         } catch (ScanManagerWebappException e) {
             logService.insertError(scan, e);
         } finally {
+
             // Delete local scan artifacts directory.
             if (scanDirectoryLocation != null) {
                 try {
@@ -255,8 +266,9 @@ public class ScanServiceImpl implements ScanService {
             requestParams.put(SCAN_REQUEST_SCANNER_ID_ATTRIBUTE_NAME,
                     parameterMap.get(SCAN_REQUEST_SCANNER_ID_ATTRIBUTE_NAME));
 
-            return HTTPUtil.sendPOST(ScanManagerWebappConfiguration.getInstance().getScanURL("",
+            HTTPRequest submitScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance().getScanURL("",
                     nameValuePairs).toString(), null, requestParams);
+            return HTTPUtil.sendPOST(submitScanRequest);
         } catch (HttpClientErrorException e) {
             throw new ScanManagerWebappException("Error occurred while submitting the scan request to scan manager " +
                     "API.", e);
@@ -272,11 +284,16 @@ public class ScanServiceImpl implements ScanService {
             if (pageNumber != null) {
                 nameValuePairs.add(new BasicNameValuePair(PAGE_PARAM_NAME, pageNumber.toString()));
             }
-            ResponseEntity<String> responseEntity =
-                    HTTPUtil.sendGET(ScanManagerWebappConfiguration.getInstance()
-                            .getScanURL("", nameValuePairs).toString(), null, null);
-            ObjectMapper mapper = new ObjectMapper();
-            scansResponse = mapper.readValue(responseEntity.getBody(), ScanManagerScansResponse.class);
+
+            HTTPRequest getScansRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
+                    .getScanURL("", nameValuePairs).toString(), null, null);
+            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScansRequest);
+            if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper mapper = new ObjectMapper();
+                scansResponse = mapper.readValue(responseEntity.getBody(), ScanManagerScansResponse.class);
+            } else {
+                throw new ScanManagerWebappException("Unable to get the scans from scan manager");
+            }
         } catch (IOException e) {
             throw new ScanManagerWebappException("Unable to get the scans", e);
         }
@@ -300,12 +317,14 @@ public class ScanServiceImpl implements ScanService {
                     return new ScanExternal(waitingScans.get(jobId));
                 }
             } else {
-                ResponseEntity<String> responseEntity =
-                        HTTPUtil.sendGET(ScanManagerWebappConfiguration.getInstance()
-                                .getScanURL("/" + jobId, nameValuePairs).toString(), null, null);
-                if (responseEntity != null) {
+                HTTPRequest getScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
+                        .getScanURL("/" + jobId, nameValuePairs).toString(), null, null);
+                ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScanRequest);
+                if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
                     ObjectMapper mapper = new ObjectMapper();
                     scan = mapper.readValue(responseEntity.getBody(), ScanExternal.class);
+                } else {
+                    throw new ScanManagerWebappException("Unable to get the scans from scan manager");
                 }
             }
         } catch (IOException e) {
@@ -322,7 +341,8 @@ public class ScanServiceImpl implements ScanService {
     @Override
     public ResponseEntity stopScan(String id) throws ScanManagerWebappException {
         List<NameValuePair> nameValuePairs = new ArrayList<>();
-        return HTTPUtil.sendDelete(ScanManagerWebappConfiguration.getInstance()
+        HTTPRequest stopScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
                 .getScanURL(id, nameValuePairs).toString(), null, null);
+        return HTTPUtil.sendDelete(stopScanRequest);
     }
 }

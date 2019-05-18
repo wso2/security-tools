@@ -19,6 +19,7 @@ package org.wso2.security.tools.scanmanager.webapp.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -72,6 +73,7 @@ public class ScanController {
     private ScanService scanService;
     private ScannerService scannerService;
     private LogService logService;
+    private Environment env;
 
     private static final String CONTENT_DISPOSITION_HEADER_NAME = "Content-Disposition";
     private static final String SCAN_LIST_RESPONSE_ATTRIBUTE_NAME = "scanListResponse";
@@ -84,10 +86,12 @@ public class ScanController {
     private static final String SCAN_NAME_PARAMETER_KEY = "scanName";
 
     @Autowired
-    public ScanController(ScanService scanService, ScannerService scannerService, LogService logService) {
+    public ScanController(ScanService scanService, ScannerService scannerService, LogService logService,
+                          Environment env) {
         this.scanService = scanService;
         this.scannerService = scannerService;
         this.logService = logService;
+        this.env = env;
     }
 
     @GetMapping(value = "/")
@@ -186,8 +190,6 @@ public class ScanController {
     @GetMapping(value = "report")
     public void getReport(HttpServletResponse response, @RequestParam("jobId") String jobId)
             throws ScanManagerWebappException {
-        File downloadedFile = null;
-
         ScanExternal scan = scanService.getScan(jobId);
         if (scan != null) {
             if (StringUtils.isBlank(scan.getScanReportPath())) {
@@ -200,38 +202,40 @@ public class ScanController {
             if (!reportDirectory.exists() && !reportDirectory.mkdir()) {
                 throw new ScanManagerWebappException("Error occurred while creating the report output directory");
             }
+            File outputFile = new File(SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + file.getName());
             scanService.getScanReport(scan.getScanReportPath(),
-                    SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + file.getName());
+                    outputFile.getPath());
 
-            downloadedFile = new File(file.getName());
             String mimeType = URLConnection.guessContentTypeFromName(file.getName());
             if (mimeType == null) {
                 mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
             }
             response.setContentType(mimeType);
             response.setHeader(CONTENT_DISPOSITION_HEADER_NAME, String.format("inline; filename=\""
-                    + downloadedFile.getName() + "\""));
-            response.setContentLength((int) downloadedFile.length());
+                    + outputFile.getName() + "\""));
+            response.setContentLength((int) outputFile.length());
+
+            try (InputStream inputStream = new BufferedInputStream(new FileInputStream(outputFile))) {
+                FileCopyUtils.copy(inputStream, response.getOutputStream());
+            } catch (IOException e) {
+                throw new ScanManagerWebappException("Error occurred while downloading scan report for " +
+                        "the scan: " + jobId, e);
+            }
         } else {
             throw new ScanManagerWebappException("Unable to find a scan for the given id: " + jobId);
-        }
-        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(downloadedFile))) {
-            FileCopyUtils.copy(inputStream, response.getOutputStream());
-        } catch (IOException e) {
-            throw new ScanManagerWebappException("Error occurred while downloading scan report for the scan: " + jobId,
-                    e);
         }
     }
 
     /**
-     * Getting all the configurations required for the scan.
+     * Getting all the configurations required for the scan by scanner.
      *
      * @param scannerId scanner id
-     * @return a view containing required scan configurations
-     * @throws ScanManagerWebappException when an error occurs while downloading the scan report
+     * @return a view containing required scan configurations by scanner
+     * @throws ScanManagerWebappException when an error occurs while getting scanner configuration
      */
-    @PostMapping(value = "configuration")
-    public ModelAndView getScanConfig(@RequestParam("scannerId") String scannerId) throws ScanManagerWebappException {
+    @GetMapping(value = "configuration")
+    public ModelAndView getScannerConfig(@RequestParam("scannerId") String scannerId)
+            throws ScanManagerWebappException {
         Scanner scanner = null;
         ModelAndView scannerConfigModel = new ModelAndView(SCAN_MANAGER_VIEW +
                 File.separator + SCAN_CONFIGURATION_VIEW);
@@ -246,6 +250,7 @@ public class ScanController {
         productLst.clear();
         productLst.addAll(set);
         scannerConfigModel.addObject(PRODUCT_DATA_ATTRIBUTE_NAME, productLst);
+        scannerConfigModel.addObject("maxFileSize", env.getProperty("spring.http.multipart.maxFileSize"));
         return scannerConfigModel;
     }
 }

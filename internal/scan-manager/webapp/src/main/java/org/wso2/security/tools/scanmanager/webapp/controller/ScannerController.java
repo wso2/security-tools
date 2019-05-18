@@ -64,12 +64,9 @@ public class ScannerController {
         List<Scanner> scannerList;
 
         scannerList = scannerService.getScanners();
-        scannerView.addObject(STATIC_SCANNERS_ATTRIBUTE, getScannersByType(scannerList,
-                ScannerType.STATIC));
-        scannerView.addObject(DYNAMIC_SCANNERS_ATTRIBUTE, getScannersByType(scannerList,
-                ScannerType.DYNAMIC));
-        scannerView.addObject(DEPENDENCY_SCANNERS_ATTRIBUTE, getScannersByType(scannerList,
-                ScannerType.DEPENDENCY));
+        scannerView.addObject(STATIC_SCANNERS_ATTRIBUTE, getScannersByType(scannerList, ScannerType.STATIC));
+        scannerView.addObject(DYNAMIC_SCANNERS_ATTRIBUTE, getScannersByType(scannerList, ScannerType.DYNAMIC));
+        scannerView.addObject(DEPENDENCY_SCANNERS_ATTRIBUTE, getScannersByType(scannerList, ScannerType.DEPENDENCY));
         return scannerView;
     }
 

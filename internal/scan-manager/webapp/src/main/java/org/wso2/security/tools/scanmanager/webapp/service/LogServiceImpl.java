@@ -30,6 +30,7 @@ import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogR
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.webapp.config.ScanManagerWebappConfiguration;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
+import org.wso2.security.tools.scanmanager.webapp.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.webapp.util.HTTPUtil;
 
 import java.io.IOException;
@@ -68,11 +69,17 @@ public class LogServiceImpl implements LogService {
                     nameValuePairs.add(new BasicNameValuePair(PAGE_PARAM_NAME, pageNumber.toString()));
                 }
                 nameValuePairs.add(new BasicNameValuePair(JOB_ID_PARAM_NAME, jobId));
-                ResponseEntity<String> responseEntity =
-                        HTTPUtil.sendGET(ScanManagerWebappConfiguration.getInstance()
-                                .getLogURL("", nameValuePairs).toString(), null, null);
-                ObjectMapper mapper = new ObjectMapper();
-                scanManagerLogResponse = mapper.readValue(responseEntity.getBody(), ScanManagerLogResponse.class);
+
+                HTTPRequest getLogsRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
+                        .getLogURL("", nameValuePairs).toString(), null, null);
+                ResponseEntity responseEntity = HTTPUtil.sendGET(getLogsRequest);
+                if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    scanManagerLogResponse = mapper.readValue(responseEntity.getBody().toString(),
+                            ScanManagerLogResponse.class);
+                } else {
+                    throw new ScanManagerWebappException("Unable to get the scan logs for the job id: " + jobId);
+                }
             }
         } catch (IOException e) {
             throw new ScanManagerWebappException("Unable to get the logs", e);
@@ -85,7 +92,7 @@ public class LogServiceImpl implements LogService {
         logger.error("An error occurred", e);
 
         if (scan != null) {
-        Log log = new Log(scan, LogType.ERROR, new Timestamp(System.currentTimeMillis()), getFullErrorMessage(e));
+            Log log = new Log(scan, LogType.ERROR, new Timestamp(System.currentTimeMillis()), getFullErrorMessage(e));
             if (waitingScanLogs.containsKey(scan.getJobId())) {
                 waitingScanLogs.get(scan.getJobId()).add(log);
             } else {

@@ -1,0 +1,16 @@
+.form-group {
+    margin-bottom: 30px;
+}
+
+.scan-manager-column {
+    font-weight: 600;
+    margin-left: 15px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.scan-manager-scanner-type-label {
+    margin-top: 0px;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
