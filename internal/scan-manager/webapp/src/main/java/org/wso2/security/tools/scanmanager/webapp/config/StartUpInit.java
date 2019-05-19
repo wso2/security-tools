@@ -19,9 +19,13 @@ package org.wso2.security.tools.scanmanager.webapp.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.wso2.security.tools.scanmanager.common.config.ConfigurationReader;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 
+import java.io.IOException;
+import java.net.URL;
 import javax.annotation.PostConstruct;
 
 /**
@@ -30,13 +34,21 @@ import javax.annotation.PostConstruct;
 @Component
 public class StartUpInit {
 
+    private static final String SCAN_MANAGER_CONFIG_FILE = "scan-manager-webapp-config.yaml";
+
     private static final Logger logger = LoggerFactory.getLogger(StartUpInit.class);
+
+    @Autowired
+    ConfigurationReader configurationReader;
 
     @PostConstruct
     public void init() {
         try {
-            ScanManagerWebappConfiguration.getInstance().init(ScanManagerWebappConfigurationBuilder.getConfiguration());
-        } catch (ScanManagerWebappException e) {
+            URL configURL = ScanManagerWebappConfiguration.class.getClassLoader()
+                    .getResource(SCAN_MANAGER_CONFIG_FILE);
+            configurationReader.loadConfiguration(configURL.getPath());
+            ScanManagerWebappConfiguration.getInstance().init(configurationReader.getConfigs());
+        } catch (ScanManagerWebappException | IOException e) {
             logger.error("Error occurred while initializing", e);
         }
     }

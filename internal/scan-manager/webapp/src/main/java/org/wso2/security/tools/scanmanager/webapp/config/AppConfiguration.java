@@ -24,6 +24,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.wso2.security.tools.scanmanager.common.config.ConfigurationReader;
+import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
 
 /**
  * Application configurations to handle resources etc.
@@ -49,5 +51,10 @@ public class AppConfiguration extends WebMvcConfigurerAdapter {
         resolver.setPrefix("/WEB-INF/views/");
         resolver.setSuffix(".jsp");
         return resolver;
+    }
+
+    @Bean
+    public ConfigurationReader configurationReader() {
+        return new YAMLConfigurationReader();
     }
 }

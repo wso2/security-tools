@@ -29,7 +29,7 @@
             <div class="row">
                 <div class="page-header col-md-12" style="padding-left: 0px;">
                     <h1>Scans</h1>
-                    <h5>To view the waiting scans
+                    <h5>To view the scans under preparation
                         <a href="${window.location.href}#waiting-scans">click here</a>
                     </h5>
                 </div>
@@ -41,11 +41,13 @@
                         <div class="row scan-manager-background-grey">
                             <div class="col-md-8" style="margin-bottom: 15px;">
                                 <b>Name: </b>${scanListResponse.scanList.get(index).name}</br>
+                                <b>Job Id: </b>${scanListResponse.scanList.get(index).jobId}</br>
+                                <b>Scanner: </b>${scanListResponse.scanList.get(index).scannerName}</br>
                                 <b>Status: </b> ${scanListResponse.scanList.get(index).status}</br>
                                 <b>Product: </b> ${scanListResponse.scanList.get(index).product}</br>
                                 <b>Created time: </b>${scanListResponse.scanList.get(index).submittedTimestamp}
                             </div>
-                            <div class="col-md-4" style="margin-top: 34px;">
+                            <div class="col-md-4">
                                 <form action="/scan-manager/report" method="get"
                                       class="scan-manager-scan-action-button">
                                     <input type="hidden" name="jobId"
@@ -75,7 +77,7 @@
                                             <button class="btn btn-danger">Stop</button>
                                         </c:when>
                                         <c:otherwise>
-                                            <button class="btn btn-danger" disabled>Stop</button>
+                                            <button class="btn btn-danger" style="display: none">Stop</button>
                                         </c:otherwise>
                                     </c:choose>
                                 </form>
@@ -159,7 +161,7 @@
         <div class="col-md-6">
             <div class="row" id="waiting-scans">
                 <div class="page-header">
-                    <h2>Waiting Scans</h2>
+                    <h2>Scans Under Preparation</h2>
                 </div>
             </div>
             <hr>
@@ -187,7 +189,7 @@
                 </c:when>
                 <c:otherwise>
                     <div>
-                        <h4>No Waiting Scans found</h4>
+                        <h4>No Scans found</h4>
                     </div>
                 </c:otherwise>
             </c:choose>
@@ -196,9 +198,4 @@
 </div>
 <%@ include file="../fragments/footer.jsp" %>
 </body>
-<style type="text/css">
-    .btn.disabled, .btn[disabled], fieldset[disabled] .btn {
-        opacity: .25;
-    }
-</style>
 </html>

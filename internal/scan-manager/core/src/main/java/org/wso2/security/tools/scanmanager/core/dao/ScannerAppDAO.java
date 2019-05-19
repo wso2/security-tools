@@ -50,6 +50,7 @@ public interface ScannerAppDAO extends JpaRepository<ScannerApp, Integer> {
     /**
      * Get scanner app by scanner and assigned product name.
      *
+     * @param scanner     scanner object
      * @param productName assigned product name
      * @return list of scanner apps for a scanner and assigned product name
      */

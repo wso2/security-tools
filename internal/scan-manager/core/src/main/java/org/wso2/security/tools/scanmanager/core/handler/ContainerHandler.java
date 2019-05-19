@@ -34,6 +34,7 @@ public interface ContainerHandler {
      * @param imageName            container image
      * @param ipAddress            IP address to bind
      * @param containerPort        Container port to bind to a host port
+     * @param labels               Container labels
      * @param commands             Container startup commands
      * @param environmentVariables Environment variables of the container
      * @return container info object if the container is successfully created
