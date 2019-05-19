@@ -36,4 +36,37 @@
 
     <name>Scan Manager - Common</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${org.yaml.snakeyaml.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <quiet>true</quiet>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarnings>true</failOnWarnings>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <properties>
+        <org.yaml.snakeyaml.version>1.24</org.yaml.snakeyaml.version>
+    </properties>
 </project>

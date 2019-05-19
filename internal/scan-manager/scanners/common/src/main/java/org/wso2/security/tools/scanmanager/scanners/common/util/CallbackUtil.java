@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.security.tools.scanmanager.scanners.common.util;
 
 import com.google.gson.Gson;
@@ -31,7 +30,6 @@ import org.wso2.security.tools.scanmanager.common.internal.model.ScanStatusUpdat
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -42,35 +40,58 @@ import java.util.concurrent.TimeUnit;
 public class CallbackUtil {
 
     private static final Logger log = Logger.getLogger(CallbackUtil.class);
+    private static String scanManagerLogCallbackURL;
+    private static String scanManagerStatusCallbackURL;
+    private static Long retryTimeInterval = Long.valueOf(0);
 
-    private CallbackUtil() {
+
+    public static void setCallbackUrls(String scanManagerLogCallbackURL, String scanManagerStatusCallbackURL,
+                                       Long retryTimeInterval) {
+        CallbackUtil.scanManagerLogCallbackURL = scanManagerLogCallbackURL;
+        CallbackUtil.scanManagerStatusCallbackURL = scanManagerStatusCallbackURL;
+        CallbackUtil.retryTimeInterval = retryTimeInterval;
     }
 
     /**
-     * Update the scan satus in the scan manager.
+     * Update the scan status in the scan manager.
      *
-     * @param jobId      job id of the scan manager for the current scan
-     * @param scanStatus scan status enum
+     * @param jobId         job id of the scan manager for the current scan
+     * @param scanStatus    scan status enum
+     * @param reportPath    scan report location
+     * @param scannerScanId actual scan Id
      */
     public static void updateScanStatus(String jobId, ScanStatus scanStatus, String reportPath, String scannerScanId) {
+        updateScanStatus(jobId, scanStatus, reportPath, scannerScanId, Long.valueOf(0));
+    }
+
+    /**
+     * Update the scan status in the scan manager.
+     *
+     * @param jobId                         job id of the scan manager for the current scan
+     * @param scanStatus                    scan status enum
+     * @param reportPath                    scan report location
+     * @param scannerScanId                 actual scan Id
+     * @param statusUpdateRetryTimeInterval retrying time to callback for updating the status
+     */
+    public static void updateScanStatus(String jobId, ScanStatus scanStatus, String reportPath, String scannerScanId,
+                                        Long statusUpdateRetryTimeInterval) {
         int responseCode = -1;
         ScanStatusUpdateRequest scanStatusUpdateRequest = new ScanStatusUpdateRequest();
         Gson gson = new Gson();
         StringEntity postingString;
-        String scanManagerCallbackURL = YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants
-                .SCAN_MANAGER_CALLBACK_URL) + YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants
-                .SCAN_MANAGER_CALLBACK_LOG);
-        Long retryTimeInterval = Long.valueOf(0);
 
         scanStatusUpdateRequest.setJobId(jobId);
         scanStatusUpdateRequest.setScanStatus(scanStatus);
         if (scanStatus.equals(ScanStatus.COMPLETED)) {
             scanStatusUpdateRequest.setScanReportPath(reportPath);
         }
+        if (!scannerScanId.isEmpty()) {
+            scanStatusUpdateRequest.setScannerScanId(scannerScanId);
+        }
 
         try {
             postingString = new StringEntity(gson.toJson(scanStatusUpdateRequest));
-            responseCode = doHttpPost(scanManagerCallbackURL, postingString);
+            responseCode = doHttpPost(scanManagerStatusCallbackURL, postingString);
         } catch (IOException e) {
             log.error(e);
         }
@@ -79,19 +100,16 @@ public class CallbackUtil {
             log.info("Callback status update is successfully completed. ");
         } else if (HttpStatus.NOT_FOUND.value() == responseCode || HttpStatus.INTERNAL_SERVER_ERROR.value()
                 == responseCode || responseCode == -1) {
-            retryTimeInterval += Long.parseLong(YAMLConfigurationReader.getInstance().getConfigProperty(
-                    ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
+            statusUpdateRetryTimeInterval += retryTimeInterval;
             try {
-                log.info("Callback endpoint is not currently unavailable and will retry after " +
-                        Long.valueOf(YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants
-                                .CALLBACK_RETRY_INTERVAL_SECONDS)) + "Seconds");
-
-                TimeUnit.MINUTES.sleep(retryTimeInterval);
+                log.info("Callback log endpoint is not currently available and will retry after " +
+                        statusUpdateRetryTimeInterval + " Seconds");
+                TimeUnit.MINUTES.sleep(statusUpdateRetryTimeInterval);
             } catch (InterruptedException e) {
                 log.error(e);
             }
-            //re-trying updating the scan status in scan manager
-            updateScanStatus(jobId, scanStatus, reportPath, scannerScanId);
+            // Retrying updating the scan status in scan manager.
+            updateScanStatus(jobId, scanStatus, reportPath, scannerScanId, statusUpdateRetryTimeInterval);
         } else {
             log.warn("Callback status update failed with the response code : " + responseCode);
         }
@@ -105,14 +123,22 @@ public class CallbackUtil {
      * @param type    log type
      */
     public static void persistScanLog(String jobId, String message, LogType type) {
+        persistScanLog(jobId, message, type, Long.valueOf(0));
+    }
+
+    /**
+     * Persist the log in the Scan Manager.
+     *
+     * @param jobId                      id of the scan manager for the current scan
+     * @param message                    log message
+     * @param type                       log type
+     * @param logUpdateRetryTimeInterval retrying time to callback for updating the status
+     */
+    public static void persistScanLog(String jobId, String message, LogType type, Long logUpdateRetryTimeInterval) {
         int responseCode = -1;
         ScanLogRequest scanLogRequest = new ScanLogRequest();
         Gson gson = new Gson();
         StringEntity postingString;
-        String scanManagerCallbackURL = YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants
-                .SCAN_MANAGER_CALLBACK_URL) + YAMLConfigurationReader.getInstance().getConfigProperty(ScannerConstants
-                .SCAN_MANAGER_CALLBACK_LOG);
-        Long retryTimeInterval = Long.valueOf(0);
 
         scanLogRequest.setJobId(jobId);
         scanLogRequest.setMessage(message);
@@ -120,7 +146,7 @@ public class CallbackUtil {
 
         try {
             postingString = new StringEntity(gson.toJson(scanLogRequest));
-            responseCode = doHttpPost(scanManagerCallbackURL, postingString);
+            responseCode = doHttpPost(scanManagerLogCallbackURL, postingString);
         } catch (IOException e) {
             log.error(e);
         }
@@ -129,18 +155,17 @@ public class CallbackUtil {
             log.info("Callback log persistence is successfully completed. ");
         } else if (HttpStatus.NOT_FOUND.value() == responseCode || HttpStatus.INTERNAL_SERVER_ERROR.value()
                 == responseCode || responseCode == -1) {
-            retryTimeInterval += Long.parseLong(YAMLConfigurationReader.getInstance().getConfigProperty(
-                    ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
+            logUpdateRetryTimeInterval += retryTimeInterval;
             try {
-                log.info("Callback log endpoint is not currently available and will retry after " +
-                        retryTimeInterval + " Seconds");
+                log.info("Callback log endpoint is not currently available and will retry after " + retryTimeInterval
+                        + " Seconds");
 
                 TimeUnit.MINUTES.sleep(retryTimeInterval);
             } catch (InterruptedException e) {
                 log.error(e);
             }
-            //re-trying updating the scan status in scan manager
-            persistScanLog(jobId, message, type);
+            // Retrying updating the scan status in scan manager.
+            persistScanLog(jobId, message, type, logUpdateRetryTimeInterval);
         } else {
             log.warn("Callback log persistence failed with the response code : " + responseCode);
         }
@@ -156,7 +181,6 @@ public class CallbackUtil {
      */
     private static int doHttpPost(String urlString, StringEntity bodyEntity) throws IOException {
         int responseCode;
-        String line;
 
         HttpClient client = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost(urlString);

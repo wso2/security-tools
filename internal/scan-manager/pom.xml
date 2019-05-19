@@ -76,6 +76,7 @@
                 <module>webapp</module>
 
                 <module>scanners/common</module>
+                <module>scanners/veracode</module>
             </modules>
             <properties>
                 <skipBenchmarks>true</skipBenchmarks>
@@ -84,13 +85,15 @@
     </profiles>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <properties>

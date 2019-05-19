@@ -241,6 +241,8 @@ public class ScanController {
      * @param jobId                     job id of the scan to be updated
      * @param scanPriorityUpdateRequest object containing the priority value that needs to be updated
      * @return success if the priority is successfully updated
+     * @throws ScanManagerException      when an error occurs while updating the priority of the scan
+     * @throws ResourceNotFoundException when unable to find a scan for the given job id
      */
     @PostMapping(value = "scans/{jobId}")
     public ResponseEntity updateScanPriority(@PathVariable("jobId") String jobId,

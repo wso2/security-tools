@@ -102,6 +102,33 @@ public class Scan {
     public Scan() {
     }
 
+    public Scan(String jobId, String name, String description, Scanner scanner, ScanStatus status, int priority,
+                String product, ScanType type, String user, String scannerScanId, String scannerAppId,
+                String reportPath, Set<ScanFile> fileList, Set<ScanProperty> propertyList,
+                Timestamp submittedTimestamp, Timestamp startTimestamp) {
+        this.jobId = jobId;
+        this.name = name;
+        this.description = description;
+        this.scanner = scanner;
+        this.status = status;
+        this.priority = priority;
+        this.product = product;
+        this.type = type;
+        this.user = user;
+        this.scannerScanId = scannerScanId;
+        this.scannerAppId = scannerAppId;
+        this.reportPath = reportPath;
+        this.fileList = fileList;
+        this.propertyList = propertyList;
+
+        if (submittedTimestamp != null) {
+            this.submittedTimestamp = new Timestamp(submittedTimestamp.getTime());
+        }
+        if (startTimestamp != null) {
+            this.startTimestamp = new Timestamp(startTimestamp.getTime());
+        }
+    }
+
     public Scan(String jobId) {
         this.jobId = jobId;
     }
