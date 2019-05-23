@@ -18,22 +18,29 @@
  * /
  */
 
-package org.wso2.security.tools.scanmanager.scanner.qualys.handler;
+package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
+import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
+import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
+import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
+import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
-import org.wso2.security.tools.scanmanager.scanners.qualys.utils.RequestBodyBuilder;
-import org.wso2.security.tools.scanmanger.scanners.qualys.QualysScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.qualys.util.RequestBodyBuilder;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -55,6 +62,8 @@ import javax.xml.transform.TransformerException;
  * This class is responsible to handle the required  use cases of Qualys scanner.
  */
 public class QualysScanHandler {
+
+    private static final Logger log = Logger.getLogger(QualysScanHandler.class);
 
     //    private final Log log = LogFactory.getLog(QualysScanHandler.class);
     private QualysApiInvoker qualysApiInvoker;
@@ -82,10 +91,13 @@ public class QualysScanHandler {
     public String prepareScan(String appID, String jobId, String appName, Map<String, List<String>> fileMap,
             String host) throws ScannerException {
         String authScriptId;
+        //Download authentication script form ftp location.
+        File authScriptFile = downloadAuthenticationScripts(fileMap.get(QualysScannerConstants.AUTHENTICATION_SCRIPTS),
+                appID, jobId);
         // Purging Scan before launching the scan.
         purgeScan(host, appID, jobId);
         // Add authentication script to Qualys scanner.
-        authScriptId = addAuthenticationRecord(host, appID, jobId, fileMap);
+        authScriptId = addAuthenticationRecord(host, appID, jobId, authScriptFile);
         // Update web application with added authentication script.
         updateWebApp(host, appID, appName, authScriptId, jobId);
         return authScriptId;
@@ -245,10 +257,11 @@ public class QualysScanHandler {
      * @param host     Qualys URL
      * @param jobId    Job ID
      * @param reportId Report ID
+     * @param reportDirectoryPath directory path where reportes needs to be downloaded
      * @return filePath Filepath of the report
      * @throws ScannerException Error occurred while downloading report.
      */
-    public String downloadReport(String host, String jobId, String reportId) throws ScannerException {
+    public String downloadReport(String host, String jobId, String reportId, String reportDirectoryPath) throws ScannerException {
         HttpResponse response;
         String filePath;
         try {
@@ -258,7 +271,7 @@ public class QualysScanHandler {
         }
 
         try {
-            filePath = writeFile(response);
+            filePath = writeFile(response , reportDirectoryPath);
             if (!StringUtils.isEmpty(filePath)) {
                 String message = " Report is downloaded successfully : " + reportId;
                 CallbackUtil.persistScanLog(jobId, message, LogType.INFO);
@@ -280,18 +293,18 @@ public class QualysScanHandler {
      * @param host    Qualys url
      * @param appId   Web application id
      * @param jobId   Job ID
-     * @param fileMap File map.
+     * @param authScriptFile authentication Script File
      * @return Authentication record id
      * @throws ScannerException Error occurred while adding authentication record
      */
-    private String addAuthenticationRecord(String host, String appId, String jobId, Map<String, List<String>> fileMap)
+    private String addAuthenticationRecord(String host, String appId, String jobId, File authScriptFile)
             throws ScannerException {
         HttpResponse response;
         String authScriptId;
         try {
             //Only one authentication script can be given per single scan.
             String addAuthRecordRequestBody = RequestBodyBuilder.buildAuthScriptCreationRequest(appId,
-                    fileMap.get(QualysScannerConstants.AUTHENTICATION_SCRIPTS).get(0));
+                    authScriptFile.getAbsolutePath());
             response = qualysApiInvoker.invokeAuthenticationRecordCreation(host, addAuthRecordRequestBody);
         } catch (IOException | InterruptedException | TransformerException | ParserConfigurationException e) {
             throw new ScannerException("Error occurred while invoking authentication record creation API : ", e);
@@ -340,12 +353,12 @@ public class QualysScanHandler {
             String responseCode = getTagValue(serviceResponseNodeList, QualysScannerConstants.RESPONSE_CODE);
             if (QualysScannerConstants.SUCCESS.equalsIgnoreCase(responseCode)) {
                 String message =
-                        " Web Application " + appName + " is successfully updated with authentication script " + ": "
+                        " Web Application " + appName + " is successfully updated with authentication script : "
                                 + authScriptId;
                 CallbackUtil.persistScanLog(jobId, message, LogType.INFO);
             } else {
                 String errorMessage =
-                        "Error occurred while updating web application with authentication script record" + ". "
+                        "Error occurred while updating web application with authentication script record. "
                                 + responseCode + " : " + getTagValue(serviceResponseNodeList,
                                 QualysScannerConstants.ERROR_MESSAGE);
                 throw new ScannerException(errorMessage);
@@ -484,13 +497,58 @@ public class QualysScanHandler {
     }
 
     /**
+     * Download given authentication script from FTP Location.
+     *
+     * @param fileList authentication file list
+     * @param appId    application Id
+     * @param jobId    JobId
+     * @return Downloaded File
+     * @throws ScannerException Error occurred while downloading authentication scripts
+     */
+    private File downloadAuthenticationScripts(List<String> fileList, String appId, String jobId)
+            throws ScannerException {
+        String authenticationScriptLocation = fileList.get(0);
+        String authenticationScriptFileName = authenticationScriptLocation.substring(authenticationScriptLocation.
+                lastIndexOf(File.separator) + 1, authenticationScriptLocation.length());
+        String authenticationScriptFilePath = authenticationScriptLocation
+                .substring(0, authenticationScriptLocation.lastIndexOf(File.separator));
+
+        File authScriptFile = new File(QualysScannerConfiguration.getInstance()
+                .getConfigProperty(QualysScannerConstants.DEFAULT_FTP_AUTH_SCRIPT_PATH) + authenticationScriptFileName);
+        try {
+            String logMessage = "Authentication Script is downloading for the application: " + appId;
+            log.info(logMessage);
+            CallbackUtil.persistScanLog(jobId, logMessage, LogType.INFO);
+
+            FileUtil.downloadFromFtp(authenticationScriptFilePath, authenticationScriptFileName, authScriptFile,
+                    QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
+                    (QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
+                            .toCharArray(),
+                    QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_HOST),
+                    Integer.parseInt(
+                            QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
+
+            logMessage =
+                    "Authentication Script is downloaded for the application: " + appId + " into " + authScriptFile;
+            log.info(logMessage);
+            CallbackUtil.persistScanLog(jobId, logMessage, LogType.INFO);
+        } catch (IOException | JSchException | SftpException e) {
+            String logMessage = "Error occurred while creating the scan zip artifact for application : " + appId + " "
+                    + ErrorProcessingUtil.getFullErrorMessage(e);
+            throw new ScannerException(logMessage);
+        }
+        return authScriptFile;
+    }
+
+    /**
      * Write file
      *
      * @param response Http response
+     * @param reportDirectoryPath Report Directory Path
      * @return file path
      * @throws IOException exception occurred while writing file.
      */
-    private String writeFile(HttpResponse response) throws IOException {
+    private String writeFile(HttpResponse response, String reportDirectoryPath) throws IOException {
         HttpEntity entity = response.getEntity();
         String filePath = null;
         if (entity != null) {
@@ -504,7 +562,7 @@ public class QualysScanHandler {
             if (!StringUtils.isEmpty(contentDisposition)) {
                 String filename = contentDisposition
                         .substring(contentDisposition.indexOf("\"") + 1, contentDisposition.lastIndexOf("\""));
-                filePath = QualysScannerConfiguration.getInstance().getReportFilePath() + File.separator + filename;
+                filePath = reportDirectoryPath + File.separator + filename;
                 try (FileOutputStream fos = new FileOutputStream(filePath)) {
                     entity.writeTo(fos);
                     fos.close();

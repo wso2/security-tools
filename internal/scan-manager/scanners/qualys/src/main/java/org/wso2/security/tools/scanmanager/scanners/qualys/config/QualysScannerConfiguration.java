@@ -20,33 +20,32 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.config;
 
-import org.wso2.security.tools.scanmanager.scanners.common.config.Configuration;
-import org.wso2.security.tools.scanmanager.scanners.common.config.ScannerConfiguration;
+import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
 
 /**
- * Qualys Specific Configuration
+ * Qualys Scanner Specific Configuration
  */
-public class QualysScannerConfiguration extends ScannerConfiguration {
+public class QualysScannerConfiguration extends YAMLConfigurationReader {
+
+    private static final QualysScannerConfiguration INSTANCE = new QualysScannerConfiguration();
+
+    public QualysScannerConfiguration() {
+    }
+
+    public static QualysScannerConfiguration getInstance() {
+        return INSTANCE;
+    }
 
     private static volatile QualysScannerConfiguration instance;
     private String reportFilePath;
     private char[] username;
     private char[] password;
-    // TODO: 4/25/19 remove this 
-    private long initialDelay;
     private long schedulerDelay;
     private String host;
-
-    public static QualysScannerConfiguration getInstance() {
-        if (instance == null) {
-            synchronized (Configuration.class) {
-                if (instance == null) {
-                    instance = new QualysScannerConfiguration();
-                }
-            }
-        }
-        return instance;
-    }
+    private String defaultScanType;
+    private String defaultProfileId;
+    private String defaultScannerAppliance;
+    private String defaultProgressiveScanning;
 
     public String getReportFilePath() {
         return reportFilePath;
@@ -80,19 +79,43 @@ public class QualysScannerConfiguration extends ScannerConfiguration {
         this.host = host;
     }
 
-    public long getInitialDelay() {
-        return initialDelay;
-    }
-
-    public void setInitialDelay(long initialDelay) {
-        this.initialDelay = initialDelay;
-    }
-
     public long getSchedulerDelay() {
         return schedulerDelay;
     }
 
     public void setSchedulerDelay(long schedulerDelay) {
         this.schedulerDelay = schedulerDelay;
+    }
+
+    public String getDefaultScanType() {
+        return defaultScanType;
+    }
+
+    public void setDefaultScanType(String defaultScanType) {
+        this.defaultScanType = defaultScanType;
+    }
+
+    public String getDefaultProfileId() {
+        return defaultProfileId;
+    }
+
+    public void setDefaultProfileId(String defaultProfileId) {
+        this.defaultProfileId = defaultProfileId;
+    }
+
+    public String getDefaultScannerAppliance() {
+        return defaultScannerAppliance;
+    }
+
+    public void setDefaultScannerAppliance(String defaultScannerAppliance) {
+        this.defaultScannerAppliance = defaultScannerAppliance;
+    }
+
+    public String getDefaultProgressiveScanning() {
+        return defaultProgressiveScanning;
+    }
+
+    public void setDefaultProgressiveScanning(String defaultProgressiveScanning) {
+        this.defaultProgressiveScanning = defaultProgressiveScanning;
     }
 }

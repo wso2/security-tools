@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.security.tools.scanmanager.scanners.qualys.utils;
+package org.wso2.security.tools.scanmanager.scanners.qualys.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,8 +26,8 @@ import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
-import org.wso2.security.tools.scanmanger.scanners.qualys.QualysScannerConstants;
 
 import java.io.File;
 import java.io.IOException;

@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.security.tools.scanmanager.scanner.qualys.handler;
+package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
 import ch.qos.logback.core.spi.ScanException;
 import org.apache.commons.lang3.StringUtils;
@@ -40,11 +40,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.common.config.YAMLConfigurationReader;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
+import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
-import org.wso2.security.tools.scanmanger.scanners.qualys.QualysScannerConstants;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -231,11 +230,11 @@ public class QualysApiInvoker {
                 || HttpStatus.INTERNAL_SERVER_ERROR.value() == responseCode
                 || HttpStatus.REQUEST_TIMEOUT.value() == responseCode
                 || HttpStatus.SERVICE_UNAVAILABLE.value() == responseCode) {
-            retryTimeInterval += Long.parseLong(YAMLConfigurationReader.getInstance()
+            retryTimeInterval += Long.parseLong(QualysScannerConfiguration.getInstance()
                     .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
-
-            log.info("Qualys endpoint is not currently available and will retry after " + retryTimeInterval
-                    + " Seconds");
+            String logMessage = "Qualys endpoint is not currently available and will retry after " + retryTimeInterval
+                    + " Seconds";
+            log.info(logMessage);
             TimeUnit.MINUTES.sleep(retryTimeInterval);
             doHttpPost(url, requestBody);
         } else {
@@ -266,7 +265,7 @@ public class QualysApiInvoker {
                 || HttpStatus.INTERNAL_SERVER_ERROR.value() == responseCode
                 || HttpStatus.REQUEST_TIMEOUT.value() == responseCode
                 || HttpStatus.SERVICE_UNAVAILABLE.value() == responseCode) {
-            retryTimeInterval += Long.parseLong(YAMLConfigurationReader.getInstance()
+            retryTimeInterval += Long.parseLong(QualysScannerConfiguration.getInstance()
                     .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
 
             log.info("Qualys endpoint is not currently available and will retry after " + retryTimeInterval

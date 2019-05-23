@@ -23,6 +23,12 @@ username :
 password :
 host :
 reportPath :
-initialDelay :
 schedulerDelay :
-scanner_bean_class :
+defaultScanType :
+defaultProfileId :
+defaultScannerAppliance :
+defaultProgressiveScanning :
+callback_retry_interval_seconds: 5
+scan_manager_callback_url_endpoint:
+scan_manager_callback_status:
+scan_manager_callback_log:

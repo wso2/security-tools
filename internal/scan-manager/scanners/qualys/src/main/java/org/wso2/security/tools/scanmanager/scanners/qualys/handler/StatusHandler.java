@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.security.tools.scanmanager.scanner.qualys.handler;
+package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,14 +26,14 @@ import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
+import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
+import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 import org.wso2.security.tools.scanmanager.scanners.qualys.service.QualysScanner;
-import org.wso2.security.tools.scanmanger.scanners.qualys.QualysScannerConstants;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Responsible to check the scan status.
@@ -67,10 +67,13 @@ public class StatusHandler {
      * Activate status checker when Qualys scan id is generated.
      */
     public void activateStatusHandler() {
-        log.info("-------------------");
         Runnable checkStatusTask = new UpdateStatusTask();
         scheduler.scheduleWithFixedDelay(checkStatusTask, initialDelay, delayBetweenRuns, TimeUnit.MINUTES);
-        log.info("activated status checker");
+        if (log.isDebugEnabled()) {
+            String message = "Status Checker scheduler service is activated";
+            log.debug(message);
+            CallbackUtil.persistScanLog(scanContext.getJobID(), message, LogType.DEBUG);
+        }
     }
 
     /**
@@ -81,8 +84,9 @@ public class StatusHandler {
 
         @Override public void run() {
             if (log.isDebugEnabled()) {
-                CallbackUtil.persistScanLog(scanContext.getJobID(),
-                        " Scheduled Executor Service is started to check scan status periodically", LogType.DEBUG);
+                String message = " Scheduled Executor Service is started to check scan status periodically";
+                log.debug(message);
+                CallbackUtil.persistScanLog(scanContext.getJobID(), message, LogType.DEBUG);
             }
             String status;
             try {
@@ -93,14 +97,16 @@ public class StatusHandler {
                     // Map qualys scanner status with scan manager status.
                     ScanStatus tempScanManagerStatus = mapStatus(status);
                     if (currentStatus.compareTo(tempScanManagerStatus) == 0) {
+                        CallbackUtil.persistScanLog(scanContext.getJobID(), logMessage, LogType.INFO);
+                        currentStatus = tempScanManagerStatus;
                         updateStatus(currentStatus);
-
                     }
                 }
             } catch (ScannerException e) {
                 CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null,
                         scanContext.getScannerScanId());
-                CallbackUtil.persistScanLog(scanContext.getJobID(), "Could not retrieve the status", LogType.ERROR);
+                CallbackUtil.persistScanLog(scanContext.getJobID(), ErrorProcessingUtil.getFullErrorMessage(e),
+                        LogType.ERROR);
                 scheduler.shutdown();
             }
         }
@@ -112,13 +118,11 @@ public class StatusHandler {
             case QualysScannerConstants.SUBMITTED:
             case QualysScannerConstants.RUNNING:
                 tempScanStatus = ScanStatus.RUNNING;
-                //                currentStatus.set(ScanStatus.RUNNING);
                 logMessage = "Scan is Running.";
                 break;
             case QualysScannerConstants.ERROR:
                 tempScanStatus = ScanStatus.ERROR;
-                //                currentStatus.set(ScanStatus.ERROR);
-                logMessage = "Error occurred while scanning. ";
+                logMessage = "Error occurred while scanning.";
                 break;
             case QualysScannerConstants.TIME_LIMIT_EXCEEDED:
                 scanRelauncher = new ScanReLauncher();
@@ -130,8 +134,9 @@ public class StatusHandler {
             case QualysScannerConstants.SCANNER_NOT_AVAILABLE:
                 scanRelauncher = new ScanReLauncher();
                 scanRelauncher.run();
-                CallbackUtil.persistScanLog(scanContext.getJobID(),
-                        "Scan is relaunched due to Scanner" + "is not available", LogType.INFO);
+                CallbackUtil
+                        .persistScanLog(scanContext.getJobID(), "Scan is relaunched due to Scanner is not available",
+                                LogType.INFO);
                 scheduler.shutdown();
                 break;
             case QualysScannerConstants.CANCELLED:
@@ -143,12 +148,14 @@ public class StatusHandler {
                         .retrieveAuthStatus(QualysScanner.host, scanContext.getScannerScanId());
                 String resultsStatus = qualysScanHandler
                         .retrieveResultStatus(QualysScanner.host, scanContext.getScannerScanId());
-                Boolean isScanAuthenticationSuccessful = isScanAuthenticationSuccessed(authStatus);
-                Boolean isScanSuccessFull = isResultSucceed(resultsStatus);
-                if ((isScanAuthenticationSuccessful) && (isScanSuccessFull)) {
+                logMessage = "Scan is finished. Authentication status : " + authStatus + " and result status : "
+                        + resultsStatus;
+                if ((isScanAuthenticationSucceeded(authStatus)) && (isResultSucceeded(resultsStatus))) {
                     tempScanStatus = ScanStatus.COMPLETED;
                 } else {
-                    tempScanStatus = ScanStatus.FAILED;
+                    tempScanStatus = ScanStatus.ERROR;
+                    logMessage = "Scan is finished with error. Authentication status : " + authStatus
+                            + " and result status : " + resultsStatus;
                 }
                 break;
             }
@@ -159,12 +166,15 @@ public class StatusHandler {
             currentStatus = scanStatus;
             switch (scanStatus) {
             case COMPLETED:
+                logMessage = "Scan results are ready for the application: " + scanContext.getWebAppId();
+                log.info(logMessage);
+                CallbackUtil.persistScanLog(scanContext.getJobID(), logMessage, LogType.INFO);
                 ReportHandler reportHandler = new ReportHandler(qualysScanHandler);
-                reportHandler.execute(scanContext.getWebAppId(), scanContext.getJobID());
-                // todo update report file path
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.COMPLETED, null,
-                        scanContext.getScannerScanId());
-                CallbackUtil.persistScanLog(scanContext.getJobID(), "Scan is successfully completed", LogType.INFO);
+                if (reportHandler.execute(scanContext)) {
+                    CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.COMPLETED,
+                            scanContext.getScriptFilesLocation(), scanContext.getScannerScanId());
+                    CallbackUtil.persistScanLog(scanContext.getJobID(), "Scan is successfully completed", LogType.INFO);
+                }
                 scheduler.shutdown();
                 break;
             case RUNNING:
@@ -175,14 +185,13 @@ public class StatusHandler {
                 break;
             case CANCELED:
             case ERROR:
-            case FAILED:
                 CallbackUtil.updateScanStatus(scanContext.getJobID(), scanStatus, null, scanContext.getScannerScanId());
                 CallbackUtil.persistScanLog(scanContext.getJobID(), logMessage, LogType.ERROR);
                 scheduler.shutdown();
             }
         }
 
-        private synchronized boolean isScanAuthenticationSuccessed(String authStatus) {
+        private synchronized boolean isScanAuthenticationSucceeded(String authStatus) {
             boolean isScanAuthenticationSuccessful = false;
             switch (authStatus) {
             case QualysScannerConstants.AUTH_PARTIAL:
@@ -203,7 +212,7 @@ public class StatusHandler {
             return isScanAuthenticationSuccessful;
         }
 
-        private synchronized boolean isResultSucceed(String resultStatus) {
+        private synchronized boolean isResultSucceeded(String resultStatus) {
             boolean isScanSuccessFull = false;
             switch (resultStatus) {
             case QualysScannerConstants.NO_HOST_ALIVE:

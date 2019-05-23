@@ -30,8 +30,14 @@ public class QualysScannerConstants {
     public static final String PASSWORD = "password";
     public static final String HOST = "host";
     public static final String REPORT_PATH = "reportPath";
-    public static final String SCANNER_BEAN_CLASS = "scanner_bean_class";
-
+    public static final String DEFAULT_SCAN_TYPE = "defaultScanType";
+    public static final String DEFAULT_PROFILE_ID = "defaultProfileId";
+    public static final String DEFAULT_SCANNER_APPLIANCE = "defaultScannerAppliance";
+    public static final String DEFAULT_PROGRESSIVE_SCANNING = "defaultProgressiveScanning";
+    public static final String DEFAULT_FTP_AUTH_SCRIPT_PATH = "default_auth_script_path";
+    public static final String DEFAULT_FTP_CRAWL_SCRIPT_PATH = "default_crawl_script_path";
+    public static final String QUALYS_REPORT_FOLDER_PATH = "report_folderpath";
+    public static final String REPORT_UPLOAD_RETRY_INTERVAL= "scan_report_upload_retry_interval_seconds";
 
     //Qualys API Endpoint
     public static final String QUALYS_START_SCAN_API = "/qps/rest/3.0/launch/was/wasscan";

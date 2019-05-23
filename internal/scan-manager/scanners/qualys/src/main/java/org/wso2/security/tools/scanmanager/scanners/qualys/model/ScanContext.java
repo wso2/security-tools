@@ -58,6 +58,9 @@ public class ScanContext {
     // Delay between scheduler task
     private Long schedulerDelay;
 
+    // Script Files Location
+    private String scriptFilesLocation;
+
     public String getJobID() {
         return jobID;
     }
@@ -144,5 +147,13 @@ public class ScanContext {
 
     public void setSchedulerDelay(Long schedulerDelay) {
         this.schedulerDelay = schedulerDelay;
+    }
+
+    public String getScriptFilesLocation() {
+        return scriptFilesLocation;
+    }
+
+    public void setScriptFilesLocation(String scriptFilesLocation) {
+        this.scriptFilesLocation = scriptFilesLocation;
     }
 }
