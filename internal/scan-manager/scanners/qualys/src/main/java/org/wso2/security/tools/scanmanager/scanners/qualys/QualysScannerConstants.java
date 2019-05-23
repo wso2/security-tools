@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.security.tools.scanmanger.scanners.qualys;
+package org.wso2.security.tools.scanmanager.scanners.qualys;
 
 /**
  * Constants related to Qualys Scanner
