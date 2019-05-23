@@ -18,7 +18,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions"
            prefix="fn" %>
+<%@taglib prefix="e" uri="https://www.owasp.org/index.php/OWASP_Java_Encoder_Project" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html>
 <head>
     <%@ include file="../fragments/header.html" %>
@@ -31,12 +33,12 @@
             <div class="row">
                 <div class="page-header">
                     <h1>Logs</h1>
-                    <h3><b>Scan: </b>${scanData.name}</h3>
+                    <h3><b>Scan: </b>${e:forHtml(scanData.name)}</h3>
                 </div>
             </div>
             <hr>
             <div class="row">
-               
+                
                 <c:if test="${logListResponse.logs.size() eq 0}">
                     <br/><br/>
                     <div style="float: left; padding: 5px;">
@@ -56,7 +58,7 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th scope="col">TimeStamp</th>
+                                <th scope="col">Timestamp</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Message</th>
                             </tr>
@@ -66,7 +68,7 @@
                                 <tr>
                                     <th scope="row">${logListResponse.logs.get(index).timeStamp}</th>
                                     <td>${logListResponse.logs.get(index).type.name()}</td>
-                                    <td>${logListResponse.logs.get(index).message}</td>
+                                    <td>${e:forHtml(logListResponse.logs.get(index).message)}</td>
                                 </tr>
                             </c:forEach>
                             </tbody>
@@ -134,14 +136,29 @@
             </c:choose>
         </c:when>
         <c:otherwise>
-            <div class="page-header">
-                <h1>Logs</h1>
+            <div class="row">
+                <div class="page-header">
+                    <h1>Logs</h1>
+                </div>
             </div>
             <hr>
-            <div style="float: left; padding: 5px;">
-                <h4>Provided scan cannot be found. Please check the <a href="/scan-manager/scans">scans page</a> for
-                    the
-                    available scans.</h4>
+            <div class="row" >
+                <div class="col-md-12">
+                    <c:choose>
+                        <c:when test="${fn:contains(param.jobId, 'pre_job_id')}">
+                            <h5>Provided scan cannot be found. This scan may have completed its preparation tasks and
+                                moved
+                                to the submission phase. Please check
+                                the <a href="/scan-manager/scans">scans page</a> for the available scans.</h5>
+                        </c:when>
+                        <c:otherwise>
+                            <h5>Provided scan cannot be found. Please check the <a href="/scan-manager/scans">scans
+                                page</a>
+                                for the available scans.</h5>
+                            <br>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
             </div>
         </c:otherwise>
     </c:choose>

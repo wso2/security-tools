@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.security.tools.scanmanager.webapp.util;
+package org.wso2.security.tools.scanmanager.common.util;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.wso2.security.tools.scanmanager.webapp.model.HTTPRequest;
+import org.wso2.security.tools.scanmanager.common.model.HTTPRequest;
 
 /**
  * Provides utility methods for HTTP request handling.

@@ -40,6 +40,7 @@ public class ScanManagerWebappConfiguration {
 
     private String scanManagerHost;
     private Integer scanManagerPort;
+    private String scanManagerBasePath;
     private String ftpHost;
     private Integer ftpPort;
     private String ftpUsername;
@@ -48,6 +49,7 @@ public class ScanManagerWebappConfiguration {
 
     private static final String SCAN_MANAGER_HOST_KEY = "scanManagerHost";
     private static final String SCAN_MANAGER_PORT_KEY = "scanManagerPort";
+    private static final String SCAN_MANAGER_BASE_PATH_KEY = "scanManagerBasePath";
     private static final String FTP_HOST_KEY = "ftpHost";
     private static final String FTP_PORT_KEY = "ftpPort";
     private static final String FTP_USERNAME_KEY = "ftpUsername";
@@ -63,6 +65,7 @@ public class ScanManagerWebappConfiguration {
     public void init(Map<String, Object> configObjectMap) throws ScanManagerWebappException {
         String scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
         Integer scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
+        String scanManagerBasePath = (String) configObjectMap.get(SCAN_MANAGER_BASE_PATH_KEY);
         String ftpHost = (String) configObjectMap.get(FTP_HOST_KEY);
         Integer ftpPort = (Integer) configObjectMap.get(FTP_PORT_KEY);
         String ftpUsername = (String) configObjectMap.get(FTP_USERNAME_KEY);
@@ -77,6 +80,11 @@ public class ScanManagerWebappConfiguration {
             this.scanManagerPort = scanManagerPort;
         } else {
             throw new ScanManagerWebappException("Unable to get the scan manager port configuration");
+        }
+        if (scanManagerBasePath != null) {
+            this.scanManagerBasePath = scanManagerBasePath;
+        } else {
+            this.scanManagerBasePath = "";
         }
         if (ftpHost != null) {
             this.ftpHost = ftpHost;
@@ -148,7 +156,7 @@ public class ScanManagerWebappConfiguration {
     public URI getScanURL(String path, List<NameValuePair> nameValuePairs) throws ScanManagerWebappException {
         URI uri = null;
         try {
-            uri = buildURI(SCANS_URI, path, nameValuePairs);
+            uri = buildURI(scanManagerBasePath + SCANS_URI, path, nameValuePairs);
         } catch (URISyntaxException e) {
             throw new ScanManagerWebappException("Unable to build the scans URL", e);
         }
@@ -166,7 +174,7 @@ public class ScanManagerWebappConfiguration {
     public URI getLogURL(String path, List<NameValuePair> nameValuePairs) throws ScanManagerWebappException {
         URI uri = null;
         try {
-            uri = buildURI(LOGS_URI, path, nameValuePairs);
+            uri = buildURI(scanManagerBasePath + LOGS_URI, path, nameValuePairs);
         } catch (URISyntaxException e) {
             throw new ScanManagerWebappException("Unable to build the logs URL", e);
         }
@@ -184,7 +192,7 @@ public class ScanManagerWebappConfiguration {
     public URI getScannersURL(String path, List<NameValuePair> nameValuePairs) throws ScanManagerWebappException {
         URI uri = null;
         try {
-            uri = buildURI(SCANNERS_URI, path, nameValuePairs);
+            uri = buildURI(scanManagerBasePath + SCANNERS_URI, path, nameValuePairs);
         } catch (URISyntaxException e) {
             throw new ScanManagerWebappException("Unable to build the scanners URL", e);
         }

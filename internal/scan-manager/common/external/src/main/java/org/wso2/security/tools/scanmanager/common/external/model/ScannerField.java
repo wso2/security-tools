@@ -54,6 +54,9 @@ public class ScannerField {
     @Column(name = "FIELD_NAME")
     private String displayName;
 
+    @Column(name = "FIELD_DESCRIPTION")
+    private String description;
+
     @Column(name = "FIELD_TYPE")
     private String type;
 
@@ -63,21 +66,18 @@ public class ScannerField {
     @Column(name = "IS_REQUIRED")
     private boolean isRequired;
 
-    @Column(name = "HAS_DEFAULT")
-    private boolean hasDefault;
-
     public ScannerField() {
     }
 
-    public ScannerField(String fieldId, Scanner scanner, String displayName, String type, Integer order,
-                        boolean isRequired, boolean hasDefault) {
+    public ScannerField(String fieldId, Scanner scanner, String displayName, String description, String type,
+                        Integer order, boolean isRequired) {
         this.fieldId = fieldId;
         this.scanner = scanner;
         this.displayName = displayName;
+        this.description = description;
         this.type = type;
         this.order = order;
         this.isRequired = isRequired;
-        this.hasDefault = hasDefault;
     }
 
     public Integer getId() {
@@ -86,14 +86,6 @@ public class ScannerField {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public boolean getHasDefault() {
-        return hasDefault;
-    }
-
-    public void setHasDefault(boolean hasDefault) {
-        this.hasDefault = hasDefault;
     }
 
     public Scanner getScanner() {
@@ -120,6 +112,14 @@ public class ScannerField {
         this.displayName = displayName;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getType() {
         return type;
     }
@@ -142,9 +142,5 @@ public class ScannerField {
 
     public void setRequired(boolean required) {
         isRequired = required;
-    }
-
-    public boolean isHasDefault() {
-        return hasDefault;
     }
 }

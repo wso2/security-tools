@@ -26,7 +26,7 @@ public class Constants {
     }
 
     public static final String SCHEME = "http";
-    public static final String SCAN_MANAGER_ENDPOINT = "scan-manager";
+    public static final String SCAN_MANAGER_ENDPOINT = "/scan-manager";
     public static final String SCAN_MANAGER_VIEW = "scan-manager";
     public static final String SCANNERS_VIEW_NAME = "scanners";
     public static final String SCAN_CONFIGURATION_VIEW = "scan_configuration";
@@ -49,4 +49,6 @@ public class Constants {
     public static final String PRE_JOB_ID_PREFIX = "pre_job_id_";
     public static final String FILES_BY_URL_SEPARATOR = "@";
     public static final String FILES_BY_URL_POSTFIX = "byURL";
+
+    public static final String MAX_FILE_SIZE_PROPERTY_KEY = "spring.http.multipart.maxFileSize";
 }

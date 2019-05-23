@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.security.tools.scanmanager.webapp.model;
+package org.wso2.security.tools.scanmanager.common.model;
 
 import org.springframework.util.MultiValueMap;
 

@@ -1,3 +1,21 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 /**
  * Files can be uploaded by uploading the file through the form or by providing a URL to download the
  * file. This function will display the appropriate input element (with the type 'file' or 'text') according to
@@ -56,52 +74,9 @@ function changeFileUploadMethod(elementId) {
 }
 
 /**
- * This function is used to disable the element when 'use default' checkbox is checked.
- *
- * @param elementId element id of the element to be disabled
+ * This function is used to display a waiting image during form submit.
  */
-function useDefault(elementId) {
-
-    // the element to be disabled.
-    let currentElement = document.getElementById(elementId);
-
-    // if the input element is a file upload by url.
-    let currentFileURLElement = document.getElementById(elementId + '@byURL');
-
-    // by File or by URL checkbox elements.
-    let currentFileCheckbox = document.getElementById(elementId + 'byFileCheck');
-    let currentURLCheckbox = document.getElementById(elementId + 'byURLCheck');
-
-    if (document.getElementById(elementId + 'DefaultCheckbox').checked) {
-
-        // if the "use default" is checked, disable input elements from submitting through the form.
-        if (currentElement != null) {
-            currentElement.setAttribute("disabled", "disabled");
-        }
-        if (currentFileURLElement != null) {
-            currentFileURLElement.setAttribute("disabled", "disabled");
-        }
-        if (currentFileCheckbox != null) {
-            currentFileCheckbox.setAttribute("disabled", "disabled");
-        }
-        if (currentURLCheckbox != null) {
-            currentURLCheckbox.setAttribute("disabled", "disabled");
-        }
-
-    } else {
-
-        // if the "use default" not checked, enable input elements from submitting through the form.
-        if (currentElement != null) {
-            currentElement.removeAttribute("disabled");
-        }
-        if (currentFileURLElement != null) {
-            currentFileURLElement.removeAttribute("disabled");
-        }
-        if (currentFileCheckbox != null) {
-            currentFileCheckbox.removeAttribute("disabled");
-        }
-        if (currentURLCheckbox != null) {
-            currentURLCheckbox.removeAttribute("disabled");
-        }
-    }
+function loading() {
+    let element = document.getElementById("divLoading");
+    element.classList.add("show");
 }

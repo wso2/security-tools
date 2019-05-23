@@ -68,10 +68,10 @@ public interface LogService {
     public void insert(Scan scan, LogType type, Timestamp timestamp, String message);
 
     /**
-     * Remove log entries for a waiting scan.
+     * Remove log entries for a scan under preparation.
      *
-     * @param scanJobId waiting scan job id
-     * @return true if the scan is found among the waiting scan logs
+     * @param scanJobId job id of the scan under preparation
+     * @return true if the scan is found among the preparing scan logs
      */
-    public boolean removeLogsForWaitingScan(String scanJobId);
+    public boolean removeLogsForPreparingScan(String scanJobId);
 }

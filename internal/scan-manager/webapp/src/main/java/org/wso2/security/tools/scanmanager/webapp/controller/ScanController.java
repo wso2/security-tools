@@ -52,11 +52,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.LOGS_VIEW;
+import static org.wso2.security.tools.scanmanager.webapp.util.Constants.MAX_FILE_SIZE_PROPERTY_KEY;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANS_VIEW;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_CONFIGURATION_VIEW;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_MANAGER_VIEW;
@@ -77,11 +77,12 @@ public class ScanController {
 
     private static final String CONTENT_DISPOSITION_HEADER_NAME = "Content-Disposition";
     private static final String SCAN_LIST_RESPONSE_ATTRIBUTE_NAME = "scanListResponse";
-    private static final String WAITING_SCAN_LIST_ATTRIBUTE_NAME = "waitingScanList";
+    private static final String PREPARING_SCAN_LIST_ATTRIBUTE_NAME = "preparingScanList";
 
     private static final String LOG_RESPONSE_ATTRIBUTE_NAME = "logListResponse";
     private static final String SCANNER_DATA_ATTRIBUTE_NAME = "scannerData";
     private static final String PRODUCT_DATA_ATTRIBUTE_NAME = "productData";
+    private static final String MAX_FILE_SIZE_ATTRIBUTE_NAME = "maxFileSize";
     private static final String SCAN_DATA_ATTRIBUTE_NAME = "scanData";
     private static final String SCAN_NAME_PARAMETER_KEY = "scanName";
 
@@ -112,12 +113,12 @@ public class ScanController {
         Map<String, String> parameterMap = new HashMap<>();
 
         for (Map.Entry<String, String[]> requestParamMap : multipartHttpServletRequest.getParameterMap().entrySet()) {
-            parameterMap.put(requestParamMap.getKey(), requestParamMap.getValue()[0]);
+            if (!requestParamMap.getValue()[0].isEmpty()) {
+                parameterMap.put(requestParamMap.getKey(), requestParamMap.getValue()[0]);
+            }
         }
         Map<String, MultipartFile> fileMap = multipartHttpServletRequest.getFileMap();
-        String scanDirectory = parameterMap.get(SCAN_NAME_PARAMETER_KEY) + "_" +
-                UUID.randomUUID().toString();
-        Scan scan = scanService.submitScan(fileMap, parameterMap, scanDirectory);
+        Scan scan = scanService.submitScan(fileMap, parameterMap);
         if (scan != null) {
             return "redirect:scans";
         } else {
@@ -140,8 +141,8 @@ public class ScanController {
         // List of scans submitted to scan manager API.
         scansView.addObject(SCAN_LIST_RESPONSE_ATTRIBUTE_NAME, scanService.getScans(page));
 
-        // list of scan waiting to be submitted to scan manager API.
-        scansView.addObject(WAITING_SCAN_LIST_ATTRIBUTE_NAME, scanService.getWaitingScans());
+        // list of scan preparing to be submitted to scan manager API.
+        scansView.addObject(PREPARING_SCAN_LIST_ATTRIBUTE_NAME, scanService.getPreparingScans());
         return scansView;
     }
 
@@ -181,6 +182,22 @@ public class ScanController {
     }
 
     /**
+     * Clear a scan.
+     *
+     * @param jobId scan id of the scan to be cleared
+     * @return scans view
+     * @throws ScanManagerWebappException when an error occurs while clearing the scan
+     */
+    @PostMapping(value = "clear")
+    public String clearScan(@RequestParam("jobId") String jobId) throws ScanManagerWebappException {
+        if (scanService.clearScan(jobId)) {
+            return "redirect:scans";
+        } else {
+            throw new ScanManagerWebappException("Error occurred while clearing the scan: " + jobId);
+        }
+    }
+
+    /**
      * Download scan report.
      *
      * @param response HTTP servlet response
@@ -198,11 +215,13 @@ public class ScanController {
 
             // Download the scan report temporally into the local machine.
             File file = new File(scan.getScanReportPath());
-            File reportDirectory = new File(SCAN_REPORT_DATA_DIRECTORY_NAME);
-            if (!reportDirectory.exists() && !reportDirectory.mkdir()) {
+            File reportDirectory =
+                    new File(SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + scan.getJobId());
+            if (!reportDirectory.exists() && !reportDirectory.mkdirs()) {
                 throw new ScanManagerWebappException("Error occurred while creating the report output directory");
             }
-            File outputFile = new File(SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + file.getName());
+            File outputFile = new File(SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + scan.getJobId()
+                    + File.separator + file.getName());
             scanService.getScanReport(scan.getScanReportPath(),
                     outputFile.getPath());
 
@@ -250,7 +269,7 @@ public class ScanController {
         productLst.clear();
         productLst.addAll(set);
         scannerConfigModel.addObject(PRODUCT_DATA_ATTRIBUTE_NAME, productLst);
-        scannerConfigModel.addObject("maxFileSize", env.getProperty("spring.http.multipart.maxFileSize"));
+        scannerConfigModel.addObject(MAX_FILE_SIZE_ATTRIBUTE_NAME, env.getProperty(MAX_FILE_SIZE_PROPERTY_KEY));
         return scannerConfigModel;
     }
 }

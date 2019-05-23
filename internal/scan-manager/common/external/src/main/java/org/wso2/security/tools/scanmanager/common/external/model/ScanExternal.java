@@ -17,6 +17,7 @@
  */
 package org.wso2.security.tools.scanmanager.common.external.model;
 
+import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.common.model.ScanType;
 
@@ -32,6 +33,7 @@ public class ScanExternal {
     private String description;
     private String scannerId;
     private String scannerName;
+    private ScanPriority priority;
     private ScanStatus status;
     private String product;
     private ScanType type;
@@ -41,7 +43,7 @@ public class ScanExternal {
     private String scanReportPath;
 
     public ScanExternal(String jobId, String name, String description, String scannerId,
-                        String scannerName, ScanStatus status, String product, ScanType type,
+                        String scannerName, ScanPriority priority, ScanStatus status, String product, ScanType type,
                         Timestamp submittedTimestamp, Timestamp startedTimestamp, String user,
                         String scanReportPath) {
         this.jobId = jobId;
@@ -49,6 +51,7 @@ public class ScanExternal {
         this.description = description;
         this.scannerId = scannerId;
         this.scannerName = scannerName;
+        this.priority = priority;
         this.status = status;
         this.product = product;
         this.type = type;
@@ -70,6 +73,7 @@ public class ScanExternal {
             this.description = scan.getDescription();
             this.status = scan.getStatus();
             this.product = scan.getProduct();
+            this.priority = ScanPriority.getEnumByValue(scan.getPriority());
             this.type = scan.getType();
             this.submittedTimestamp = scan.getSubmittedTimestamp();
             this.startedTimestamp = scan.getStartTimestamp();
@@ -124,6 +128,14 @@ public class ScanExternal {
 
     public void setScannerName(String scannerName) {
         this.scannerName = scannerName;
+    }
+
+    public ScanPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(ScanPriority priority) {
+        this.priority = priority;
     }
 
     public ScanStatus getStatus() {

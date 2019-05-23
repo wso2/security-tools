@@ -70,7 +70,7 @@ public class FTPUtil {
         ChannelSftp channelSftp = null;
         Channel channel;
         Session session = null;
-        BufferedInputStream bis = null;
+        BufferedInputStream destFileBufferedInputStream = null;
         char[] ftpPassword = null;
         File file = new File(outputLocation);
         File remoteFile = new File(remoteFileLocation);
@@ -78,8 +78,8 @@ public class FTPUtil {
 
         byte[] buffer = new byte[1024];
         int readCount;
-        try (OutputStream os = new FileOutputStream(file);
-             BufferedOutputStream bos = new BufferedOutputStream(os)) {
+        try (OutputStream destFileOutputStream = new FileOutputStream(file);
+             BufferedOutputStream destFileBufferedOutputStream = new BufferedOutputStream(destFileOutputStream)) {
             String ftpHost = ScanManagerWebappConfiguration.getInstance().getFtpHost();
             String ftpUsername = ScanManagerWebappConfiguration.getInstance().getFtpUsername();
             ftpPassword = ScanManagerWebappConfiguration.getInstance().getFtpPassword();
@@ -94,9 +94,9 @@ public class FTPUtil {
             channelSftp = (ChannelSftp) channel;
             channelSftp.connect();
             channelSftp.cd(remoteFile.getParent());
-            bis = new BufferedInputStream(channelSftp.get(remoteFileLocation));
-            while ((readCount = bis.read(buffer)) > 0) {
-                bos.write(buffer, 0, readCount);
+            destFileBufferedInputStream = new BufferedInputStream(channelSftp.get(remoteFileLocation));
+            while ((readCount = destFileBufferedInputStream.read(buffer)) > 0) {
+                destFileBufferedOutputStream.write(buffer, 0, readCount);
             }
         } catch (IOException | JSchException | SftpException e) {
             throw new ScanManagerWebappException("Error occurred while downloading from FTP.", e);
@@ -108,8 +108,8 @@ public class FTPUtil {
                 session.disconnect();
             }
             try {
-                if (bis != null) {
-                    bis.close();
+                if (destFileBufferedInputStream != null) {
+                    destFileBufferedInputStream.close();
                 }
             } catch (IOException e) {
                 logger.error("Error occurred while closing the buffered output stream from FTP", e);
@@ -124,7 +124,7 @@ public class FTPUtil {
      * @param remoteScanDirectory destination file directory
      * @param storedFileMap       file map
      * @return a map containing the paths of the uploaded files
-     * @throws ScanManagerWebappException
+     * @throws ScanManagerWebappException when an error occurs when uploading files to FTP server
      */
     public static Map<String, String> uploadFilesToFTP(String remoteScanDirectory, Map<String, String> storedFileMap)
             throws ScanManagerWebappException {

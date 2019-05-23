@@ -37,11 +37,9 @@ public interface ScanService {
      *
      * @param fileMap       file map containing the required files
      * @param parameterMap  parameter map containing the required parameters
-     * @param scanDirectory scan directory to upload scan files in FTP server
      * @return Scan object that was received by the webapp
      */
-    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap,
-                           String scanDirectory);
+    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap);
 
     /**
      * Get the list of scans for a given page.
@@ -53,11 +51,11 @@ public interface ScanService {
     public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException;
 
     /**
-     * Get the list of scans waiting to be submitted to scan manager API.
+     * Get the list of scans under preparation to be submitted to scan manager API.
      *
-     * @return scan manager response containing a list of scans waiting to be submitted to scan manager API
+     * @return scan manager response containing a list of scans under preparation to be submitted to scan manager API
      */
-    public List<ScanExternal> getWaitingScans();
+    public List<ScanExternal> getPreparingScans();
 
     /**
      * Get details of a scan.
@@ -81,7 +79,16 @@ public interface ScanService {
      * Send a cancel scan request.
      *
      * @param id scan jobId
-     * @return response success if the scan was successfully submitted
+     * @return response success if the scan cancel request was successfully submitted
+     * @throws ScanManagerWebappException when an error occurs while cancelling the scan
      */
     public ResponseEntity stopScan(String id) throws ScanManagerWebappException;
+
+    /**
+     * Clear a scan
+     *
+     * @param id scan jobId
+     * @return return true if the scan was successfully cleared.
+     */
+    public boolean clearScan(String id);
 }

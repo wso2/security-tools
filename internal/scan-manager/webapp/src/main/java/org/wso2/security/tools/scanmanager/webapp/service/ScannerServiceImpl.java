@@ -24,11 +24,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
+import org.wso2.security.tools.scanmanager.common.model.HTTPRequest;
+import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 import org.wso2.security.tools.scanmanager.webapp.config.ScanManagerWebappConfiguration;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
-import org.wso2.security.tools.scanmanager.webapp.model.HTTPRequest;
-import org.wso2.security.tools.scanmanager.webapp.util.HTTPUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class ScannerServiceImpl implements ScannerService {
             } else {
                 throw new ScanManagerWebappException("Unable to get the scanners");
             }
-        } catch (IOException e) {
+        } catch (RestClientException | IOException e) {
             throw new ScanManagerWebappException("Unable to get the scanners", e);
         }
         return scannerList;
@@ -78,7 +79,7 @@ public class ScannerServiceImpl implements ScannerService {
             } else {
                 throw new ScanManagerWebappException("Unable to get the scanner for the given id: " + id);
             }
-        } catch (IOException e) {
+        } catch (RestClientException | IOException e) {
             throw new ScanManagerWebappException("Unable to get the scanner for the given id: " + id, e);
         }
     }

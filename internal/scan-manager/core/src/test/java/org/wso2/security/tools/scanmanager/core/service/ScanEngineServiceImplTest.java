@@ -35,14 +35,14 @@ import org.testng.annotations.ObjectFactory;
 import org.testng.annotations.Test;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScannerApp;
+import org.wso2.security.tools.scanmanager.common.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
+import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 import org.wso2.security.tools.scanmanager.core.config.ScanManagerConfiguration;
 import org.wso2.security.tools.scanmanager.core.config.ScanMangerConfigurationBuilder;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.handler.ContainerHandler;
 import org.wso2.security.tools.scanmanager.core.model.Container;
-import org.wso2.security.tools.scanmanager.core.model.HTTPRequest;
-import org.wso2.security.tools.scanmanager.core.util.HTTPUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;

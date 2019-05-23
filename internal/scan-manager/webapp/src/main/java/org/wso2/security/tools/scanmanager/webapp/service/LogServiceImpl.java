@@ -24,14 +24,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.wso2.security.tools.scanmanager.common.external.model.Log;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogResponse;
+import org.wso2.security.tools.scanmanager.common.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
+import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 import org.wso2.security.tools.scanmanager.webapp.config.ScanManagerWebappConfiguration;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
-import org.wso2.security.tools.scanmanager.webapp.model.HTTPRequest;
-import org.wso2.security.tools.scanmanager.webapp.util.HTTPUtil;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -52,7 +53,7 @@ import static org.wso2.security.tools.scanmanager.webapp.util.Constants.PRE_JOB_
 public class LogServiceImpl implements LogService {
 
     private static final Logger logger = Logger.getLogger(LogServiceImpl.class);
-    private Map<String, List<Log>> waitingScanLogs = new ConcurrentHashMap<>();
+    private Map<String, List<Log>> preparingScanLogs = new ConcurrentHashMap<>();
 
     @Override
     public ScanManagerLogResponse getLogs(String jobId, Integer pageNumber) throws ScanManagerWebappException {
@@ -61,8 +62,8 @@ public class LogServiceImpl implements LogService {
 
         try {
             if (jobId.startsWith(PRE_JOB_ID_PREFIX)) {
-                if (waitingScanLogs.containsKey(jobId)) {
-                    scanManagerLogResponse.setLogs(waitingScanLogs.get(jobId));
+                if (preparingScanLogs.containsKey(jobId)) {
+                    scanManagerLogResponse.setLogs(preparingScanLogs.get(jobId));
                 }
             } else {
                 if (pageNumber != null) {
@@ -81,7 +82,7 @@ public class LogServiceImpl implements LogService {
                     throw new ScanManagerWebappException("Unable to get the scan logs for the job id: " + jobId);
                 }
             }
-        } catch (IOException e) {
+        } catch (RestClientException | IOException e) {
             throw new ScanManagerWebappException("Unable to get the logs", e);
         }
         return scanManagerLogResponse;
@@ -93,10 +94,10 @@ public class LogServiceImpl implements LogService {
 
         if (scan != null) {
             Log log = new Log(scan, LogType.ERROR, new Timestamp(System.currentTimeMillis()), getFullErrorMessage(e));
-            if (waitingScanLogs.containsKey(scan.getJobId())) {
-                waitingScanLogs.get(scan.getJobId()).add(log);
+            if (preparingScanLogs.containsKey(scan.getJobId())) {
+                preparingScanLogs.get(scan.getJobId()).add(log);
             } else {
-                waitingScanLogs.put(scan.getJobId(), new ArrayList<>(Arrays.asList(log)));
+                preparingScanLogs.put(scan.getJobId(), new ArrayList<>(Arrays.asList(log)));
             }
         }
     }
@@ -125,18 +126,18 @@ public class LogServiceImpl implements LogService {
 
         if (scan != null) {
             Log log = new Log(scan, type, new Timestamp(System.currentTimeMillis()), message);
-            if (waitingScanLogs.containsKey(scan.getJobId())) {
-                waitingScanLogs.get(scan.getJobId()).add(log);
+            if (preparingScanLogs.containsKey(scan.getJobId())) {
+                preparingScanLogs.get(scan.getJobId()).add(log);
             } else {
-                waitingScanLogs.put(scan.getJobId(), new ArrayList<>(Arrays.asList(log)));
+                preparingScanLogs.put(scan.getJobId(), new ArrayList<>(Arrays.asList(log)));
             }
         }
     }
 
     @Override
-    public boolean removeLogsForWaitingScan(String waitingScanJobId) {
-        if (waitingScanLogs.containsKey(waitingScanJobId)) {
-            waitingScanLogs.remove(waitingScanJobId);
+    public boolean removeLogsForPreparingScan(String preparingScanJobId) {
+        if (preparingScanLogs.containsKey(preparingScanJobId)) {
+            preparingScanLogs.remove(preparingScanJobId);
             return true;
         } else {
             return false;
