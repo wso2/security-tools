@@ -68,7 +68,10 @@ public interface LogService {
     public void insert(Scan scan, LogType type, Timestamp timestamp, String message);
 
     /**
-     * Remove log entries for a scan under preparation.
+     * Remove log entries for a scan under preparation. Scans that have scan preparation tasks (before submitting to
+     * scan manager API) such as uploading files to the FTP are categorized as scans under preparation. Once those
+     * tasks are completed and the scan is uploaded to the scan manager API, the log entries for that particular
+     * scan needs to be removed.
      *
      * @param scanJobId job id of the scan under preparation
      * @return true if the scan is found among the preparing scan logs
