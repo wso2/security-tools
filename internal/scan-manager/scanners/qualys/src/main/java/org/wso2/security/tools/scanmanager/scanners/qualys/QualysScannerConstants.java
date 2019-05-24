@@ -37,7 +37,7 @@ public class QualysScannerConstants {
     public static final String DEFAULT_FTP_AUTH_SCRIPT_PATH = "default_auth_script_path";
     public static final String DEFAULT_FTP_CRAWL_SCRIPT_PATH = "default_crawl_script_path";
     public static final String QUALYS_REPORT_FOLDER_PATH = "report_folderpath";
-    public static final String REPORT_UPLOAD_RETRY_INTERVAL= "scan_report_upload_retry_interval_seconds";
+    public static final String REPORT_UPLOAD_RETRY_INTERVAL = "scan_report_upload_retry_interval_seconds";
 
     //Qualys API Endpoint
     public static final String QUALYS_START_SCAN_API = "/qps/rest/3.0/launch/was/wasscan";
@@ -103,9 +103,9 @@ public class QualysScannerConstants {
     public static final String AUTH_STATUS_TAG = "authStatus";
     public static final String RESULTS_STATUS_TAG = "resultsStatus";
 
-    public static final String SUCCESS="SUCCESS";
-    public static final String RESPONSE_CODE="responseCode";
-    public static final String SERVICE_RESPONSE="ServiceResponse";
+    public static final String SUCCESS = "SUCCESS";
+    public static final String RESPONSE_CODE = "responseCode";
+    public static final String SERVICE_RESPONSE = "ServiceResponse";
     public static final String ERROR_MESSAGE = "errorMessage";
     //Report Types
     public static final String PDF_TYPE = "PDF";
@@ -133,6 +133,5 @@ public class QualysScannerConstants {
     public static final String SERVICE_ERROR = "SERVICE_ERROR";
     public static final String SCAN_INTERNAL_ERROR = "SCAN_INTERNAL_ERROR";
     public static final String SUCCESSFUL = "SUCCESSFUL";
-
 
 }

@@ -25,5 +25,5 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.model;
  */
 public enum ScannerApplianceType {
 
-     EXTERNAL, INTERNAL
+    EXTERNAL, INTERNAL
 }

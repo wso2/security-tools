@@ -352,6 +352,7 @@ public class RequestBodyBuilder {
      * Create DocumentBuilderFactory with the XXE and XEE prevention measurements.
      *
      * @return DocumentBuilderFactory instance
+     * @throws ParserConfigurationException Error occurred while creating the SecuredDocumentBuilderFactory
      */
     public static DocumentBuilderFactory getSecuredDocumentBuilderFactory() throws ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

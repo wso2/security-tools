@@ -22,6 +22,7 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.service;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -29,12 +30,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.apache.commons.lang3.StringUtils;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
 import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
-
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
@@ -53,6 +52,7 @@ import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScannerApplianc
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ import java.util.Map;
         implements Scanner {
 
     private final Log log = LogFactory.getLog(QualysScanner.class);
-    public static String host;
+    public String host;
     private QualysScanHandler qualysScanHandler;
     private ScanContext scanContext;
 
@@ -257,14 +257,7 @@ import java.util.Map;
             QualysScannerConfiguration.getInstance().loadConfiguration(
                     ScannerConstants.RESOURCE_FILE_PATH + File.separator + ScannerConstants.CONFIGURTION_FILE_NAME);
         }
-        QualysScannerConfiguration.getInstance().setUsername(
-                QualysScannerConfiguration.getInstance().getConfigProperty(QualysScannerConstants.USERNAME)
-                        .toCharArray());
-        QualysScannerConfiguration.getInstance().setPassword(
-                QualysScannerConfiguration.getInstance().getConfigProperty(QualysScannerConstants.PASSWORD)
-                        .toCharArray());
         QualysScannerConfiguration.getInstance().setHost(QualysScannerConstants.HOST);
-        QualysScannerConfiguration.getInstance().setReportFilePath(QualysScannerConstants.REPORT_PATH);
         QualysScannerConfiguration.getInstance()
                 .setSchedulerDelay(Long.parseLong(QualysScannerConfiguration.getInstance().
                         getConfigProperty(QualysScannerConstants.SCHEDULER_DELAY)));
@@ -286,11 +279,14 @@ import java.util.Map;
      */
     private char[] setCredentials() throws ScannerException {
         char[] basicAuth;
-        char[] qualysUsername = QualysScannerConfiguration.getInstance().getUsername();
-        char[] qualysPassword = QualysScannerConfiguration.getInstance().getPassword();
+        char[] qualysUsername = QualysScannerConfiguration.getInstance().
+                getConfigProperty(QualysScannerConstants.USERNAME).toCharArray();
+        char[] qualysPassword = QualysScannerConfiguration.getInstance().
+                getConfigProperty(QualysScannerConstants.PASSWORD).toCharArray();
         String credential = new String(qualysUsername) + ":" + new String(qualysPassword);
         try {
-            basicAuth = new String(new Base64().encode(credential.getBytes()), "UTF-8").toCharArray();
+            basicAuth = new String(new Base64().encode(credential.getBytes(Charset.forName("UTF-8"))), "UTF-8")
+                    .toCharArray();
             Arrays.fill(qualysUsername, '0');
             Arrays.fill(qualysPassword, '0');
         } catch (UnsupportedEncodingException e) {

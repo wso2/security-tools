@@ -22,7 +22,6 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -254,14 +253,15 @@ public class QualysScanHandler {
     /**
      * Download created report.
      *
-     * @param host     Qualys URL
-     * @param jobId    Job ID
-     * @param reportId Report ID
+     * @param host                Qualys URL
+     * @param jobId               Job ID
+     * @param reportId            Report ID
      * @param reportDirectoryPath directory path where reportes needs to be downloaded
      * @return filePath Filepath of the report
      * @throws ScannerException Error occurred while downloading report.
      */
-    public String downloadReport(String host, String jobId, String reportId, String reportDirectoryPath) throws ScannerException {
+    public String downloadReport(String host, String jobId, String reportId, String reportDirectoryPath)
+            throws ScannerException {
         HttpResponse response;
         String filePath;
         try {
@@ -271,7 +271,7 @@ public class QualysScanHandler {
         }
 
         try {
-            filePath = writeFile(response , reportDirectoryPath);
+            filePath = writeFile(response, reportDirectoryPath);
             if (!StringUtils.isEmpty(filePath)) {
                 String message = " Report is downloaded successfully : " + reportId;
                 CallbackUtil.persistScanLog(jobId, message, LogType.INFO);
@@ -290,9 +290,9 @@ public class QualysScanHandler {
     /**
      * Add authentication script to Qualys Scanner as a web authentication record.
      *
-     * @param host    Qualys url
-     * @param appId   Web application id
-     * @param jobId   Job ID
+     * @param host           Qualys url
+     * @param appId          Web application id
+     * @param jobId          Job ID
      * @param authScriptFile authentication Script File
      * @return Authentication record id
      * @throws ScannerException Error occurred while adding authentication record
@@ -303,8 +303,8 @@ public class QualysScanHandler {
         String authScriptId;
         try {
             //Only one authentication script can be given per single scan.
-            String addAuthRecordRequestBody = RequestBodyBuilder.buildAuthScriptCreationRequest(appId,
-                    authScriptFile.getAbsolutePath());
+            String addAuthRecordRequestBody = RequestBodyBuilder
+                    .buildAuthScriptCreationRequest(appId, authScriptFile.getAbsolutePath());
             response = qualysApiInvoker.invokeAuthenticationRecordCreation(host, addAuthRecordRequestBody);
         } catch (IOException | InterruptedException | TransformerException | ParserConfigurationException e) {
             throw new ScannerException("Error occurred while invoking authentication record creation API : ", e);
@@ -371,7 +371,8 @@ public class QualysScanHandler {
     }
 
     /**
-     * Retrieve Scan status. @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf</a>.
+     * Retrieve Scan status.
+     * @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf">Qualys User Quide</a>
      *
      * @param host           qualys endpoint
      * @param scanId         scan id
@@ -404,7 +405,8 @@ public class QualysScanHandler {
     }
 
     /**
-     * Retrieve scan status. @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf</a>.
+     * Retrieve scan status.
+     * @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf">Qualys User Quide</a>
      *
      * @param host   qualys endpoint
      * @param scanId scan Id
@@ -416,7 +418,8 @@ public class QualysScanHandler {
     }
 
     /**
-     * Retrieve auth status. @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf</a>.
+     * Retrieve auth status.
+     * @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf">Qualys User Quide</a>
      *
      * @param host   qualys endpoint
      * @param scanId scan id
@@ -428,7 +431,8 @@ public class QualysScanHandler {
     }
 
     /**
-     * Retrieve Scan result status. @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf</a>.
+     * Retrieve Scan result status.
+     * @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf">Qualys User Quide</a>
      *
      * @param host   qualys endpoint
      * @param scanId scan id
@@ -443,6 +447,15 @@ public class QualysScanHandler {
         deleteAuthRecord(host, authId, jobId);
     }
 
+    /**
+     * Delete authentication record from qualys scanner.
+     * @see <a href="https://www.qualys.com/docs/qualys-was-api-user-guide.pdf">Qualys User Quide</a>
+     *
+     * @param host Qualys endpoint
+     * @param authId Scan Id
+     * @param jobId Job Id
+     * @throws ScannerException Error occurred while deleting the authentication record
+     */
     private void deleteAuthRecord(String host, String authId, String jobId) throws ScannerException {
         HttpResponse response;
         try {
@@ -543,7 +556,7 @@ public class QualysScanHandler {
     /**
      * Write file
      *
-     * @param response Http response
+     * @param response            Http response
      * @param reportDirectoryPath Report Directory Path
      * @return file path
      * @throws IOException exception occurred while writing file.

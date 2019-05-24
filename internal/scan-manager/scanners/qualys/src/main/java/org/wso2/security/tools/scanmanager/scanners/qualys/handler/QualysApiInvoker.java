@@ -20,12 +20,9 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
-import ch.qos.logback.core.spi.ScanException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Consts;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpResponseException;
@@ -35,32 +32,12 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.HttpStatus;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
-import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This class is responsible to invoke qualys api
@@ -74,7 +51,7 @@ public class QualysApiInvoker {
     //    }
 
     public void setBasicAuth(char[] basicAuth) {
-        this.basicAuth = basicAuth;
+        this.basicAuth = basicAuth.clone();
     }
 
     private char[] basicAuth;
@@ -85,8 +62,9 @@ public class QualysApiInvoker {
      *
      * @param host     host of Qualys Scanner
      * @param webAppId Web Application Id
-     * @return true if application is purged successfully
+     * @return returns http response if response code is 200
      * @throws IOException error occurred while purging the application
+     * @throws InterruptedException error occurred while purging the application
      */
     public HttpResponse invokePurgeScan(String host, String webAppId) throws IOException, InterruptedException {
         String url = host.concat(QualysScannerConstants.QUALYS_PURGE_SCAN_API.concat(webAppId));
@@ -94,12 +72,13 @@ public class QualysApiInvoker {
     }
 
     /**
-     * Invoke Qualys Api
+     * Invoke Qualys Api to cancel scan.
      *
      * @param host   host url
      * @param scanId scanId
-     * @return return true if cancelled
-     * @throws IOException error occurred while cancelling the application
+     * @return returns http response if response code is 200
+     * @throws IOException Error occurred while cancelling the application
+     * @throws InterruptedException Error occurred while cancelling the application
      */
     public HttpResponse inovkeCancelScan(String host, String scanId) throws IOException, InterruptedException {
         String url = host.concat(QualysScannerConstants.QUALYS_CANCEL_SCAN_API).concat(scanId);
@@ -110,9 +89,10 @@ public class QualysApiInvoker {
      * Call the Api to add authentication script in qualys end.
      *
      * @param host                  qualys endpoint
-     * @param authScriptRequestBody addAuthentication script request body.
-     * @return auth script id
+     * @param authScriptRequestBody addAuthentication script request body
+     * @return returns http response if response code is 200
      * @throws IOException Occurred IO exception while calling the api
+     * @throws InterruptedException Occurred IO exception while calling the api.
      */
     public HttpResponse invokeAuthenticationRecordCreation(String host, String authScriptRequestBody)
             throws IOException, InterruptedException {
@@ -126,8 +106,9 @@ public class QualysApiInvoker {
      * @param host                    qualys endpoint
      * @param updateWebAppRequestBody update web app request body.
      * @param webId                   web id
-     * @return web id
+     * @return returns http response if response code is 200
      * @throws IOException Occurred IO exception while calling the api
+     * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse updateWebApp(String host, String updateWebAppRequestBody, String webId)
             throws IOException, InterruptedException {
@@ -140,8 +121,9 @@ public class QualysApiInvoker {
      *
      * @param host                    Qualys endpoint
      * @param createReportRequestBody create report request body
-     * @return report id
+     * @return returns http response if response code is 200
      * @throws IOException Occurred IO exception while calling the api
+     * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeCreateReport(String host, String createReportRequestBody)
             throws IOException, InterruptedException {
@@ -155,7 +137,9 @@ public class QualysApiInvoker {
      *
      * @param host     host ur;
      * @param reportId report Id
+     * @return returns http response if response code is 200
      * @throws IOException Occurred IO exception while calling the api
+     * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeReportDownload(String host, String reportId) throws IOException, InterruptedException {
         String url = host.concat(QualysScannerConstants.QUALYS_REPORT_DOWNLOAD_API.concat(reportId));
@@ -167,8 +151,9 @@ public class QualysApiInvoker {
      *
      * @param host                  qualys endpoint
      * @param launchScanRequestBody launch scan request body.
-     * @return scannerScanId
+     * @return returns http response if response code is 200
      * @throws IOException Occurred IO exception while calling the api
+     * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeScanLaunch(String host, String launchScanRequestBody)
             throws IOException, InterruptedException {
@@ -181,8 +166,9 @@ public class QualysApiInvoker {
      *
      * @param host   qualys endpoint
      * @param scanId scanId
-     * @return Http response
+     * @return returns http response if response code is 200
      * @throws IOException Occurred IO exception while calling the api
+     * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeGetStatus(String host, String scanId) throws IOException, InterruptedException {
         String url = host.concat(QualysScannerConstants.QUALYS_GET_STATUS_API.concat(scanId));
@@ -197,6 +183,7 @@ public class QualysApiInvoker {
      * @param authId authentication script id.
      * @return Http response
      * @throws IOException Occurred IO exception while calling the api
+     * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeAuthRecordDeletion(String host, String authId) throws IOException, InterruptedException {
         String url = host.concat(QualysScannerConstants.QUALYS_DELETE_AUTH_RECORD_API.concat(authId));
@@ -211,6 +198,7 @@ public class QualysApiInvoker {
      * @param requestBody http post request body
      * @return response response of HTTP Post Request
      * @throws IOException Error occurred while processing the http post request
+     * @throws InterruptedException Error occurred while processing the http post request
      */
     private HttpResponse doHttpPost(String url, String requestBody) throws IOException, InterruptedException {
         HttpResponse response;
@@ -232,8 +220,8 @@ public class QualysApiInvoker {
                 || HttpStatus.SERVICE_UNAVAILABLE.value() == responseCode) {
             retryTimeInterval += Long.parseLong(QualysScannerConfiguration.getInstance()
                     .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
-            String logMessage = "Qualys endpoint is not currently available and will retry after " + retryTimeInterval
-                    + " Seconds";
+            String logMessage =
+                    "Qualys endpoint is not currently available and will retry after " + retryTimeInterval + " Seconds";
             log.info(logMessage);
             TimeUnit.MINUTES.sleep(retryTimeInterval);
             doHttpPost(url, requestBody);
@@ -250,6 +238,7 @@ public class QualysApiInvoker {
      * @param url url
      * @return response
      * @throws IOException Error occurred while processing the http post request
+     * @throws InterruptedException Error occurred while processing the http post request
      */
     private HttpResponse doHttpGet(String url) throws IOException, InterruptedException {
         HttpResponse response;

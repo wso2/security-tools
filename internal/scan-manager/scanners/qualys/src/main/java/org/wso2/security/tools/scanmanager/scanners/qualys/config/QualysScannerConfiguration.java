@@ -36,40 +36,12 @@ public class QualysScannerConfiguration extends YAMLConfigurationReader {
         return INSTANCE;
     }
 
-    private static volatile QualysScannerConfiguration instance;
-    private String reportFilePath;
-    private char[] username;
-    private char[] password;
     private long schedulerDelay;
     private String host;
     private String defaultScanType;
     private String defaultProfileId;
     private String defaultScannerAppliance;
     private String defaultProgressiveScanning;
-
-    public String getReportFilePath() {
-        return reportFilePath;
-    }
-
-    public void setReportFilePath(String reportFilePath) {
-        this.reportFilePath = reportFilePath;
-    }
-
-    public char[] getUsername() {
-        return username;
-    }
-
-    public void setUsername(char[] username) {
-        this.username = username;
-    }
-
-    public char[] getPassword() {
-        return password;
-    }
-
-    public void setPassword(char[] password) {
-        this.password = password;
-    }
 
     public String getHost() {
         return host;
