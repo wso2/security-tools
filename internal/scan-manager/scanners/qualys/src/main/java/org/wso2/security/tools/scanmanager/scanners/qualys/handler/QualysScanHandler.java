@@ -443,8 +443,9 @@ public class QualysScanHandler {
         return retrieveStatusByType(host, scanId, QualysScannerConstants.RESULTS_STATUS_TAG);
     }
 
-    public void doCleanUp(String host, String authId, String jobId) throws ScannerException {
-        deleteAuthRecord(host, authId, jobId);
+    public void doCleanUp(ScanContext scanContext) throws ScannerException {
+        deleteAuthRecord(QualysScannerConfiguration.getInstance().getHost(), scanContext.getAuthId(),
+                scanContext.getJobID());
     }
 
     /**

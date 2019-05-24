@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This method handles the report generation part
+ * This method handles the report generation task.
  */
 public class ReportHandler {
 

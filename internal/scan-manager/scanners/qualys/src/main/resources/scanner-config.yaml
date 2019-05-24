@@ -19,16 +19,20 @@ under the License.
 # Qualys Scanner Configuration data
 ---
 
-username :
-password :
-host :
-reportPath :
-schedulerDelay :
-defaultScanType :
-defaultProfileId :
-defaultScannerAppliance :
-defaultProgressiveScanning :
-callback_retry_interval_seconds: 5
-scan_manager_callback_url_endpoint:
-scan_manager_callback_status:
-scan_manager_callback_log:
+username : [Username of Qualys Account]
+password : [Password of Qualys Account]
+host : [URL to Qualys API server. It is depend on the platform where Qualys account is located]
+schedulerDelay : [Time intervel (Min) between each scan check]
+defaultScanType : [Default scan type. Accepted values - VULNERABILTY , DISCOVERY]
+defaultProfileID : [Default profile ID]
+defaultScannerAppliance : [Default Scanner Appliance type. Accepted values - INTERNAL, EXTERNAL]
+defaultProgressiveScanning : [Default value for progressive scan option. Accepted values - DISABLED, ENABLED]
+callback_retry_interval_seconds: [Time interval to retry try call back endpoint]
+scan_report_upload_retry_interval_seconds: [Time interval to retry uploading report task]
+scan_manager_callback_url_endpoint: [Callback endpoint of scan manager]
+scan_manager_callback_status: [Callback endpoint to update status]
+scan_manager_callback_log: [Callback endpoint to persist log]
+ftp_username: [Username of FTP]
+ftp_password: [Password of FTP]]
+ftp_host: [Host of FTP]
+ftp_port: [Port of FTP]

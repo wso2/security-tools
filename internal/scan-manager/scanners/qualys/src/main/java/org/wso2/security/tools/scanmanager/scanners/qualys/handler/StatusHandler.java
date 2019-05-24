@@ -95,7 +95,7 @@ public class StatusHandler {
                 if (!currentScannerStatus.equalsIgnoreCase(status)) {
                     currentScannerStatus = status;
                     // Map qualys scanner status with scan manager status.
-                    ScanStatus tempScanManagerStatus = mapStatus(status, scanContext.getJobID());
+                    ScanStatus tempScanManagerStatus = mapStatus(status);
                     if (currentStatus.compareTo(tempScanManagerStatus) == 0) {
                         currentStatus = tempScanManagerStatus;
                         updateStatus(currentStatus);
@@ -106,11 +106,24 @@ public class StatusHandler {
                         scanContext.getScannerScanId());
                 CallbackUtil.persistScanLog(scanContext.getJobID(), ErrorProcessingUtil.getFullErrorMessage(e),
                         LogType.ERROR);
+                try {
+                    qualysScanHandler.doCleanUp(scanContext);
+                } catch (ScannerException e1) {
+                    String message = "Error occurred while doing the cleanup task. " + scanContext.getJobID()
+                            + ErrorProcessingUtil.getFullErrorMessage(e);
+                    CallbackUtil.persistScanLog(scanContext.getJobID(), message, LogType.ERROR);
+                }
                 scheduler.shutdown();
             }
         }
 
-        private synchronized ScanStatus mapStatus(String status, String jobID) throws ScannerException {
+        /**
+         * Map the Qualys Scanner status with Scan Manager Status.
+         * @param status Qualys Scanner Status
+         * @return Scan Manager Status
+         * @throws ScannerException Error occurred while doing mapping task
+         */
+        private synchronized ScanStatus mapStatus(String status) throws ScannerException {
             Runnable scanRelauncher;
             ScanStatus tempScanStatus = null;
             switch (status) {
@@ -165,6 +178,11 @@ public class StatusHandler {
             return tempScanStatus;
         }
 
+        /**
+         * Update scan status in Scan Manager.
+         * @param scanStatus Scan status of Scan Manager
+         * @throws ScannerException Error occurred while updating the scan status
+         */
         private synchronized void updateStatus(ScanStatus scanStatus) throws ScannerException {
             currentStatus = scanStatus;
             String logMessage;
@@ -203,6 +221,11 @@ public class StatusHandler {
             }
         }
 
+        /**
+         * Retrive whether authentication is succeed or not based on auth status.
+         * @param authStatus authentication status
+         * @return Return true if authentication is successful
+         */
         private synchronized boolean isScanAuthenticationSucceeded(String authStatus) {
             boolean isScanAuthenticationSuccessful = false;
             switch (authStatus) {
@@ -224,6 +247,11 @@ public class StatusHandler {
             return isScanAuthenticationSuccessful;
         }
 
+        /**
+         * Retrive whether result is succeed or not based on result status.
+         * @param resultStatus result status
+         * @return Return true if result is successful
+         */
         private synchronized boolean isResultSucceeded(String resultStatus) {
             boolean isScanSuccessFull = false;
             switch (resultStatus) {
@@ -272,13 +300,22 @@ public class StatusHandler {
      * ReLaunch Scan.
      */
     private final class ScanReLauncher implements Runnable {
-        @Override public void run() {
+        @Override
+        public void run() {
             try {
                 qualysScanHandler.launchScan(scanContext, QualysScannerConfiguration.getInstance().getHost());
             } catch (ScannerException e) {
                 CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null,
                         scanContext.getScannerScanId());
                 CallbackUtil.persistScanLog(scanContext.getJobID(), "Failed to relaunch teh scan", LogType.ERROR);
+            } finally {
+                try {
+                    qualysScanHandler.doCleanUp(scanContext);
+                } catch (ScannerException e) {
+                    String message = "Error occurred while doing the cleanup task. " + scanContext.getJobID()
+                            + ErrorProcessingUtil.getFullErrorMessage(e);
+                    CallbackUtil.persistScanLog(scanContext.getJobID(), message, LogType.ERROR);
+                }
             }
         }
     }

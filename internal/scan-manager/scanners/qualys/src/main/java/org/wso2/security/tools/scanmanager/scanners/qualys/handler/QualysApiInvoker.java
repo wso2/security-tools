@@ -40,22 +40,18 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class is responsible to invoke qualys api
+ * This class is responsible to invoke qualys api.
  */
 public class QualysApiInvoker {
 
     private static final Log log = LogFactory.getLog(QualysApiInvoker.class);
 
-    //    public char[] getBasicAuth() {
-    //        return basicAuth;
-    //    }
+    private char[] basicAuth;
+    Long retryTimeInterval = Long.valueOf(0);
 
     public void setBasicAuth(char[] basicAuth) {
         this.basicAuth = basicAuth.clone();
     }
-
-    private char[] basicAuth;
-    Long retryTimeInterval = Long.valueOf(0);
 
     /**
      * Invoke Qualys API to purge Web Application.
@@ -63,7 +59,7 @@ public class QualysApiInvoker {
      * @param host     host of Qualys Scanner
      * @param webAppId Web Application Id
      * @return returns http response if response code is 200
-     * @throws IOException error occurred while purging the application
+     * @throws IOException          error occurred while purging the application
      * @throws InterruptedException error occurred while purging the application
      */
     public HttpResponse invokePurgeScan(String host, String webAppId) throws IOException, InterruptedException {
@@ -72,12 +68,12 @@ public class QualysApiInvoker {
     }
 
     /**
-     * Invoke Qualys Api to cancel scan.
+     * Invoke Qualys API to cancel scan.
      *
      * @param host   host url
      * @param scanId scanId
      * @return returns http response if response code is 200
-     * @throws IOException Error occurred while cancelling the application
+     * @throws IOException          Error occurred while cancelling the application
      * @throws InterruptedException Error occurred while cancelling the application
      */
     public HttpResponse inovkeCancelScan(String host, String scanId) throws IOException, InterruptedException {
@@ -86,12 +82,12 @@ public class QualysApiInvoker {
     }
 
     /**
-     * Call the Api to add authentication script in qualys end.
+     * Call the API to add authentication script in qualys end.
      *
      * @param host                  qualys endpoint
      * @param authScriptRequestBody addAuthentication script request body
      * @return returns http response if response code is 200
-     * @throws IOException Occurred IO exception while calling the api
+     * @throws IOException          Occurred IO exception while calling the api
      * @throws InterruptedException Occurred IO exception while calling the api.
      */
     public HttpResponse invokeAuthenticationRecordCreation(String host, String authScriptRequestBody)
@@ -101,13 +97,13 @@ public class QualysApiInvoker {
     }
 
     /**
-     * Call the Api to add authentication script to web app.
+     * Call the API to add authentication script to web app.
      *
      * @param host                    qualys endpoint
      * @param updateWebAppRequestBody update web app request body.
      * @param webId                   web id
      * @return returns http response if response code is 200
-     * @throws IOException Occurred IO exception while calling the api
+     * @throws IOException          Occurred IO exception while calling the api
      * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse updateWebApp(String host, String updateWebAppRequestBody, String webId)
@@ -117,12 +113,12 @@ public class QualysApiInvoker {
     }
 
     /**
-     * Call the Api to create scan report
+     * Call the API to create scan report.
      *
      * @param host                    Qualys endpoint
      * @param createReportRequestBody create report request body
      * @return returns http response if response code is 200
-     * @throws IOException Occurred IO exception while calling the api
+     * @throws IOException          Occurred IO exception while calling the api
      * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeCreateReport(String host, String createReportRequestBody)
@@ -133,12 +129,12 @@ public class QualysApiInvoker {
     }
 
     /**
-     * Download Report
+     * Download Report.
      *
      * @param host     host ur;
      * @param reportId report Id
      * @return returns http response if response code is 200
-     * @throws IOException Occurred IO exception while calling the api
+     * @throws IOException          Occurred IO exception while calling the api
      * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeReportDownload(String host, String reportId) throws IOException, InterruptedException {
@@ -152,7 +148,7 @@ public class QualysApiInvoker {
      * @param host                  qualys endpoint
      * @param launchScanRequestBody launch scan request body.
      * @return returns http response if response code is 200
-     * @throws IOException Occurred IO exception while calling the api
+     * @throws IOException          Occurred IO exception while calling the api
      * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeScanLaunch(String host, String launchScanRequestBody)
@@ -167,7 +163,7 @@ public class QualysApiInvoker {
      * @param host   qualys endpoint
      * @param scanId scanId
      * @return returns http response if response code is 200
-     * @throws IOException Occurred IO exception while calling the api
+     * @throws IOException          Occurred IO exception while calling the api
      * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeGetStatus(String host, String scanId) throws IOException, InterruptedException {
@@ -177,12 +173,12 @@ public class QualysApiInvoker {
     }
 
     /**
-     * Invoke authentication record deletion api.
+     * Invoke authentication record deletion API.
      *
      * @param host   qualys end point.
      * @param authId authentication script id.
      * @return Http response
-     * @throws IOException Occurred IO exception while calling the api
+     * @throws IOException          Occurred IO exception while calling the api
      * @throws InterruptedException Occurred IO exception while calling the api
      */
     public HttpResponse invokeAuthRecordDeletion(String host, String authId) throws IOException, InterruptedException {
@@ -197,7 +193,7 @@ public class QualysApiInvoker {
      * @param url         url
      * @param requestBody http post request body
      * @return response response of HTTP Post Request
-     * @throws IOException Error occurred while processing the http post request
+     * @throws IOException          Error occurred while processing the http post request
      * @throws InterruptedException Error occurred while processing the http post request
      */
     private HttpResponse doHttpPost(String url, String requestBody) throws IOException, InterruptedException {
@@ -237,7 +233,7 @@ public class QualysApiInvoker {
      *
      * @param url url
      * @return response
-     * @throws IOException Error occurred while processing the http post request
+     * @throws IOException          Error occurred while processing the http post request
      * @throws InterruptedException Error occurred while processing the http post request
      */
     private HttpResponse doHttpGet(String url) throws IOException, InterruptedException {

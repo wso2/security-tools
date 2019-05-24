@@ -23,7 +23,7 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.config;
 import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
 
 /**
- * Qualys Scanner Specific Configuration
+ * Qualys Scanner Specific Configuration.
  */
 public class QualysScannerConfiguration extends YAMLConfigurationReader {
 

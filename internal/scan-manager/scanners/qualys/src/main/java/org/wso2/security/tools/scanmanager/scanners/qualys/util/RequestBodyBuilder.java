@@ -137,7 +137,7 @@ public class RequestBodyBuilder {
         Element data = doc.createElement(QualysScannerConstants.DATA);
         root.appendChild(data);
 
-        Element webApp = doc.createElement(QualysScannerConstants.QUALYS_WEBAPP_TAG_NAME);
+        Element webApp = doc.createElement(QualysScannerConstants.QUALYS_WEBAPP_KEYWORD);
         data.appendChild(webApp);
 
         Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
@@ -213,10 +213,10 @@ public class RequestBodyBuilder {
         Element target = document.createElement(QualysScannerConstants.TARGET);
         webAppReport.appendChild(target);
 
-        Element webapps = document.createElement(QualysScannerConstants.WEBAPPS_TAG_NAME);
+        Element webapps = document.createElement(QualysScannerConstants.WEBAPPS_KEYWORD);
         target.appendChild(webapps);
 
-        Element webapp = document.createElement(QualysScannerConstants.QUALYS_WEBAPP_TAG_NAME);
+        Element webapp = document.createElement(QualysScannerConstants.QUALYS_WEBAPP_KEYWORD);
         webapps.appendChild(webapp);
 
         Element id = document.createElement(QualysScannerConstants.ID_KEYWORD);
@@ -293,7 +293,7 @@ public class RequestBodyBuilder {
         profileId.appendChild(doc.createTextNode(scanContext.getProfileId()));
         profile.appendChild(profileId);
 
-        Element progressiveScanning = doc.createElement(QualysScannerConstants.PROGRESSIVE_SCANNING);
+        Element progressiveScanning = doc.createElement(QualysScannerConstants.PROGRESSIVE_SCANNING_KEYWORD);
         progressiveScanning.appendChild(doc.createTextNode(scanContext.getProgressiveScanning()));
         wasScan.appendChild(progressiveScanning);
 
