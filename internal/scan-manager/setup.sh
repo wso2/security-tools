@@ -53,7 +53,7 @@ sudo apt install -y nginx
 
 # Setup SFTP
 sudo useradd -m scan-manager-sftp -g sftp
-mkdir -p /home/sftp/scan-manager-sftp
+sudo mkdir -p /home/sftp/scan-manager-sftp
 
 sudo chown root:root /home/sftp
 sudo chown scan-manager-sftp:sftp /home/sftp/scan-manager-sftp
