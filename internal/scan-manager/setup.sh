@@ -14,11 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# ---------------
 # Update Packages
+# ---------------
+
 sudo apt update -y
 sudo apt upgrade -y
 
+# -------------
 # Install MySQL
+# -------------
+
 sudo apt install -y mysql
 
 read -p "Enter Password for MySQL user 'scan-manager-core': "  scan_manager_core_password
@@ -30,7 +36,10 @@ sudo mysql <<END
   FLUSH PRIVILEGES;
 END
 
+# -----------------
 # Install Docker CE
+# -----------------
+
 sudo apt-get install -y apt-transport-https ca-certificates \
     curl gnupg-agent software-properties-common
 
@@ -48,10 +57,14 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 sudo systemctl enable docker
 
+# -------------
 # Install Nginx
+# -------------
 sudo apt install -y nginx
 
+# ----------
 # Setup SFTP
+# ----------
 sudo useradd -m scan-manager-sftp -g sftp
 sudo mkdir -p /home/sftp/scan-manager-sftp
 
@@ -69,15 +82,39 @@ END
 
 sudo service sshd restart
 
+# ---------------------
 # Add Application Users
+# ---------------------
 sudo useradd scan-manager
-sudo useradd scan-manager-scanner
 
+# --------------
 # Setup Firewall
+# --------------
 sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 sudo ufw allow 'Nginx Full'
 sudo ufw allow 'OpenSSH'
+# To be removed after Nginx setup is complete
 sudo ufw allow 8080/tcp
+# Allow access to scan-manager-core from docker containers
+sudo ufw allow in on docker0 to any port 8081 proto tcp
 sudo ufw status verbose
 sudo ufw enable
+
+
+# -----------------------------
+# Install SDKMan, JDK and Maven
+# -----------------------------
+sudo su -
+
+export SDKMAN_DIR="/usr/local/sdkman" && curl -s "https://get.sdkman.io" | bash - 
+
+cat <<END >> /home/scan-manager/.bashrc
+export SDKMAN_DIR="/usr/local/sdkman"
+[[ -s "/usr/local/sdkman/bin/sdkman-init.sh" ]] && source "/usr/local/sdkman/bin/sdkman-init.sh"
+END
+
+sdk install java 8.0.212-amzn
+sdk install maven 3.6.1
+
+exit
