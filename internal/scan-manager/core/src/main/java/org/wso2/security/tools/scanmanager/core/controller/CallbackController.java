@@ -95,7 +95,7 @@ public class CallbackController {
         }
 
         if (scanStatus == null) {
-            throw new InvalidRequestException("parameter scanStatus cannot be found");
+            throw new InvalidRequestException("parameter scan status cannot be found");
         }
         if (scan != null) {
             callbackService.updateScan(scan, scanStatus, scanStatusUpdateRequest.getScannerScanId(),

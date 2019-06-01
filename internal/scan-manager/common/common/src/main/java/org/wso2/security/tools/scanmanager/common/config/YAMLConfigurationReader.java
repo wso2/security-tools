@@ -17,9 +17,10 @@
  */
 package org.wso2.security.tools.scanmanager.common.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -29,18 +30,21 @@ import java.util.Map;
  */
 public class YAMLConfigurationReader implements ConfigurationReader {
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     private Map<String, Object> configObjectMap = null;
 
     /**
      * Load the properties from the property file.
      *
-     * @param configFileLocation Path to configuration file
+     * @param configFile Name of configuration file
      * @throws IOException when the required file is not found
      */
-    public void loadConfiguration(String configFileLocation) throws IOException {
+    public void loadConfiguration(String configFile) throws IOException {
         Yaml yaml = new Yaml();
 
-        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
+        try (InputStream inputStream = resourceLoader.getResource("classpath:" + configFile).getInputStream()) {
             configObjectMap = yaml.load(inputStream);
         }
     }

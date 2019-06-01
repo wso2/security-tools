@@ -25,7 +25,6 @@ import org.wso2.security.tools.scanmanager.common.config.ConfigurationReader;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 
 import java.io.IOException;
-import java.net.URL;
 import javax.annotation.PostConstruct;
 
 /**
@@ -44,9 +43,7 @@ public class StartUpInit {
     @PostConstruct
     public void init() {
         try {
-            URL configURL = ScanManagerWebappConfiguration.class.getClassLoader()
-                    .getResource(SCAN_MANAGER_CONFIG_FILE);
-            configurationReader.loadConfiguration(configURL.getPath());
+            configurationReader.loadConfiguration(SCAN_MANAGER_CONFIG_FILE);
             ScanManagerWebappConfiguration.getInstance().init(configurationReader.getConfigs());
         } catch (ScanManagerWebappException | IOException e) {
             logger.error("Error occurred while initializing", e);

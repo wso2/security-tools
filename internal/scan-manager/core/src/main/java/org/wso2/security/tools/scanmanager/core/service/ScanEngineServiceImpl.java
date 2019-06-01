@@ -72,6 +72,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     private static final String JOB_ID_PARAMETER_NAME = "jobId";
     private static final String SCANNER_APP_ID_PARAMETER_NAME = "appId";
     private static final String SCANNER_SCAN_ENDPOINT = "/scanner/scan";
+    private static final Integer SCANNER_SERVICE_WAIT_TIME = 10000;
 
     @Autowired
     public ScanEngineServiceImpl(ScanService scanService, ScannerService scannerService, LogService logService,
@@ -251,9 +252,12 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             logService.insert(scan, LogType.INFO,
                     "Scanner container started. Container id: " + containerInfo.getId());
 
+            // Sleep till the scanner service is started.
+            Thread.sleep(SCANNER_SERVICE_WAIT_TIME);
+
             // Send the start scan request to the scanner container.
             sendStartScanRequest(containerInfo, scannerApp, scan);
-        } catch (ScanManagerException e) {
+        } catch (InterruptedException | ScanManagerException e) {
             logService.insertError(scan, e);
             if (containerInfo != null) {
                 dockerHandler.clean(containerInfo.getId());
@@ -302,7 +306,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                 new String[]{CONTAINER_ENV_NAME_SCAN_MANAGER_HOST + "=" + ScanManagerConfiguration.getInstance()
                         .getScanManagerHost(), CONTAINER_ENV_NAME_SCAN_MANAGER_PORT + "=" + ScanManagerConfiguration
                         .getInstance().getScanManagerPort()};
-        return dockerHandler.create(scannerApp.getScanner().getImage(),
-                containerHost, containerPort, labels, new ArrayList<>(), envVariables);
+        return dockerHandler.create(scannerApp.getScanner().getImage(), containerHost, containerPort, labels,
+                new ArrayList<>(), envVariables);
     }
 }

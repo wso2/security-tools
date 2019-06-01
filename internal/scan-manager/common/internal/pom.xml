@@ -42,6 +42,11 @@
             <artifactId>scan-manager-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${com.fasterxml.jackson.core.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -66,5 +71,9 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
+    </properties>
 
 </project>

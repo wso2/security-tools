@@ -18,6 +18,7 @@
 
 scanManagerHost:
 scanManagerPort:
+scanManagerBasePath:
 
 ftpHost:
 ftpPort:
