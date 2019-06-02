@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 # WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,27 +14,18 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# ---------------------------------------------------------------
-# --------------- Startup Script for Scan Manager ---------------
-# ---------------------------------------------------------------
+FROM openjdk:8-jre-alpine
+RUN adduser -D scan-manager-scanner -h /scan-manager-scanner && \
+    chmod 755 /scan-manager-scanner
 
-PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
-cd ${PARENT_PATH}
+WORKDIR /scan-manager-scanner
+USER scan-manager-scanner
 
-echo "Building Scan Manager"
+# copy scanner distribution into image
+COPY ../target/scan-manager-scanners-veracode.zip .
+RUN unzip scan-manager-scanners-veracode.zip
 
-cd ../
-mvn clean install
-
-echo "Building Scanner Images"
-docker build --no-cache -t veracode scanners/veracode/docker/
-
-echo "Starting Scan Manager"
-
-cd core
-nohup mvn tomcat7:run &
-cd -
-
-cd webapp
-nohup java -jar target/scan-manager-webapp.war &
-cd -
+WORKDIR /scan-manager-scanner/scan-manager-scanners-veracode/bin
+RUN mkdir -p out
+RUN mkdir -p scanArtifacts
+CMD ["sh", "scanner-startup.sh"]

@@ -17,26 +17,9 @@
 # under the License.
 
 # ---------------------------------------------------------------
-# --------------- Startup Script for Scan Manager ---------------
+# ---------- Startup Script for Scan Manager - Scanner ----------
 # ---------------------------------------------------------------
 
-PARENT_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P)
-cd ${PARENT_PATH}
-
-echo "Building Scan Manager"
-
-cd ../
-mvn clean install
-
-echo "Building Scanner Images"
-docker build --no-cache -t veracode scanners/veracode/docker/
-
-echo "Starting Scan Manager"
-
-cd core
-nohup mvn tomcat7:run &
-cd -
-
-cd webapp
-nohup java -jar target/scan-manager-webapp.war &
-cd -
+ CLASS_PATH=`ls -d ../lib/*.jar|tr '\n' ':'`
+ CLASS_PATH=`echo ${CLASS_PATH} | tr -d ' '`
+ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -cp "$CLASS_PATH" org.springframework.boot.loader.JarLauncher

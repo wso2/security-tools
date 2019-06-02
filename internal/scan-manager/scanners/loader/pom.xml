@@ -31,65 +31,44 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.security.tools.scanmanager</groupId>
-    <artifactId>scan-manager-scanners-common</artifactId>
+    <artifactId>scan-manager-scanners-loader</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>Scan Manager - Scanner - Common</name>
+    <name>Scan Manager - Scanner - Loader</name>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>${org.springframework.boot.version}</version>
+            <version>${org.springframework.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${org.springframework.boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>scan-manager-common</artifactId>
-            <version>${scanmanager.common.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.security.tools.scanmanager</groupId>
-            <artifactId>scan-manager-common-internal</artifactId>
-            <version>${scanmanager.common.internal.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${org.apache.httpcomponents.httpclient.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>${com.jcraft.jsch.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>${org.wso2.orbit.xerces.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>${org.apache.commons.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${com.google.code.gson.version}</version>
+            <version>${org.springframework.version}</version>
         </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${org.springframework.version}</version>
+                <configuration>
+                    <fork>true</fork>
+                    <mainClass>org.wso2.security.tools.scanmanager.scanners.loader.ScannerLoader</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -111,7 +90,7 @@
         </plugins>
     </build>
     <properties>
-        <org.springframework.boot.version>1.5.6.RELEASE</org.springframework.boot.version>
+        <org.springframework.version>1.5.6.RELEASE</org.springframework.version>
         <log4j.version>1.2.17</log4j.version>
         <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
         <org.wso2.orbit.xerces.version>2.12.0.wso2v1</org.wso2.orbit.xerces.version>

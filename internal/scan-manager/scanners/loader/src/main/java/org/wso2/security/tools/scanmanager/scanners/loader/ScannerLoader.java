@@ -16,18 +16,21 @@
  *  under the License.
  */
 
-package org.wso2.security.tools.scanmanager.scanners.common;
+package org.wso2.security.tools.scanmanager.scanners.loader;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Represent the Scanner micro-service application.
  */
 @SpringBootApplication
-public class App {
+@ComponentScan(basePackages = {
+        "org.wso2.security.tools.scanmanager"})
+public class ScannerLoader {
 
     public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
+        SpringApplication.run(ScannerLoader.class, args);
     }
 }

@@ -80,6 +80,7 @@
                 <module>core</module>
                 <module>webapp</module>
 
+                <module>scanners/loader</module>
                 <module>scanners/common</module>
                 <module>scanners/veracode</module>
             </modules>
