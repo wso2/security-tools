@@ -22,7 +22,7 @@ WORKDIR /scan-manager-scanner
 USER scan-manager-scanner
 
 # copy scanner distribution into image
-COPY ../target/scan-manager-scanners-veracode.zip .
+COPY target/scan-manager-scanners-veracode.zip .
 RUN unzip scan-manager-scanners-veracode.zip
 
 WORKDIR /scan-manager-scanner/scan-manager-scanners-veracode/bin
