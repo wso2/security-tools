@@ -42,7 +42,10 @@ import org.wso2.security.tools.scanmanager.scanners.veracode.util.VeracodeAPIUti
 import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +53,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+
+import static org.wso2.security.tools.scanmanager.scanners.veracode.VeracodeScannerConstants.JAR_FILTER_FILE;
 
 /**
  * Represents the scan handling tasks.
@@ -285,7 +290,7 @@ public class ScanTask implements Runnable {
                 ParserConfigurationException e) {
             String logMessage = "Error occured while creating the scan zip artifact for application : " + scanContext
                     .getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(logMessage);
+            log.error(e);
             CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
 
             CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
@@ -347,8 +352,20 @@ public class ScanTask implements Runnable {
             ParserConfigurationException {
         File dir = new File(filePath);
         File[] files = dir.listFiles();
-        File patternXmlFile = new File(VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                VeracodeScannerConstants.JAR_FILTER_PATTERN_FILE_PATH));
+        File patternXmlFile = new File(JAR_FILTER_FILE);
+
+        try (InputStream input = VeracodeScannerConfiguration.class.getClassLoader()
+                .getResourceAsStream(JAR_FILTER_FILE);
+             OutputStream out = new FileOutputStream(patternXmlFile)) {
+            int read;
+            byte[] bytes = new byte[1024];
+
+            while ((read = input.read(bytes)) != -1) {
+                out.write(bytes, 0, read);
+            }
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
         NodeList nodeList = getScanArtifactPatternList(patternXmlFile);
 
         if (files != null) {
@@ -553,7 +570,7 @@ public class ScanTask implements Runnable {
                 boolean isReportDownloaded = getReports();
                 if (isReportDownloaded) {
                     FileUtil.zipFiles(reportPath, reportPath + ScannerConstants.ZIP_FILE_EXTENSION);
-                    if (uploadReportToFtp(scanArtifact, reportPath)) {
+                    if (uploadReportToFtp(scanArtifact, reportPath + ScannerConstants.ZIP_FILE_EXTENSION)) {
                         isReportUploaded = true;
                     }
                 } else {
@@ -564,7 +581,7 @@ public class ScanTask implements Runnable {
                 }
             }
         } catch (InterruptedException | XPathExpressionException | ParserConfigurationException | SAXException |
-                IOException | ArchiveException | ScannerException e) {
+                        IOException | ArchiveException | ScannerException e) {
             String logMessage;
             if (e.getClass().isInstance(ScannerException.class)) {
                 logMessage = "Extracting scan report zip is failed for the application: " + scanContext.getAppId()
@@ -591,17 +608,19 @@ public class ScanTask implements Runnable {
         boolean isReportUploaded = false;
         String scanReportFtpLocation = scanArtifact.substring(0, scanArtifact.lastIndexOf(File.separator));
 
+        File reports = new File(reportPath);
         try {
-            FileUtil.uploadReport(scanReportFtpLocation, new File(reportPath),
+            FileUtil.uploadReport(scanReportFtpLocation, reports,
                     VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
                     (VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
                             .toCharArray(), VeracodeScannerConfiguration.getInstance().getConfigProperty(
                             ScannerConstants.FTP_HOST), Integer.parseInt(VeracodeScannerConfiguration.getInstance()
                             .getConfigProperty(ScannerConstants.FTP_PORT)));
 
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.COMPLETED, scanReportFtpLocation, null);
             isReportUploaded = true;
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.COMPLETED, scanReportFtpLocation, null);
+            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.COMPLETED,
+                    scanReportFtpLocation + File.separator + reports.getName(),
+                    null);
 
             String logMessage = "Scan report is uploaded to the FTP server for the application: " +
                     scanContext.getAppId();

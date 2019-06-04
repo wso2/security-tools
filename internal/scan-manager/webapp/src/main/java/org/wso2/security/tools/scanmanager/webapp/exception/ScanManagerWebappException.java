@@ -18,21 +18,19 @@
 package org.wso2.security.tools.scanmanager.webapp.exception;
 
 /**
- * The class {@code ScanManagerWebappException} extends {@link Exception}, is the general scan manager webapp exception
- * for all operations dealing with scan manager webapp.
+ * This is the general scan manager webapp exception for all operations dealing with scan manager webapp.
  */
 public class ScanManagerWebappException extends Exception {
 
     /**
-     * Constructs a new runtime exception with {@code null} as its
-     * detail message.
+     * Constructs a new exception.
      */
     public ScanManagerWebappException() {
         super();
     }
 
     /**
-     * Constructs a new runtime exception with the specified detail message.
+     * Constructs a new exception with the specified detail message.
      *
      * @param message Message for the exception
      */
@@ -41,8 +39,11 @@ public class ScanManagerWebappException extends Exception {
     }
 
     /**
-     * Constructs a new runtime exception with the specified detail message and
+     * Constructs a new exception with the specified detail message and
      * cause.
+     *
+     * @param message Message for the exception
+     * @param e throwable object
      */
     public ScanManagerWebappException(String message, Throwable e) {
         super(message, e);

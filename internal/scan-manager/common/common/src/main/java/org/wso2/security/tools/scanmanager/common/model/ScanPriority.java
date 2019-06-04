@@ -31,7 +31,27 @@ public enum ScanPriority {
         this.value = value;
     }
 
+    /**
+     * Get value of a enum.
+     *
+     * @return value of the enum
+     */
     public int getValue() {
         return value;
+    }
+
+    /**
+     * Get the enum by value.
+     *
+     * @param value value of the enum
+     * @return enum with the requested value
+     */
+    public static ScanPriority getEnumByValue(int value) {
+        for (ScanPriority scanPriority : ScanPriority.values()) {
+            if (scanPriority.value == value) {
+                return scanPriority;
+            }
+        }
+        return null;
     }
 }

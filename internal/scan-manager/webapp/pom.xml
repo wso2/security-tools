@@ -97,6 +97,61 @@
             <artifactId>httpmime</artifactId>
             <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>scan-manager-common</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.security.tools.scanmanager</groupId>
+            <artifactId>scan-manager-common-external</artifactId>
+            <version>${org.wso2.security.tools.scanmanager.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons.net.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${com.jcraft.jsch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <version>${spring.mock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.owasp.encoder</groupId>
+            <artifactId>encoder-jsp</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -117,6 +172,88 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <quiet>true</quiet>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarnings>true</failOnWarnings>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-bootstrap-files</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <get src="https://github.com/mdbootstrap/bootstrap-material-design/archive/${md-bootstrap.version}.zip"
+                                     dest="${project.build.directory}/bootstrap/"
+                                     verbose="false"
+                                     usetimestamp="true"/>
+                                <unzip src="${project.build.directory}/bootstrap" dest="${project.build.directory}"/>
+                                <copy todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/js">
+                                    <fileset
+                                            dir="${project.build.directory}/bootstrap-material-design-${md-bootstrap.version}/js">
+                                    </fileset>
+                                </copy>
+                                <copy todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/css">
+                                    <fileset
+                                            dir="${project.build.directory}/bootstrap-material-design-${md-bootstrap.version}/css">
+                                    </fileset>
+                                </copy>
+                                <copy todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/font">
+                                    <fileset
+                                            dir="${project.build.directory}/bootstrap-material-design-${md-bootstrap.version}/font">
+                                    </fileset>
+                                </copy>
+                                <copy todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/img">
+                                    <fileset
+                                            dir="${project.build.directory}/bootstrap-material-design-${md-bootstrap.version}/img">
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/resources/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.parent.basedir}/src/main/resources/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -130,6 +267,15 @@
         <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
         <tomcat.version>8.5.16</tomcat.version>
         <javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
+        <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
+        </org.wso2.security.tools.scanmanager.common.version>
+        <commons.net.version>3.6</commons.net.version>
+        <commons.lang.version>3.9</commons.lang.version>
+        <com.jcraft.jsch.version>0.1.55</com.jcraft.jsch.version>
+        <commons.io.version>2.6</commons.io.version>
+        <spring.mock.version>2.0.8</spring.mock.version>
+        <md-bootstrap.version>4.8.1</md-bootstrap.version>
+        <antrun-plugin.version>1.8</antrun-plugin.version>
     </properties>
 
 </project>

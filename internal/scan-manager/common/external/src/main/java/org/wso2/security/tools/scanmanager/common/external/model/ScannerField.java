@@ -54,21 +54,30 @@ public class ScannerField {
     @Column(name = "FIELD_NAME")
     private String displayName;
 
+    @Column(name = "FIELD_DESCRIPTION")
+    private String description;
+
     @Column(name = "FIELD_TYPE")
     private String type;
 
-    @Column(name = "HAS_DEFAULT")
-    private boolean hasDefault;
+    @Column(name = "FIELD_ORDER")
+    private Integer order;
+
+    @Column(name = "IS_REQUIRED")
+    private boolean isRequired;
 
     public ScannerField() {
     }
 
-    public ScannerField(String fieldId, Scanner scanner, String displayName, String type, boolean hasDefault) {
+    public ScannerField(String fieldId, Scanner scanner, String displayName, String description, String type,
+                        Integer order, boolean isRequired) {
         this.fieldId = fieldId;
         this.scanner = scanner;
         this.displayName = displayName;
+        this.description = description;
         this.type = type;
-        this.hasDefault = hasDefault;
+        this.order = order;
+        this.isRequired = isRequired;
     }
 
     public Integer getId() {
@@ -77,14 +86,6 @@ public class ScannerField {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public boolean getHasDefault() {
-        return hasDefault;
-    }
-
-    public void setHasDefault(boolean hasDefault) {
-        this.hasDefault = hasDefault;
     }
 
     public Scanner getScanner() {
@@ -111,11 +112,35 @@ public class ScannerField {
         this.displayName = displayName;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
+    public boolean isRequired() {
+        return isRequired;
+    }
+
+    public void setRequired(boolean required) {
+        isRequired = required;
     }
 }

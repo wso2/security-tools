@@ -106,6 +106,6 @@ public class LogServiceImpl implements LogService {
         if (e.getCause() == null) {
             return e.getMessage();
         }
-        return e.getMessage() + "\n\nCaused by: " + getFullErrorMessage(e.getCause());
+        return e.getMessage() + ".\n\nCaused by: " + getFullErrorMessage(e.getCause());
     }
 }

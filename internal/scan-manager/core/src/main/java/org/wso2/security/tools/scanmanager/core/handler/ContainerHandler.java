@@ -31,7 +31,7 @@ public interface ContainerHandler {
     /**
      * Create a container.
      *
-     * @param imageName            container image
+     * @param imageName            Container image
      * @param ipAddress            IP address to bind
      * @param containerPort        Container port to bind to a host port
      * @param labels               Container labels

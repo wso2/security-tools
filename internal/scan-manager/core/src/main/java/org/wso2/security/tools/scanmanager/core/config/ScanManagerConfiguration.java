@@ -59,23 +59,28 @@ public class ScanManagerConfiguration {
      * @throws ScanManagerException when the required configurations are not found
      */
     public void initScanConfiguration(Map<String, Object> configObjectMap) throws ScanManagerException {
-        if (configObjectMap.get(SCAN_MANAGER_HOST_KEY) != null) {
-            this.scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
+        String scanManagerHost = (String) configObjectMap.get(SCAN_MANAGER_HOST_KEY);
+        Integer scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
+        String scannerServiceHost = (String) configObjectMap.get(SCANNER_SERVICE_HOST_KEY);
+        Integer scannerServicePort = (Integer) configObjectMap.get(SCANNER_SERVICE_PORT_KEY);
+
+        if (scanManagerHost != null) {
+            this.scanManagerHost = scanManagerHost;
         } else {
             throw new ScanManagerException("Unable to find scan manager host configuration");
         }
-        if (configObjectMap.get(SCAN_MANAGER_PORT_KEY) != null) {
-            this.scanManagerPort = (Integer) configObjectMap.get(SCAN_MANAGER_PORT_KEY);
+        if (scanManagerPort != null) {
+            this.scanManagerPort = scanManagerPort;
         } else {
             throw new ScanManagerException("Unable to find scan manager port configuration");
         }
-        if (configObjectMap.get(SCANNER_SERVICE_HOST_KEY) != null) {
-            this.scannerServiceHost = (String) configObjectMap.get(SCANNER_SERVICE_HOST_KEY);
+        if (scannerServiceHost != null) {
+            this.scannerServiceHost = scannerServiceHost;
         } else {
             throw new ScanManagerException("Unable to find scaner service host configuration");
         }
-        if (configObjectMap.get(SCANNER_SERVICE_PORT_KEY) != null) {
-            this.scannerServicePort = (Integer) configObjectMap.get(SCANNER_SERVICE_PORT_KEY);
+        if (scannerServicePort != null) {
+            this.scannerServicePort = scannerServicePort;
         } else {
             throw new ScanManagerException("Unable to find scaner service port configuration");
         }

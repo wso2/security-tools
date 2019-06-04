@@ -20,16 +20,18 @@ package org.wso2.security.tools.scanmanager.common.external.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.wso2.security.tools.scanmanager.common.model.ScannerType;
 
-import java.util.Set;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 /**
@@ -53,21 +55,24 @@ public class Scanner {
     @Column(name = "SCANNER_IMAGE")
     private String image;
 
-    @OneToMany(mappedBy = "scanner", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "scanner")
     @Cascade(CascadeType.ALL)
     @JsonManagedReference
-    private Set<ScannerField> fields;
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OrderBy("order ASC")
+    private List<ScannerField> fields;
 
-    @OneToMany(mappedBy = "scanner", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "scanner")
     @Cascade(CascadeType.ALL)
     @JsonManagedReference
-    private Set<ScannerApp> apps;
+    @LazyCollection(LazyCollectionOption.FALSE)
+    private List<ScannerApp> apps;
 
     public Scanner() {
     }
 
-    public Scanner(String id, String name, ScannerType type, String image, Set<ScannerField> fields,
-                   Set<ScannerApp> apps) {
+    public Scanner(String id, String name, ScannerType type, String image, List<ScannerField> fields,
+                   List<ScannerApp> apps) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -80,19 +85,19 @@ public class Scanner {
         this.id = id;
     }
 
-    public Set<ScannerField> getFields() {
+    public List<ScannerField> getFields() {
         return fields;
     }
 
-    public void setFields(Set<ScannerField> fields) {
+    public void setFields(List<ScannerField> fields) {
         this.fields = fields;
     }
 
-    public Set<ScannerApp> getApps() {
+    public List<ScannerApp> getApps() {
         return apps;
     }
 
-    public void setApps(Set<ScannerApp> apps) {
+    public void setApps(List<ScannerApp> apps) {
         this.apps = apps;
     }
 

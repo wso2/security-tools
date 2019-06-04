@@ -18,22 +18,32 @@
 package org.wso2.security.tools.scanmanager.webapp.controller;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller class to display errors.
  */
-@RestController
+@Controller
 public class CustomErrorController implements ErrorController {
 
     private static final String PATH = "/error";
 
+    /**
+     * Default error controller method.
+     *
+     * @return an error view
+     */
     @RequestMapping(value = PATH)
     public String error() {
-        return "Error";
+        return "error_page";
     }
 
+    /**
+     * Get the error path.
+     *
+     * @return the error path
+     */
     @Override
     public String getErrorPath() {
         return PATH;

@@ -17,21 +17,17 @@
  */
 package org.wso2.security.tools.scanmanager.scanners.common.util;
 
-import com.google.gson.Gson;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
-import org.wso2.security.tools.scanmanager.common.internal.model.ScanLogRequest;
-import org.wso2.security.tools.scanmanager.common.internal.model.ScanStatusUpdateRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
+import org.wso2.security.tools.scanmanager.common.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
-import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
+import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,7 +39,6 @@ public class CallbackUtil {
     private static String scanManagerLogCallbackURL;
     private static String scanManagerStatusCallbackURL;
     private static Long retryTimeInterval = Long.valueOf(0);
-
 
     public static void setCallbackUrls(String scanManagerLogCallbackURL, String scanManagerStatusCallbackURL,
                                        Long retryTimeInterval) {
@@ -76,23 +71,21 @@ public class CallbackUtil {
     public static void updateScanStatus(String jobId, ScanStatus scanStatus, String reportPath, String scannerScanId,
                                         Long statusUpdateRetryTimeInterval) {
         int responseCode = -1;
-        ScanStatusUpdateRequest scanStatusUpdateRequest = new ScanStatusUpdateRequest();
-        Gson gson = new Gson();
-        StringEntity postingString;
+        Map<String, Object> requestParams = new HashMap<>();
+        requestParams.put("jobId", jobId);
+        requestParams.put("scanStatus", scanStatus.name());
 
-        scanStatusUpdateRequest.setJobId(jobId);
-        scanStatusUpdateRequest.setScanStatus(scanStatus);
         if (scanStatus.equals(ScanStatus.COMPLETED)) {
-            scanStatusUpdateRequest.setScanReportPath(reportPath);
+            requestParams.put("scanReportPath", reportPath);
         }
-        if (!scannerScanId.isEmpty()) {
-            scanStatusUpdateRequest.setScannerScanId(scannerScanId);
+        if (scannerScanId != null && !scannerScanId.isEmpty()) {
+            requestParams.put("scannerScanId", scannerScanId);
         }
 
         try {
-            postingString = new StringEntity(gson.toJson(scanStatusUpdateRequest));
-            responseCode = doHttpPost(scanManagerStatusCallbackURL, postingString);
-        } catch (IOException e) {
+            HTTPRequest scanUpdateRequest = new HTTPRequest(scanManagerStatusCallbackURL, null, requestParams);
+            responseCode = HTTPUtil.sendPOST(scanUpdateRequest).getStatusCode().value();
+        } catch (RestClientException e) {
             log.error(e);
         }
 
@@ -136,18 +129,16 @@ public class CallbackUtil {
      */
     public static void persistScanLog(String jobId, String message, LogType type, Long logUpdateRetryTimeInterval) {
         int responseCode = -1;
-        ScanLogRequest scanLogRequest = new ScanLogRequest();
-        Gson gson = new Gson();
-        StringEntity postingString;
-
-        scanLogRequest.setJobId(jobId);
-        scanLogRequest.setMessage(message);
-        scanLogRequest.setType(type);
-
         try {
-            postingString = new StringEntity(gson.toJson(scanLogRequest));
-            responseCode = doHttpPost(scanManagerLogCallbackURL, postingString);
-        } catch (IOException e) {
+            Map<String, Object> requestParams = new HashMap<>();
+            requestParams.put("jobId", jobId);
+            requestParams.put("message", message);
+            requestParams.put("type", type);
+            requestParams.put("timestamp", System.currentTimeMillis());
+            HTTPRequest persistLogRequest = new HTTPRequest(scanManagerLogCallbackURL, null, requestParams);
+            ResponseEntity logResponse = HTTPUtil.sendPOST(persistLogRequest);
+            responseCode = logResponse.getStatusCode().value();
+        } catch (RestClientException e) {
             log.error(e);
         }
 
@@ -169,28 +160,5 @@ public class CallbackUtil {
         } else {
             log.warn("Callback log persistence failed with the response code : " + responseCode);
         }
-    }
-
-    /**
-     * Does a http post request.
-     *
-     * @param urlString  url to do the http request
-     * @param bodyEntity parameter set for the http request
-     * @return the response code of the http request response
-     * @throws IOException
-     */
-    private static int doHttpPost(String urlString, StringEntity bodyEntity) throws IOException {
-        int responseCode;
-
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpPost post = new HttpPost(urlString);
-
-        post.setEntity(bodyEntity);
-        post.setHeader(ScannerConstants.CONTENT_TYPE, ScannerConstants.APPLICATION_JSON);
-
-        HttpResponse response = client.execute(post);
-        responseCode = response.getStatusLine().getStatusCode();
-
-        return responseCode;
     }
 }

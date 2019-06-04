@@ -29,15 +29,15 @@ import org.wso2.security.tools.scanmanager.common.external.model.ScanFile;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanProperty;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.common.external.model.ScannerApp;
+import org.wso2.security.tools.scanmanager.common.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
+import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 import org.wso2.security.tools.scanmanager.core.config.ScanManagerConfiguration;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.handler.ContainerHandler;
 import org.wso2.security.tools.scanmanager.core.model.Container;
-import org.wso2.security.tools.scanmanager.core.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.core.util.Constants;
-import org.wso2.security.tools.scanmanager.core.util.HTTPUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,6 +72,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     private static final String JOB_ID_PARAMETER_NAME = "jobId";
     private static final String SCANNER_APP_ID_PARAMETER_NAME = "appId";
     private static final String SCANNER_SCAN_ENDPOINT = "/scanner/scan";
+    private static final Integer SCANNER_SERVICE_WAIT_TIME = 10000;
 
     @Autowired
     public ScanEngineServiceImpl(ScanService scanService, ScannerService scannerService, LogService logService,
@@ -131,6 +132,11 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                     }
                 } catch (ScanManagerException e) {
                     logService.insertError(newScanObject, e);
+                    try {
+                        scanService.updateStatus(newScanObject.getJobId(), ScanStatus.ERROR);
+                    } catch (ScanManagerException scanUpdateException) {
+                        logService.insertError(newScanObject, scanUpdateException);
+                    }
                 }
             }
         }
@@ -155,38 +161,46 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             if (newScanObject.getStatus() == ScanStatus.SUBMIT_PENDING ||
                     newScanObject.getStatus() == ScanStatus.SUBMITTED ||
                     newScanObject.getStatus() == ScanStatus.RUNNING) {
-                List<Container> containerInfos = dockerHandler.list();
-                boolean isContainerFound = false;
-                for (Container containerInfo : containerInfos) {
-                    Map<String, String> labels = containerInfo.getLabels();
-                    if (labels != null && labels.containsKey(CONTAINER_SCAN_JOB_ID_LABEL_NAME) &&
-                            labels.get(CONTAINER_SCAN_JOB_ID_LABEL_NAME).equals(scan.getJobId())) {
-                        isContainerFound = true;
+                try {
+                    List<Container> containerInfos = dockerHandler.list();
+                    boolean isContainerFound = false;
+                    for (Container containerInfo : containerInfos) {
+                        Map<String, String> labels = containerInfo.getLabels();
+                        if (labels != null && labels.containsKey(CONTAINER_SCAN_JOB_ID_LABEL_NAME) &&
+                                labels.get(CONTAINER_SCAN_JOB_ID_LABEL_NAME).equals(scan.getJobId())) {
+                            isContainerFound = true;
 
-                        // A container is running for this particular scan. Hence we need to send a cancel scan
-                        // request to the container.
-                        URI uri = buildScannerScanURI(containerInfo);
-                        Map<String, Object> requestParams = new HashMap<>();
-                        requestParams.put(JOB_ID_PARAMETER_NAME, scan.getJobId());
-                        requestParams.put(SCANNER_APP_ID_PARAMETER_NAME, labels.get(CONTAINER_APP_LABEL_NAME));
-                        MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
-                        HTTPRequest scanCancelRequest = new HTTPRequest(uri.toString(), requestHeaders, requestParams);
-                        ResponseEntity response = HTTPUtil.sendDelete(scanCancelRequest);
-                        if (response.getStatusCode().isError()) {
-                            throw new ScanManagerException("Unable to submit the cancel scan request");
+                            // A container is running for this particular scan. Hence we need to send a cancel scan
+                            // request to the container.
+                            URI uri = buildScannerScanURI(containerInfo);
+                            Map<String, Object> requestParams = new HashMap<>();
+                            requestParams.put(JOB_ID_PARAMETER_NAME, scan.getJobId());
+                            requestParams.put(SCANNER_APP_ID_PARAMETER_NAME, labels.get(CONTAINER_APP_LABEL_NAME));
+                            MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
+                            HTTPRequest scanCancelRequest = new HTTPRequest(uri.toString(), requestHeaders,
+                                    requestParams);
+                            ResponseEntity response = HTTPUtil.sendDelete(scanCancelRequest);
+                            if (response.getStatusCode().isError()) {
+                                throw new ScanManagerException("Unable to submit the cancel scan request");
+                            }
+
+                            // Cannot update the status to canceled from here as the scanner microservice needs to
+                            // conduct the actual scan cancellation and update the status as cancelled. Hence,
+                            // updating the status to cancel pending.
+                            scanService.updateStatus(scan.getJobId(), ScanStatus.CANCEL_PENDING);
+                            logService.insert(newScanObject, LogType.INFO, "Cancel scan request submitted");
+                            break;
                         }
-
-                        // Cannot update the status to canceled from here as the scanner microservice needs to conduct
-                        // the actual scan cancellation and update the status as cancelled. Hence, updating the status
-                        // to cancel pending.
-                        scanService.updateStatus(scan.getJobId(), ScanStatus.CANCEL_PENDING);
-                        break;
                     }
-                }
-                if (!isContainerFound) {
+                    if (!isContainerFound) {
 
-                    // No container has been found for this scan. Hence, we can change the status to canceled.
-                    scanService.updateStatus(scan.getJobId(), ScanStatus.CANCELED);
+                        // No container has been found for this scan. Hence, we can change the status to canceled.
+                        scanService.updateStatus(scan.getJobId(), ScanStatus.CANCELED);
+                        logService.insert(newScanObject, LogType.INFO, "Scan cancelled");
+                    }
+                } catch (RestClientException | ScanManagerException e) {
+                    logService.insertError(newScanObject, e);
+                    throw new ScanManagerException("Error occurred while cancelling the scan", e);
                 }
             }
         }
@@ -238,9 +252,12 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             logService.insert(scan, LogType.INFO,
                     "Scanner container started. Container id: " + containerInfo.getId());
 
+            // Sleep till the scanner service is started.
+            Thread.sleep(SCANNER_SERVICE_WAIT_TIME);
+
             // Send the start scan request to the scanner container.
             sendStartScanRequest(containerInfo, scannerApp, scan);
-        } catch (ScanManagerException e) {
+        } catch (InterruptedException | ScanManagerException e) {
             logService.insertError(scan, e);
             if (containerInfo != null) {
                 dockerHandler.clean(containerInfo.getId());
@@ -289,7 +306,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                 new String[]{CONTAINER_ENV_NAME_SCAN_MANAGER_HOST + "=" + ScanManagerConfiguration.getInstance()
                         .getScanManagerHost(), CONTAINER_ENV_NAME_SCAN_MANAGER_PORT + "=" + ScanManagerConfiguration
                         .getInstance().getScanManagerPort()};
-        return dockerHandler.create(scannerApp.getScanner().getImage(),
-                containerHost, containerPort, labels, new ArrayList<>(), envVariables);
+        return dockerHandler.create(scannerApp.getScanner().getImage(), containerHost, containerPort, labels,
+                new ArrayList<>(), envVariables);
     }
 }
