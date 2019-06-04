@@ -29,7 +29,9 @@ cd ../
 mvn clean install
 
 echo "Building Scanner Images"
-docker build --no-cache -f scanners/veracode/Dockerfile -t veracode .
+cd scanners/veracode
+docker build --no-cache -t veracode .
+cd -
 
 echo "Starting Scan Manager"
 
