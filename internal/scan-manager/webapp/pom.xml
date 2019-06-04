@@ -208,8 +208,7 @@
                                      verbose="false"
                                      usetimestamp="true"/>
                                 <unzip src="${project.build.directory}/bootstrap" dest="${project.build.directory}"/>
-                                <copy
-                                        todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/js">
+                                <copy todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/js">
                                     <fileset
                                             dir="${project.build.directory}/bootstrap-material-design-${md-bootstrap.version}/js">
                                     </fileset>
@@ -224,8 +223,7 @@
                                             dir="${project.build.directory}/bootstrap-material-design-${md-bootstrap.version}/font">
                                     </fileset>
                                 </copy>
-                                <copy
-                                        todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/img">
+                                <copy todir="${project.build.directory}/${project.artifactId}/scan-manager/resources/bootstrap/img">
                                     <fileset
                                             dir="${project.build.directory}/bootstrap-material-design-${md-bootstrap.version}/img">
                                     </fileset>

@@ -22,4 +22,4 @@
 
  CLASS_PATH=`ls -d ../lib/*.jar|tr '\n' ':'`
  CLASS_PATH=`echo ${CLASS_PATH} | tr -d ' '`
- java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -cp "$CLASS_PATH" org.springframework.boot.loader.JarLauncher
+ java -cp "$CLASS_PATH" org.springframework.boot.loader.JarLauncher

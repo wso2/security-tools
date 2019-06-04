@@ -580,8 +580,7 @@ public class ScanTask implements Runnable {
                     CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
                 }
             }
-        } catch (
-                InterruptedException | XPathExpressionException | ParserConfigurationException | SAXException |
+        } catch (InterruptedException | XPathExpressionException | ParserConfigurationException | SAXException |
                         IOException | ArchiveException | ScannerException e) {
             String logMessage;
             if (e.getClass().isInstance(ScannerException.class)) {
