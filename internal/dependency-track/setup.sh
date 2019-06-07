@@ -30,14 +30,14 @@ sudo apt upgrade -y
 # Install MySQL
 # -------------
 
-sudo apt install -y mysql
+sudo apt install -y mysql-server
 
 read -p "Enter Password for MySQL user 'dependency-track': "  dependency_track_password
 sudo mysql <<END
   CREATE DATABASE dependency_track;
   USE dependency_track;
   CREATE USER 'dependency-track'@'localhost' IDENTIFIED BY '$dependency_track_password';
-  GRANT GRANT ALL PRIVILEGES ON dependency_track.* TO 'dependency-track'@'localhost';
+  GRANT ALL PRIVILEGES ON dependency_track.* TO 'dependency-track'@'localhost';
   FLUSH PRIVILEGES;
 END
 
@@ -79,6 +79,8 @@ export SDKMAN_DIR="/usr/local/sdkman"
 [[ -s "/usr/local/sdkman/bin/sdkman-init.sh" ]] && source "/usr/local/sdkman/bin/sdkman-init.sh"
 END
 
+source ~/.bashrc
+
 sdk install java 8.0.212-amzn
 sdk install maven 3.6.1
 
@@ -94,7 +96,7 @@ END
 sudo service mysql restart
 
 # Switch user to dependency-track.
-su dependency-track
+sudo su dependency-track
 cd /home/dependency-track
 
 # -----------------------------
@@ -147,7 +149,7 @@ sed -i "s/alpine.database.password=/alpine.database.password=$dependency_track_p
 # ---------------------------------------------------
 
 cd artifact
-nohub java -Dalpine.application.properties=/home/dependency-track/config/application.properties -Xmx4G -jar dependency-track-embedded.war >/dev/null 2>&1 &
+nohup java -Dalpine.application.properties=/home/dependency-track/config/application.properties -Xmx4G -jar dependency-track-embedded.war >/dev/null 2>&1 &
 
 echo "Deploying Dependency Track..."
 
