@@ -93,6 +93,10 @@ END
 
 sudo service mysql restart
 
+# Switch user to dependency-track.
+su dependency-track
+cd /home/dependency-track
+
 # -----------------------------
 # Get MySQL connector
 # -----------------------------
@@ -109,13 +113,13 @@ cd -
 mkdir artifact
 cd artifact
 asset_type=dependency-track-embedded.war
-# Download only embedded war asset
+# Download only embedded war asset.
 downloadUrl = $(curl -s https://api.github.com/repos/DependencyTrack/dependency-track/releases/latest | jq -r ".assets[] | select(.name | test(\"${asset_type}\")) | .browser_download_url")
 wget $downloadUrl
 cd -
 
 # ---------------------------------------------------
-# Get application.propertiesfile
+# Get application.properties file
 # ---------------------------------------------------
 
 mkdir config
@@ -143,7 +147,18 @@ sed -i "s/alpine.database.password=/alpine.database.password=$dependency_track_p
 # ---------------------------------------------------
 
 cd artifact
-nohub java -Dalpine.application.properties=/home/dependency-track/config/application.properties -Xmx4G -jar dependency-track-embedded.war
+nohub java -Dalpine.application.properties=/home/dependency-track/config/application.properties -Xmx4G -jar dependency-track-embedded.war >/dev/null 2>&1 &
+
+echo "Deploying Dependency Track..."
+
+# -------------------------------------------------------------
+# Wait until Dependency Track run Database creation scripts
+# -------------------------------------------------------------
+
+echo "Waiting for some seconds until Dependency Check runs Database creation script."
+sleep 60
+
+read -n 1 -r -s -p "If Database creation is successfully completed, Press any key to continue..."
 
 # ---------------------------------------------------
 # Alter privileges to Dependency Track Database
