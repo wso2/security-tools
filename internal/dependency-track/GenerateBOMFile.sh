@@ -20,31 +20,36 @@
 ################################################################
 
 # ------------------------------------
-# Clone product source code fom github
+# Download source code
 # ------------------------------------
 
-read -p "Enter product repository name (product-is / product-apim / product-sp / product-ei) to create BOM File : " product
+read -p "Enter git source code download url to create BOM File : " download_url
 
 mkdir $HOME/workingDir
-git clone https://github.com/wso2/$product.git
+cd $HOME/workingDir
+wget $download_url
 
 # --------------------------------------
-# Select the branch to create a BOM file
+# Unzip source
 # --------------------------------------
 
-cd $HOME/workingDir/$product
-read -p "Enter branch to create BOM File : " version
-git checkout $version
+zip_file_name=$(ls )
+mkdir sourceDir
+unzip $HOME/workingDir/$zip_file_name -d $HOME/workingDir/sourceDir
+rm -rf $HOME/workingDir/$zip_file_name
 
 # -------------------
 # Generate BOM file
 # -------------------
+cd $HOME/workingDir/sourceDir
+file_name=$(ls )
+cd $HOME/workingDir/sourceDir/$file_name
 mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom
 
-echo "BOM file is successfully generated in " $($HOME/workingDir/$product/target)
+echo "BOM file is successfully generated in " $($HOME/workingDir/sourceDir/$file_name/target)
 echo "Please upload the BOM file to Dependency Track."
 
-nautilus $HOME/workingDir/$product/target
+nautilus $HOME/workingDir/sourceDir/$file_name/target
 
 sleep 60
 read -n 1 -r -s -p "If you have uploaded BOM file to Dependency Track successfully, Press any key to continue..."
@@ -57,4 +62,4 @@ rm -rf $HOME/workingDir/
 
 echo "Cloned repository is successfully deleted."
 
-END
+exit
