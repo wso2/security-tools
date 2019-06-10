@@ -53,7 +53,7 @@ echo "BOM file is successfully generate."
 # -------------------------------------------------
 
 mv $temp_dir/src/$src_file_name/target/bom.xml $output_dir
-echo "BOM file is moved to given output folder path : "$output_dir
+echo "BOM file created at: "$output_dir
 
 # ------------------------
 # Delete Cloned Repository
