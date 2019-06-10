@@ -24,7 +24,7 @@
 # ------------------------------------
 
 read -p "Enter URL to download source ZIP file: " download_url
-read -p "Enter output folder name : " output_dir
+read -p "Enter output folder name: " output_dir
 
 temp_dir=$(mktemp -d)
 cd $temp_dir
