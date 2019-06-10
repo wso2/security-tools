@@ -23,10 +23,11 @@
 # Download source code
 # ------------------------------------
 
-read -p "Enter git source code download url to create BOM File : " download_url
+read -p "Enter URL to download source code : " download_url
+read -p "Enter output folder name : " output_dir
 
-mkdir $HOME/workingDir
-cd $HOME/workingDir
+temp_dir=$(mktemp -d)
+cd $temp_dir
 wget $download_url
 
 # --------------------------------------
@@ -34,32 +35,32 @@ wget $download_url
 # --------------------------------------
 
 zip_file_name=$(ls )
-mkdir sourceDir
-unzip $HOME/workingDir/$zip_file_name -d $HOME/workingDir/sourceDir
-rm -rf $HOME/workingDir/$zip_file_name
+mkdir src
+unzip $temp_dir/$zip_file_name -d $temp_dir/src
 
 # -------------------
 # Generate BOM file
 # -------------------
-cd $HOME/workingDir/sourceDir
-file_name=$(ls )
-cd $HOME/workingDir/sourceDir/$file_name
+
+cd $temp_dir/src
+src_file_name=$(ls )
+cd $temp_dir/src/$src_file_name
 mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom
+echo "BOM file is successfully generate."
 
-echo "BOM file is successfully generated in " $($HOME/workingDir/sourceDir/$file_name/target)
-echo "Please upload the BOM file to Dependency Track."
+# -------------------------------------------------
+# Move generated BOM file to given output directory
+# -------------------------------------------------
 
-nautilus $HOME/workingDir/sourceDir/$file_name/target
-
-sleep 60
-read -n 1 -r -s -p "If you have uploaded BOM file to Dependency Track successfully, Press any key to continue..."
+mv $temp_dir/src/$src_file_name/target/bom.xml $output_dir
+echo "BOM file is moved to given output folder path : "$output_dir
 
 # ------------------------
 # Delete Cloned Repository
 # ------------------------
 
-rm -rf $HOME/workingDir/
+rm -rf $temp_dir
 
-echo "Cloned repository is successfully deleted."
+echo "Downloaded assets are deleted."
 
 exit
