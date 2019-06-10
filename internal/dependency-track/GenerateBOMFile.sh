@@ -23,7 +23,7 @@
 # Download source code
 # ------------------------------------
 
-read -p "Enter URL to download source code : " download_url
+read -p "Enter URL to download source ZIP file: " download_url
 read -p "Enter output folder name : " output_dir
 
 temp_dir=$(mktemp -d)
