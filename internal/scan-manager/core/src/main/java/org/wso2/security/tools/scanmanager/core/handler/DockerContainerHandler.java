@@ -49,6 +49,10 @@ public class DockerContainerHandler implements ContainerHandler {
                             Map<String, String> labels, List<String> commands,
                             String[] environmentVariables) throws ScanManagerException {
         try (DockerClient dockerClient = getNewDockerClient()) {
+            if (containerPort == null) {
+                throw new ScanManagerException("Error occurred while reading the container port that is required " +
+                        "for binding to the host port");
+            }
             String[] exposedPorts = {containerPort.toString()};
             HashMap<String, List<PortBinding>> portBindings = new HashMap<>();
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 #
 # Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
@@ -102,7 +104,7 @@ with open(args.csvFilePath, 'r') as csvfile:
         for row in reader:
             flowId = dict(row).get("issue_id")
             print PREFIX, "- Updating mitigation info for flow ID " + flowId
-            if (dict(row).get("WSO2_resolution") == 'False Positive'):
+            if (dict(row).get("WSO2_resolution").lower() == 'False Positive'.lower()):
                 action = ACTION_FALSEPOSITIVE
             else:
                 action = ACTION_APPDESIGN

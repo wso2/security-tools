@@ -17,6 +17,7 @@
  */
 package org.wso2.security.tools.scanmanager.common.internal.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 
 import java.sql.Timestamp;
@@ -29,6 +30,8 @@ public class ScanLogRequest {
     private String jobId;
     private LogType type;
     private String message;
+
+    @JsonFormat(pattern = "MM-dd-yyyy HH:mm:ss")
     private Timestamp timestamp;
 
     public ScanLogRequest(String jobId, LogType type, String message, Timestamp timestamp) {

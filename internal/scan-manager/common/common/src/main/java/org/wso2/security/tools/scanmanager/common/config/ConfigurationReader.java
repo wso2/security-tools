@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- *  Represent the common interface for reading configurations from the configuration file.
+ * Represent the common interface for reading configurations from the configuration file.
  */
 public interface ConfigurationReader {
 
-    public void loadConfiguration(String configFileLocation) throws IOException;
+    public void loadConfiguration(String configFile) throws IOException;
 
     public String getConfigProperty(String key);
 

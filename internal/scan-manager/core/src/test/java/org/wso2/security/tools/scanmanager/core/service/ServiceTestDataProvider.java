@@ -71,14 +71,14 @@ public class ServiceTestDataProvider {
     private static Scan buildScan() {
         Scanner scanner = new Scanner();
         ScannerApp scannerApp = new ScannerApp(null, SCANNER_APP_ID, SCANNER_APP_NAME, TEST_PRODUCT_ID);
-        ScannerField scannerField = new ScannerField("testField", null, "testField", "file", true);
+        ScannerField scannerField = new ScannerField("testField", null, "testField", null, "file", 2, true);
 
         scanner.setId(TEST_SCANNER_ID);
         scanner.setName("testScanner");
         scanner.setImage("testScannerImage");
         scanner.setType(ScannerType.STATIC);
-        scanner.setApps(Collections.singleton(scannerApp));
-        scanner.setFields(Collections.singleton(scannerField));
+        scanner.setApps(Collections.singletonList(scannerApp));
+        scanner.setFields(Collections.singletonList(scannerField));
 
         ScanFile scanFile = new ScanFile(null, "testScanFile", "testScanFileLocation");
         Set scanFileSet = new HashSet<>();

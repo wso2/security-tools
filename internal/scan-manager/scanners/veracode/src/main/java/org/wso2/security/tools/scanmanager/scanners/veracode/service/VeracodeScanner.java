@@ -99,8 +99,7 @@ public class VeracodeScanner implements Scanner {
      */
     private static void loadConfiguration() throws IOException {
         if (VeracodeScannerConfiguration.getInstance().getConfigs() == null) {
-            VeracodeScannerConfiguration.getInstance().loadConfiguration(ScannerConstants.RESOURCE_FILE_PATH +
-                    File.separator + ScannerConstants.CONFIGURTION_FILE_NAME);
+            VeracodeScannerConfiguration.getInstance().loadConfiguration(ScannerConstants.CONFIGURTION_FILE_NAME);
         }
     }
 

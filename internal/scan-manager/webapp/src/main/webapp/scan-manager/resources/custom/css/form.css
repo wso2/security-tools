@@ -1,0 +1,63 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.form-group {
+    margin-bottom: 30px;
+}
+
+.scan-manager-column {
+    font-weight: 600;
+    margin-left: 15px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.scan-manager-scanner-type-label {
+    margin-top: 0px;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.required label {
+    font-weight: bold;
+}
+
+.required label:after {
+    color: #e32;
+    content: ' *';
+    display:inline;
+}
+
+#divLoading {
+    display : none;
+}
+
+#divLoading.show {
+    display : block;
+    position : fixed;
+    z-index: 100;
+    background-image : url('../images/loading.gif');
+    background-color: #f1eeee;
+    opacity: 0.7;
+    background-repeat : no-repeat;
+    background-position : center;
+    left : 0;
+    bottom : 0;
+    right : 0;
+    top : 0;
+}

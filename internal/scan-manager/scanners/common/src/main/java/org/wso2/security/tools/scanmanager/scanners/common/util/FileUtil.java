@@ -93,8 +93,10 @@ public class FileUtil {
                 if (!entry.isDirectory()) {
                     zipInputStream = zip.getInputStream(entry);
                     inputStream = new BufferedInputStream(zipInputStream);
-                    outputStream = new FileOutputStream(destinationFile);
-                    IOUtils.copy(inputStream, outputStream);
+                    if (destinationFile.getParentFile().mkdirs()) {
+                        outputStream = new FileOutputStream(destinationFile);
+                        IOUtils.copy(inputStream, outputStream);
+                    }
                 }
             }
             return archive;

@@ -67,6 +67,7 @@ public final class VeracodeScannerConstants {
     public static final String NO_MODULES_SELECTED = "No modules selected";
     public static final String SCAN_ALL_MODULE = "scan_all_top_level_modules";
     public static final String PENDING_INTERVAL = "Pending Internal Review";
+    public static final String JAR_FILTER_FILE = "jarFilter.xml";
 
     private VeracodeScannerConstants() {
     }

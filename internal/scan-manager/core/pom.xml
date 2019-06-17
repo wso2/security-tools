@@ -180,6 +180,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>${maven.tomcat.plugin.version}</version>
                 <configuration>
+                    <port>${tomcat.http.port}</port>
                     <path>/</path>
                 </configuration>
             </plugin>
@@ -233,6 +234,7 @@
         <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
         </org.wso2.security.tools.scanmanager.common.version>
         <org.hibernate.core.version>5.4.0.Final</org.hibernate.core.version>
+        <tomcat.http.port>8081</tomcat.http.port>
     </properties>
 
 </project>

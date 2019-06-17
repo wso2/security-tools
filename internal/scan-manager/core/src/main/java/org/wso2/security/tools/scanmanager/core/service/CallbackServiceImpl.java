@@ -47,8 +47,8 @@ public class CallbackServiceImpl implements CallbackService {
             throws InvalidRequestException {
         synchronized (Constants.LOCK) {
 
-            //get the scan details again from database as the scan details might have been changed before entering the
-            // synchronized block
+            // Get the scan details again from database as the scan details might have been changed before entering the
+            // synchronized block.
             Scan newScanObject = scanService.getByJobId(scan.getJobId());
             switch (scanStatus) {
                 case RUNNING:
