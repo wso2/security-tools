@@ -22,15 +22,16 @@ import com.jcraft.jsch.SftpException;
 import com.veracode.apiwrapper.wrappers.ResultsAPIWrapper;
 import com.veracode.apiwrapper.wrappers.UploadAPIWrapper;
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
+import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
@@ -45,6 +46,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -59,9 +61,9 @@ import static org.wso2.security.tools.scanmanager.scanners.veracode.VeracodeScan
 /**
  * Represents the scan handling tasks.
  */
-public class ScanTask implements Runnable {
+public class ScanTask {
 
-    private static final Logger log = Logger.getLogger(ScanTask.class);
+    private static final Logger log = LogManager.getLogger(ScanTask.class);
 
     // Scan request coming to the scan micro-service API.
     private ScanContext scanContext;
@@ -73,33 +75,29 @@ public class ScanTask implements Runnable {
         if (log.isDebugEnabled()) {
             String logMessage = "Upload Artifact Handler thread is being initialized for the application:"
                     + scanContext.getAppId();
-            log.debug(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.DEBUG);
+            log.debug(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         this.scanContext = scanContext;
     }
 
-    @Override
     public void run() {
+
         if (isScanRunning()) {
             // If another scans is running on the actual Veracode cloud scanner, then the start scan request
             // would be failed and Scan status is updated as 'ERROR'.
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
 
             String logMessage = "Currently another scan is running on the application id  : " + scanContext
-                    .getAppId() + ". So please check this scan before proceed " + "with another scan.";
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+                    .getAppId() + ". So please check this scan before proceed with another scan.";
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
 
-            Thread.currentThread().interrupt();
+            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
         }
 
         if (handleUploadingTask()) {
             if (handleResultProcessTask()) {
                 String logMessage = "Start scan process is successfully completed for the application: "
                         + scanContext.getAppId();
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
             } else {
                 Thread.currentThread().interrupt();
             }
@@ -131,9 +129,7 @@ public class ScanTask implements Runnable {
         }
         if (!isUploadSuccess) {
             logMessage = logMessage.concat(" Terminating scan for app: " + scanContext.getAppId());
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isUploadSuccess;
     }
@@ -161,9 +157,7 @@ public class ScanTask implements Runnable {
         }
         if (!isResultsUploaded) {
             logMessage = logMessage + (" Terminating scan for app: " + scanContext.getAppId());
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isResultsUploaded;
     }
@@ -178,20 +172,24 @@ public class ScanTask implements Runnable {
         String result;
         ScanStatus currentScanStatus;
 
-        try {
-            UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
-            result = uploadAPIWrapper.getBuildInfo(scanContext.getAppId());
-            currentScanStatus = VeracodeResultProcessor.getScanStatus(result);
-            if (ScanStatus.RUNNING.equals(currentScanStatus)) {
-                isScanRunning = true;
-            }
-        } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
-            String logMessage = "Error occured while retrieving the scan status for application : " + scanContext
-                    .getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+        if (!Thread.currentThread().isInterrupted()) {
+            try {
+                UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
+                result = uploadAPIWrapper.getBuildInfo(scanContext.getAppId());
+                currentScanStatus = VeracodeResultProcessor.getScanStatus(result);
+                if (ScanStatus.RUNNING.equals(currentScanStatus)) {
+                    isScanRunning = true;
+                }
+            } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
+                String logMessage = "Error occured while retrieving the scan status for application : " + scanContext
+                        .getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
 
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+            }
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isScanRunning;
     }
@@ -204,24 +202,28 @@ public class ScanTask implements Runnable {
     private boolean cleanPreviousScans() {
         boolean isScannerCleaned = false;
         String result;
-        try {
-            UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
-            result = uploadAPIWrapper.deleteBuild(scanContext.getAppId());
 
-            if (log.isDebugEnabled()) {
-                String logMessage = "Deleted the last scan of the application :" + scanContext.getAppId();
-                log.debug(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.DEBUG);
+        if (!Thread.currentThread().isInterrupted()) {
+            try {
+                UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
+                result = uploadAPIWrapper.deleteBuild(scanContext.getAppId());
+
+                if (log.isDebugEnabled()) {
+                    String logMessage = "Deleted the last scan of the application :" + scanContext.getAppId();
+                    log.debug(new CallbackLog(scanContext.getJobId(), logMessage));
+                }
+
+                isScannerCleaned = VeracodeResultProcessor.isOperationProceedWithoutError(result);
+            } catch (IOException e) {
+                String logMessage = "Error occured while deleting the scan status for application : " + scanContext
+                        .getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+
+                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
             }
-
-            isScannerCleaned = VeracodeResultProcessor.isOperationProceedWithoutError(result);
-        } catch (IOException e) {
-            String logMessage = "Error occured while deleting the scan status for application : " + scanContext
-                    .getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
-
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isScannerCleaned;
     }
@@ -242,58 +244,58 @@ public class ScanTask implements Runnable {
 
         File productFile = new File(VeracodeScannerConfiguration.getInstance().getConfigProperty(
                 ScannerConstants.DEFAULT_FTP_PRODUCT_PATH) + productPackName);
+        if (!Thread.currentThread().isInterrupted()) {
+            try {
+                String logMessage = "Product pack is downloading for the application: " + scanContext.getAppId();
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
 
-        try {
-            String logMessage = "Product pack is downloading for the application: " + scanContext.getAppId();
-            log.info(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                FileUtil.downloadFromFtp(productPath, productPackName, productFile, VeracodeScannerConfiguration
+                                .getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
+                        (VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
+                                .toCharArray(), VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                                ScannerConstants.FTP_HOST), Integer.parseInt(VeracodeScannerConfiguration.getInstance()
+                                .getConfigProperty(ScannerConstants.FTP_PORT)));
 
-            FileUtil.downloadFromFtp(productPath, productPackName, productFile, VeracodeScannerConfiguration
-                            .getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
-                    (VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
-                            .toCharArray(), VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                            ScannerConstants.FTP_HOST), Integer.parseInt(VeracodeScannerConfiguration.getInstance()
-                            .getConfigProperty(ScannerConstants.FTP_PORT)));
+                logMessage = "Product downloading completed for the application: " + scanContext.getAppId() + " into "
+                        + productFile;
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
 
-            logMessage = "Product downloading completed for the application: " + scanContext.getAppId() + " into "
-                    + productFile;
-            log.info(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                extractedFilePath = FileUtil.extractArchive(productFile, productFile.getParent());
+                workingDirectory = new File(extractedFilePath + VeracodeScannerConstants.WORK_DIRECTORY_SUFIX);
 
-            extractedFilePath = FileUtil.extractArchive(productFile, productFile.getParent());
-            workingDirectory = new File(extractedFilePath + VeracodeScannerConstants.WORK_DIRECTORY_SUFIX);
+                if (workingDirectory.mkdirs()) {
+                    logMessage = "Filtering the artifacts for the scan for the application: " + scanContext.getAppId() +
+                            " into " + workingDirectory;
+                    log.info(new CallbackLog(scanContext.getJobId(), logMessage));
 
-            if (workingDirectory.mkdirs()) {
-                logMessage = "Filtering the artifacts for the scan for the application: " + scanContext.getAppId() +
-                        " into " + workingDirectory;
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                    copyRequiredScanArtifact(extractedFilePath);
+                    FileUtil.zipFiles(workingDirectory.getAbsolutePath(), workingDirectory.getAbsolutePath()
+                            + ScannerConstants.ZIP_FILE_EXTENSION);
+                    isZipCreated = true;
 
-                copyRequiredScanArtifact(extractedFilePath);
-                FileUtil.zipFiles(workingDirectory.getAbsolutePath(), workingDirectory.getAbsolutePath()
-                        + ScannerConstants.ZIP_FILE_EXTENSION);
-                isZipCreated = true;
+                    logMessage = "Created the zip artifact for the scan for the application: " + scanContext.getAppId()
+                            + " as " + workingDirectory + ScannerConstants.ZIP_FILE_EXTENSION;
+                    log.info(new CallbackLog(scanContext.getJobId(), logMessage));
+                } else {
+                    logMessage = "Error occured while creating the working directory for application : " + scanContext
+                            .getAppId();
+                    log.error(new CallbackLog(scanContext.getJobId(), logMessage));
 
-                logMessage = "Created the zip artifact for the scan for the application: " + scanContext.getAppId() +
-                        " as " + workingDirectory + ScannerConstants.ZIP_FILE_EXTENSION;
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
-            } else {
-                logMessage = "Error occured while creating the working directory for application : " + scanContext
-                        .getAppId();
-                log.error(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+                    CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+                }
+            } catch (IOException | JSchException | SftpException | SAXException | ScannerException | ArchiveException |
+                    ParserConfigurationException e) {
+                String logMessage = "Error occured while creating the scan zip artifact for application : " +
+                        scanContext.getAppId() + "\n" + ErrorProcessingUtil.getFullErrorMessage(e);
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
 
-                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+                if (!e.getClass().isInstance(InterruptedIOException.class)) {
+                    CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+                }
             }
-        } catch (IOException | JSchException | SftpException | SAXException | ScannerException | ArchiveException |
-                ParserConfigurationException e) {
-            String logMessage = "Error occured while creating the scan zip artifact for application : " + scanContext
-                    .getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(e);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
-
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isZipCreated;
     }
@@ -307,35 +309,37 @@ public class ScanTask implements Runnable {
         boolean isUploadSuccess = false;
         String buildId;
 
-        try {
-            UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
-            String result = uploadAPIWrapper.uploadFile(scanContext.getAppId(), workingDirectory
-                    + ScannerConstants.ZIP_FILE_EXTENSION);
-            isUploadSuccess = VeracodeResultProcessor.isOperationProceedWithoutError(result);
-            if (isUploadSuccess) {
-                result = uploadAPIWrapper.getBuildInfo(scanContext.getAppId());
-                buildId = VeracodeResultProcessor.getBuildIdByResponse(result);
+        if (!Thread.currentThread().isInterrupted()) {
+            try {
+                UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
+                String result = uploadAPIWrapper.uploadFile(scanContext.getAppId(), workingDirectory
+                        + ScannerConstants.ZIP_FILE_EXTENSION);
+                isUploadSuccess = VeracodeResultProcessor.isOperationProceedWithoutError(result);
+                if (isUploadSuccess) {
+                    result = uploadAPIWrapper.getBuildInfo(scanContext.getAppId());
+                    buildId = VeracodeResultProcessor.getBuildIdByResponse(result);
 
-                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.RUNNING, null, buildId);
-                String logMessage = "Product scan artifacts were uploaded to Veracode scanner for the application: "
-                        + scanContext.getAppId();
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
-            } else {
+                    CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.RUNNING, null, buildId);
+                    String logMessage = "Product scan artifacts were uploaded to Veracode scanner for the application: "
+                            + scanContext.getAppId();
+                    log.info(new CallbackLog(scanContext.getJobId(), logMessage));
+                } else {
+                    String logMessage = "Product scan artifacts uploading was failed to Veracode scanner for the " +
+                            "application : " + scanContext.getAppId();
+                    log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+
+                    CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+                }
+            } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
                 String logMessage = "Product scan artifacts uploading was failed to Veracode scanner for the " +
-                        "application : " + scanContext.getAppId();
-                log.error(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+                        "application : " + scanContext.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
 
                 CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
             }
-        } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
-            String logMessage = "Product scan artifacts uploading was failed to Veracode scanner for the " +
-                    "application : " + scanContext.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
-
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isUploadSuccess;
     }
@@ -354,35 +358,40 @@ public class ScanTask implements Runnable {
         File[] files = dir.listFiles();
         File patternXmlFile = new File(JAR_FILTER_FILE);
 
-        try (InputStream input = VeracodeScannerConfiguration.class.getClassLoader()
-                .getResourceAsStream(JAR_FILTER_FILE);
-             OutputStream out = new FileOutputStream(patternXmlFile)) {
-            int read;
-            byte[] bytes = new byte[1024];
+        if (!Thread.currentThread().isInterrupted()) {
+            try (InputStream input = VeracodeScannerConfiguration.class.getClassLoader()
+                    .getResourceAsStream(JAR_FILTER_FILE);
+                 OutputStream out = new FileOutputStream(patternXmlFile)) {
+                int read;
+                byte[] bytes = new byte[1024];
 
-            while ((read = input.read(bytes)) != -1) {
-                out.write(bytes, 0, read);
-            }
-        } catch (IOException e) {
-            throw new IOException(e);
-        }
-        NodeList nodeList = getScanArtifactPatternList(patternXmlFile);
-
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile()) {
-                    for (int i = 0; i < nodeList.getLength(); i++) {
-                        Node node = nodeList.item(i);
-                        Element element = (Element) node;
-
-                        checkFileNamePattern(element, file);
-                    }
-                } else if (file.isDirectory()) {
-                    copyRequiredScanArtifact(file.getAbsolutePath());
+                while ((read = input.read(bytes)) != -1) {
+                    out.write(bytes, 0, read);
                 }
+            } catch (IOException e) {
+                throw new IOException(e);
+            }
+            NodeList nodeList = getScanArtifactPatternList(patternXmlFile);
+
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        for (int i = 0; i < nodeList.getLength(); i++) {
+                            Node node = nodeList.item(i);
+                            Element element = (Element) node;
+
+                            checkFileNamePattern(element, file);
+                        }
+                    } else if (file.isDirectory()) {
+                        copyRequiredScanArtifact(file.getAbsolutePath());
+                    }
+                }
+            } else {
+                log.warn("File list that needs to be archived cannot be null.");
             }
         } else {
-            log.warn("File list that needs to be archived cannot be null.");
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
     }
 
@@ -435,8 +444,7 @@ public class ScanTask implements Runnable {
                 if ((e).toString().startsWith("java.nio.file.FileAlreadyExistsException")) {
                     String logMessage = "Error occured while copying file. \nWarning Message : " +
                             ErrorProcessingUtil.getFullErrorMessage(e);
-                    log.warn(logMessage);
-                    CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.WARN);
+                    log.warn(new CallbackLog(scanContext.getJobId(), logMessage));
                 } else {
                     throw e;
                 }
@@ -454,34 +462,36 @@ public class ScanTask implements Runnable {
         String buildId = null;
         boolean isPreScanStarted = false;
 
-        try {
-            UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
-            result = uploadAPIWrapper.beginPreScan(scanContext.getAppId(), null, "true", "true");
-            isPreScanStarted = VeracodeResultProcessor.isOperationProceedWithoutError(result);
+        if (!Thread.currentThread().isInterrupted()) {
+            try {
+                UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
+                result = uploadAPIWrapper.beginPreScan(scanContext.getAppId(), null, "true", "true");
+                isPreScanStarted = VeracodeResultProcessor.isOperationProceedWithoutError(result);
 
-            if (isPreScanStarted) {
-                buildId = VeracodeResultProcessor.getBuildIdByResponse(result);
-                String logMessage = "Pre-Scan is started in Veracode scanner for the application: " +
-                        scanContext.getAppId();
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                if (isPreScanStarted) {
+                    buildId = VeracodeResultProcessor.getBuildIdByResponse(result);
+                    String logMessage = "Pre-Scan is started in Veracode scanner for the application: " +
+                            scanContext.getAppId();
+                    log.info(new CallbackLog(scanContext.getJobId(), logMessage));
 
-                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.RUNNING, null, buildId);
-            } else {
-                String logMessage = "Pre-Scan is failed in Veracode scanner for the application: " +
-                        scanContext.getAppId();
-                log.error(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+                    CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.RUNNING, null, buildId);
+                } else {
+                    String logMessage = "Pre-Scan is failed in Veracode scanner for the application: " +
+                            scanContext.getAppId();
+                    log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+
+                    CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, buildId);
+                }
+            } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
+                String logMessage = "Pre-Scan is failed in Veracode scanner for the application: "
+                        + scanContext.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
 
                 CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, buildId);
             }
-        } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
-            String logMessage = "Pre-Scan is failed in Veracode scanner for the application: "
-                    + scanContext.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
-
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, buildId);
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isPreScanStarted;
     }
@@ -495,28 +505,32 @@ public class ScanTask implements Runnable {
         String result;
         boolean isScanStarted = false;
 
-        try {
-            UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
-            result = uploadAPIWrapper.beginScan(scanContext.getAppId(), "all", "true");
-            isScanStarted = VeracodeResultProcessor.isOperationProceedWithoutError(result);
+        if (!Thread.currentThread().isInterrupted()) {
+            try {
+                UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
+                result = uploadAPIWrapper.beginScan(scanContext.getAppId(), "all", "true");
+                isScanStarted = VeracodeResultProcessor.isOperationProceedWithoutError(result);
 
-            if (isScanStarted) {
-                String logMessage = "Scan is started on the Veracode for the application: " + scanContext.getAppId();
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
-            } else {
-                String logMessage = "Starting Scan failed in Veracode scanner for the application: " + scanContext
-                        .getAppId();
-                log.error(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+                if (isScanStarted) {
+                    String logMessage = "Scan is started on Veracode for the application: " + scanContext.getAppId();
+                    log.info(new CallbackLog(scanContext.getJobId(), logMessage));
+                } else {
+                    String logMessage = "Starting Scan failed in Veracode scanner for the application: " + scanContext
+                            .getAppId();
+                    log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+
+                    CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+                }
+            } catch (IOException e) {
+                String logMessage = "Starting scan failed in Veracode scanner for the application: "
+                        + scanContext.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+
                 CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
             }
-        } catch (IOException e) {
-            String logMessage = "Starting scan failed in Veracode scanner for the application: "
-                    + scanContext.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isScanStarted;
     }
@@ -532,21 +546,19 @@ public class ScanTask implements Runnable {
 
         if (log.isDebugEnabled()) {
             String logMessage = "Scan started in Veracode for the application: " + scanContext.getAppId();
-            log.debug(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.DEBUG);
+            log.debug(new CallbackLog(scanContext.getJobId(), logMessage));
         }
 
         try {
             scanStatus = getScanStatus();
-            while (!scanStatus.equals(ScanStatus.COMPLETED)) {
+            while (!scanStatus.equals(ScanStatus.COMPLETED) && !Thread.currentThread().isInterrupted()) {
                 if (scanStatus.equals(ScanStatus.ERROR)) {
                     break;
                 }
                 String logMessage = "Waiting for " + VeracodeScannerConfiguration.getInstance().getConfigProperty(
                         VeracodeScannerConstants.SCAN_RESULT_RETRY_MINS) + " mins until the scan is completed" +
                         " for the application: " + scanContext.getAppId();
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
 
                 TimeUnit.MINUTES.sleep(Integer.parseInt(VeracodeScannerConfiguration.getInstance().getConfigProperty(
                         VeracodeScannerConstants.SCAN_RESULT_RETRY_MINS)));
@@ -554,14 +566,12 @@ public class ScanTask implements Runnable {
 
                 logMessage = "Scan result status is : " + scanStatus + " for the application:"
                         + scanContext.getAppId();
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
             }
 
             if (scanStatus.equals(ScanStatus.COMPLETED)) {
                 String logMessage = "Scan results are ready for the application: " + scanContext.getAppId();
-                log.info(logMessage);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
 
                 String reportPath = VeracodeScannerConfiguration.getInstance().getConfigProperty(
                         VeracodeScannerConstants.VERACODE_OUTPUT_FOLDER_PATH);
@@ -575,13 +585,13 @@ public class ScanTask implements Runnable {
                     }
                 } else {
                     logMessage = "Downloading scan report is failed for the application: " + scanContext.getAppId();
-                    log.error(logMessage);
-                    CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+                    log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+
                     CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
                 }
             }
-        } catch (InterruptedException | XPathExpressionException | ParserConfigurationException | SAXException |
-                        IOException | ArchiveException | ScannerException e) {
+        } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException |
+                ArchiveException | ScannerException e) {
             String logMessage;
             if (e.getClass().isInstance(ScannerException.class)) {
                 logMessage = "Extracting scan report zip is failed for the application: " + scanContext.getAppId()
@@ -590,9 +600,12 @@ public class ScanTask implements Runnable {
                 logMessage = "Downloading scan report is failed for the application: " + scanContext.getAppId()
                         + " " + ErrorProcessingUtil.getFullErrorMessage(e);
             }
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+
             CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+        } catch (InterruptedException e) {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isReportUploaded;
     }
@@ -609,38 +622,41 @@ public class ScanTask implements Runnable {
         String scanReportFtpLocation = scanArtifact.substring(0, scanArtifact.lastIndexOf(File.separator));
 
         File reports = new File(reportPath);
-        try {
-            FileUtil.uploadReport(scanReportFtpLocation, reports,
-                    VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
-                    (VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
-                            .toCharArray(), VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                            ScannerConstants.FTP_HOST), Integer.parseInt(VeracodeScannerConfiguration.getInstance()
-                            .getConfigProperty(ScannerConstants.FTP_PORT)));
 
-            isReportUploaded = true;
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.COMPLETED,
-                    scanReportFtpLocation + File.separator + reports.getName(),
-                    null);
-
-            String logMessage = "Scan report is uploaded to the FTP server for the application: " +
-                    scanContext.getAppId();
-            log.info(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
-        } catch (SftpException | JSchException e) {
-            int retryInterval = Integer.parseInt(VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                    VeracodeScannerConstants.SCAN_REPORT_UPLOAD_RETRY_SECONDS));
-            log.info("Report upload will retry after " + retryInterval + " seconds since that operation was failed " +
-                    "due to FTP server issue. \n" + ErrorProcessingUtil.getFullErrorMessage(e));
+        if (!Thread.currentThread().isInterrupted()) {
             try {
-                TimeUnit.SECONDS.sleep(retryInterval);
-            } catch (InterruptedException e1) {
-                log.error(e1);
+                FileUtil.uploadReport(scanReportFtpLocation, reports,
+                        VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
+                        (VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
+                                .toCharArray(), VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                                ScannerConstants.FTP_HOST), Integer.parseInt(VeracodeScannerConfiguration.getInstance()
+                                .getConfigProperty(ScannerConstants.FTP_PORT)));
+
+                isReportUploaded = true;
+                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.COMPLETED, scanReportFtpLocation +
+                        File.separator + reports.getName(), null);
+
+                String logMessage = "Scan report is uploaded to the FTP server for the application: " +
+                        scanContext.getAppId();
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
+            } catch (SftpException | JSchException e) {
+                int retryInterval = Integer.parseInt(VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                        VeracodeScannerConstants.SCAN_REPORT_UPLOAD_RETRY_SECONDS));
+                log.info("Report upload will retry after " + retryInterval + " seconds since that operation was failed"
+                        + "due to FTP server issue. \n" + ErrorProcessingUtil.getFullErrorMessage(e));
+                try {
+                    TimeUnit.SECONDS.sleep(retryInterval);
+                } catch (InterruptedException e1) {
+                    log.error(e1);
+                }
+                uploadReportToFtp(scanArtifact, reportPath);
+            } catch (ScannerException | IOException e) {
+                log.error(new CallbackLog(scanContext.getJobId(), e.getMessage()));
+                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, scanReportFtpLocation, null);
             }
-            uploadReportToFtp(scanArtifact, reportPath);
-        } catch (ScannerException | IOException e) {
-            log.error(e);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), e.getMessage(), LogType.ERROR);
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, scanReportFtpLocation, null);
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isReportUploaded;
     }
@@ -670,38 +686,42 @@ public class ScanTask implements Runnable {
     public boolean getReports() {
         boolean isReportPrinted = false;
 
-        try {
-            ResultsAPIWrapper resultsAPIWrapper = VeracodeAPIUtil.getResultAPIWrapper();
-            String buildId = getBuildIDByAppId(scanContext.getAppId());
-            byte[] resultPdfDetailed = resultsAPIWrapper.detailedReportPdf(buildId);
-            String resultXMLDetailed = resultsAPIWrapper.detailedReport(buildId);
-            byte[] resultPdfSummary = resultsAPIWrapper.summaryReportPdf(buildId);
-            String resultXMLSummary = resultsAPIWrapper.summaryReport(buildId);
-            byte[] resultXMLThridParty = resultsAPIWrapper.thirdPartyReportPdf(buildId);
+        if (!Thread.currentThread().isInterrupted()) {
+            try {
+                ResultsAPIWrapper resultsAPIWrapper = VeracodeAPIUtil.getResultAPIWrapper();
+                String buildId = getBuildIDByAppId(scanContext.getAppId());
+                byte[] resultPdfDetailed = resultsAPIWrapper.detailedReportPdf(buildId);
+                String resultXMLDetailed = resultsAPIWrapper.detailedReport(buildId);
+                byte[] resultPdfSummary = resultsAPIWrapper.summaryReportPdf(buildId);
+                String resultXMLSummary = resultsAPIWrapper.summaryReport(buildId);
+                byte[] resultXMLThridParty = resultsAPIWrapper.thirdPartyReportPdf(buildId);
 
-            String filePath = VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                    VeracodeScannerConstants.VERACODE_OUTPUT_FOLDER_PATH) + File.separator + scanContext.getAppId();
-            FileUtil.saveReport(resultPdfDetailed, filePath + ScannerConstants.PDF_FILE_EXTENSION);
-            FileUtil.saveReport(resultXMLDetailed.getBytes(StandardCharsets.UTF_8.name()), filePath +
-                    VeracodeScannerConstants.SUMMARY + ScannerConstants.XML_FILE_EXTENSION);
-            FileUtil.saveReport(resultPdfSummary, filePath + ScannerConstants.PDF_FILE_EXTENSION);
-            FileUtil.saveReport(resultXMLSummary.getBytes(StandardCharsets.UTF_8.name()), filePath +
-                    VeracodeScannerConstants.SUMMARY + ScannerConstants.XML_FILE_EXTENSION);
-            FileUtil.saveReport(resultXMLThridParty, filePath + VeracodeScannerConstants.THIRD_PARTY
-                    + ScannerConstants.PDF_FILE_EXTENSION);
-            isReportPrinted = true;
+                String filePath = VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                        VeracodeScannerConstants.VERACODE_OUTPUT_FOLDER_PATH) + File.separator + scanContext.getAppId();
+                FileUtil.saveReport(resultPdfDetailed, filePath + ScannerConstants.PDF_FILE_EXTENSION);
+                FileUtil.saveReport(resultXMLDetailed.getBytes(StandardCharsets.UTF_8.name()), filePath +
+                        ScannerConstants.XML_FILE_EXTENSION);
+                FileUtil.saveReport(resultPdfSummary, filePath + VeracodeScannerConstants.SUMMARY +
+                        ScannerConstants.PDF_FILE_EXTENSION);
+                FileUtil.saveReport(resultXMLSummary.getBytes(StandardCharsets.UTF_8.name()), filePath +
+                        VeracodeScannerConstants.SUMMARY + ScannerConstants.XML_FILE_EXTENSION);
+                FileUtil.saveReport(resultXMLThridParty, filePath + VeracodeScannerConstants.THIRD_PARTY
+                        + ScannerConstants.PDF_FILE_EXTENSION);
+                isReportPrinted = true;
 
-            String logMessage = "Scan reports are completed and downloaded to the location : " +
-                    VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants.
-                            VERACODE_OUTPUT_FOLDER_PATH) + " for the application " + scanContext.getAppId();
-            log.info(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.INFO);
-        } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException |
-                ScannerException e) {
-            String logMessage = "Error occured while downloading the sca reports for the application "
-                    + scanContext.getAppId();
-            log.error(logMessage);
-            CallbackUtil.persistScanLog(scanContext.getJobId(), logMessage, LogType.ERROR);
+                String logMessage = "Scan reports are completed and downloaded to the location : " +
+                        VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants.
+                                VERACODE_OUTPUT_FOLDER_PATH) + " for the application " + scanContext.getAppId();
+                log.info(new CallbackLog(scanContext.getJobId(), logMessage));
+            } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException |
+                    ScannerException e) {
+                String logMessage = "Error occured while downloading the sca reports for the application "
+                        + scanContext.getAppId();
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+            }
+        } else {
+            String logMessage = "Current thread is interrupted for application : " + scanContext.getAppId();
+            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
         }
         return isReportPrinted;
     }

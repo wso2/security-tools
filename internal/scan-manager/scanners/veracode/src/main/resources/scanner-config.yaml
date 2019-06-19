@@ -18,31 +18,27 @@ under the License.
 
 # Veracode Scanner Configuration data
 ---
-vuser: 
-vpassword: 
-veracode_apiID: 
-veracode_apiKey: 
-output_folderpath:
-output_filename: 
-log_filepath:
-git_username:
-git_password:
-default_ftp_product_path:
-default_product_path:
-report_folder_path:
+vuser:
+vpassword:
+veracode_apiID:
+veracode_apiKey:
+output_folderpath: out
+log_filepath: scanArtifacts/
+default_ftp_product_path: scanArtifacts/
+default_product_path: scanArtifacts/
+report_folder_path: out
 jar_filter_pattern_file_path: src/main/resources/jarFilter.xml
-scan_manager_callback_url_endpoint:
-scan_manager_callback_status:
-scan_manager_callback_log:
+scan_manager_callback_url_endpoint: /callback/
+scan_manager_callback_status: update-scan
+scan_manager_callback_log: persist-scan-log
 build_id_xpath: //veracode:buildinfo/veracode:build[@build_id]
 scan_status_xpath: //veracode:buildinfo/veracode:build/veracode:analysis_unit[@status]
 build_id_attribute: build_id
 scan_status_attribute: status
 scan_response_namespace: https://analysiscenter.veracode.com/schema/4.0/buildinfo
 callback_retry_interval_seconds: 5
-scan_result_waiting_interval_hours : 4
 scan_result_retry_interval_mins : 10
-ftp_username: 
+ftp_username:
 ftp_password:
-ftp_host: 
-ftp_port: 22
+ftp_host:
+ftp_port:

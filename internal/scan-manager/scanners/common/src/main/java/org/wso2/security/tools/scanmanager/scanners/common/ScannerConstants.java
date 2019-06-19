@@ -27,7 +27,6 @@ public final class ScannerConstants {
     public static final String POM_FILE = "pom.xml";
     public static final String PDF_FILE_EXTENSION = ".pdf";
     public static final String XML_FILE_EXTENSION = ".xml";
-    public static final String CALLBACK_RETRY_INTERVAL_SECONDS = "callback_retry_interval_seconds";
     public static final String CALLBACK_RETRY_INCREASE_SECONDS = "callback_retry_interval_seconds";
     public static final String CONFIGURTION_FILE_NAME = "scanner-config.yaml";
     public static final String RESOURCE_FILE_PATH = "src/main/resources";
@@ -44,18 +43,11 @@ public final class ScannerConstants {
 
     // Scan manager config.
     public static final String SCAN_MANAGER_CALLBACK_URL_ENDPOINT = "scan_manager_callback_url_endpoint";
-    public static final String SCAN_MANAGER_CALLBACK_URL = "scan_manager_callback_url";
     public static final String SCAN_MANAGER_CALLBACK_STATUS = "scan_manager_callback_status";
     public static final String SCAN_MANAGER_CALLBACK_LOG = "scan_manager_callback_log";
-    public static final String SCAN_MANAGER_HOST = "scan.manager.host";
-    public static final String SCAN_MANAGER_PORT = "scan.manager.port";
+    public static final String SCAN_MANAGER_HOST = "SCAN_MANAGER_HOST";
+    public static final String SCAN_MANAGER_PORT = "SCAN_MANAGER_PORT";
     public static final String HTTP_PROTOCOL = "http://";
-
-    // Log types.
-    public static final String INFO = "info";
-    public static final String WARN = "warn";
-    public static final String DEBUG = "debug";
-    public static final String ERROR = "error";
 
     private ScannerConstants() {
     }

@@ -155,7 +155,7 @@ public class FileUtil {
      * @throws SftpException when unable to connect to the FTP server
      */
     public static void downloadFromFtp(String filePathInFtp, String fileName, File outputFile, String ftpUsername
-            , char[] ftpPassword, String ftpHost, int ftpPort) throws IOException, JSchException, SftpException {
+            , char[] ftpPassword, String ftpHost, int ftpPort) throws JSchException, SftpException, IOException {
         ChannelSftp sftp = openFtpLocation(filePathInFtp, ftpUsername, ftpPassword, ftpHost, ftpPort);
 
         downloadFromFtp(sftp.get(fileName), outputFile);
@@ -215,10 +215,10 @@ public class FileUtil {
      * Open the FTP location of the file and return the created channel.
      *
      * @param filePathInFtp path to the file
-     * @param ftpUsername      username of the ftp location where file is located
-     * @param ftpPassword      password of the ftp location where file is located
-     * @param ftpHost      host of the ftp location where file is located
-     * @param ftpPort      port of the ftp location where file is located
+     * @param ftpUsername   username of the ftp location where file is located
+     * @param ftpPassword   password of the ftp location where file is located
+     * @param ftpHost       host of the ftp location where file is located
+     * @param ftpPort       port of the ftp location where file is located
      * @return SFTP channel to access the FTP location
      * @throws JSchException when unable to create the session for connecting the FTP server
      * @throws SftpException when unable to connect to the FTP server

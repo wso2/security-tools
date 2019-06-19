@@ -18,11 +18,13 @@
 
 package org.wso2.security.tools.scanmanager.scanners.common;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,9 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
 import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
-import org.wso2.security.tools.scanmanager.common.model.LogType;
+import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
-import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 
 import java.io.IOException;
 
@@ -43,8 +44,15 @@ import java.io.IOException;
 @RequestMapping("scanner")
 public class ScannerController {
 
-    private static final Logger log = Logger.getLogger(ScannerController.class);
+    private static final Logger log = LogManager.getLogger(ScannerController.class);
     Scanner scanner;
+
+    // Scan task thread.
+    Thread startScanThread;
+
+    // Cancel scan task thread.
+    Thread cancelScanThread;
+
     // This represents if a scan is started.
     private boolean hasScanStarted = false;
 
@@ -57,26 +65,50 @@ public class ScannerController {
     /**
      * Start a new scan.
      *
-     * @param scanRequest Object that represent the required information for the scanner operation
+     * @param scannerScanRequest Object that represent the required information for the scanner operation
      * @return whether the start scan request is accepted
      */
     @PostMapping("scan")
     @ResponseBody
-    public ResponseEntity startScan(@RequestBody ScannerScanRequest scanRequest) {
+    public ResponseEntity startScan(@RequestBody ScannerScanRequest scannerScanRequest) {
         ResponseEntity responseEntity;
+        responseEntity = validateStartScanReq(scannerScanRequest);
+        if (responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)) {
+            if (scanner.validateStartScan(scannerScanRequest)) {
+                log.info("Invoking start scan API.");
+                startScanThread = new Thread(() -> scanner.startScan(scannerScanRequest), "StartScanThread");
 
-        if (!hasScanStarted) {
-            log.info("Invoking start scan API.");
-            responseEntity = scanner.startScan(scanRequest);
-            if (responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)) {
+                startScanThread.start();
                 hasScanStarted = true;
+            } else {
+                String message = "Start scan request validation is failed.";
+                responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                        message), HttpStatus.BAD_REQUEST);
+            }
+        }
+        return responseEntity;
+    }
+
+    private ResponseEntity validateStartScanReq(ScannerScanRequest scannerScanRequest) {
+        ResponseEntity responseEntity;
+        if (!hasScanStarted) {
+            if (!StringUtils.isEmpty(scannerScanRequest.getAppId())) {
+                if (!StringUtils.isEmpty(scannerScanRequest.getJobId())) {
+                    responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
+                } else {
+                    String message = "Job Id is missing in the request.";
+                    responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                            message), HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                String message = "Application Id is missing in the request.";
+                responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                        message), HttpStatus.BAD_REQUEST);
             }
         } else {
             String message = "Cannot start a new scan since another scan is in progress.";
             responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                     message), HttpStatus.BAD_REQUEST);
-            log.error(message);
-            CallbackUtil.persistScanLog(scanRequest.getJobId(), message, LogType.ERROR);
         }
         return responseEntity;
     }
@@ -96,12 +128,36 @@ public class ScannerController {
             String message = "No scan running to perform cancellation.";
             responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(),
                     message), HttpStatus.BAD_REQUEST);
-            log.error(message);
-            CallbackUtil.persistScanLog(scanRequest.getJobId(), message, LogType.ERROR);
         } else {
             log.info("Invoking cancel scan API.");
-            responseEntity = scanner.cancelScan(scanRequest);
+            if (scanner.validateCancelScan(scanRequest)) {
+                if (startScanThread != null) {
+                    startScanThread.interrupt();
+                } else {
+                    log.info("There is no running scan thread to cancel.");
+                }
+
+                cancelScanThread = new Thread(() -> {
+                    stopStartScanThread();
+                    scanner.cancelScan(scanRequest);
+                }, "CancelScanThread");
+                cancelScanThread.start();
+
+                responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
+            } else {
+                String message = "Cancel scan request validation is failed.";
+                responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                        message), HttpStatus.BAD_REQUEST);
+            }
         }
         return responseEntity;
+    }
+
+    private boolean stopStartScanThread() {
+
+        while (startScanThread.isAlive()) {
+            // run until the start scan thread is dead.
+        }
+        return true;
     }
 }
