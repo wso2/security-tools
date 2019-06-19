@@ -25,7 +25,7 @@ sudo apt upgrade -y
 # Install MySQL
 # -------------
 
-sudo apt install -y mysql
+sudo apt install -y mysql-server
 
 read -p "Enter Password for MySQL user 'scan-manager-core': "  scan_manager_core_password
 sudo mysql <<END
@@ -113,6 +113,8 @@ cat <<END >> /home/scan-manager/.bashrc
 export SDKMAN_DIR="/usr/local/sdkman"
 [[ -s "/usr/local/sdkman/bin/sdkman-init.sh" ]] && source "/usr/local/sdkman/bin/sdkman-init.sh"
 END
+
+source ~/.bashrc
 
 sdk install java 8.0.212-amzn
 sdk install maven 3.6.1

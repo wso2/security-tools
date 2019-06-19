@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
 import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
-import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 
 import java.io.IOException;
