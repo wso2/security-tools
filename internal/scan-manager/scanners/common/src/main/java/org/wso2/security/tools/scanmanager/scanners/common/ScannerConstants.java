@@ -57,6 +57,10 @@ public final class ScannerConstants {
     public static final String DEBUG = "debug";
     public static final String ERROR = "error";
 
+    // Scan reports related constants.
+    public static final String CONTENT_DISPOSITION_PATTERN = "attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"";
+    public static final String CONTENT_DISPOSITION = "content-disposition";
+
     private ScannerConstants() {
     }
 }

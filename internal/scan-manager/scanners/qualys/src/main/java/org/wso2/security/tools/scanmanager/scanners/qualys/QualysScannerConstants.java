@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *   WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,7 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * /
  */
 
 package org.wso2.security.tools.scanmanager.scanners.qualys;
@@ -49,8 +47,7 @@ public class QualysScannerConstants {
     public static final String QUALYS_WEB_UPDATE_API = "/qps/rest/3.0/update/was/webapp/";
     public static final String QUALYS_WEB_APP_REPORT_CREATE_API = "/qps/rest/3.0/create/was/report";
     public static final String QUALYS_REPORT_DOWNLOAD_API = "/qps/rest/3.0/download/was/report/";
-    public static final String CONTENT_DISPOSITION_PATTERN = "attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"";
-    public static final String CONTENT_DISPOSITION = "content-disposition";
+    public static final String QUALYS_REPORT_STATUS_API = "/qps/rest/3.0/status/was/report/";
 
     // Constants which are used to build API request body.
     public static final String QUALYS_SCAN_NAME_PREFIX = "New Discovery scan launch from API : ";
@@ -105,7 +102,7 @@ public class QualysScannerConstants {
     public static final String XML_TYPE = "XML";
 
     // Types of status in Qualys Scan.
-    public static final String SCAN_STATUS_TAG = "status";
+    public static final String STATUS_TAG = "status";
     public static final String AUTH_STATUS_TAG = "authStatus";
     public static final String RESULTS_STATUS_TAG = "resultsStatus";
 
@@ -132,4 +129,22 @@ public class QualysScannerConstants {
     public static final String SCAN_INTERNAL_ERROR = "SCAN_INTERNAL_ERROR";
     public static final String SUCCESSFUL = "SUCCESSFUL";
 
+    // Qualys Report Status.
+    public static final String COMPLETE = "COMPLETE";
+
+    // Non externally configurable constants.
+    public static final long REPORT_STATUS_CHECK_DELAY = 30;
+
+    // Tasks of Qualys Scanner.
+    public static final String LAUNCH_SCAN = "launch scan";
+    public static final String CANCEL_SCAN = "cancel scan";
+    public static final String PURGE_SCAN = "purge scan";
+    public static final String CREATE_REPORT = "create report";
+    public static final String DOWNLOAD_REPORT = "download report";
+    public static final String ADD_AUTH_SCRIPT = "add authentication script";
+    public static final String UPDATE_WEB_APP = "update web app";
+    public static final String GET_STATUS = "get scan status";
+    public static final String GET_REPORT_STATUS = "get report status";
+    public static final String CLEANUP = "cleanup";
+    public static final String DELETE_AUTH_RECORD = "delete authentication record";
 }

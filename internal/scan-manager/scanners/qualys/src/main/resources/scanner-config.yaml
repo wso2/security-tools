@@ -18,7 +18,6 @@ under the License.
 
 # Qualys Scanner Configuration data
 ---
-
 username : [Username of Qualys Account]
 password : [Password of Qualys Account]
 host : [URL to Qualys API server. It is depend on the platform where Qualys account is located]
@@ -36,3 +35,5 @@ ftp_username: [Username of FTP]
 ftp_password: [Password of FTP]]
 ftp_host: [Host of FTP]
 ftp_port: [Port of FTP]
+default_auth_script_path : [path to save authentication script]
+report_folderPath : [path to download Qualys scan report]

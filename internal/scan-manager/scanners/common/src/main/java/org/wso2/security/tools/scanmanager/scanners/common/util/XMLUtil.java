@@ -17,21 +17,31 @@
  */
 package org.wso2.security.tools.scanmanager.scanners.common.util;
 
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -107,5 +117,67 @@ public class XMLUtil {
         securityManager.setEntityExpansionLimit(entityExpansionLimit);
         dbf.setAttribute(Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY, securityManager);
         return dbf;
+    }
+
+    /**
+     * Build a secure String writer.
+     *
+     * @param doc Document that needs to be converted to String
+     * @return StringWriter
+     * @throws TransformerException Error occurred whilfe building secure string writer.
+     */
+    public static StringWriter buildSecureStringWriter(Document doc) throws TransformerException {
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        Transformer transformer = transformerFactory.newTransformer();
+        StringWriter writer = new StringWriter();
+        transformer.transform(new DOMSource(doc), new StreamResult(writer));
+        return writer;
+    }
+
+    /**
+     * This methods is used to create a document of Http response and return element nodes of provided tag
+     * name as a list.
+     *
+     * @param response http response of invoked api
+     * @param tagName Tag Name
+     * @return NodeList of document which represents the http response
+     * @throws IOException                  Error occurred while converting to document
+     * @throws ParserConfigurationException Error occurred while converting to document
+     * @throws SAXException                 Error occurred while converting to document
+     */
+    public static NodeList getResponseNodeList(HttpResponse response, String tagName)
+            throws IOException, ParserConfigurationException, SAXException {
+        String result;
+        StringBuilder res;
+        Document doc;
+        NodeList elementNodes;
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(response.getEntity().getContent(), "UTF-8"))) {
+            res = new StringBuilder();
+            while ((result = br.readLine()) != null) {
+                res.append(result);
+            }
+            doc = getSecuredDocumentBuilderFactory().newDocumentBuilder()
+                    .parse(new InputSource(new StringReader(res.toString())));
+            elementNodes = doc.getElementsByTagName(tagName);
+        }
+        return elementNodes;
+    }
+
+    /**
+     * Get data based on given tag name of service response. Here response is in XML format.
+     *
+     * @param nodeList NodeList of response
+     * @param tagName  tag name
+     * @return value of the tag name
+     */
+    public static String getTagValue(NodeList nodeList, String tagName) {
+        String data = null;
+        if (nodeList.getLength() > 0) {
+            Element element = (Element) nodeList.item(0);
+            data = element.getElementsByTagName(tagName).item(0).getTextContent();
+        }
+        return data;
     }
 }

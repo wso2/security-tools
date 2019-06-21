@@ -38,9 +38,24 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>${org.springframework.boot.maven.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${org.springframework.boot.starter.version}</version>
+            <version>${org.springframework.boot.maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -102,6 +117,28 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven.assembly.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>scan-manager-scanners-qualys</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/scanner-assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <executions>
                     <execution>
@@ -121,7 +158,9 @@
         </plugins>
     </build>
     <properties>
-        <org.springframework.boot.starter.version>1.5.6.RELEASE</org.springframework.boot.starter.version>
+        <org.springframework.version>4.3.10.RELEASE</org.springframework.version>
+        <org.springframework.boot.maven.version>1.5.6.RELEASE</org.springframework.boot.maven.version>
+        <maven.assembly.plugin.version>2.4.1</maven.assembly.plugin.version>
         <log4j.version>1.2.17</log4j.version>
         <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
         <org.wso2.orbit.xerces.version>2.12.0.wso2v1</org.wso2.orbit.xerces.version>
@@ -133,6 +172,6 @@
         <scanmanager.common.internal.version>1.0-SNAPSHOT</scanmanager.common.internal.version>
         <scanmanager.common.version>1.0-SNAPSHOT</scanmanager.common.version>
         <scanmanager.scanner.common.version>1.0-SNAPSHOT</scanmanager.scanner.common.version>
-        <org.springframework.boot.maven.version>2.1.4.RELEASE</org.springframework.boot.maven.version>
+        <scanmanager.scanner.loader.version>1.0-SNAPSHOT</scanmanager.scanner.loader.version>
     </properties>
 </project>

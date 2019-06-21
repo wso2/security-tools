@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *   WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,7 +14,6 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * /
  */
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
@@ -25,10 +23,9 @@ import com.jcraft.jsch.SftpException;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.security.tools.scanmanager.common.model.LogType;
+import org.wso2.security.scanmanager.common.exception.RetryExceededException;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
-import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
@@ -45,9 +42,9 @@ import java.util.concurrent.TimeUnit;
 public class ReportHandler {
 
     private static final Log log = LogFactory.getLog(ReportHandler.class);
-    String[] reportTypes = { QualysScannerConstants.PDF_TYPE, QualysScannerConstants.XML_TYPE,
+    private String[] reportTypes = { QualysScannerConstants.PDF_TYPE, QualysScannerConstants.XML_TYPE,
             QualysScannerConstants.HTML_BASE64_TYPE, QualysScannerConstants.CSV_V2_TYPE };
-    QualysScanHandler qualysScanHandler;
+    private QualysScanHandler qualysScanHandler;
 
     public ReportHandler(QualysScanHandler qualysScanHandler) {
         this.qualysScanHandler = qualysScanHandler;
@@ -56,35 +53,36 @@ public class ReportHandler {
     /**
      * This method is responsible for tasks relevant to report.
      *
-     * @param scanContext ScanContext
-     * @return true if report is suceesfully uploaded
-     * @throws ScannerException Error occurred while executing report handler.
+     * @param scanContext scanContext
+     * @return true if report is successfully uploaded
+     * @throws ScannerException error occurred while executing report handler
      */
     public boolean execute(ScanContext scanContext) throws ScannerException {
         boolean isReportUploaded = false;
         String reportFolderPath = QualysScannerConfiguration.getInstance()
-                .getConfigProperty(QualysScannerConstants.QUALYS_REPORT_FOLDER_PATH) + File.separator + scanContext
-                .getWebAppId();
-
+                .getConfigProperty(QualysScannerConstants.QUALYS_REPORT_FOLDER_PATH);
         String scanScriptLocation = scanContext.getScriptFilesLocation();
 
-        for (String types : reportTypes) {
-            String reportId = qualysScanHandler
-                    .createReport(QualysScannerConfiguration.getInstance().getHost(), scanContext.getWebAppId(),
-                            scanContext.getJobID(), types);
-            String filepath = qualysScanHandler
-                    .downloadReport(QualysScannerConfiguration.getInstance().getHost(), scanContext.getJobID(),
-                            reportId, reportFolderPath);
+        // Generate report for defined report types.
+        for (String type : reportTypes) {
+            String reportId = qualysScanHandler.createReport(scanContext.getWebAppId(), scanContext.getJobID(), type);
+            awaitReportCreation(reportId, type);
+            String filepath = qualysScanHandler.downloadReport(scanContext.getJobID(), reportId, reportFolderPath);
             String logMessage = "Scan report for the application: " + scanContext.getWebAppId() + " is downloaded."
-                    + " Scan Report Type : " + types + " Location : " + filepath;
-            CallbackUtil.persistScanLog(scanContext.getJobID(), logMessage, LogType.INFO);
+                    + " Scan Report Type : " + type + " Location : " + filepath;
+            log.info(logMessage);
         }
+
+        // Zip all downloaded reports.
         try {
             FileUtil.zipFiles(reportFolderPath, reportFolderPath + ScannerConstants.ZIP_FILE_EXTENSION);
         } catch (ArchiveException | IOException e) {
             throw new ScannerException("Error occurred while creating the zip files of generated report.");
         }
-        if (uploadReportToFtp(scanContext, scanScriptLocation, reportFolderPath)) {
+
+        // Upload created zip file to provided ftp location.
+        if (uploadReportToFtp(scanContext, scanScriptLocation,
+                reportFolderPath + ScannerConstants.ZIP_FILE_EXTENSION)) {
             isReportUploaded = true;
         }
         return isReportUploaded;
@@ -93,10 +91,10 @@ public class ReportHandler {
     /**
      * Upload the scan report to FTP location.
      *
-     * @param scanContext           Scan context
-     * @param scanReportFtpLocation Ftp location of scan reports
+     * @param scanContext           scan context
+     * @param scanReportFtpLocation ftp location of scan reports
      * @param reportPath            path that needs to upload
-     * @return is uploading success
+     * @return true if reports are uploaded to ftp location successfully
      */
     private boolean uploadReportToFtp(ScanContext scanContext, String scanReportFtpLocation, String reportPath)
             throws ScannerException {
@@ -109,10 +107,9 @@ public class ReportHandler {
                     QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_HOST),
                     Integer.parseInt(
                             QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
-
             String logMessage =
                     "Scan report is uploaded to the FTP server for the application: " + scanContext.getWebAppId();
-            CallbackUtil.persistScanLog(scanContext.getJobID(), logMessage, LogType.INFO);
+            log.info(logMessage);
             isReportUploaded = true;
         } catch (SftpException | JSchException e) {
             int retryInterval = Integer.parseInt(QualysScannerConfiguration.getInstance()
@@ -120,7 +117,7 @@ public class ReportHandler {
             String logMessage =
                     "Report upload will retry after " + retryInterval + " seconds since that operation was failed "
                             + "due to FTP server issue. \n" + ErrorProcessingUtil.getFullErrorMessage(e);
-            CallbackUtil.persistScanLog(scanContext.getJobID(), logMessage, LogType.INFO);
+            log.error(logMessage);
             try {
                 TimeUnit.SECONDS.sleep(retryInterval);
             } catch (InterruptedException e1) {
@@ -131,5 +128,47 @@ public class ReportHandler {
             throw new ScannerException(" Failed to upload report to FTP location.", e);
         }
         return isReportUploaded;
+    }
+
+    /**
+     * This method waits for report creation task completion.
+     *
+     * @param reportId Report Id
+     * @throws ScannerException Error occurred while getting the status of report creation
+     */
+    private void awaitReportCreation(String reportId, String reportType) throws ScannerException {
+        String status = null;
+        try {
+            status = qualysScanHandler.getReportStatus(reportId);
+        } catch (IOException | InterruptedException | RetryExceededException e) {
+            if (QualysScannerConstants.XML_TYPE.equalsIgnoreCase(reportType)) {
+                throw new ScannerException("Error occurred while XML type report. " + reportId, e);
+            } else {
+                log.error("Failed to create " + reportType + " Report ID : " + reportId + ". " + e.getMessage());
+            }
+        }
+        if (status != null) {
+            switch (status) {
+            case QualysScannerConstants.COMPLETE:
+                break;
+            case QualysScannerConstants.ERROR:
+                if (QualysScannerConstants.XML_TYPE.equalsIgnoreCase(reportType)) {
+                    throw new ScannerException("Failed to create a XML type report. " + reportId);
+                } else {
+                    log.error("Failed to create " + reportType + " Report ID : " + reportId);
+                }
+                break;
+            case QualysScannerConstants.RUNNING:
+                try {
+                    TimeUnit.SECONDS.sleep(QualysScannerConstants.REPORT_STATUS_CHECK_DELAY);
+                } catch (InterruptedException e) {
+                    throw new ScannerException("Error occurred while retrieving the report status. ", e);
+                }
+                awaitReportCreation(reportId, reportType);
+                break;
+            default:
+                break;
+            }
+        }
     }
 }

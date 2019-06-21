@@ -101,6 +101,7 @@ public class CallbackUtil {
             } catch (InterruptedException e) {
                 log.error(e);
             }
+
             // Retrying updating the scan status in scan manager.
             updateScanStatus(jobId, scanStatus, reportPath, scannerScanId, statusUpdateRetryTimeInterval);
         } else {

@@ -1,5 +1,4 @@
 /*
- *
  *   Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *   WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,39 +14,64 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * /
  */
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.http.HttpStatus;
+import org.wso2.security.scanmanager.common.exception.RetryExceededException;
+import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
- * This class is responsible to invoke qualys api.
+ * This class is responsible to invoke Qualys API.
  */
 public class QualysApiInvoker {
 
     private static final Log log = LogFactory.getLog(QualysApiInvoker.class);
 
     private char[] basicAuth;
-    Long retryTimeInterval = Long.valueOf(0);
+    private Long retryTimeInterval;
+
+    // Endpoints of Qualys Scanner.
+    private String startScanEndpoint;
+    private String purgeScanEndpoint;
+    private String cancelScanEndpoint;
+    private String getStatusEndpoint;
+    private String deleteAuthRecordEndpoint;
+    private String addAuthScriptEndpoint;
+    private String updateWebAppEndpoint;
+    private String createReportEndpoint;
+    private String downloadReportEndpoint;
+    private String getReportStatusEndpoint;
+
+    public QualysApiInvoker() {
+
+        // Platform URL of Qualys scanner.
+        String host = QualysScannerConfiguration.getInstance().getHost();
+
+        // Retry time interval
+        this.retryTimeInterval = Long.parseLong(QualysScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
+
+        // Set required endpoints.
+        this.purgeScanEndpoint = host.concat(QualysScannerConstants.QUALYS_PURGE_SCAN_API);
+        this.cancelScanEndpoint = host.concat(QualysScannerConstants.QUALYS_CANCEL_SCAN_API);
+        this.addAuthScriptEndpoint = host.concat(QualysScannerConstants.QUALYS_ADD_AUTH_SCRIPT_API);
+        this.updateWebAppEndpoint = host.concat(QualysScannerConstants.QUALYS_WEB_UPDATE_API);
+        this.createReportEndpoint = host.concat(QualysScannerConstants.QUALYS_WEB_APP_REPORT_CREATE_API);
+        this.downloadReportEndpoint = host.concat(QualysScannerConstants.QUALYS_REPORT_DOWNLOAD_API);
+        this.startScanEndpoint = host.concat(QualysScannerConstants.QUALYS_START_SCAN_API);
+        this.getStatusEndpoint = host.concat(QualysScannerConstants.QUALYS_GET_STATUS_API);
+        this.deleteAuthRecordEndpoint = host.concat(QualysScannerConstants.QUALYS_DELETE_AUTH_RECORD_API);
+        this.getReportStatusEndpoint = host.concat(QualysScannerConstants.QUALYS_REPORT_STATUS_API);
+    }
 
     public void setBasicAuth(char[] basicAuth) {
         this.basicAuth = basicAuth.clone();
@@ -56,211 +80,151 @@ public class QualysApiInvoker {
     /**
      * Invoke Qualys API to purge Web Application.
      *
-     * @param host     host of Qualys Scanner
-     * @param webAppId Web Application Id
+     * @param webAppId web Application ID
      * @return returns http response if response code is 200
-     * @throws IOException          error occurred while purging the application
-     * @throws InterruptedException error occurred while purging the application
+     * @throws IOException            error occurred while purging the application
+     * @throws InterruptedException   error occurred while purging the application
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse invokePurgeScan(String host, String webAppId) throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_PURGE_SCAN_API.concat(webAppId));
-        return doHttpPost(url, null);
+    public HttpResponse invokePurgeScan(String webAppId)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = purgeScanEndpoint.concat(webAppId);
+        return HTTPUtil.sendPOST(url, null, basicAuth, retryTimeInterval);
     }
 
     /**
      * Invoke Qualys API to cancel scan.
      *
-     * @param host   host url
      * @param scanId scanId
      * @return returns http response if response code is 200
-     * @throws IOException          Error occurred while cancelling the application
-     * @throws InterruptedException Error occurred while cancelling the application
+     * @throws IOException            error occurred while cancelling the application
+     * @throws InterruptedException   error occurred while cancelling the application
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse inovkeCancelScan(String host, String scanId) throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_CANCEL_SCAN_API).concat(scanId);
-        return doHttpPost(url, null);
+    public HttpResponse invokeCancelScan(String scanId)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = cancelScanEndpoint.concat(scanId);
+        return HTTPUtil.sendPOST(url, null, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Call the API to add authentication script in qualys end.
+     * Invoke Qualys API to add authentication script in qualys end.
      *
-     * @param host                  qualys endpoint
      * @param authScriptRequestBody addAuthentication script request body
      * @return returns http response if response code is 200
-     * @throws IOException          Occurred IO exception while calling the api
-     * @throws InterruptedException Occurred IO exception while calling the api.
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse invokeAuthenticationRecordCreation(String host, String authScriptRequestBody)
-            throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_ADD_AUTH_SCRIPT_API);
-        return doHttpPost(url, authScriptRequestBody);
+    public HttpResponse invokeAuthenticationRecordCreation(String authScriptRequestBody)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = addAuthScriptEndpoint;
+        return HTTPUtil.sendPOST(url, authScriptRequestBody, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Call the API to add authentication script to web app.
+     * Invoke Qualys API to add authentication script to web app.
      *
-     * @param host                    qualys endpoint
-     * @param updateWebAppRequestBody update web app request body.
+     * @param updateWebAppRequestBody update web app request body
      * @param webId                   web id
      * @return returns http response if response code is 200
-     * @throws IOException          Occurred IO exception while calling the api
-     * @throws InterruptedException Occurred IO exception while calling the api
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse updateWebApp(String host, String updateWebAppRequestBody, String webId)
-            throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_WEB_UPDATE_API).concat(webId);
-        return doHttpPost(url, updateWebAppRequestBody);
+    public HttpResponse invokeUpdateWebApp(String updateWebAppRequestBody, String webId)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = updateWebAppEndpoint.concat(webId);
+        return HTTPUtil.sendPOST(url, updateWebAppRequestBody, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Call the API to create scan report.
+     * Invoke Qualys API to create scan report.
      *
-     * @param host                    Qualys endpoint
      * @param createReportRequestBody create report request body
      * @return returns http response if response code is 200
-     * @throws IOException          Occurred IO exception while calling the api
-     * @throws InterruptedException Occurred IO exception while calling the api
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse invokeCreateReport(String host, String createReportRequestBody)
-            throws IOException, InterruptedException {
-        String url = host.concat(host.concat(QualysScannerConstants.QUALYS_WEB_APP_REPORT_CREATE_API));
-        HttpResponse response = doHttpPost(url, createReportRequestBody);
-        return response;
+    public HttpResponse invokeCreateReport(String createReportRequestBody)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = createReportEndpoint;
+        return HTTPUtil.sendPOST(url, createReportRequestBody, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Download Report.
+     * Invoke Qualys API to download report.
      *
-     * @param host     host ur;
      * @param reportId report Id
      * @return returns http response if response code is 200
-     * @throws IOException          Occurred IO exception while calling the api
-     * @throws InterruptedException Occurred IO exception while calling the api
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse invokeReportDownload(String host, String reportId) throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_REPORT_DOWNLOAD_API.concat(reportId));
-        return doHttpGet(url);
+    public HttpResponse invokeReportDownload(String reportId)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = downloadReportEndpoint.concat(reportId);
+        return HTTPUtil.sendGET(url, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Launch the scan.
+     * Invoke Qualys API to launch the scan.
      *
-     * @param host                  qualys endpoint
-     * @param launchScanRequestBody launch scan request body.
+     * @param launchScanRequestBody launch scan request body
      * @return returns http response if response code is 200
-     * @throws IOException          Occurred IO exception while calling the api
-     * @throws InterruptedException Occurred IO exception while calling the api
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse invokeScanLaunch(String host, String launchScanRequestBody)
-            throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_START_SCAN_API);
-        return doHttpPost(url, launchScanRequestBody);
+    public HttpResponse invokeScanLaunch(String launchScanRequestBody)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = startScanEndpoint;
+        return HTTPUtil.sendPOST(url, launchScanRequestBody, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Retrieve status based on status group type.
+     * Invoke Qualys API to retrieve status based on status group type.
      *
-     * @param host   qualys endpoint
      * @param scanId scanId
      * @return returns http response if response code is 200
-     * @throws IOException          Occurred IO exception while calling the api
-     * @throws InterruptedException Occurred IO exception while calling the api
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse invokeGetStatus(String host, String scanId) throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_GET_STATUS_API.concat(scanId));
-        HttpResponse response = doHttpGet(url);
-        return response;
+    public HttpResponse invokeGetStatus(String scanId)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = getStatusEndpoint.concat(scanId);
+        return HTTPUtil.sendGET(url, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Invoke authentication record deletion API.
+     * Invoke Qualys API to delete authentication record.
      *
-     * @param host   qualys end point.
-     * @param authId authentication script id.
+     * @param authId authentication script id
      * @return Http response
-     * @throws IOException          Occurred IO exception while calling the api
-     * @throws InterruptedException Occurred IO exception while calling the api
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    public HttpResponse invokeAuthRecordDeletion(String host, String authId) throws IOException, InterruptedException {
-        String url = host.concat(QualysScannerConstants.QUALYS_DELETE_AUTH_RECORD_API.concat(authId));
-        HttpResponse response = doHttpPost(url, null);
-        return response;
+    public HttpResponse invokeAuthRecordDeletion(String authId)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = deleteAuthRecordEndpoint.concat(authId);
+        return HTTPUtil.sendPOST(url, null, basicAuth, retryTimeInterval);
     }
 
     /**
-     * Perform a http post request.
+     * Invoke Qualys API to get report status.
      *
-     * @param url         url
-     * @param requestBody http post request body
-     * @return response response of HTTP Post Request
-     * @throws IOException          Error occurred while processing the http post request
-     * @throws InterruptedException Error occurred while processing the http post request
+     * @param reportId authentication script id
+     * @return Http response
+     * @throws IOException            error occurred IO exception while calling the api
+     * @throws InterruptedException   error occurred IO exception while calling the api
+     * @throws RetryExceededException error occurred while retrying http get request
      */
-    private HttpResponse doHttpPost(String url, String requestBody) throws IOException, InterruptedException {
-        HttpResponse response;
-        HttpPost postRequest = new HttpPost(url);
-        postRequest.addHeader("Authorization", "Basic " + new String(basicAuth));
-        HttpClient client = HttpClientBuilder.create().build();
-        StringEntity entity;
-        if (requestBody != null) {
-            entity = new StringEntity(requestBody, ContentType.create("text/xml", Consts.UTF_8));
-            postRequest.setEntity(entity);
-        }
-        response = client.execute(postRequest);
-        int responseCode = response.getStatusLine().getStatusCode();
-        if (responseCode == HttpStatus.OK.value()) {
-            return response;
-        } else if (HttpStatus.NOT_FOUND.value() == responseCode
-                || HttpStatus.INTERNAL_SERVER_ERROR.value() == responseCode
-                || HttpStatus.REQUEST_TIMEOUT.value() == responseCode
-                || HttpStatus.SERVICE_UNAVAILABLE.value() == responseCode) {
-            retryTimeInterval += Long.parseLong(QualysScannerConfiguration.getInstance()
-                    .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
-            String logMessage =
-                    "Qualys endpoint is not currently available and will retry after " + retryTimeInterval + " Seconds";
-            log.info(logMessage);
-            TimeUnit.MINUTES.sleep(retryTimeInterval);
-            doHttpPost(url, requestBody);
-        } else {
-            throw new HttpResponseException(response.getStatusLine().getStatusCode(),
-                    response.getStatusLine().getReasonPhrase());
-        }
-        return response;
-    }
-
-    /**
-     * Perform a http get request.
-     *
-     * @param url url
-     * @return response
-     * @throws IOException          Error occurred while processing the http post request
-     * @throws InterruptedException Error occurred while processing the http post request
-     */
-    private HttpResponse doHttpGet(String url) throws IOException, InterruptedException {
-        HttpResponse response;
-        HttpGet getRequest = new HttpGet(url);
-        getRequest.addHeader("Authorization", "Basic " + new String(basicAuth));
-        getRequest.addHeader("Accept", "application/xml");
-        HttpClient client = HttpClientBuilder.create().build();
-        response = client.execute(getRequest);
-        int responseCode = response.getStatusLine().getStatusCode();
-        if (responseCode == HttpStatus.OK.value()) {
-            return response;
-        } else if (HttpStatus.NOT_FOUND.value() == responseCode
-                || HttpStatus.INTERNAL_SERVER_ERROR.value() == responseCode
-                || HttpStatus.REQUEST_TIMEOUT.value() == responseCode
-                || HttpStatus.SERVICE_UNAVAILABLE.value() == responseCode) {
-            retryTimeInterval += Long.parseLong(QualysScannerConfiguration.getInstance()
-                    .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
-
-            log.info("Qualys endpoint is not currently available and will retry after " + retryTimeInterval
-                    + " Seconds");
-            TimeUnit.MINUTES.sleep(retryTimeInterval);
-            doHttpGet(url);
-        } else {
-            throw new HttpResponseException(response.getStatusLine().getStatusCode(),
-                    response.getStatusLine().getReasonPhrase());
-        }
-        return response;
+    public HttpResponse invokeGetReportStatus(String reportId)
+            throws IOException, InterruptedException, RetryExceededException {
+        String url = getReportStatusEndpoint.concat(reportId);
+        return HTTPUtil.sendGET(url, basicAuth, retryTimeInterval);
     }
 }

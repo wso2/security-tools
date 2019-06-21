@@ -27,8 +27,11 @@ import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.util.StringUtils;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 
@@ -43,7 +46,12 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -85,8 +93,8 @@ public class FileUtil {
                 File destinationFile = new File(destination, currentEntry);
                 String canonicalizedDestinationFilePath = destinationFile.getCanonicalPath();
                 if (!canonicalizedDestinationFilePath.startsWith(new File(destination).getCanonicalPath())) {
-                    String errorMessage = "Attempt to upload invalid zip archive with file at " + currentEntry +
-                            ". File path is outside target directory";
+                    String errorMessage = "Attempt to upload invalid zip archive with file at " + currentEntry
+                            + ". File path is outside target directory";
                     log.error(errorMessage);
                 }
 
@@ -116,11 +124,11 @@ public class FileUtil {
      * @throws IOException      when the required file is not found or fails to create the file streams
      * @throws ScannerException when the file list that need to be archived is null
      */
-    public static void zipFiles(String source, String destination) throws ArchiveException, IOException,
-            ScannerException {
+    public static void zipFiles(String source, String destination)
+            throws ArchiveException, IOException, ScannerException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(destination);
-             ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream(
-                     ArchiveStreamFactory.ZIP, fileOutputStream)) {
+                ArchiveOutputStream archive = new ArchiveStreamFactory()
+                        .createArchiveOutputStream(ArchiveStreamFactory.ZIP, fileOutputStream)) {
             File newFile = new File(source);
             File[] fileList = newFile.listFiles();
             if (fileList != null) {
@@ -154,8 +162,8 @@ public class FileUtil {
      * @throws JSchException when unable to create the session for connecting the FTP server
      * @throws SftpException when unable to connect to the FTP server
      */
-    public static void downloadFromFtp(String filePathInFtp, String fileName, File outputFile, String ftpUsername
-            , char[] ftpPassword, String ftpHost, int ftpPort) throws IOException, JSchException, SftpException {
+    public static void downloadFromFtp(String filePathInFtp, String fileName, File outputFile, String ftpUsername,
+            char[] ftpPassword, String ftpHost, int ftpPort) throws IOException, JSchException, SftpException {
         ChannelSftp sftp = openFtpLocation(filePathInFtp, ftpUsername, ftpPassword, ftpHost, ftpPort);
 
         downloadFromFtp(sftp.get(fileName), outputFile);
@@ -176,9 +184,9 @@ public class FileUtil {
      * @throws IOException      when unable to crate stream using the upload file
      * @throws ScannerException when the upload file is null
      */
-    public static void uploadReport(String ftpReportUploadPath, File fileToUpload, String ftpUsername, char[]
-            ftpPassword, String ftpHost, int ftpPort) throws SftpException, JSchException, IOException,
-            ScannerException {
+    public static void uploadReport(String ftpReportUploadPath, File fileToUpload, String ftpUsername,
+            char[] ftpPassword, String ftpHost, int ftpPort)
+            throws SftpException, JSchException, IOException, ScannerException {
         ChannelSftp sftp = openFtpLocation(ftpReportUploadPath, ftpUsername, ftpPassword, ftpHost, ftpPort);
         uploadFileToFtp(sftp, fileToUpload);
     }
@@ -193,13 +201,13 @@ public class FileUtil {
      * @throws UnsupportedEncodingException when unable to create the print stream due to encoding type
      * @throws ScannerException             when unable to find the file path or unable to retrieve data from stream
      */
-    public static boolean saveReport(byte[] bytesResult, String filePath) throws FileNotFoundException,
-            UnsupportedEncodingException, ScannerException {
+    public static boolean saveReport(byte[] bytesResult, String filePath)
+            throws FileNotFoundException, UnsupportedEncodingException, ScannerException {
 
         if (bytesResult != null) {
             if (!(filePath.isEmpty())) {
-                try (PrintStream writer = new PrintStream(new FileOutputStream(filePath), true, StandardCharsets
-                        .UTF_8.name())) {
+                try (PrintStream writer = new PrintStream(new FileOutputStream(filePath), true,
+                        StandardCharsets.UTF_8.name())) {
                     writer.write(bytesResult, 0, bytesResult.length);
                     return true;
                 }
@@ -215,16 +223,16 @@ public class FileUtil {
      * Open the FTP location of the file and return the created channel.
      *
      * @param filePathInFtp path to the file
-     * @param ftpUsername      username of the ftp location where file is located
-     * @param ftpPassword      password of the ftp location where file is located
-     * @param ftpHost      host of the ftp location where file is located
-     * @param ftpPort      port of the ftp location where file is located
+     * @param ftpUsername   username of the ftp location where file is located
+     * @param ftpPassword   password of the ftp location where file is located
+     * @param ftpHost       host of the ftp location where file is located
+     * @param ftpPort       port of the ftp location where file is located
      * @return SFTP channel to access the FTP location
      * @throws JSchException when unable to create the session for connecting the FTP server
      * @throws SftpException when unable to connect to the FTP server
      */
     private static ChannelSftp openFtpLocation(String filePathInFtp, String ftpUsername, char[] ftpPassword,
-                                               String ftpHost, int ftpPort) throws JSchException, SftpException {
+            String ftpHost, int ftpPort) throws JSchException, SftpException {
         JSch jsch = new JSch();
         Session session;
         Channel channel;
@@ -257,7 +265,8 @@ public class FileUtil {
         int readCount;
 
         try (BufferedInputStream sftpFileInputStream = new BufferedInputStream(input);
-             BufferedOutputStream downloadOutputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+                BufferedOutputStream downloadOutputStream = new BufferedOutputStream(
+                        new FileOutputStream(outputFile))) {
             while ((readCount = sftpFileInputStream.read(buffer)) > 0) {
                 downloadOutputStream.write(buffer, 0, readCount);
             }
@@ -284,8 +293,8 @@ public class FileUtil {
      * @throws SftpException    when unable to copy the file to the ftp location
      * @throws ScannerException when the upload file is null
      */
-    private static void uploadFileToFtp(ChannelSftp sftp, File fileToUpload) throws IOException, SftpException,
-            ScannerException {
+    private static void uploadFileToFtp(ChannelSftp sftp, File fileToUpload)
+            throws IOException, SftpException, ScannerException {
         if (fileToUpload != null) {
             File file = new File(String.valueOf(fileToUpload));
             try (InputStream inputStream = new FileInputStream(file)) {
@@ -295,5 +304,58 @@ public class FileUtil {
             throw new ScannerException("Upload file cannot be null.");
         }
         sftp.disconnect();
+    }
+
+    /**
+     * Read a file and get the content.
+     *
+     * @param filePath file path
+     * @return File content
+     * @throws IOException Error occurred while reading the XML content file.
+     */
+    public static String getContentFromFile(String filePath) throws IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+
+        try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        }
+
+        return contentBuilder.toString();
+    }
+
+    /**
+     * Write file
+     *
+     * @param response            Http response
+     * @param reportDirectoryPath Report Directory Path
+     * @return file path
+     * @throws IOException      exception occurred while writing file
+     * @throws ScannerException exception occurred while retrieving the file name from response.
+     */
+    public static String writeFile(HttpResponse response, String reportDirectoryPath)
+            throws IOException, ScannerException {
+        HttpEntity entity = response.getEntity();
+        String filePath = null;
+        if (entity != null) {
+            Pattern contentDispositionPattern = Pattern.compile(ScannerConstants.CONTENT_DISPOSITION_PATTERN);
+            Matcher m = contentDispositionPattern
+                    .matcher(response.getFirstHeader(ScannerConstants.CONTENT_DISPOSITION).getValue());
+            String contentDisposition = null;
+            if (m.find()) {
+                contentDisposition = m.group(1);
+            }
+            if (!StringUtils.isEmpty(contentDisposition)) {
+                String fileName = contentDisposition;
+                filePath = reportDirectoryPath + File.separator + fileName;
+                try (FileOutputStream fos = new FileOutputStream(filePath)) {
+                    entity.writeTo(fos);
+                    fos.close();
+                }
+            } else {
+                throw new ScannerException(
+                        "Failed to retrieve file name of the report Since content Disposition is null");
+            }
+        }
+        return filePath;
     }
 }
