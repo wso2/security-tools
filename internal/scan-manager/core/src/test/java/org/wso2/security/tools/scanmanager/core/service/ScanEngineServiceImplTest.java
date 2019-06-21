@@ -169,7 +169,7 @@ public class ScanEngineServiceImplTest {
             if (scan != null && container != null) {
                 Mockito.when(scanService.getByJobId(scan.getJobId())).thenReturn(scan);
                 PowerMockito.mockStatic(HTTPUtil.class);
-                PowerMockito.when(HTTPUtil.sendDelete(Matchers.any(HTTPRequest.class)))
+                PowerMockito.when(HTTPUtil.sendDELETE(Matchers.any(HTTPRequest.class)))
                         .thenReturn(new ResponseEntity(HttpStatus.OK));
                 PowerMockito.when(containerHandler.list()).thenReturn(Collections.singletonList(container));
                 Mockito.doNothing().when(scanService).updateStatus(scan.getJobId(), ScanStatus.CANCEL_PENDING);
@@ -179,7 +179,7 @@ public class ScanEngineServiceImplTest {
                 // Verify the request object passed to the DELETE request to cancel a scan.
                 PowerMockito.verifyStatic();
                 ArgumentCaptor<HTTPRequest> requestParamsCaptor = ArgumentCaptor.forClass(HTTPRequest.class);
-                HTTPUtil.sendDelete(requestParamsCaptor.capture());
+                HTTPUtil.sendDELETE(requestParamsCaptor.capture());
                 HTTPRequest requestParam = requestParamsCaptor.getValue();
                 Assert.assertNotNull(requestParam);
                 Assert.assertEquals(scan.getJobId(), requestParam.getRequestParams().get(JOB_ID_PARAMETER_NAME));

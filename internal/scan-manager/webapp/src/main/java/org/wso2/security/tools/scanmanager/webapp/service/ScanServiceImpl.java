@@ -362,7 +362,7 @@ public class ScanServiceImpl implements ScanService {
         try {
             HTTPRequest stopScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
                     .getScanURL(id, nameValuePairs).toString(), null, null);
-            return HTTPUtil.sendDelete(stopScanRequest);
+            return HTTPUtil.sendDELETE(stopScanRequest);
         } catch (RestClientException e) {
             throw new ScanManagerWebappException("Error occurred while stopping the scan with the job id: " + id);
         }

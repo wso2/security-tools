@@ -85,7 +85,7 @@ public class HTTPUtil {
      * @return a response entity object
      * @throws RestClientException when an error occurs while initiating the request
      */
-    public static ResponseEntity<String> sendDelete(HTTPRequest httpRequest) throws RestClientException {
+    public static ResponseEntity<String> sendDELETE(HTTPRequest httpRequest) throws RestClientException {
         HttpEntity<?> request = new HttpEntity<>(httpRequest.getRequestParams(), httpRequest.getRequestHeaders());
         ResponseEntity<String> response = new RestTemplate()
                 .exchange(httpRequest.getUrl(), HttpMethod.DELETE, request, String.class);
