@@ -153,7 +153,6 @@ public class ScannerController {
     }
 
     private boolean stopStartScanThread() {
-
         while (startScanThread.isAlive()) {
             // run until the start scan thread is dead.
         }
