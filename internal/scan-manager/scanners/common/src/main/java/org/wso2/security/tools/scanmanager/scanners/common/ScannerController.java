@@ -35,6 +35,7 @@ import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Web controller which defines the routines for initiating scanner operations.
@@ -48,9 +49,6 @@ public class ScannerController {
 
     // Scan task thread.
     Thread startScanThread;
-
-    // Cancel scan task thread.
-    Thread cancelScanThread;
 
     // This represents if a scan is started.
     private boolean hasScanStarted = false;
@@ -76,11 +74,11 @@ public class ScannerController {
             if (scanner.validateStartScan(scannerScanRequest)) {
                 log.info("Invoking start scan API.");
                 startScanThread = new Thread(() -> scanner.startScan(scannerScanRequest), "StartScanThread");
-
                 startScanThread.start();
                 hasScanStarted = true;
             } else {
                 String message = "Start scan request validation is failed.";
+                log.error(message);
                 responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                         message), HttpStatus.BAD_REQUEST);
             }
@@ -90,24 +88,27 @@ public class ScannerController {
 
     private ResponseEntity validateStartScanReq(ScannerScanRequest scannerScanRequest) {
         ResponseEntity responseEntity;
-        if (!hasScanStarted) {
-            if (!StringUtils.isEmpty(scannerScanRequest.getAppId())) {
-                if (!StringUtils.isEmpty(scannerScanRequest.getJobId())) {
-                    responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
-                } else {
-                    String message = "Job Id is missing in the request.";
-                    responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
-                            message), HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                String message = "Application Id is missing in the request.";
-                responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
-                        message), HttpStatus.BAD_REQUEST);
-            }
-        } else {
+        if (hasScanStarted) {
             String message = "Cannot start a new scan since another scan is in progress.";
+            log.error(message);
             responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                     message), HttpStatus.BAD_REQUEST);
+        } else {
+            if (StringUtils.isEmpty(scannerScanRequest.getAppId())) {
+                String message = "Application Id is missing in the request.";
+                log.error(message);
+                responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                        message), HttpStatus.BAD_REQUEST);
+            } else {
+                if (StringUtils.isEmpty(scannerScanRequest.getJobId())) {
+                    String message = "Job Id is missing in the request.";
+                    log.error(message);
+                    responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                            message), HttpStatus.BAD_REQUEST);
+                } else {
+                    responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
+                }
+            }
         }
         return responseEntity;
     }
@@ -123,11 +124,7 @@ public class ScannerController {
     public ResponseEntity cancelScan(@RequestBody ScannerScanRequest scanRequest) {
         ResponseEntity responseEntity;
 
-        if (!hasScanStarted) {
-            String message = "No scan running to perform cancellation.";
-            responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(),
-                    message), HttpStatus.BAD_REQUEST);
-        } else {
+        if (hasScanStarted) {
             log.info("Invoking cancel scan API.");
             if (scanner.validateCancelScan(scanRequest)) {
                 if (startScanThread != null) {
@@ -136,26 +133,36 @@ public class ScannerController {
                     log.info("There is no running scan thread to cancel.");
                 }
 
-                cancelScanThread = new Thread(() -> {
+                new Thread(() -> {
                     stopStartScanThread();
                     scanner.cancelScan(scanRequest);
-                }, "CancelScanThread");
-                cancelScanThread.start();
+                }, "CancelScanThread").start();
 
                 responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
             } else {
                 String message = "Cancel scan request validation is failed.";
+                log.error(message);
                 responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                         message), HttpStatus.BAD_REQUEST);
             }
+        } else {
+            String message = "No scan running to perform cancellation.";
+            log.error(message);
+            responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.NOT_ACCEPTABLE.value(),
+                    message), HttpStatus.BAD_REQUEST);
         }
         return responseEntity;
     }
 
     private boolean stopStartScanThread() {
-
         while (startScanThread.isAlive()) {
             // run until the start scan thread is dead.
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                log.error("Interrupted exception occured while waiting till the start scan thread is dead. \n" +
+                        e.getMessage());
+            }
         }
         return true;
     }

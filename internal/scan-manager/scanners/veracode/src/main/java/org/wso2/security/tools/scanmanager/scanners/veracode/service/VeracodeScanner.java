@@ -77,17 +77,18 @@ public class VeracodeScanner implements Scanner {
                 VeracodeScannerConstants.VERACODE_API_KEY));
 
         VeracodeAPIUtil.setCredentials(options);
-        CallbackUtil.setCallbackUrls(ScannerConstants.HTTP_PROTOCOL + System.getenv(ScannerConstants.SCAN_MANAGER_HOST)
-                        + ":" + System.getenv(ScannerConstants.SCAN_MANAGER_PORT) + VeracodeScannerConfiguration
-                        .getInstance().getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT) +
-                        VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants
-                                .SCAN_MANAGER_CALLBACK_LOG), ScannerConstants.HTTP_PROTOCOL + System.getenv(
-                ScannerConstants.SCAN_MANAGER_HOST) + ":" + System.getenv(ScannerConstants
-                        .SCAN_MANAGER_PORT) + VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT) + VeracodeScannerConfiguration
-                        .getInstance().getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS),
-                Long.parseLong(VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants
-                        .CALLBACK_RETRY_INCREASE_SECONDS)));
+
+        String callbackUrl = ScannerConstants.HTTP_PROTOCOL + System.getenv(ScannerConstants.SCAN_MANAGER_HOST) + ":"
+                + System.getenv(ScannerConstants.SCAN_MANAGER_PORT) + VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
+        String logCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                ScannerConstants.SCAN_MANAGER_CALLBACK_LOG);
+        String statusCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS);
+        Long callbackRetryInterval = Long.parseLong(VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
+
+        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
     }
 
     /**
@@ -113,18 +114,18 @@ public class VeracodeScanner implements Scanner {
         scanContext.setArtifactLocation(scanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT).get(0));
 
         if (scanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT) != null) {
-            if (!StringUtils.isEmpty(scanContext.getAppId())) {
-                if (!Thread.currentThread().isInterrupted()) {
-                    ScanTask scanTask = new ScanTask(scanContext);
-                    scanTask.run();
-                } else {
-                    String message = "Current thread is interrupted. ";
-                    log.error(new CallbackLog(scanContext.getJobId(), message));
-                }
-            } else {
+            if (StringUtils.isEmpty(scanContext.getAppId())) {
                 String message = "Error occured while submitting the start scan request since the application " +
                         "is empty in the request. ";
                 callbackErrorReport(message);
+            } else {
+                if (Thread.currentThread().isInterrupted()) {
+                    String message = "Current thread is interrupted. ";
+                    log.error(new CallbackLog(scanContext.getJobId(), message));
+                } else {
+                    ScanTask scanTask = new ScanTask(scanContext);
+                    scanTask.run();
+                }
             }
         } else {
             String message = "Error occured while submitting the start scan request since the scan artifacts " +
@@ -136,10 +137,10 @@ public class VeracodeScanner implements Scanner {
     @Override
     public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
 
-        if (!StringUtils.isEmpty(scannerScanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT))) {
-            return true;
-        } else {
+        if (StringUtils.isEmpty(scannerScanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT))) {
             return false;
+        } else {
+            return true;
         }
     }
 
