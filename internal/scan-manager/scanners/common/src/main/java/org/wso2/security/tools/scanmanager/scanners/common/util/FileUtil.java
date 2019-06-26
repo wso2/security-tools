@@ -84,13 +84,17 @@ public class FileUtil {
                 // Handing for the Zip Slip Vulnerability
                 File destinationFile = new File(destination, currentEntry);
                 String canonicalizedDestinationFilePath = destinationFile.getCanonicalPath();
-                if (!canonicalizedDestinationFilePath.startsWith(new File(destination).getCanonicalPath())) {
+                if (canonicalizedDestinationFilePath.startsWith(new File(destination).getCanonicalPath())) {
+                    // if a valid zip file uploaded
+                } else {
                     String errorMessage = "Attempt to upload invalid zip archive with file at " + currentEntry +
                             ". File path is outside target directory";
                     log.error(errorMessage);
                 }
 
-                if (!entry.isDirectory()) {
+                if (entry.isDirectory()) {
+                    // if the entry is a directory
+                } else {
                     zipInputStream = zip.getInputStream(entry);
                     inputStream = new BufferedInputStream(zipInputStream);
                     if (destinationFile.getParentFile().mkdirs()) {
@@ -155,7 +159,7 @@ public class FileUtil {
      * @throws SftpException when unable to connect to the FTP server
      */
     public static void downloadFromFtp(String filePathInFtp, String fileName, File outputFile, String ftpUsername
-            , char[] ftpPassword, String ftpHost, int ftpPort) throws IOException, JSchException, SftpException {
+            , char[] ftpPassword, String ftpHost, int ftpPort) throws JSchException, SftpException, IOException {
         ChannelSftp sftp = openFtpLocation(filePathInFtp, ftpUsername, ftpPassword, ftpHost, ftpPort);
 
         downloadFromFtp(sftp.get(fileName), outputFile);
@@ -197,14 +201,14 @@ public class FileUtil {
             UnsupportedEncodingException, ScannerException {
 
         if (bytesResult != null) {
-            if (!(filePath.isEmpty())) {
+            if (filePath.isEmpty()) {
+                throw new ScannerException("Output file path is missing.");
+            } else {
                 try (PrintStream writer = new PrintStream(new FileOutputStream(filePath), true, StandardCharsets
                         .UTF_8.name())) {
                     writer.write(bytesResult, 0, bytesResult.length);
                     return true;
                 }
-            } else {
-                throw new ScannerException("Output file path is missing.");
             }
         } else {
             throw new ScannerException("Unable to retrieve data from byte stream.");
@@ -215,10 +219,10 @@ public class FileUtil {
      * Open the FTP location of the file and return the created channel.
      *
      * @param filePathInFtp path to the file
-     * @param ftpUsername      username of the ftp location where file is located
-     * @param ftpPassword      password of the ftp location where file is located
-     * @param ftpHost      host of the ftp location where file is located
-     * @param ftpPort      port of the ftp location where file is located
+     * @param ftpUsername   username of the ftp location where file is located
+     * @param ftpPassword   password of the ftp location where file is located
+     * @param ftpHost       host of the ftp location where file is located
+     * @param ftpPort       port of the ftp location where file is located
      * @return SFTP channel to access the FTP location
      * @throws JSchException when unable to create the session for connecting the FTP server
      * @throws SftpException when unable to connect to the FTP server
@@ -240,7 +244,7 @@ public class FileUtil {
         sftp.connect();
         sftp.cd(filePathInFtp);
 
-        cleanFtpPassword(ftpPassword);
+        cleanPassword(ftpPassword);
 
         return sftp;
     }
@@ -267,11 +271,11 @@ public class FileUtil {
     /**
      * Clean the FTP password from the variable.
      *
-     * @param ftpPassword password that needs to be cleared
+     * @param password password that needs to be cleared
      */
-    private static void cleanFtpPassword(char[] ftpPassword) {
-        for (int i = 0; i < ftpPassword.length; i++) {
-            ftpPassword[i] = '\0';
+    public static void cleanPassword(char[] password) {
+        for (int i = 0; i < password.length; i++) {
+            password[i] = '\0';
         }
     }
 

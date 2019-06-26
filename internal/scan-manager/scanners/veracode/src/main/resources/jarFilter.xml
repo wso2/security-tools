@@ -19,17 +19,17 @@ under the License.
 <formats>
     <format>
         <prefix>org.jaggeryjs.</prefix>
-        <sufix>.jar</sufix>
+        <suffix>.jar</suffix>
     </format>
     <format>
         <prefix>org.wso2.</prefix>
-        <sufix>.jar</sufix>
+        <suffix>.jar</suffix>
     </format>
     <format>
         <prefix>siddhi-</prefix>
-        <sufix>.jar</sufix>
+        <suffix>.jar</suffix>
     </format>
     <format>
-        <sufix>.war</sufix>
+        <suffix>.war</suffix>
     </format>
 </formats>
