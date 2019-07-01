@@ -19,17 +19,16 @@ package org.wso2.security.tools.scanmanager.scanners.veracode.service;
 
 import com.veracode.apiwrapper.cli.VeracodeCommand;
 import com.veracode.apiwrapper.wrappers.UploadAPIWrapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
-import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
-import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
@@ -41,7 +40,6 @@ import org.wso2.security.tools.scanmanager.scanners.veracode.model.ScanContext;
 import org.wso2.security.tools.scanmanager.scanners.veracode.util.VeracodeAPIUtil;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -53,8 +51,7 @@ import javax.xml.xpath.XPathExpressionException;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class VeracodeScanner implements Scanner {
 
-    // Scan task thread.
-    Thread scanTaskThread;
+    private static final Logger log = LogManager.getLogger(VeracodeScanner.class);
 
     // Scan context object for a particular container.
     private ScanContext scanContext;
@@ -72,9 +69,6 @@ public class VeracodeScanner implements Scanner {
         options = new VeracodeCommand.Options();
         options._output_folderpath = VeracodeScannerConfiguration.getInstance().getConfigProperty(
                 VeracodeScannerConstants.VERACODE_OUTPUT_FOLDER_PATH);
-        options._output_filepath = VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                VeracodeScannerConstants.VERACODE_OUTPUT_FOLDER_PATH) + File.separator + VeracodeScannerConfiguration
-                .getInstance().getConfigProperty(VeracodeScannerConstants.VERACODE_OUTPUT_FILE_NAME);
         options._log_filepath = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
                 .VERACODE_LOG_FILE_PATH);
         options._vid = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
@@ -83,13 +77,18 @@ public class VeracodeScanner implements Scanner {
                 VeracodeScannerConstants.VERACODE_API_KEY));
 
         VeracodeAPIUtil.setCredentials(options);
-        CallbackUtil.setCallbackUrls(VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants
-                        .SCAN_MANAGER_CALLBACK_URL) + VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                ScannerConstants.SCAN_MANAGER_CALLBACK_LOG), VeracodeScannerConfiguration.getInstance()
-                        .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL) + VeracodeScannerConfiguration
-                        .getInstance().getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS),
-                Long.parseLong(VeracodeScannerConfiguration.getInstance().getConfigProperty(ScannerConstants
-                        .CALLBACK_RETRY_INCREASE_SECONDS)));
+
+        String callbackUrl = ScannerConstants.HTTP_PROTOCOL + System.getenv(ScannerConstants.SCAN_MANAGER_HOST) + ":"
+                + System.getenv(ScannerConstants.SCAN_MANAGER_PORT) + VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
+        String logCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                ScannerConstants.SCAN_MANAGER_CALLBACK_LOG);
+        String statusCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS);
+        Long callbackRetryInterval = Long.parseLong(VeracodeScannerConfiguration.getInstance().getConfigProperty(
+                ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
+
+        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
     }
 
     /**
@@ -107,41 +106,51 @@ public class VeracodeScanner implements Scanner {
      * Run the scan using product zip file.
      *
      * @param scanRequest Object that represent the required information for the scanner operation
-     * @return ResponseEntity with status of the request
      */
     @Override
-    public ResponseEntity startScan(ScannerScanRequest scanRequest) {
+    public void startScan(ScannerScanRequest scanRequest) {
         scanContext.setJobId(scanRequest.getJobId());
         scanContext.setAppId(scanRequest.getAppId());
         scanContext.setArtifactLocation(scanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT).get(0));
-        ResponseEntity responseEntity;
 
         if (scanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT) != null) {
-            if (!StringUtils.isEmpty(scanContext.getAppId())) {
-                responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
-                startVeracodeScan();
-            } else {
+            if (StringUtils.isEmpty(scanContext.getAppId())) {
                 String message = "Error occured while submitting the start scan request since the application " +
                         "is empty in the request. ";
-                responseEntity = callbackErrorReport(message, HttpStatus.BAD_REQUEST);
+                callbackErrorReport(message);
+            } else {
+                if (Thread.currentThread().isInterrupted()) {
+                    String message = "Current thread is interrupted. ";
+                    log.error(new CallbackLog(scanContext.getJobId(), message));
+                } else {
+                    ScanTask scanTask = new ScanTask(scanContext);
+                    scanTask.run();
+                }
             }
         } else {
             String message = "Error occured while submitting the start scan request since the scan artifacts " +
                     "are empty in the request. ";
-            responseEntity = callbackErrorReport(message, HttpStatus.BAD_REQUEST);
+            callbackErrorReport(message);
         }
-        return responseEntity;
+    }
+
+    @Override
+    public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
+
+        if (StringUtils.isEmpty(scannerScanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT))) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
      * Stop the last scan for a given application.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
-     * @return ResponseEntity with status of the request
      */
     @Override
-    public ResponseEntity cancelScan(ScannerScanRequest scanRequest) {
-        ResponseEntity responseEntity;
+    public void cancelScan(ScannerScanRequest scanRequest) {
         String scanInfoResult;
         String deleteApiResult;
         ScanStatus currentScanStatus;
@@ -155,53 +164,41 @@ public class VeracodeScanner implements Scanner {
                 deleteApiResult = uploadAPIWrapper.deleteBuild(scanContext.getAppId());
                 if (VeracodeResultProcessor.isOperationProceedWithoutError(deleteApiResult)) {
                     String message = "Successfully cancelled the scan of the application : " + scanRequest.getAppId();
+                    log.info(new CallbackLog(scanRequest.getJobId(), message));
+
                     CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.CANCELED, null, null);
-                    CallbackUtil.persistScanLog(scanContext.getJobId(), message, LogType.INFO);
-                    responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
                 } else {
                     String message = "Error occured while deleting the last scan of the application : "
                             + scanRequest.getAppId();
-                    responseEntity = callbackErrorReport(message, HttpStatus.BAD_REQUEST);
+                    callbackErrorReport(message);
                 }
             } else {
                 String message = "Successfully cancelled the scan of the application : " + scanRequest.getAppId();
+                log.info(new CallbackLog(scanContext.getJobId(), message));
+
                 CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.CANCELED, null, null);
-                CallbackUtil.persistScanLog(scanContext.getJobId(), message, LogType.INFO);
-                responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
-                scanTaskThread.interrupt();
             }
         } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
             String message = "Error occured while deleting the last scan of the application : "
                     + scanRequest.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
-            responseEntity = callbackErrorReport(message, HttpStatus.INTERNAL_SERVER_ERROR);
+            callbackErrorReport(message);
         }
-        return responseEntity;
     }
 
-    /**
-     * Initiate the scan in the Veracode.
-     */
-    private void startVeracodeScan() {
-        ScanTask scanTask = new ScanTask(scanContext);
-
-        scanTaskThread = new Thread(scanTask);
-        scanTaskThread.start();
+    @Override
+    public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
+        return true;
     }
 
     /**
      * Update the call back endpoint when error happens at the service layer.
      *
-     * @param message    error message
-     * @param httpStatus http status code of the error
+     * @param message error message
      * @return ResponseEntity with status of the updating the call back endpoint
      */
-    private ResponseEntity callbackErrorReport(String message, HttpStatus httpStatus) {
-        ResponseEntity responseEntity = new ResponseEntity<>(new ErrorMessage(httpStatus.value(), message),
-                HttpStatus.BAD_REQUEST);
+    private void callbackErrorReport(String message) {
+        log.error(new CallbackLog(scanContext.getJobId(), message));
 
         CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
-        CallbackUtil.persistScanLog(scanContext.getJobId(), message, LogType.ERROR);
-
-        return responseEntity;
     }
 }

@@ -30,7 +30,6 @@ public final class VeracodeScannerConstants {
     public static final String VERACODE_LOG_FILE_PATH = "log_filepath";
     public static final String SCANNER_BEAN_CLASS_NAME = "scanner_bean_class";
     public static final String DEFAULT_PRODUCT_PATH = "default_product_path";
-    public static final String DEFAULT_GIT_PRODUCT_PATH = "default_git_product_path";
     public static final String JAR_FILTER_PATTERN_FILE_PATH = "jar_filter_pattern_file_path";
     public static final String PREFIX = "prefix";
     public static final String SUFFIX = "suffix";

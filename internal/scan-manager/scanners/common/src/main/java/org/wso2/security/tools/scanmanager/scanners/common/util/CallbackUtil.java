@@ -17,7 +17,9 @@
  */
 package org.wso2.security.tools.scanmanager.scanners.common.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
@@ -35,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CallbackUtil {
 
-    private static final Logger log = Logger.getLogger(CallbackUtil.class);
+    private static final Logger log = LogManager.getLogger(CallbackUtil.class);
     private static String scanManagerLogCallbackURL;
     private static String scanManagerStatusCallbackURL;
     private static Long retryTimeInterval = Long.valueOf(0);
@@ -97,7 +99,7 @@ public class CallbackUtil {
             try {
                 log.info("Callback log endpoint is not currently available and will retry after " +
                         statusUpdateRetryTimeInterval + " Seconds");
-                TimeUnit.MINUTES.sleep(statusUpdateRetryTimeInterval);
+                TimeUnit.SECONDS.sleep(statusUpdateRetryTimeInterval);
             } catch (InterruptedException e) {
                 log.error(e);
             }
@@ -114,9 +116,26 @@ public class CallbackUtil {
      *
      * @param jobId   id of the scan manager for the current scan
      * @param message log message
-     * @param type    log type
+     * @param level   log level
      */
-    public static void persistScanLog(String jobId, String message, LogType type) {
+    public static void persistScanLog(String jobId, String message, Level level) {
+        LogType type;
+        switch (level.toString()) {
+            case "INFO":
+                type = LogType.INFO;
+                break;
+            case "DEBUG":
+                type = LogType.DEBUG;
+                break;
+            case "WARN":
+                type = LogType.WARN;
+                break;
+            case "ERROR":
+                type = LogType.ERROR;
+                break;
+            default:
+                type = null;
+        }
         persistScanLog(jobId, message, type, Long.valueOf(0));
     }
 
@@ -152,7 +171,7 @@ public class CallbackUtil {
                 log.info("Callback log endpoint is not currently available and will retry after " + retryTimeInterval
                         + " Seconds");
 
-                TimeUnit.MINUTES.sleep(retryTimeInterval);
+                TimeUnit.SECONDS.sleep(retryTimeInterval);
             } catch (InterruptedException e) {
                 log.error(e);
             }

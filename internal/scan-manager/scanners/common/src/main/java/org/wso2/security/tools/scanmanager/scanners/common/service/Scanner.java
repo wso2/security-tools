@@ -20,7 +20,6 @@
 
 package org.wso2.security.tools.scanmanager.scanners.common.service;
 
-import org.springframework.http.ResponseEntity;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
 
 /**
@@ -32,16 +31,29 @@ public interface Scanner {
      * Run scan.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
-     * @return details of the start scan response from the scanner service
      */
-    public ResponseEntity startScan(ScannerScanRequest scanRequest);
+    public void startScan(ScannerScanRequest scanRequest);
+
+    /**
+     * Validate the start scan request.
+     *
+     * @param scannerScanRequest start scan request
+     * @return whether start scan request is a valid one
+     */
+    public boolean validateStartScan(ScannerScanRequest scannerScanRequest);
 
     /**
      * Stop the last scan for a given application.
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
-     * @return details of the cancel scan response from the scanner service
      */
-    public ResponseEntity cancelScan(ScannerScanRequest scanRequest);
+    public void cancelScan(ScannerScanRequest scanRequest);
 
+    /**
+     * Validate the cancel scan request.
+     *
+     * @param scannerScanRequest cancel scan request
+     * @return whether cancel scan request is a valid one
+     */
+    public boolean validateCancelScan(ScannerScanRequest scannerScanRequest);
 }
