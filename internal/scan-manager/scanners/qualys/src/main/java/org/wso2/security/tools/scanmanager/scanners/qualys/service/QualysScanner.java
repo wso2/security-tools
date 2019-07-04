@@ -21,19 +21,17 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.service;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequest;
-import org.wso2.security.tools.scanmanager.common.model.ErrorMessage;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
+import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
@@ -57,10 +55,11 @@ import java.util.Map;
 /**
  * This class is responsible to initiate the generic use cases of Qualys scanner
  */
-@Component("QualysScanner") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) public class QualysScanner
-        implements Scanner {
+@Component("QualysScanner")
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class QualysScanner implements Scanner {
 
-    private final Log log = LogFactory.getLog(QualysScanner.class);
+    private static final Logger log = LogManager.getLogger(QualysScanner.class);
     private QualysScanHandler qualysScanHandler;
     private ScanContext scanContext;
 
@@ -73,69 +72,70 @@ import java.util.Map;
         qualysApiInvoker.setBasicAuth(setCredentials());
         this.qualysScanHandler = new QualysScanHandler(qualysApiInvoker);
         this.scanContext = new ScanContext();
-        CallbackUtil.setCallbackUrls(
-                QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL)
-                        + QualysScannerConfiguration.getInstance()
-                        .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_LOG),
-                QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL)
-                        + QualysScannerConfiguration.getInstance()
-                        .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS), Long.parseLong(
-                        QualysScannerConfiguration.getInstance()
-                                .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS)));
+
+        // Setting callbackUrls.
+        String callbackUrl =
+                ScannerConstants.HTTP_PROTOCOL + System.getenv(ScannerConstants.SCAN_MANAGER_HOST) + ":" + System
+                        .getenv(ScannerConstants.SCAN_MANAGER_PORT) + QualysScannerConfiguration.getInstance()
+                        .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
+        String logCallbackUrl = callbackUrl + QualysScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_LOG);
+        String statusCallbackUrl = callbackUrl + QualysScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS);
+        Long callbackRetryInterval = Long.parseLong(QualysScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
+        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
     }
 
-    @Override public ResponseEntity startScan(ScannerScanRequest scanRequest) {
-        ResponseEntity responseEntity = null;
-        try {
-            scanContext.setJobID(scanRequest.getJobId());
-            if (isValidParameters(scanRequest)) {
-                scanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
-                        QUALYS_WEBAPP_KEYWORD).get(0));
-                scanContext.setSchedulerDelay(QualysScannerConfiguration.getInstance().getSchedulerDelay());
-
-                // Spawn thread to start the scan.
-                startQualysScan(scanRequest.getFileMap());
-                String logMessage = "Given parameters are validated and submitted for scanning.";
-                log.info(logMessage);
-                responseEntity = new ResponseEntity<>(HttpStatus.ACCEPTED);
-            }
-        } catch (InvalidRequestException e) {
-            String message = "Error occurred while submitting the start scan request since given parameters are given "
-                    + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(message);
-            CallbackUtil.updateScanStatus(scanRequest.getJobId(), ScanStatus.ERROR, null, null);
-            responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(), message),
-                    HttpStatus.BAD_REQUEST);
+    @Override public void startScan(ScannerScanRequest scanRequest) {
+        scanContext.setJobID(scanRequest.getJobId());
+        scanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
+                QUALYS_WEBAPP_KEYWORD).get(0));
+        scanContext.setSchedulerDelay(QualysScannerConfiguration.getInstance().getSchedulerDelay());
+        if (Thread.currentThread().isInterrupted()) {
+            String message = "Current thread is interrupted. ";
+            log.error(new CallbackLog(scanContext.getJobID(), message));
+        } else {
+            // Spawn thread to start the scan.
+            startQualysScan(scanRequest.getFileMap());
+            String logMessage = "Given parameters are validated and submitted for scanning.";
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         }
-        return responseEntity;
     }
 
-    @Override public ResponseEntity cancelScan(ScannerScanRequest scanRequest) {
-        ResponseEntity responseEntity;
+    @Override public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
+        boolean isValidParameters = false;
+        try {
+            isValidParameters = isValidParameters(scannerScanRequest);
+        } catch (InvalidRequestException e) {
+            callbackErrorReport(ErrorProcessingUtil.getFullErrorMessage(e));
+        }
+        return isValidParameters;
+    }
+
+    @Override public void cancelScan(ScannerScanRequest scanRequest) {
         try {
             qualysScanHandler.cancelScan(scanContext.getScannerScanId(), scanRequest.getJobId());
-            responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.ACCEPTED.value(), "Scan is cancelled"),
-                    HttpStatus.ACCEPTED);
         } catch (ScannerException e) {
             String message = "Error occurred while cancelling scan. Web App ID : " + scanRequest.getAppId();
-            log.error(message);
-            CallbackUtil.updateScanStatus(scanRequest.getJobId(), ScanStatus.ERROR, null, null);
-            responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), message),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            callbackErrorReport(message);
         } finally {
             try {
                 qualysScanHandler.doCleanUp(scanContext);
             } catch (ScannerException e) {
                 String message =
                         "Error occurred while doing the cleanup task. " + ErrorProcessingUtil.getFullErrorMessage(e);
-                log.error(message);
+                log.error(new CallbackLog(scanContext.getJobID(), message));
             }
         }
-        return responseEntity;
+    }
+
+    @Override public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
+        return true;
     }
 
     /**
-     * Initiate the scan in the Qualys.
+     * This method is responsible to spawn a new thread to execute qualys scanning process.
      */
     private void startQualysScan(Map<String, List<String>> fileMap) {
         ScanExecutor scanExecutor = new ScanExecutor(scanContext, fileMap, qualysScanHandler);
@@ -170,7 +170,7 @@ import java.util.Map;
             String logMessage =
                     "Profile ID for the scan is not provided. Default profile ID is set as profile ID value for"
                             + " the application ID : " + scannerScanRequest.getAppId();
-            log.info(logMessage);
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!scannerScanRequest.getAppId().matches(QualysScannerConstants.INTEGER_REGEX)) {
             errorMessage = "Profile ID is not provided or Invalid Profile ID";
             throw new InvalidRequestException(errorMessage);
@@ -183,7 +183,7 @@ import java.util.Map;
             scanContext.setScannerApplianceType(QualysScannerConfiguration.getInstance().getDefaultScannerAppliance());
             String logMessage = "Scanner appliance type for the scan is not provided. Default scanner appliance type"
                     + " is set as scanner appliance type for the application ID :  " + scannerScanRequest.getAppId();
-            log.info(logMessage);
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!EnumUtils.isValidEnum(ScannerApplianceType.class,
                 parameterMap.get(QualysScannerConstants.SCANNER_APPILIANCE).get(0))) {
             errorMessage = "Scanner Appliance Type is not provided or invalid";
@@ -198,7 +198,7 @@ import java.util.Map;
             String logMessage =
                     "Scan type for the scan is not provided. Default scan type" + " is set as scan type for the "
                             + "application ID : " + scannerScanRequest.getAppId();
-            log.info(logMessage);
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!EnumUtils
                 .isValidEnum(ScanType.class, parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0))) {
             errorMessage = "Type of the scan is not provided or invalid.";
@@ -213,7 +213,7 @@ import java.util.Map;
                     .setProgressiveScanning(QualysScannerConfiguration.getInstance().getDefaultProgressiveScanning());
             String logMessage = "Progressive scan option for the scan is not provided. Default progressive scan option"
                     + " is set for " + scannerScanRequest.getAppId();
-            log.info(logMessage);
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else {
             scanContext.setProgressiveScanning(parameterMap.get(QualysScannerConstants.PROGRESSIVE_SCAN).get(0));
         }
@@ -283,4 +283,15 @@ import java.util.Map;
         }
         return basicAuth;
     }
+
+    /**
+     * Update the call back endpoint when error happens at the service layer.
+     *
+     * @param message error message
+     */
+    private void callbackErrorReport(String message) {
+        log.error(new CallbackLog(scanContext.getJobID(), message));
+        CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
+    }
+
 }

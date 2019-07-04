@@ -83,9 +83,9 @@
             <version>${org.yaml.snakeyaml.version}</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${org.apache.logging.log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -161,7 +161,7 @@
         <org.springframework.version>4.3.10.RELEASE</org.springframework.version>
         <org.springframework.boot.maven.version>1.5.6.RELEASE</org.springframework.boot.maven.version>
         <maven.assembly.plugin.version>2.4.1</maven.assembly.plugin.version>
-        <log4j.version>1.2.17</log4j.version>
+        <org.apache.logging.log4j.version>2.11.0</org.apache.logging.log4j.version>
         <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
         <org.wso2.orbit.xerces.version>2.12.0.wso2v1</org.wso2.orbit.xerces.version>
         <org.apache.commons.version>1.16</org.apache.commons.version>

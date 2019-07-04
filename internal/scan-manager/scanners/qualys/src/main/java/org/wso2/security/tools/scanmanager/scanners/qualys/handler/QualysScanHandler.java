@@ -23,11 +23,13 @@ import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.NodeList;
 import org.wso2.security.scanmanager.common.exception.RetryExceededException;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
+import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
@@ -50,7 +52,7 @@ import javax.xml.transform.TransformerException;
  */
 public class QualysScanHandler {
 
-    private static final Logger log = Logger.getLogger(QualysScanHandler.class);
+    private static final Logger log = (Logger) LogManager.getLogger(QualysScanHandler.class);
 
     private QualysApiInvoker qualysApiInvoker;
 
@@ -121,7 +123,7 @@ public class QualysScanHandler {
             scannerScanId = XMLUtil.getTagValue(serviceResponseNodeList, QualysScannerConstants.ID_KEYWORD);
             String message =
                     " Qualys Scan for " + scanContext.getJobID() + " has successfully submitted " + scannerScanId;
-            log.info(message);
+            log.info(new CallbackLog(scanContext.getJobID(), message));
         }
         return scannerScanId;
     }
@@ -142,8 +144,8 @@ public class QualysScanHandler {
                 response = qualysApiInvoker.invokeCancelScan(scanId);
             } else {
                 String message = "Could not find an active scan for scanId : " + scanId;
-                log.info(message);
-                CallbackUtil.updateScanStatus(jobId, ScanStatus.ERROR, null, scanId);
+                log.info(new CallbackLog(jobId, message));
+                CallbackUtil.updateScanStatus(jobId, ScanStatus.ERROR, null, null);
                 return;
             }
         } catch (IOException | InterruptedException | RetryExceededException e) {
@@ -151,8 +153,8 @@ public class QualysScanHandler {
         }
         NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.CANCEL_SCAN);
         if (serviceResponseNodeList != null) {
-            String message = "Scan id : " + scanId + " got cancelled on demand. ";
-            log.info(message);
+            String message = "Scan id : " + scanId + " got cancelled ";
+            log.info(new CallbackLog(jobId, message));
             CallbackUtil.updateScanStatus(jobId, ScanStatus.CANCELED, null, scanId);
         }
     }
@@ -174,7 +176,7 @@ public class QualysScanHandler {
         NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.PURGE_SCAN);
         if (serviceResponseNodeList != null) {
             String message = "Application : " + appId + " is purged successfully ";
-            log.info(message);
+            log.info(new CallbackLog(jobId, message));
         }
     }
 
@@ -205,7 +207,7 @@ public class QualysScanHandler {
         if (serviceResponseNodeList != null) {
             reportId = XMLUtil.getTagValue(serviceResponseNodeList, QualysScannerConstants.ID_KEYWORD);
             String message = "Report is successfully created for Report id : " + reportId;
-            log.info(message);
+            log.info(new CallbackLog(jobId, message));
         }
         return reportId;
     }
@@ -231,7 +233,7 @@ public class QualysScanHandler {
             filePath = FileUtil.writeFile(response, reportDirectoryPath);
             if (!StringUtils.isEmpty(filePath)) {
                 String message = " Report is downloaded successfully : " + reportId;
-                log.info(message);
+                log.info(new CallbackLog(jobId, message));
             }
         } catch (IOException e) {
             throw new ScannerException(
@@ -271,7 +273,7 @@ public class QualysScanHandler {
         if (serviceResponseNodeList != null) {
             authScriptId = XMLUtil.getTagValue(serviceResponseNodeList, QualysScannerConstants.ID_KEYWORD);
             String message = " Web Authentication Record is created successfully. Web Auth Record ID : " + authScriptId;
-            log.info(message);
+            log.info(new CallbackLog(jobId, message));
         }
         return authScriptId;
     }
@@ -302,7 +304,7 @@ public class QualysScanHandler {
         if (serviceResponseNodeList != null) {
             String message = " Web Application " + appName + " is successfully updated with web auth record: "
                     + authScriptId;
-            log.info(message);
+            log.info(new CallbackLog(jobId, message));
         }
     }
 
@@ -416,7 +418,7 @@ public class QualysScanHandler {
         NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.DELETE_AUTH_RECORD);
         if (serviceResponseNodeList != null) {
             String message = "Authentication record " + authId + " is deleted successfully";
-            log.info(message);
+            log.info(new CallbackLog(jobId, message));
         }
     }
 
@@ -441,8 +443,8 @@ public class QualysScanHandler {
                 .getConfigProperty(QualysScannerConstants.DEFAULT_FTP_AUTH_SCRIPT_PATH) + File.separator
                 + authenticationScriptFileName);
         try {
-            String logMessage = "Authentication Script is downloading for the application ID : " + appId;
-            log.info(logMessage);
+            String logMessage = "Authentication Script is downloading for the application ID " + appId + "....";
+            log.info(new CallbackLog(jobId, logMessage));
             FileUtil.downloadFromFtp(authenticationScriptFilePath, authenticationScriptFileName, authScriptFile,
                     QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
                     (QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
@@ -453,7 +455,7 @@ public class QualysScanHandler {
 
             logMessage =
                     "Authentication Script is downloaded for the application ID: " + appId + " into " + authScriptFile;
-            log.info(logMessage);
+            log.info(new CallbackLog(jobId, logMessage));
         } catch (IOException | JSchException | SftpException e) {
             String logMessage = "Error occurred while creating the scan zip artifact for application : " + appId + " "
                     + ErrorProcessingUtil.getFullErrorMessage(e);

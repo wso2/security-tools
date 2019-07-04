@@ -299,7 +299,6 @@ public class RequestBodyBuilder {
     private static String getDate() {
         Date date = new Date();
         SimpleDateFormat ft = new SimpleDateFormat("E yyyy.MM.dd 'at' hh:mm:ss");
-
         return ft.format(date);
     }
 }

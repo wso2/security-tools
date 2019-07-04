@@ -18,9 +18,9 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.wso2.security.scanmanager.common.exception.RetryExceededException;
 import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 public class QualysApiInvoker {
 
-    private static final Log log = LogFactory.getLog(QualysApiInvoker.class);
+    private static final Logger log = LogManager.getLogger(QualysApiInvoker.class);
 
     private char[] basicAuth;
     private Long retryTimeInterval;

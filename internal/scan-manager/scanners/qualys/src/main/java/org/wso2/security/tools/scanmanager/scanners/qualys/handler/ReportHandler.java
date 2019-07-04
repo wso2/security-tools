@@ -21,11 +21,12 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.wso2.security.scanmanager.common.exception.RetryExceededException;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
+import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
@@ -41,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ReportHandler {
 
-    private static final Log log = LogFactory.getLog(ReportHandler.class);
+    private static final Logger log = LogManager.getLogger(ReportHandler.class);
     private String[] reportTypes = { QualysScannerConstants.PDF_TYPE, QualysScannerConstants.XML_TYPE,
             QualysScannerConstants.HTML_BASE64_TYPE, QualysScannerConstants.CSV_V2_TYPE };
     private QualysScanHandler qualysScanHandler;
@@ -66,11 +67,11 @@ public class ReportHandler {
         // Generate report for defined report types.
         for (String type : reportTypes) {
             String reportId = qualysScanHandler.createReport(scanContext.getWebAppId(), scanContext.getJobID(), type);
-            awaitReportCreation(reportId, type);
+            awaitReportCreation(scanContext.getJobID(), reportId, type);
             String filepath = qualysScanHandler.downloadReport(scanContext.getJobID(), reportId, reportFolderPath);
             String logMessage = "Scan report for the application: " + scanContext.getWebAppId() + " is downloaded."
                     + " Scan Report Type : " + type + " Location : " + filepath;
-            log.info(logMessage);
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         }
 
         // Zip all downloaded reports.
@@ -109,7 +110,7 @@ public class ReportHandler {
                             QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
             String logMessage =
                     "Scan report is uploaded to the FTP server for the application: " + scanContext.getWebAppId();
-            log.info(logMessage);
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
             isReportUploaded = true;
         } catch (SftpException | JSchException e) {
             int retryInterval = Integer.parseInt(QualysScannerConfiguration.getInstance()
@@ -117,7 +118,7 @@ public class ReportHandler {
             String logMessage =
                     "Report upload will retry after " + retryInterval + " seconds since that operation was failed "
                             + "due to FTP server issue. \n" + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(logMessage);
+            log.error(new CallbackLog(scanContext.getJobID(), logMessage));
             try {
                 TimeUnit.SECONDS.sleep(retryInterval);
             } catch (InterruptedException e1) {
@@ -133,29 +134,31 @@ public class ReportHandler {
     /**
      * This method waits for report creation task completion.
      *
-     * @param reportId Report Id
+     * @param jobId      job ID
+     * @param reportId   report ID
+     * @param reportType report type
      * @throws ScannerException Error occurred while getting the status of report creation
      */
-    private void awaitReportCreation(String reportId, String reportType) throws ScannerException {
+    private void awaitReportCreation(String jobId, String reportId, String reportType) throws ScannerException {
         String status = null;
+        boolean isReportCreationCompleted = false;
         try {
             status = qualysScanHandler.getReportStatus(reportId);
         } catch (IOException | InterruptedException | RetryExceededException e) {
+
+            // If report type is XML throw the exception.
             if (QualysScannerConstants.XML_TYPE.equalsIgnoreCase(reportType)) {
                 throw new ScannerException("Error occurred while XML type report. " + reportId, e);
-            } else {
-                log.error("Failed to create " + reportType + " Report ID : " + reportId + ". " + e.getMessage());
             }
         }
         if (status != null) {
             switch (status) {
             case QualysScannerConstants.COMPLETE:
+                isReportCreationCompleted = true;
                 break;
             case QualysScannerConstants.ERROR:
                 if (QualysScannerConstants.XML_TYPE.equalsIgnoreCase(reportType)) {
                     throw new ScannerException("Failed to create a XML type report. " + reportId);
-                } else {
-                    log.error("Failed to create " + reportType + " Report ID : " + reportId);
                 }
                 break;
             case QualysScannerConstants.RUNNING:
@@ -164,11 +167,15 @@ public class ReportHandler {
                 } catch (InterruptedException e) {
                     throw new ScannerException("Error occurred while retrieving the report status. ", e);
                 }
-                awaitReportCreation(reportId, reportType);
+                awaitReportCreation(jobId, reportId, reportType);
                 break;
             default:
                 break;
             }
+        }
+        if (!isReportCreationCompleted) {
+            String logMessage = "Failed to create " + reportType + " Report ID : " + reportId;
+            log.error(new CallbackLog(jobId, logMessage));
         }
     }
 }
