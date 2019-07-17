@@ -52,6 +52,11 @@
             <artifactId>spring-web</artifactId>
             <version>${org.springframework.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${org.apache.httpcomponents.httpclient.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -79,5 +84,6 @@
     <properties>
         <org.yaml.snakeyaml.version>1.24</org.yaml.snakeyaml.version>
         <org.springframework.version>5.1.3.RELEASE</org.springframework.version>
+        <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
     </properties>
 </project>

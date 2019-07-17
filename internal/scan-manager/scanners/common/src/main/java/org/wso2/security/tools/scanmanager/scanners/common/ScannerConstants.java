@@ -49,6 +49,10 @@ public final class ScannerConstants {
     public static final String SCAN_MANAGER_PORT = "SCAN_MANAGER_PORT";
     public static final String HTTP_PROTOCOL = "http://";
 
+    // Scan reports related constants.
+    public static final String CONTENT_DISPOSITION_PATTERN = "attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"";
+    public static final String CONTENT_DISPOSITION = "content-disposition";
+
     private ScannerConstants() {
     }
 }

@@ -1,0 +1,39 @@
+<!--
+Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+WSO2 Inc. licenses this file to you under the Apache License,
+Version 2.0 (the "License"); you may not use this file except
+in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+# Qualys Scanner Configuration data
+---
+username : [Username of Qualys Account]
+password : [Password of Qualys Account]
+host : [URL to Qualys API server. It is depend on the platform where Qualys account is located]
+schedulerDelay : [Time intervel (Min) between each scan check]
+defaultScanType : [Default scan type. Accepted values - VULNERABILTY , DISCOVERY]
+defaultProfileID : [Default profile ID]
+defaultScannerAppliance : [Default Scanner Appliance type. Accepted values - INTERNAL, EXTERNAL]
+defaultProgressiveScanning : [Default value for progressive scan option. Accepted values - DISABLED, ENABLED]
+callback_retry_interval_seconds: [Time interval to retry try call back endpoint]
+scan_report_upload_retry_interval_seconds: [Time interval to retry uploading report task]
+scan_manager_callback_url_endpoint: [Callback endpoint of scan manager]
+scan_manager_callback_status: [Callback endpoint to update status]
+scan_manager_callback_log: [Callback endpoint to persist log]
+ftp_username: [Username of FTP]
+ftp_password: [Password of FTP]]
+ftp_host: [Host of FTP]
+ftp_port: [Port of FTP]
+default_auth_script_path : [path to save authentication script]
+report_folderPath : [path to download Qualys scan report]

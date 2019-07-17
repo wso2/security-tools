@@ -27,8 +27,11 @@ import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.util.StringUtils;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 
@@ -43,7 +46,12 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -299,5 +307,58 @@ public class FileUtil {
             throw new ScannerException("Upload file cannot be null.");
         }
         sftp.disconnect();
+    }
+
+    /**
+     * Read a file and get the content.
+     *
+     * @param filePath file path
+     * @return File content
+     * @throws IOException Error occurred while reading the XML content file.
+     */
+    public static String getContentFromFile(String filePath) throws IOException {
+        StringBuilder contentBuilder = new StringBuilder();
+
+        try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        }
+
+        return contentBuilder.toString();
+    }
+
+    /**
+     * Write file
+     *
+     * @param response            Http response
+     * @param reportDirectoryPath Report Directory Path
+     * @return file path
+     * @throws IOException      exception occurred while writing file
+     * @throws ScannerException exception occurred while retrieving the file name from response.
+     */
+    public static String writeFile(HttpResponse response, String reportDirectoryPath)
+            throws IOException, ScannerException {
+        HttpEntity entity = response.getEntity();
+        String filePath = null;
+        if (entity != null) {
+            Pattern contentDispositionPattern = Pattern.compile(ScannerConstants.CONTENT_DISPOSITION_PATTERN);
+            Matcher m = contentDispositionPattern
+                    .matcher(response.getFirstHeader(ScannerConstants.CONTENT_DISPOSITION).getValue());
+            String contentDisposition = null;
+            if (m.find()) {
+                contentDisposition = m.group(1);
+            }
+            if (!StringUtils.isEmpty(contentDisposition)) {
+                String fileName = contentDisposition;
+                filePath = reportDirectoryPath + File.separator + fileName;
+                try (FileOutputStream fos = new FileOutputStream(filePath)) {
+                    entity.writeTo(fos);
+                    fos.close();
+                }
+            } else {
+                throw new ScannerException(
+                        "Failed to retrieve file name of the report Since content Disposition is null");
+            }
+        }
+        return filePath;
     }
 }

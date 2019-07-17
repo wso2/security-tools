@@ -179,7 +179,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                             MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
                             HTTPRequest scanCancelRequest = new HTTPRequest(uri.toString(), requestHeaders,
                                     requestParams);
-                            ResponseEntity response = HTTPUtil.sendDelete(scanCancelRequest);
+                            ResponseEntity response = HTTPUtil.sendDELETE(scanCancelRequest);
                             if (response.getStatusCode().isError()) {
                                 throw new ScanManagerException("Unable to submit the cancel scan request");
                             }
