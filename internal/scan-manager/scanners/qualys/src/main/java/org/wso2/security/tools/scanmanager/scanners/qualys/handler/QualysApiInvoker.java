@@ -53,7 +53,7 @@ public class QualysApiInvoker {
 
     public QualysApiInvoker() {
 
-        // Platform URL of Qualys scanner.
+        // Platform base URL of Qualys.
         String host = QualysScannerConfiguration.getInstance().getHost();
 
         // Retry time interval.
