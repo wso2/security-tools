@@ -256,7 +256,6 @@ public class QualysScanHandler {
         String authScriptId = null;
         String addAuthRecordRequestBody = null;
         try {
-
             // Only one authentication script can be provided for a scan.
             addAuthRecordRequestBody = RequestBodyBuilder
                     .buildAuthScriptCreationRequest(appId, authScriptFile.getAbsolutePath());

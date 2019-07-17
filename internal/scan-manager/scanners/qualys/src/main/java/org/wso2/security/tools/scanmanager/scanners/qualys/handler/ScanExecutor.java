@@ -77,7 +77,6 @@ public class ScanExecutor implements Runnable {
                     .getFullErrorMessage(e);
             log.error(new CallbackLog(scanContext.getJobID(), message));
             try {
-
                 // Performing clean up task.
                 if (scanContext.getAuthId() != null) {
                     message = "Deleting added authentication script before update the status to scan manager";

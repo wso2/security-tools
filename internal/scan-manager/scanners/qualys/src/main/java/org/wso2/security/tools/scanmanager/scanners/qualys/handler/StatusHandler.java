@@ -86,7 +86,6 @@ public class StatusHandler {
             }
             String status;
             try {
-
                 // Retrieve Qualys Scan status from Qualys Scanner.
                 status = qualysScanHandler.retrieveScanStatus(scanContext.getScannerScanId());
                 if (!currentScannerStatus.equalsIgnoreCase(status)) {

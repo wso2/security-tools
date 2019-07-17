@@ -56,7 +56,7 @@ public class QualysApiInvoker {
         // Platform URL of Qualys scanner.
         String host = QualysScannerConfiguration.getInstance().getHost();
 
-        // Retry time interval
+        // Retry time interval.
         this.retryTimeInterval = Long.parseLong(QualysScannerConfiguration.getInstance()
                 .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
 

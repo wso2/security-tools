@@ -145,7 +145,6 @@ public class ReportHandler {
         try {
             status = qualysScanHandler.getReportStatus(reportId);
         } catch (IOException | InterruptedException | RetryExceededException e) {
-
             // If report type is XML throw the exception.
             if (QualysScannerConstants.XML_TYPE.equalsIgnoreCase(reportType)) {
                 throw new ScannerException("Error occurred while XML type report. " + reportId, e);
