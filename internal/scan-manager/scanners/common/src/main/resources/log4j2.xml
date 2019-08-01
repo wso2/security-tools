@@ -37,7 +37,7 @@ under the License.
         </Logger>
         <Root level="INFO">
             <AppenderRef ref="ConsoleAppender"/>
-            <AppenderRef ref="CallBackLogAppender"/>
+            <AppenderRef ref="CallbackLogAppender"/>
             <AppenderRef ref="File"/>
         </Root>
     </Loggers>

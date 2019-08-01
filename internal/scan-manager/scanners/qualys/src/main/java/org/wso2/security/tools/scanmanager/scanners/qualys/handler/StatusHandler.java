@@ -21,13 +21,16 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
+import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 
+import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -68,10 +71,8 @@ public class StatusHandler {
     public void activateStatusHandler() {
         Runnable checkStatusTask = new CheckStatusTask();
         scheduler.scheduleWithFixedDelay(checkStatusTask, initialDelay, delayBetweenRuns, TimeUnit.MINUTES);
-        if (log.isDebugEnabled()) {
-            String message = "Status Checker scheduler service is activated";
-            log.debug(new CallbackLog(scanContext.getJobID(), message));
-        }
+        String message = "Status Checker scheduler service is activated";
+        log.info(new CallbackLog(scanContext.getJobID(), message));
     }
 
     /**
@@ -93,17 +94,18 @@ public class StatusHandler {
 
                     // Map qualys scanner status with scan manager status.
                     ScanStatus tempScanManagerStatus = mapStatus(status);
-                    if (currentStatus.compareTo(tempScanManagerStatus) == 0) {
+                    if (currentStatus != tempScanManagerStatus) {
                         currentStatus = tempScanManagerStatus;
                         updateStatus(currentStatus);
                     }
                 }
             } catch (ScannerException e) {
-                log.error(new CallbackLog(scanContext.getJobID(), ErrorProcessingUtil.getFullErrorMessage(e)));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null,
-                        scanContext.getScannerScanId());
                 try {
-                    qualysScanHandler.doCleanUp(scanContext);
+                    // Delete added authentication record before updating the status.
+                    qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
+                    log.error(new CallbackLog(scanContext.getJobID(), ErrorProcessingUtil.getFullErrorMessage(e)));
+                    CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null,
+                            scanContext.getScannerScanId());
                 } catch (ScannerException e1) {
                     String message = "Error occurred while doing the cleanup task. " + scanContext.getJobID()
                             + ErrorProcessingUtil.getFullErrorMessage(e);
@@ -185,8 +187,14 @@ public class StatusHandler {
                 ReportHandler reportHandler = new ReportHandler(qualysScanHandler);
                 if (reportHandler.execute(scanContext)) {
                     log.info(new CallbackLog(scanContext.getJobID(), "Scan is successfully completed"));
+
+                    // Delete added authentication script before updating the scan status.
+                    qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
                     CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.COMPLETED,
-                            scanContext.getScriptFilesLocation(), scanContext.getScannerScanId());
+                            scanContext.getScriptFilesLocation() + File.separator +
+                                    QualysScannerConfiguration.getInstance()
+                                    .getConfigProperty(QualysScannerConstants.QUALYS_REPORT_FOLDER_PATH)  +
+                                    ScannerConstants.ZIP_FILE_EXTENSION, scanContext.getScannerScanId());
                 }
                 scheduler.shutdown();
                 break;
@@ -205,8 +213,10 @@ public class StatusHandler {
                         "Scan status for the application: " + scanContext.getWebAppId() + " is updated to " + scanStatus
                                 .name();
                 log.info(new CallbackLog(scanContext.getJobID(), logMessage));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), scanStatus, null,
-                 scanContext.getScannerScanId());
+
+                // Delete added authentication record before updating the status.
+                qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
+                CallbackUtil.updateScanStatus(scanContext.getJobID(), scanStatus, null, scanContext.getScannerScanId());
                 scheduler.shutdown();
                 break;
             default:
@@ -275,7 +285,7 @@ public class StatusHandler {
                 log.error(new CallbackLog(scanContext.getJobID(), "Scan is failed due to scan internal error. "
                         + "Please check qualys documentation for more information"));
                 break;
-            case QualysScannerConstants.SUCCESSFUL:
+            case QualysScannerConstants.FINISHED:
                 isScanSuccessFull = true;
                 log.info(new CallbackLog(scanContext.getJobID(),
                         "Scan is completed in Qualys end. Please wait to" + " create and download reports"));
@@ -295,20 +305,17 @@ public class StatusHandler {
             try {
                 qualysScanHandler.launchScan(scanContext);
             } catch (ScannerException e) {
-                log.error(new CallbackLog(scanContext.getJobID(),
-                        "Failed to relaunch teh scan. " + ErrorProcessingUtil.getFullErrorMessage(e)));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null,
-                        scanContext.getScannerScanId());
-            } finally {
                 try {
-                    qualysScanHandler.doCleanUp(scanContext);
-                } catch (ScannerException e) {
+                    log.error(new CallbackLog(scanContext.getJobID(),
+                            "Failed to relaunch the scan. " + ErrorProcessingUtil.getFullErrorMessage(e)));
+                    qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
+                } catch (ScannerException e1) {
                     String message = "Error occurred while doing the cleanup task. " + scanContext.getJobID()
                             + ErrorProcessingUtil.getFullErrorMessage(e);
                     log.error(new CallbackLog(scanContext.getJobID(), message));
-                    CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null,
-                            scanContext.getScannerScanId());
                 }
+                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null,
+                        scanContext.getScannerScanId());
             }
         }
     }

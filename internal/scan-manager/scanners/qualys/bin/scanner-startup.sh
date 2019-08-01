@@ -20,6 +20,6 @@
 # ---------- Startup Script for Scan Manager - Scanner ----------
 # ---------------------------------------------------------------
 
- CLASS_PATH=`ls -d ../lib/*.jar|tr '\n' ':'`
- CLASS_PATH=`echo ${CLASS_PATH} | tr -d ' '`
- java -cp "$CLASS_PATH" org.springframework.boot.loader.JarLauncher
+CLASS_PATH=`ls -d ../lib/*.jar|tr '\n' ':'`
+CLASS_PATH=`echo ${CLASS_PATH} | tr -d ' '`
+java -cp "$CLASS_PATH" org.springframework.boot.loader.JarLauncher

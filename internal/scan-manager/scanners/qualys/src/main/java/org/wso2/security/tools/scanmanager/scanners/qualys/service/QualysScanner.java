@@ -55,9 +55,8 @@ import java.util.Map;
 /**
  * This class is responsible to initiate the generic use cases of Qualys scanner
  */
-@Component("QualysScanner")
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class QualysScanner implements Scanner {
+@Component("QualysScanner") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) public class QualysScanner
+        implements Scanner {
 
     private static final Logger log = LogManager.getLogger(QualysScanner.class);
     private QualysScanHandler qualysScanHandler;
@@ -91,6 +90,7 @@ public class QualysScanner implements Scanner {
         scanContext.setJobID(scanRequest.getJobId());
         scanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
                 QUALYS_WEBAPP_KEYWORD).get(0));
+        scanContext.setApplicationUrl(scanRequest.getPropertyMap().get(QualysScannerConstants.SCAN_URL).get(0));
         scanContext.setSchedulerDelay(QualysScannerConfiguration.getInstance().getSchedulerDelay());
         if (Thread.currentThread().isInterrupted()) {
             String message = "Current thread is interrupted. ";
@@ -115,18 +115,10 @@ public class QualysScanner implements Scanner {
 
     @Override public void cancelScan(ScannerScanRequest scanRequest) {
         try {
-            qualysScanHandler.cancelScan(scanContext.getScannerScanId(), scanRequest.getJobId());
+            qualysScanHandler.cancelScan(scanContext);
         } catch (ScannerException e) {
-            String message = "Error occurred while cancelling scan. Web App ID : " + scanRequest.getAppId();
+            String message = "Error occurred while cancelling scan.";
             callbackErrorReport(message);
-        } finally {
-            try {
-                qualysScanHandler.doCleanUp(scanContext);
-            } catch (ScannerException e) {
-                String message =
-                        "Error occurred while doing the cleanup task. " + ErrorProcessingUtil.getFullErrorMessage(e);
-                log.error(new CallbackLog(scanContext.getJobID(), message));
-            }
         }
     }
 
@@ -168,8 +160,7 @@ public class QualysScanner implements Scanner {
         if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PROFILE_ID).get(0))) {
             scanContext.setProfileId(QualysScannerConfiguration.getInstance().getDefaultProfileId());
             String logMessage =
-                    "Profile ID for the scan is not provided. Default profile ID is set as profile ID value for"
-                            + " the application ID : " + scannerScanRequest.getAppId();
+                    "Profile ID for the scan is not provided. Default profile ID is set as profile ID value ";
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!scannerScanRequest.getAppId().matches(QualysScannerConstants.INTEGER_REGEX)) {
             errorMessage = "Profile ID is not provided or Invalid Profile ID";
@@ -182,7 +173,7 @@ public class QualysScanner implements Scanner {
         if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.SCANNER_APPILIANCE).get(0))) {
             scanContext.setScannerApplianceType(QualysScannerConfiguration.getInstance().getDefaultScannerAppliance());
             String logMessage = "Scanner appliance type for the scan is not provided. Default scanner appliance type"
-                    + " is set as scanner appliance type for the application ID :  " + scannerScanRequest.getAppId();
+                    + " is set as scanner appliance type ";
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!EnumUtils.isValidEnum(ScannerApplianceType.class,
                 parameterMap.get(QualysScannerConstants.SCANNER_APPILIANCE).get(0))) {
@@ -196,8 +187,7 @@ public class QualysScanner implements Scanner {
         if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0))) {
             scanContext.setType(QualysScannerConfiguration.getInstance().getDefaultScanType());
             String logMessage =
-                    "Scan type for the scan is not provided. Default scan type" + " is set as scan type for the "
-                            + "application ID : " + scannerScanRequest.getAppId();
+                    "Scan type for the scan is not provided. Default scan type is set as scan type ";
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!EnumUtils
                 .isValidEnum(ScanType.class, parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0))) {
@@ -291,6 +281,15 @@ public class QualysScanner implements Scanner {
      */
     private void callbackErrorReport(String message) {
         log.error(new CallbackLog(scanContext.getJobID(), message));
+        if (scanContext.getAuthId() != null) {
+            try {
+                qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
+            } catch (ScannerException e) {
+                String cleanupErrorMessage =
+                        "Error occurred while doing the cleanup task. " + ErrorProcessingUtil.getFullErrorMessage(e);
+                log.error(new CallbackLog(scanContext.getJobID(), cleanupErrorMessage));
+            }
+        }
         CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
     }
 
