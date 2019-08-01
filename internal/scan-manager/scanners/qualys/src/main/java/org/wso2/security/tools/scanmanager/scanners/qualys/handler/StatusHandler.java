@@ -71,10 +71,8 @@ public class StatusHandler {
     public void activateStatusHandler() {
         Runnable checkStatusTask = new CheckStatusTask();
         scheduler.scheduleWithFixedDelay(checkStatusTask, initialDelay, delayBetweenRuns, TimeUnit.MINUTES);
-        if (log.isDebugEnabled()) {
-            String message = "Status Checker scheduler service is activated";
-            log.info(new CallbackLog(scanContext.getJobID(), message));
-        }
+        String message = "Status Checker scheduler service is activated";
+        log.info(new CallbackLog(scanContext.getJobID(), message));
     }
 
     /**
@@ -96,7 +94,7 @@ public class StatusHandler {
 
                     // Map qualys scanner status with scan manager status.
                     ScanStatus tempScanManagerStatus = mapStatus(status);
-                    if (!(currentStatus == tempScanManagerStatus)) {
+                    if (currentStatus != tempScanManagerStatus) {
                         currentStatus = tempScanManagerStatus;
                         updateStatus(currentStatus);
                     }
