@@ -59,7 +59,7 @@ public class ScanExecutor implements Runnable {
         try {
             authScriptId = qualysScanHandler
                     .prepareScan(scanContext.getWebAppId(), scanContext.getJobID(), scanContext.getWebAppName(),
-                            fileMap);
+                            fileMap, scanContext.getApplicationUrl());
 
             // Set ScanContext Object.
             scanContext.setAuthId(authScriptId);
@@ -80,8 +80,8 @@ public class ScanExecutor implements Runnable {
                 // Performing clean up task.
                 if (scanContext.getAuthId() != null) {
                     message = "Deleting added authentication script before update the status to scan manager";
-                    log.error(new CallbackLog(scanContext.getJobID(), message));
-                    qualysScanHandler.doCleanUp(scanContext);
+                    log.info(new CallbackLog(scanContext.getJobID(), message));
+                    qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
                     CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR,
                      null, null);
                 }

@@ -69,7 +69,7 @@ public class ReportHandler {
             String reportId = qualysScanHandler.createReport(scanContext.getWebAppId(), scanContext.getJobID(), type);
             awaitReportCreation(scanContext.getJobID(), reportId, type);
             String filepath = qualysScanHandler.downloadReport(scanContext.getJobID(), reportId, reportFolderPath);
-            String logMessage = "Scan report for the application: " + scanContext.getWebAppId() + " is downloaded."
+            String logMessage = "Scan report for the application: " + scanContext.getWebAppName() + " is downloaded."
                     + " Scan Report Type : " + type + " Location : " + filepath;
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         }
@@ -77,6 +77,7 @@ public class ReportHandler {
         // Zip all downloaded reports.
         try {
             FileUtil.zipFiles(reportFolderPath, reportFolderPath + ScannerConstants.ZIP_FILE_EXTENSION);
+            log.info(new CallbackLog(scanContext.getJobID(), "Zip file for downloaded report is created."));
         } catch (ArchiveException | IOException e) {
             throw new ScannerException("Error occurred while creating the zip files of generated report.");
         }
@@ -109,7 +110,7 @@ public class ReportHandler {
                     Integer.parseInt(
                             QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
             String logMessage =
-                    "Scan report is uploaded to the FTP server for the application: " + scanContext.getWebAppId();
+                    "Scan report is uploaded to the FTP server for the application: " + scanContext.getWebAppName();
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
             isReportUploaded = true;
         } catch (SftpException | JSchException e) {

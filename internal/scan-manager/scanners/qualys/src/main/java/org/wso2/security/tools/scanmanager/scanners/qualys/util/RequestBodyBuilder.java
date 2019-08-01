@@ -109,11 +109,12 @@ public class RequestBodyBuilder {
      *
      * @param webAppName web application name
      * @param authId     auth script Id
+     * @param applicationUrl application url for scan
      * @return update web app request body in XML format
      * @throws ParserConfigurationException error occurred while parsing
      * @throws TransformerException         error occurred while building secure string writer
      */
-    public static String buildWebAppUpdateRequest(String webAppName, String authId)
+    public static String buildWebAppUpdateRequest(String webAppName, String authId, String applicationUrl)
             throws ParserConfigurationException, TransformerException {
         String updateWebAppRequestBody;
         DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
@@ -128,9 +129,9 @@ public class RequestBodyBuilder {
         Element webApp = doc.createElement(QualysScannerConstants.QUALYS_WEBAPP_KEYWORD);
         data.appendChild(webApp);
 
-        Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-        name.appendChild(doc.createTextNode(webAppName));
-        webApp.appendChild(name);
+        Element url = doc.createElement(QualysScannerConstants.SCAN_URL_KEYWORD);
+        url.appendChild(doc.createTextNode(applicationUrl));
+        webApp.appendChild(url);
 
         Element authRecords = doc.createElement(QualysScannerConstants.AUTH_RECORDS);
         webApp.appendChild(authRecords);
@@ -243,7 +244,7 @@ public class RequestBodyBuilder {
 
         Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
         name.appendChild(doc.createTextNode(
-                QualysScannerConstants.QUALYS_SCAN_NAME_PREFIX + scanContext.getWebAppName() + " " + getDate()));
+                QualysScannerConstants.QUALYS_SCAN_NAME_PREFIX + scanContext.getWebAppId() + getDate()));
         wasScan.appendChild(name);
 
         Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);

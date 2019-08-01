@@ -76,7 +76,6 @@ public class CallbackUtil {
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("jobId", jobId);
         requestParams.put("scanStatus", scanStatus.name());
-
         if (scanStatus.equals(ScanStatus.COMPLETED)) {
             requestParams.put("scanReportPath", reportPath);
         }

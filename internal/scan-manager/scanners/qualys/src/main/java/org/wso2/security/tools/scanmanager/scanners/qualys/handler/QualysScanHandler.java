@@ -22,8 +22,8 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
-import org.apache.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.NodeList;
 import org.wso2.security.scanmanager.common.exception.RetryExceededException;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
@@ -75,10 +75,12 @@ public class QualysScanHandler {
      * @param appID   application ID
      * @param jobId   job ID
      * @param appName web application name
+     * @param applicationUrl application SCAN_URL for scan
      * @return authentication script ID
      * @throws ScannerException error occurred while adding authentication scripts
      */
-    public String prepareScan(String appID, String jobId, String appName, Map<String, List<String>> fileMap)
+    public String prepareScan(String appID, String jobId, String appName, Map<String, List<String>> fileMap,
+            String applicationUrl)
             throws ScannerException {
         String authScriptId;
 
@@ -93,7 +95,7 @@ public class QualysScanHandler {
         authScriptId = addAuthenticationRecord(appID, jobId, authScriptFile);
 
         // Update web application with added authentication script.
-        updateWebApp(appID, appName, authScriptId, jobId);
+        updateWebApp(appID, appName, authScriptId, jobId, applicationUrl);
         return authScriptId;
     }
 
@@ -131,21 +133,20 @@ public class QualysScanHandler {
     /**
      * Cancelling Scan.
      *
-     * @param scanId scanId
-     * @param jobId  job ID
+     * @param scanContext scan context object which holds the scan related metadata
      * @throws ScannerException error occurred while cancelling scan
      */
-    public void cancelScan(String scanId, String jobId) throws ScannerException {
+    public void cancelScan(ScanContext scanContext) throws ScannerException {
         HttpResponse response;
-        String status = retrieveScanStatus(scanId);
+        String status = retrieveScanStatus(scanContext.getScannerScanId());
         try {
             if ((status.equalsIgnoreCase(QualysScannerConstants.RUNNING)) || status
                     .equalsIgnoreCase(QualysScannerConstants.SUBMITTED)) {
-                response = qualysApiInvoker.invokeCancelScan(scanId);
+                response = qualysApiInvoker.invokeCancelScan(scanContext.getScannerScanId());
             } else {
-                String message = "Could not find an active scan for scanId : " + scanId;
-                log.info(new CallbackLog(jobId, message));
-                CallbackUtil.updateScanStatus(jobId, ScanStatus.ERROR, null, null);
+                String message = "Could not find an active scan for scanId : " + scanContext.getScannerScanId();
+                log.info(new CallbackLog(scanContext.getJobID(), message));
+                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
                 return;
             }
         } catch (IOException | InterruptedException | RetryExceededException e) {
@@ -153,9 +154,13 @@ public class QualysScanHandler {
         }
         NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.CANCEL_SCAN);
         if (serviceResponseNodeList != null) {
-            String message = "Scan id : " + scanId + " got cancelled ";
-            log.info(new CallbackLog(jobId, message));
-            CallbackUtil.updateScanStatus(jobId, ScanStatus.CANCELED, null, scanId);
+            String message = "Scan for Job ID : " + scanContext.getJobID() + " got cancelled ";
+            log.info(new CallbackLog(scanContext.getJobID(), message));
+
+            // Delete added authentication record before updating the status.
+            doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
+            CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.CANCELED, null,
+                    scanContext.getScannerScanId());
         }
     }
 
@@ -175,7 +180,7 @@ public class QualysScanHandler {
         }
         NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.PURGE_SCAN);
         if (serviceResponseNodeList != null) {
-            String message = "Application : " + appId + " is purged successfully ";
+            String message = "Application is purged successfully and ready for scan ";
             log.info(new CallbackLog(jobId, message));
         }
     }
@@ -284,13 +289,16 @@ public class QualysScanHandler {
      * @param appName      web application name
      * @param authScriptId authentication record ID
      * @param jobId        job ID
+     * @param applicationUrl application SCAN_URL for scan
      * @throws ScannerException error occurred while updating web application with authentication record id
      */
-    private void updateWebApp(String appID, String appName, String authScriptId, String jobId) throws ScannerException {
+    private void updateWebApp(String appID, String appName, String authScriptId, String jobId, String applicationUrl)
+            throws ScannerException {
         HttpResponse response;
         String updateWebAppRequestBody = null;
         try {
-            updateWebAppRequestBody = RequestBodyBuilder.buildWebAppUpdateRequest(appName, authScriptId);
+            updateWebAppRequestBody = RequestBodyBuilder.buildWebAppUpdateRequest(appName, authScriptId,
+                    applicationUrl);
         } catch (ParserConfigurationException | TransformerException e) {
             throw new ScannerException("Error occurred while building update Web Application API request body: ", e);
         }
@@ -392,11 +400,12 @@ public class QualysScanHandler {
     /**
      * Delete authentication script form Qualys.
      *
-     * @param scanContext ScanContext object
+     * @param authId authentication script ID
+     * @param jobID job ID
      * @throws ScannerException Error occurred while retrieving status
      */
-    public void doCleanUp(ScanContext scanContext) throws ScannerException {
-        deleteAuthRecord(scanContext.getAuthId(), scanContext.getJobID());
+    public void doCleanUp(String authId , String jobID) throws ScannerException {
+        deleteAuthRecord(authId, jobID);
     }
 
     /**
@@ -442,7 +451,7 @@ public class QualysScanHandler {
                 .getConfigProperty(QualysScannerConstants.DEFAULT_FTP_AUTH_SCRIPT_PATH) + File.separator
                 + authenticationScriptFileName);
         try {
-            String logMessage = "Authentication Script is downloading for the application ID " + appId + "....";
+            String logMessage = "Authentication Script is downloading ....";
             log.info(new CallbackLog(jobId, logMessage));
             FileUtil.downloadFromFtp(authenticationScriptFilePath, authenticationScriptFileName, authScriptFile,
                     QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
@@ -451,12 +460,11 @@ public class QualysScanHandler {
                     QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_HOST),
                     Integer.parseInt(
                             QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
-
             logMessage =
-                    "Authentication Script is downloaded for the application ID: " + appId + " into " + authScriptFile;
+                    "Authentication Script is downloaded : " + authScriptFile;
             log.info(new CallbackLog(jobId, logMessage));
         } catch (IOException | JSchException | SftpException e) {
-            String logMessage = "Error occurred while creating the scan zip artifact for application : " + appId + " "
+            String logMessage = "Error occurred while downloading the authentication script :  "
                     + ErrorProcessingUtil.getFullErrorMessage(e);
             throw new ScannerException(logMessage);
         }

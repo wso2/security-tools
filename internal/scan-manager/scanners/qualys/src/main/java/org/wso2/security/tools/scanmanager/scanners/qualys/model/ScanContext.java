@@ -38,6 +38,9 @@ public class ScanContext {
     // Qualys Web Application Id (Mandatory)
     private String webAppName;
 
+    // Application SCAN_URL for scan
+    private String applicationUrl;
+
     // Qualys Scan Type (Mandatory)
     private String type;
 
@@ -153,5 +156,13 @@ public class ScanContext {
 
     public void setScriptFilesLocation(String scriptFilesLocation) {
         this.scriptFilesLocation = scriptFilesLocation;
+    }
+
+    public String getApplicationUrl() {
+        return applicationUrl;
+    }
+
+    public void setApplicationUrl(String applicationUrl) {
+        this.applicationUrl = applicationUrl;
     }
 }
