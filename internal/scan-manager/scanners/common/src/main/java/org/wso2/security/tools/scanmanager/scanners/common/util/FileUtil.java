@@ -101,11 +101,17 @@ public class FileUtil {
                 }
 
                 if (entry.isDirectory()) {
-                    // if the entry is a directory
+                    // If the entry is a directory.
+                    String destPath = destination + File.separator + entry.getName();
+                    File file = new File(destPath);
+                    boolean isDirectoryCreated = file.mkdirs();
+                    if (!isDirectoryCreated) {
+                        throw new IOException("Unable to create a directory in " + destPath);
+                    }
                 } else {
                     zipInputStream = zip.getInputStream(entry);
                     inputStream = new BufferedInputStream(zipInputStream);
-                    if (destinationFile.getParentFile().mkdirs()) {
+                    if (destinationFile.getParentFile().exists()) {
                         outputStream = new FileOutputStream(destinationFile);
                         IOUtils.copy(inputStream, outputStream);
                     }

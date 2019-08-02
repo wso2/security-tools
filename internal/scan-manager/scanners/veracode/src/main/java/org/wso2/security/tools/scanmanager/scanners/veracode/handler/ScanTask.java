@@ -390,8 +390,8 @@ public class ScanTask {
             }
             NodeList nodeList = getScanArtifactPatternList(patternXmlFile);
 
-            Stream<Node> nodeStream = IntStream.range(0, nodeList.getLength()).mapToObj(nodeList::item);
             for (File file : files) {
+                Stream<Node> nodeStream = IntStream.range(0, nodeList.getLength()).mapToObj(nodeList::item);
                 if (file.isFile()) {
                     nodeStream.forEach(node -> {
                         Element element = (Element) node;
