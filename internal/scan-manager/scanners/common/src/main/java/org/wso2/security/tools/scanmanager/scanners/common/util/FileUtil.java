@@ -104,7 +104,10 @@ public class FileUtil {
                     // if the entry is a directory
                     String destPath = destination + File.separator + entry.getName();
                     File file = new File(destPath);
-                    file.mkdirs();
+                    boolean isDirectoryCreated = file.mkdirs();
+                    if (!isDirectoryCreated) {
+                        throw new IOException("Unable to create a directory in " + destPath);
+                    }
                 } else {
                     zipInputStream = zip.getInputStream(entry);
                     inputStream = new BufferedInputStream(zipInputStream);
