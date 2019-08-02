@@ -101,7 +101,7 @@ public class FileUtil {
                 }
 
                 if (entry.isDirectory()) {
-                    // if the entry is a directory
+                    // If the entry is a directory.
                     String destPath = destination + File.separator + entry.getName();
                     File file = new File(destPath);
                     boolean isDirectoryCreated = file.mkdirs();
