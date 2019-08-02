@@ -102,10 +102,13 @@ public class FileUtil {
 
                 if (entry.isDirectory()) {
                     // if the entry is a directory
+                    String destPath = destination + File.separator + entry.getName();
+                    File file = new File(destPath);
+                    file.mkdirs();
                 } else {
                     zipInputStream = zip.getInputStream(entry);
                     inputStream = new BufferedInputStream(zipInputStream);
-                    if (destinationFile.getParentFile().mkdirs()) {
+                    if (destinationFile.getParentFile().exists()) {
                         outputStream = new FileOutputStream(destinationFile);
                         IOUtils.copy(inputStream, outputStream);
                     }

@@ -82,9 +82,10 @@ public class ScanExecutor implements Runnable {
                     message = "Deleting added authentication script before update the status to scan manager";
                     log.info(new CallbackLog(scanContext.getJobID(), message));
                     qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
-                    CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR,
-                     null, null);
                 }
+                log.error(new CallbackLog(scanContext.getJobID(), "Scan status is updating to ERROR"));
+                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR,
+                        null, null);
             } catch (ScannerException e1) {
                 message = "Error occurred while doing the cleanup task. " + scanContext.getJobID() + ErrorProcessingUtil
                         .getFullErrorMessage(e1);
