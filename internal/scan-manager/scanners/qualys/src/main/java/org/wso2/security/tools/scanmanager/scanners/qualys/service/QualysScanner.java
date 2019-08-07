@@ -55,8 +55,9 @@ import java.util.Map;
 /**
  * This class is responsible to initiate the generic use cases of Qualys scanner
  */
-@Component("QualysScanner") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) public class QualysScanner
-        implements Scanner {
+@Component("QualysScanner")
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class QualysScanner implements Scanner {
 
     private static final Logger log = LogManager.getLogger(QualysScanner.class);
     private QualysScanHandler qualysScanHandler;
@@ -159,8 +160,7 @@ import java.util.Map;
         // Validate profile id.
         if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PROFILE_ID).get(0))) {
             scanContext.setProfileId(QualysScannerConfiguration.getInstance().getDefaultProfileId());
-            String logMessage =
-                    "Profile ID for the scan is not provided. Default profile ID is set as profile ID value ";
+            String logMessage = "Profile ID is not provided. Default profile ID is set as profile ID value";
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!scannerScanRequest.getAppId().matches(QualysScannerConstants.INTEGER_REGEX)) {
             errorMessage = "Profile ID is not provided or Invalid Profile ID";
@@ -186,8 +186,7 @@ import java.util.Map;
         // Validate scan type.
         if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0))) {
             scanContext.setType(QualysScannerConfiguration.getInstance().getDefaultScanType());
-            String logMessage =
-                    "Scan type for the scan is not provided. Default scan type is set as scan type ";
+            String logMessage = "Scan type for the scan is not provided. Default scan type is set as scan type ";
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else if (!EnumUtils
                 .isValidEnum(ScanType.class, parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0))) {
@@ -217,9 +216,18 @@ import java.util.Map;
                     throw new InvalidRequestException(errorMessage);
                 }
             }
+
+            // If authentication script is provided, authentication status checker regex should be provided.
+            if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.AUTH_REGEX_KEYWORD).get(0))) {
+                errorMessage = "Authentication checker regex is not provided for authentication script";
+                throw new InvalidRequestException(errorMessage);
+            } else {
+                scanContext.setAuthRegex(parameterMap.get(QualysScannerConstants.AUTH_REGEX_KEYWORD).get(0));
+            }
         } else {
-            errorMessage = "Authentication script is not provided";
-            throw new InvalidRequestException(errorMessage);
+            String logMessage = "Authentication script for the scan is not provided. Default authentication script will"
+                    + " be used. ";
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         }
         scanContext.setScriptFilesLocation(authFiles.get(0).substring(0, authFiles.get(0).
                 lastIndexOf(File.separator)));

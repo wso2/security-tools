@@ -58,6 +58,8 @@ public class QualysScannerConstants {
     public static final String NAME_KEYWORD = "name";
     public static final String SCAN_URL_KEYWORD = "url";
     public static final String ID_KEYWORD = "id";
+    public static final String IS_DEFAULT = "isDefault";
+    public static final String TRUE = "true";
     public static final String TYPE_KEYWORD = "type";
     public static final String SCANNER_APPILIANCE_TYPE_KEYWORD = "scannerApplianceType";
     public static final String PROGRESSIVE_SCANNING_KEYWORD = "progressiveScanning";
@@ -90,6 +92,7 @@ public class QualysScannerConstants {
     public static final String WAS_APP_REPORT = "WAS_WEBAPP_REPORT";
     public static final String CONFIG_KEYWORD = "config";
     public static final String WEB_APP_REPORT_KEYWORD = "webAppReport";
+    public static final String AUTH_REGEX_KEYWORD = "authRegex";
 
     // Constants used to handle API response.
     public static final String SUCCESS = "SUCCESS";

@@ -62,6 +62,17 @@ public class ScanContext {
     // Script Files Location
     private String scriptFilesLocation;
 
+    // Regex to check whether authentication status is success or not
+    private String authRegex;
+
+    public String getAuthRegex() {
+        return authRegex;
+    }
+
+    public void setAuthRegex(String authRegex) {
+        this.authRegex = authRegex;
+    }
+
     public String getJobID() {
         return jobID;
     }

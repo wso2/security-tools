@@ -48,14 +48,15 @@ public class RequestBodyBuilder {
     /**
      * Build request body to add authentication script
      *
-     * @param appID    application name in qualys
-     * @param filePath authentication script file path
+     * @param appID     application name in qualys
+     * @param filePath  authentication script file path
+     * @param authRegex regex to check whether authentication is succeeded or not
      * @return add authentication request body in XML format
      * @throws ParserConfigurationException error occurred while parsing.
      * @throws IOException                  error occurred while reading the XML content file.
      * @throws TransformerException         error occurred while building secure string writer.
      */
-    public static String buildAuthScriptCreationRequest(String appID, String filePath)
+    public static String buildAuthScriptCreationRequest(String appID, String filePath, String authRegex)
             throws ParserConfigurationException, IOException, TransformerException {
         String addAuthRecordRequestBody;
         DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
@@ -95,7 +96,7 @@ public class RequestBodyBuilder {
         seleniumScript.appendChild(scriptData);
 
         Element regex = doc.createElement(QualysScannerConstants.REGEX);
-        regex.appendChild(doc.createTextNode("selenium"));
+        regex.appendChild(doc.createTextNode(authRegex));
         seleniumScript.appendChild(regex);
 
         StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
@@ -107,8 +108,8 @@ public class RequestBodyBuilder {
     /**
      * Build request body to update web app with authentication script.
      *
-     * @param webAppName web application name
-     * @param authId     auth script Id
+     * @param webAppName     web application name
+     * @param authId         auth script Id
      * @param applicationUrl application url for scan
      * @return update web app request body in XML format
      * @throws ParserConfigurationException error occurred while parsing
@@ -264,9 +265,16 @@ public class RequestBodyBuilder {
         Element webAppAuthRecord = doc.createElement("webAppAuthRecord");
         target.appendChild(webAppAuthRecord);
 
-        Element webAppAuthRecordId = doc.createElement(QualysScannerConstants.ID_KEYWORD);
-        webAppAuthRecordId.appendChild(doc.createTextNode(scanContext.getAuthId()));
-        webAppAuthRecord.appendChild(webAppAuthRecordId);
+        // If authentication script is not provided, default auth record will be used.
+        if (scanContext.getAuthId() == null) {
+            Element defaultAuthRecord = doc.createElement(QualysScannerConstants.IS_DEFAULT);
+            defaultAuthRecord.appendChild(doc.createTextNode(QualysScannerConstants.TRUE));
+            webAppAuthRecord.appendChild(defaultAuthRecord);
+        } else {
+            Element webAppAuthRecordId = doc.createElement(QualysScannerConstants.ID_KEYWORD);
+            webAppAuthRecordId.appendChild(doc.createTextNode(scanContext.getAuthId()));
+            webAppAuthRecord.appendChild(webAppAuthRecordId);
+        }
 
         Element scannerAppliance = doc.createElement(QualysScannerConstants.SCANNER_APPILIANCE);
         target.appendChild(scannerAppliance);
