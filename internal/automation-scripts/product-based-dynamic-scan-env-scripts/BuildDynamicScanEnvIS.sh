@@ -117,10 +117,6 @@ fi
 
 echo "$SCRIPT_TAG Configuration WSO2 Server - Importing Certs"
 keytool -import -trustcacerts -alias is -file /etc/nginx/ssl/nginx-is.crt -keystore $DYNAMIC_HOME/$product/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
-keytool -import -trustcacerts -alias apim -file /etc/nginx/ssl/nginx.crt -keystore $DYNAMIC_HOME/$product/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
-keytool -import -trustcacerts -alias das -file /etc/nginx/ssl/nginx-das.crt -keystore $DYNAMIC_HOME/$product/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
-keytool -import -trustcacerts -alias ei -file /etc/nginx/ssl/nginx-ei.crt -keystore $DYNAMIC_HOME/$product/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
-keytool -import -trustcacerts -alias iot -file /etc/nginx/ssl/nginx-iot.crt -keystore $DYNAMIC_HOME/$product/repository/resources/security/client-truststore.jks -storepass wso2carbon -noprompt
 
 CARBON_START_SCRIPT_PATH=$(find $DYNAMIC_HOME/$product | grep "wso2server.sh")
 
