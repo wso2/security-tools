@@ -1,8 +1,78 @@
-﻿productList:
- - 
+﻿﻿productList:
+ -
+  codeName: OB-EI
+  name: "WSO2 Open Banking Enterprise Integrator"
+  versionList:
+
+   - versionNumber: "6.4.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.36"
+     releaseDate: 2018-10-09
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "6.4.0.security"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.36"
+     releaseDate: 2018-10-09
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "6.3.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-31
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "6.3.0.security"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-31
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+ -
   codeName: EI
   name: "WSO2 Enterprise Integrator"
-  versionList: 
+  versionList:
+
+   - versionNumber: "6.5.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.40"
+     releaseDate: 2019-05-30
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - versionNumber: "6.5.0.security"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.40"
+     releaseDate: 2019-05-30
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - versionNumber: "6.4.0"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.36"
+     releaseDate: 2018-10-09
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "6.4.0.security"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.36"
+     releaseDate: 2018-10-09
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
     
    - versionNumber: "6.3.0"
      platformVersionNumber: "4.4.0"
@@ -11,6 +81,14 @@
      isWumSupported: true
      isPatchSupported: false
      isPublicSupported: true
+
+   - versionNumber: "6.3.0.security"
+     platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
 
    - versionNumber: "6.2.0"
      platformVersionNumber: "4.4.0"
@@ -44,6 +122,50 @@
      isPatchSupported: false
      isPublicSupported: false
 
+ -
+  codeName: SP
+  name: "WSO2 Stream Processor"
+  versionList:
+
+   - versionNumber: "4.4.0"
+     platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.8"
+     releaseDate: 2019-05-31
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - versionNumber: "4.3.0"
+     platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.8"
+     releaseDate: 2018-10-09
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - versionNumber: "4.2.0"
+     platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.7"
+     releaseDate: 2018-07-16
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "4.1.0"
+     platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.7"
+     releaseDate: 2018-04-05
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - versionNumber: "4.0.0"
+     platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.7"
+     releaseDate: 2018-01-10
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
 
  -
   codeName: MB
@@ -141,11 +263,106 @@
      isPublicSupported: true
      isDeprecated: true
 
+ -
+  codeName: OB-AM
+  name: "WSO2 Open Banking AM"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2019-08-05
+     versionNumber: "1.4.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2019-08-05
+     versionNumber: "1.4.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "1.3.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "1.3.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+
+ -
+  codeName: OB-AM
+  name: "WSO2 Open Banking API Manager"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "2.6.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "2.6.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+ -
+  codeName: OB-AM-Analytics
+  name: "WSO2 Open Banking API Manager Analytics"
+  versionList:
+
+   - platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.7"
+     releaseDate: 2018-10-09
+     versionNumber: "2.6.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
 
  -
   codeName: AM
   name: "WSO2 API Manager"
   versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "2.6.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "2.6.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "2.5.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
 
    - platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.32"
@@ -256,6 +473,38 @@
   name: "WSO2 API Manager Analytics"
   versionList:
 
+   - platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.7"
+     releaseDate: 2018-10-09
+     versionNumber: "2.6.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.7"
+     releaseDate: 2018-10-09
+     versionNumber: "2.6.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "2.5.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "2.5.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
    - platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.26"
      releaseDate: 2018-04-05
@@ -322,11 +571,100 @@
      isPublicSupported: false
      isDeprecated: true
 
+ -
+  codeName: OB-KM
+  name: "WSO2 Open Banking KM"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2019-08-05
+     versionNumber: "1.4.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2019-08-05
+     versionNumber: "1.4.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "1.3.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "1.3.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+ -
+  codeName: OB-KM
+  name: "WSO2 Open Banking IS as Key Manager"
+  versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
 
  -
   codeName: IS KM
   name: "WSO2 IS as Key Manager"
   versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "5.6.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "5.6.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
 
    - platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.26"
@@ -354,6 +692,46 @@
   codeName: IS
   name: "WSO2 Identity Server"
   versionList:
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.40"
+     releaseDate: 2019-05-31
+     versionNumber: "5.8.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.40"
+     releaseDate: 2019-05-31
+     versionNumber: "5.8.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.35"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "5.6.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
 
    - platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.32"
@@ -433,6 +811,54 @@
   codeName: IS-Analytics
   name: "WSO2 Identity Server Analytics"
   versionList:
+
+   - platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.8"
+     releaseDate: 2019-05-31
+     versionNumber: "5.8.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.8"
+     releaseDate: 2019-05-31
+     versionNumber: "5.8.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.8"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "5.2.0"
+     kernelVersionNumber: "5.2.8"
+     releaseDate: 2018-10-09
+     versionNumber: "5.7.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: true
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "5.6.0"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
+
+   - platformVersionNumber: "4.4.0"
+     kernelVersionNumber: "4.4.32"
+     releaseDate: 2018-07-16
+     versionNumber: "5.6.0.security"
+     isWumSupported: true
+     isPatchSupported: false
+     isPublicSupported: false
 
    - platformVersionNumber: "4.4.0"
      kernelVersionNumber: "4.4.26"
