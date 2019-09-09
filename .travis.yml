@@ -16,6 +16,14 @@ language: java
 
 sudo: required
 
+jdk:
+  - oraclejdk8
+
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+      
 git:
   quiet: true
 
@@ -35,7 +43,6 @@ before_install:
     fi
 
 script:
-  - source ~/.jdk_switcher_rc; jdk_switcher use openjdk8
   - if [ "$BUILD_TYPE" = "MAVEN" ]; then cd internal; mvn install -B -V -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN; fi
 
 after_success:
