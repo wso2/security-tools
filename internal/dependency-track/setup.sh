@@ -196,6 +196,8 @@ server {
 
   server_name dt.private.wso2.com;
   
+  client_max_body_size 50M;
+  
   # RSA certificat
   ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
   ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
@@ -205,12 +207,14 @@ server {
   ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
   ssl_ecdh_curve secp384r1;
   ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 1d;
   ssl_session_tickets off;
   ssl_stapling on;
   ssl_stapling_verify on;
 
   add_header X-Frame-Options DENY;
   add_header X-Content-Type-Options nosniff;
+  add_header X-XSS-Protection "1; mode=block";
 
   ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
