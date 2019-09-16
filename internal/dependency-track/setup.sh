@@ -61,8 +61,7 @@ sudo ufw allow 'Nginx HTTP'
 sudo ufw allow 'Nginx HTTPS'
 sudo ufw allow 'Nginx Full'
 sudo ufw allow 'OpenSSH'
-# To be removed after Nginx setup is complete
-sudo ufw allow 8080/tcp
+sudo ufw deny 8080/tcp
 sudo ufw status verbose
 sudo ufw enable
 
@@ -170,5 +169,58 @@ sudo mysql -u dependency-track -p
 REVOKE ALL PRIVILEGES ON dependency_track.* TO 'dependency-track'@'localhost';
 GRANT DELETE,UPDATE,SELECT,INSERT ON dependency_track.* TO 'dependency-track'@'localhost';
 FLUSH PRIVILEGES;
+
+# ---------------------------------------------------
+# Configure SSL Certs
+# ---------------------------------------------------
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+
+# ---------------------------------------------------
+# Configure Nginx
+# ---------------------------------------------------
+
+cat <<END > /etc/nginx/sites-enabled/dt
+server {
+  listen 80;
+  listen [::]:80;
+  
+  server_name dt.private.wso2.com;
+  
+  return 301 https://dt.private.wso2.com$request_uri;
+}
+
+server {
+  listen 443 ssl;
+
+  server_name dt.private.wso2.com;
+  
+  # RSA certificat
+  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+  
+  ssl_protocols TLSv1.2;
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+  ssl_ecdh_curve secp384r1;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_tickets off;
+  ssl_stapling on;
+  ssl_stapling_verify on;
+
+  add_header X-Frame-Options DENY;
+  add_header X-Content-Type-Options nosniff;
+
+  ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+  location / {
+    proxy_pass http://localhost:8080/;
+  }
+}
+END
+
+nginx -s stop
+nginx
 
 exit
