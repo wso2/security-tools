@@ -55,8 +55,9 @@ import java.util.Map;
 /**
  * This class is responsible to initiate the generic use cases of Qualys scanner
  */
-@Component("QualysScanner") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) public class QualysScanner
-        implements Scanner {
+@Component("QualysScanner")
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class QualysScanner implements Scanner {
 
     private static final Logger log = LogManager.getLogger(QualysScanner.class);
     private QualysScanHandler qualysScanHandler;
@@ -86,8 +87,8 @@ import java.util.Map;
         CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
     }
 
-    @Override public void startScan(ScannerScanRequest scanRequest) {
-        //        scanContext.setJobID(scanRequest.getJobId());
+    @Override
+    public void startScan(ScannerScanRequest scanRequest) {
         scanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
                 QUALYS_WEBAPP_KEYWORD).get(0));
         scanContext.setApplicationUrl(scanRequest.getPropertyMap().get(QualysScannerConstants.SCAN_URL).get(0));
@@ -103,7 +104,8 @@ import java.util.Map;
         }
     }
 
-    @Override public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
+    @Override
+    public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
         boolean isValidParameters = false;
         try {
             isValidParameters = isValidParameters(scannerScanRequest);
@@ -113,7 +115,8 @@ import java.util.Map;
         return isValidParameters;
     }
 
-    @Override public void cancelScan(ScannerScanRequest scanRequest) {
+    @Override
+    public void cancelScan(ScannerScanRequest scanRequest) {
         try {
             qualysScanHandler.cancelScan(scanContext);
         } catch (ScannerException e) {
@@ -122,7 +125,8 @@ import java.util.Map;
         }
     }
 
-    @Override public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
+    @Override
+    public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
         return true;
     }
 
