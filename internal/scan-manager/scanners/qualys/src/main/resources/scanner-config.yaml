@@ -26,6 +26,7 @@ defaultScanType : [Default scan type. Accepted values - VULNERABILTY , DISCOVERY
 defaultProfileID : [Default profile ID]
 defaultScannerAppliance : [Default Scanner Appliance type. Accepted values - INTERNAL, EXTERNAL]
 defaultProgressiveScanning : [Default value for progressive scan option. Accepted values - DISABLED, ENABLED]
+default_report_template_id : [Default report template id to generate a web application report]
 callback_retry_interval_seconds: [Time interval to retry try call back endpoint]
 scan_report_upload_retry_interval_seconds: [Time interval to retry uploading report task]
 scan_manager_callback_url_endpoint: [Callback endpoint of scan manager]

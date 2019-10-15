@@ -55,9 +55,8 @@ import java.util.Map;
 /**
  * This class is responsible to initiate the generic use cases of Qualys scanner
  */
-@Component("QualysScanner")
-@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class QualysScanner implements Scanner {
+@Component("QualysScanner") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) public class QualysScanner
+        implements Scanner {
 
     private static final Logger log = LogManager.getLogger(QualysScanner.class);
     private QualysScanHandler qualysScanHandler;
@@ -88,7 +87,7 @@ public class QualysScanner implements Scanner {
     }
 
     @Override public void startScan(ScannerScanRequest scanRequest) {
-        scanContext.setJobID(scanRequest.getJobId());
+        //        scanContext.setJobID(scanRequest.getJobId());
         scanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
                 QUALYS_WEBAPP_KEYWORD).get(0));
         scanContext.setApplicationUrl(scanRequest.getPropertyMap().get(QualysScannerConstants.SCAN_URL).get(0));
@@ -146,6 +145,8 @@ public class QualysScanner implements Scanner {
      */
     private Boolean isValidParameters(ScannerScanRequest scannerScanRequest) throws InvalidRequestException {
         String errorMessage;
+        scanContext.setJobID(scannerScanRequest.getJobId());
+        scanContext.setAuthId(null);
 
         // Validate webAppId.
         if (StringUtils.isEmpty(scannerScanRequest.getAppId()) || !scannerScanRequest.getAppId()
@@ -207,6 +208,17 @@ public class QualysScanner implements Scanner {
             scanContext.setProgressiveScanning(parameterMap.get(QualysScannerConstants.PROGRESSIVE_SCAN).get(0));
         }
 
+        // Validate report template ID
+        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.REPORT_TEMPLATE_ID).get(0))) {
+            scanContext.setReportTemplateId(QualysScannerConfiguration.getInstance().getDefaultReportTemplateID());
+            String logMessage =
+                    "Report template ID for the scan is not provided. Default report template ID" + " is set for "
+                            + scannerScanRequest.getAppId();
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+        } else {
+            scanContext.setReportTemplateId(parameterMap.get(QualysScannerConstants.REPORT_TEMPLATE_ID).get(0));
+        }
+
         List<String> authFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.AUTHENTICATION_SCRIPTS);
         if (authFiles.size() != 0) {
             for (int i = 0; i < authFiles.size(); i++) {
@@ -256,6 +268,8 @@ public class QualysScanner implements Scanner {
                 getConfigProperty(QualysScannerConstants.DEFAULT_SCAN_TYPE));
         QualysScannerConfiguration.getInstance().setDefaultProgressiveScanning(QualysScannerConfiguration.getInstance()
                 .getConfigProperty(QualysScannerConstants.DEFAULT_PROGRESSIVE_SCANNING));
+        QualysScannerConfiguration.getInstance().setDefaultReportTemplateID(QualysScannerConfiguration.getInstance().
+                getConfigProperty(QualysScannerConstants.DEFAULT_REPORT_TEMPLATE_ID));
     }
 
     /**
