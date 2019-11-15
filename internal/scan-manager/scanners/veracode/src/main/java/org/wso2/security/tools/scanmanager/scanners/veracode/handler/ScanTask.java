@@ -386,7 +386,7 @@ public class ScanTask {
                     out.write(bytes, 0, read);
                 }
             } catch (IOException e) {
-                throw new IOException(e);
+                throw new IOException("Error occurred while processing " + JAR_FILTER_FILE, e);
             }
             NodeList nodeList = getScanArtifactPatternList(patternXmlFile);
 
