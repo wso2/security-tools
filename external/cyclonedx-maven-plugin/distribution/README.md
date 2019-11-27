@@ -9,7 +9,7 @@ This CycloneDx Maven Plugin 1.4.1-INTERNAL build jar has following change on top
 
 ## How to install customized CycloneDx Maven Plugin 1.4.1-INTERNAL to local m2 repository. 
 
-To get more information about BOM file and CycloneDX please refer < href="https://cyclonedx.org/"> CycloneDx </a>
+To get more information about BOM file and CycloneDX please refer < a href="https://cyclonedx.org/"> CycloneDx Documentation </a>
 
 Step 1 : Download - <a href="https://github.com/wso2/security-tools/blob/master/external/cyclonedx-maven-plugin/distribution/cyclonedx-maven-plugin-1.4.1-INTERNAL.jar"> CycloneDx maven plugin </a>
 
