@@ -463,7 +463,8 @@ public abstract class BaseCycloneDxMojo extends AbstractMojo {
     }
 
     private boolean isModified(Artifact artifact) {
-        //todo: compare hashes + GAV with what the artifact says against Maven Central to determine if component has been modified.
+        //todo: compare hashes + GAV with what the artifact says against Maven Central to determine
+        // if component has been modified.
         return false;
     }
 

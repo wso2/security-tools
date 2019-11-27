@@ -35,7 +35,8 @@ import java.util.Set;
 public class CycloneDxMojo extends BaseCycloneDxMojo {
 
     public void execute() throws MojoExecutionException {
-        final boolean shouldSkip = Boolean.parseBoolean(System.getProperty("cyclonedx.skip", Boolean.toString(getSkip())));
+        final boolean shouldSkip = Boolean.parseBoolean(System.getProperty("cyclonedx.skip",
+                Boolean.toString(getSkip())));
         if (shouldSkip) {
             getLog().info("Skipping CycloneDX");
             return;
@@ -43,8 +44,12 @@ public class CycloneDxMojo extends BaseCycloneDxMojo {
         logParameters();
         Set<Component> components = new LinkedHashSet<>();
         getLog().info(MESSAGE_RESOLVING_DEPS);
-        if (getProject() != null && getProject().getArtifacts() != null) {
-            for (Artifact artifact : getProject().getArtifacts()) {
+
+        // getArtifacts() method of maven core API returns all the direct and transitive dependencies of a project.
+        // To avoid transitive
+        // dependencies getDependencyArtifacts() maven core API is used instead of getArtifacts().
+        if (getProject() != null && getProject().getDependencyArtifacts() != null) {
+            for (Artifact artifact : getProject().getDependencyArtifacts()) {
                 if (shouldInclude(artifact)) {
                     components.add(convert(artifact));
                 }

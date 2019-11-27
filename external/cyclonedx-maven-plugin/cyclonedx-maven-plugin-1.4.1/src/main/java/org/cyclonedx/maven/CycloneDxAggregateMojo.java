@@ -40,8 +40,11 @@ public class CycloneDxAggregateMojo extends BaseCycloneDxMojo {
             getLog().info("Skipping CycloneDX");
             return;
         }
+
+        // getArtifacts() method of maven core API returns all the direct and transitive dependencies of a project. To avoid transitive
+        // dependencies getDependencyArtifacts() maven core API is used instead of getArtifacts().
         final Set<Component> components = getReactorProjects().stream()
-                .flatMap(mavenProject -> mavenProject.getArtifacts().stream())
+                .flatMap(mavenProject -> mavenProject.getDependencyArtifacts().stream())
                 .filter(this::shouldInclude)
                 .map(this::convert)
                 .collect(Collectors.toSet());
@@ -49,4 +52,3 @@ public class CycloneDxAggregateMojo extends BaseCycloneDxMojo {
         super.execute(components);
     }
 }
-
