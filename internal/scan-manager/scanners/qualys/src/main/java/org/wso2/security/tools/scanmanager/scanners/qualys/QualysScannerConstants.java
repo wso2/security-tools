@@ -38,7 +38,7 @@ public class QualysScannerConstants {
     public static final String SCHEDULER_DELAY = "schedulerDelay";
     public static final String SCAN_URL = "scanURL";
     public static final String DEFAULT_REPORT_TEMPLATE_ID = "default_report_template_id";
-    public static final String REPORT_TEMPLATE_ID = "reportTemplateID";
+    public static final String PARAMETER_REPORT_TEMPLATE_ID = "reportTemplateID";
 
     // Qualys API Endpoint.
     public static final String QUALYS_START_SCAN_API = "/qps/rest/3.0/launch/was/wasscan";

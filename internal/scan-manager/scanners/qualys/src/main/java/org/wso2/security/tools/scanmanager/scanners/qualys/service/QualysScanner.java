@@ -201,7 +201,7 @@ public class QualysScanner implements Scanner {
             scanContext.setType(parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0));
         }
 
-        // Validate progressive scan value
+        // Validate progressive scan value.
         if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PROGRESSIVE_SCAN).get(0))) {
             scanContext
                     .setProgressiveScanning(QualysScannerConfiguration.getInstance().getDefaultProgressiveScanning());
@@ -212,15 +212,15 @@ public class QualysScanner implements Scanner {
             scanContext.setProgressiveScanning(parameterMap.get(QualysScannerConstants.PROGRESSIVE_SCAN).get(0));
         }
 
-        // Validate report template ID
-        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.REPORT_TEMPLATE_ID).get(0))) {
+        // Validate report template ID.
+        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0))) {
             scanContext.setReportTemplateId(QualysScannerConfiguration.getInstance().getDefaultReportTemplateID());
             String logMessage =
-                    "Report template ID for the scan is not provided. Default report template ID" + " is set for "
+                    "Report template ID for the scan is not provided. Default report template ID is set for "
                             + scannerScanRequest.getAppId();
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else {
-            scanContext.setReportTemplateId(parameterMap.get(QualysScannerConstants.REPORT_TEMPLATE_ID).get(0));
+            scanContext.setReportTemplateId(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0));
         }
 
         List<String> authFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.AUTHENTICATION_SCRIPTS);
