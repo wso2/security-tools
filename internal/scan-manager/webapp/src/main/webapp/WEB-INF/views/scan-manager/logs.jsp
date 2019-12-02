@@ -47,7 +47,7 @@
                 </c:if>
             </div>
             <div class="row">
-                <form action="/scan-manager/scans" method="get" class="scan-manager-page-nav-button"
+                <form action="scans" method="get" class="scan-manager-page-nav-button"
                       style="padding-left: 0px">
                     <button class="btn btn-primary">Back to Scans</button>
                 </form>
@@ -77,7 +77,7 @@
                     <c:if test="${!fn:contains(scanData.jobId, 'pre_job_id')}">
                         <div class="row">
                             <div class="col-md-6" style="padding-left: 0px">
-                                <form action="/scan-manager/logs" method="get" class="scan-manager-page-nav-button">
+                                <form action="logs" method="get" class="scan-manager-page-nav-button">
                                     <input type="hidden" name="page" value="1"/>
                                     <input type="hidden" name="jobId" value="${scanData.jobId}"/>
                                     <c:choose>
@@ -89,7 +89,7 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </form>
-                                <form action="/scan-manager/logs" method="get" class="scan-manager-page-nav-button">
+                                <form action="logs" method="get" class="scan-manager-page-nav-button">
                                     <input type="hidden" name="page" value="${logListResponse.currentPage - 1}"/>
                                     <input type="hidden" name="jobId" value="${scanData.jobId}"/>
                                     <c:choose>
@@ -101,7 +101,7 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </form>
-                                <form action="/scan-manager/logs" method="get" class="scan-manager-page-nav-button">
+                                <form action="logs" method="get" class="scan-manager-page-nav-button">
                                     <input type="hidden" name="page" value="${logListResponse.currentPage + 1}"/>
                                     <input type="hidden" name="jobId" value="${scanData.jobId}"/>
                                     <c:choose>
@@ -113,7 +113,7 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </form>
-                                <form action="/scan-manager/logs" method="get" class="scan-manager-page-nav-button">
+                                <form action="logs" method="get" class="scan-manager-page-nav-button">
                                     <input type="hidden" name="page" value="${logListResponse.totalPages}"/>
                                     <input type="hidden" name="jobId" value="${scanData.jobId}"/>
                                     <c:choose>
@@ -149,10 +149,10 @@
                             <h5>Provided scan cannot be found. This scan may have completed its preparation tasks and
                                 moved
                                 to the submission phase. Please check
-                                the <a href="/scan-manager/scans">scans page</a> for the available scans.</h5>
+                                the <a href="scans">scans page</a> for the available scans.</h5>
                         </c:when>
                         <c:otherwise>
-                            <h5>Provided scan cannot be found. Please check the <a href="/scan-manager/scans">scans
+                            <h5>Provided scan cannot be found. Please check the <a href="scans">scans
                                 page</a>
                                 for the available scans.</h5>
                             <br>

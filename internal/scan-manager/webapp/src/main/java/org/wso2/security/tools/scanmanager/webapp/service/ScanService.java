@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
+import org.wso2.security.tools.scanmanager.common.external.model.User;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 
 import java.util.List;
@@ -37,9 +38,10 @@ public interface ScanService {
      *
      * @param fileMap       file map containing the required files
      * @param parameterMap  parameter map containing the required parameters
+     * @param user  user
      * @return Scan object that was received by the webapp
      */
-    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap);
+    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap, User user);
 
     /**
      * Get the list of scans for a given page.

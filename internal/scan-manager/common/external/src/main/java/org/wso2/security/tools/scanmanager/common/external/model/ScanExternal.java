@@ -39,13 +39,12 @@ public class ScanExternal {
     private ScanType type;
     private Timestamp submittedTimestamp;
     private Timestamp startedTimestamp;
-    private String user;
+    private int userId;
     private String scanReportPath;
 
     public ScanExternal(String jobId, String name, String description, String scannerId,
                         String scannerName, ScanPriority priority, ScanStatus status, String product, ScanType type,
-                        Timestamp submittedTimestamp, Timestamp startedTimestamp, String user,
-                        String scanReportPath) {
+                        Timestamp submittedTimestamp, Timestamp startedTimestamp, int userId, String scanReportPath) {
         this.jobId = jobId;
         this.name = name;
         this.description = description;
@@ -55,7 +54,7 @@ public class ScanExternal {
         this.status = status;
         this.product = product;
         this.type = type;
-        this.user = user;
+        this.userId = userId;
         this.scanReportPath = scanReportPath;
 
         if (submittedTimestamp != null) {
@@ -77,7 +76,7 @@ public class ScanExternal {
             this.type = scan.getType();
             this.submittedTimestamp = scan.getSubmittedTimestamp();
             this.startedTimestamp = scan.getStartTimestamp();
-            this.user = scan.getUser();
+            this.userId = scan.getUserId();
             this.scanReportPath = scan.getReportPath();
 
             if (scan.getScanner() != null) {
@@ -176,12 +175,12 @@ public class ScanExternal {
         }
     }
 
-    public String getUser() {
-        return user;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getScanReportPath() {

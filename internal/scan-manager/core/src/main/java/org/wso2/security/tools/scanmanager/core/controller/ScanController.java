@@ -39,6 +39,7 @@ import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScan
 import org.wso2.security.tools.scanmanager.common.external.model.ScanPriorityUpdateRequest;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanProperty;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
+import org.wso2.security.tools.scanmanager.common.external.model.User;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
@@ -50,6 +51,7 @@ import org.wso2.security.tools.scanmanager.core.service.LogService;
 import org.wso2.security.tools.scanmanager.core.service.ScanEngineService;
 import org.wso2.security.tools.scanmanager.core.service.ScanService;
 import org.wso2.security.tools.scanmanager.core.service.ScannerService;
+import org.wso2.security.tools.scanmanager.core.service.UserService;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -74,14 +76,16 @@ public class ScanController {
     private ScanService scanService;
     private LogService logService;
     private ScanEngineService scanEngineService;
+    private UserService userService;
 
     @Autowired
     public ScanController(ScannerService scannerService, ScanService scanService, LogService logService,
-                          ScanEngineService scanEngineService) {
+                          ScanEngineService scanEngineService, UserService userService) {
         this.scannerService = scannerService;
         this.scanService = scanService;
         this.logService = logService;
         this.scanEngineService = scanEngineService;
+        this.userService = userService;
     }
 
     /**
@@ -114,6 +118,16 @@ public class ScanController {
         if (scanRequest.getFileMap() != null) {
             scan.setFileList(buildScanFileList(scanRequest.getFileMap(), scan));
         }
+
+        // Check whether the user(email) exists in the DB
+        User user = userService.getByName(scanRequest.getUser().getUsername());
+        if (user == null) {
+            // if the user is not already exists in the DB, crate new user and get the new User's Id
+            user = new User(scanRequest.getUser().getUsername(), scanRequest.getUser().getEmail());
+            userService.insert(user);
+        }
+        user = userService.getByName(user.getUsername());
+        scan.setUserId(user.getId());
         scan = scanService.insert(scan);
 
         // Starting the pending scans.

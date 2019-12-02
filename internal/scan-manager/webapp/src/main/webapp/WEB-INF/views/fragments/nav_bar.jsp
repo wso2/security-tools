@@ -22,11 +22,11 @@
 #417cdee8 !important;">
     
     <!-- Navbar brand -->
-    <a class="navbar-brand" href="/scan-manager/">Security Scan Manager</a>
+    <a class="navbar-brand" href="/">Security Scan Manager</a>
     
     <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-            <a class="nav-link" href="/scan-manager/">Home</a>
+            <a class="nav-link" href="/">Home</a>
         </li>
     </ul>
 </nav>

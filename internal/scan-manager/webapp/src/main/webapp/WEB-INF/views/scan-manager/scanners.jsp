@@ -39,7 +39,7 @@
         <div class="col-md-6">
             <div class="row scan-manager-background-grey">
                 <div class="col-md-12 list-view">
-                    <form action="/scan-manager/configuration" method="get"
+                    <form action="configuration" method="get"
                           enctype="multipart/form-data">
                         <div class="col-md-12">
                             <c:if test="${staticScanners.size() gt 0}">
@@ -108,7 +108,7 @@
                                 </c:if>
                             </c:if>
                             <div class="row" style="margin-top: 15px; margin-left: 0px;">
-                                <a class="btn btn-outline-primary" href="/scan-manager/" role="button">Back</a>
+                                <a class="btn btn-outline-primary" href="/" role="button">Back</a>
                                 <button class="btn btn-primary">Next</button>
                             </div>
                         </div>

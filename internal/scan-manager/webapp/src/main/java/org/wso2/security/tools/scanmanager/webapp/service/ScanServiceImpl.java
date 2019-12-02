@@ -32,6 +32,7 @@ import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
+import org.wso2.security.tools.scanmanager.common.external.model.User;
 import org.wso2.security.tools.scanmanager.common.model.HTTPRequest;
 import org.wso2.security.tools.scanmanager.common.model.LogType;
 import org.wso2.security.tools.scanmanager.common.model.ScanPriority;
@@ -79,6 +80,7 @@ public class ScanServiceImpl implements ScanService {
     private static final String SCAN_REQUEST_SCAN_TYPE_ATTRIBUTE_NAME = "scanType";
     private static final String SCAN_REQUEST_PRODUCT_NAME_ATTRIBUTE_NAME = "productName";
     private static final String SCAN_REQUEST_SCANNER_ID_ATTRIBUTE_NAME = "scannerId";
+    private static final String SCAN_REQUEST_USER = "user";
     private static final String SCAN_REQUEST_SCANNER_NAME_ATTRIBUTE_NAME = "scannerName";
     private static final String SCAN_ARTIFACT_DIRECTORY = "scans";
 
@@ -94,7 +96,7 @@ public class ScanServiceImpl implements ScanService {
     }
 
     @Override
-    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap) {
+    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap, User user) {
         Map<String, String> filesToBeDownloadedFromURL = new HashMap<>();
         Map<String, String> storedFileMap = new HashMap<>();
         File scanDirectoryLocation = null;
@@ -149,7 +151,7 @@ public class ScanServiceImpl implements ScanService {
 
             // Begin the pre scans tasks and initiate the scan submission.
             new Thread(() -> beginScanSubmit(storedFileMap, parameterMap, filesToBeDownloadedFromURL,
-                    preparingScan), "BeginScanSubmitToScanManagerAPI").start();
+                    preparingScan, user), "BeginScanSubmitToScanManagerAPI").start();
         } catch (ScanManagerWebappException e) {
 
             // Update the status if the scan under preparation to ERROR.
@@ -196,7 +198,7 @@ public class ScanServiceImpl implements ScanService {
     }
 
     private void beginScanSubmit(Map<String, String> storedFileMap, Map<String, String> parameterMap, Map<String,
-            String> filesToBeDownloadedFromURL, Scan scan) {
+            String> filesToBeDownloadedFromURL, Scan scan, User user) {
         Map<String, String> uploadedFileMap = new HashMap<>();
         File scanDirectoryLocation = null;
 
@@ -232,7 +234,7 @@ public class ScanServiceImpl implements ScanService {
             }
 
             // Send scan submit request to scan manager API.
-            ResponseEntity responseEntity = sendSubmitScanRequest(uploadedFileMap, parameterMap);
+            ResponseEntity responseEntity = sendSubmitScanRequest(uploadedFileMap, parameterMap, user);
             if (responseEntity != null && (responseEntity.getStatusCode().is2xxSuccessful())) {
                 if (preparingScans.containsKey(scan.getJobId())) {
                     preparingScans.remove(scan.getJobId());
@@ -263,8 +265,8 @@ public class ScanServiceImpl implements ScanService {
         }
     }
 
-    private ResponseEntity sendSubmitScanRequest(Map<String, String> uploadedFileMap,
-                                                 Map<String, String> parameterMap) throws ScanManagerWebappException {
+    private ResponseEntity sendSubmitScanRequest(Map<String, String> uploadedFileMap, Map<String, String> parameterMap,
+                                                 User user) throws ScanManagerWebappException {
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         Map<String, Object> requestParams = new HashMap<>();
 
@@ -281,6 +283,7 @@ public class ScanServiceImpl implements ScanService {
                     parameterMap.get(SCAN_REQUEST_PRODUCT_NAME_ATTRIBUTE_NAME));
             requestParams.put(SCAN_REQUEST_SCANNER_ID_ATTRIBUTE_NAME,
                     parameterMap.get(SCAN_REQUEST_SCANNER_ID_ATTRIBUTE_NAME));
+            requestParams.put(SCAN_REQUEST_USER, user);
 
             HTTPRequest submitScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance().getScanURL("",
                     nameValuePairs).toString(), null, requestParams);

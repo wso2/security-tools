@@ -96,7 +96,7 @@
                             <div class="col-md-4">
                                 <c:if test="${scanListResponse.scanList.get(index)
                                                 .status.name().equals('COMPLETED')}">
-                                    <form action="/scan-manager/report" method="get"
+                                    <form action="report" method="get"
                                           class="scan-manager-scan-action-button">
                                         <input type="hidden" name="jobId"
                                                value="${scanListResponse.scanList.get(index).jobId}"/>
@@ -109,14 +109,14 @@
                                              .equals('SUBMIT_PENDING') ||
                                              scanListResponse.scanList.get(index).status.name()
                                              .equals('SUBMITTED')}">
-                                    <form action="/scan-manager/stop" method="post"
+                                    <form action="stop" method="post"
                                           class="scan-manager-scan-action-button">
                                         <input type="hidden" name="jobId"
                                                value="${scanListResponse.scanList.get(index).jobId}"/>
                                         <button class="btn btn-danger">Cancel</button>
                                     </form>
                                 </c:if>
-                                <form action="/scan-manager/logs" method="get"
+                                <form action="logs" method="get"
                                       class="scan-manager-scan-action-button">
                                     <input type="hidden" name="jobId"
                                            value="${scanListResponse.scanList.get(index).jobId}"/>
@@ -129,7 +129,7 @@
                     </c:forEach>
                     <div class="row">
                         <div class="col-md-6" style="padding-left: 0px;">
-                            <form action="/scan-manager/scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scans" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="1"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isFirstPage()}">
@@ -140,7 +140,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </form>
-                            <form action="/scan-manager/scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scans" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="${scanListResponse.currentPage - 1}"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isFirstPage()}">
@@ -151,7 +151,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </form>
-                            <form action="/scan-manager/scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scans" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="${scanListResponse.currentPage + 1}"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isLastPage()}">
@@ -162,7 +162,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </form>
-                            <form action="/scan-manager/scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scans" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="${scanListResponse.totalPages}"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isLastPage()}">
@@ -212,14 +212,14 @@
                             </div>
                             <div class="col-md-4">
                                 <c:if test="${preparingScanList.get(index).status.name().equals('ERROR')}">
-                                    <form action="/scan-manager/clear" method="post"
+                                    <form action="clear" method="post"
                                           style="float: right; margin-left: 6px;">
                                         <input type="hidden" name="jobId"
                                                value="${preparingScanList.get(index).jobId}"/>
                                         <button class="btn btn-blue-grey">Clear</button>
                                     </form>
                                 </c:if>
-                                <form action="/scan-manager/logs" method="get"
+                                <form action="logs" method="get"
                                       style="float: right; margin-left: 6px;">
                                     <input type="hidden" name="jobId"
                                            value="${preparingScanList.get(index).jobId}"/>
