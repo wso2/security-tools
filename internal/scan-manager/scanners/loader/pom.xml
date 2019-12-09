@@ -29,11 +29,8 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.wso2.security.tools.scanmanager</groupId>
     <artifactId>scan-manager-scanners-loader</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
     <name>Scan Manager - Scanner - Loader</name>
 
     <dependencies>
