@@ -95,7 +95,7 @@ sudo ufw allow 'Nginx HTTPS'
 sudo ufw allow 'Nginx Full'
 sudo ufw allow 'OpenSSH'
 # To be removed after Nginx setup is complete
-sudo ufw allow 8080/tcp
+sudo ufw deny 8080/tcp
 # Allow access to scan-manager-core from docker containers
 sudo ufw allow in on docker0 to any port 8081 proto tcp
 sudo ufw status verbose
@@ -118,5 +118,59 @@ source ~/.bashrc
 
 sdk install java 8.0.212-amzn
 sdk install maven 3.6.1
+
+# ---------------------------------------------------
+# Configure SSL Certs
+# ---------------------------------------------------
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+
+# -----------------------------
+# Install Nginx
+# -----------------------------
+
+apt install -y nginx
+
+cat <<END > /etc/nginx/sites-enabled/scan-manager
+server {
+  listen 80;
+  listen [::]:80;
+  
+  server_name scan.private.wso2.com;
+  
+  return 301 https://scan.private.wso2.com$request_uri;
+}
+server {
+  listen 443 ssl;
+  server_name scan.private.wso2.com;
+  
+  client_max_body_size 50M;
+  
+  # RSA certificat
+  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+  
+  ssl_protocols TLSv1.2;
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+  ssl_ecdh_curve secp384r1;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 1d;
+  ssl_session_tickets off;
+  ssl_stapling on;
+  ssl_stapling_verify on;
+  add_header X-Frame-Options DENY;
+  add_header X-Content-Type-Options nosniff;
+  add_header X-XSS-Protection "1; mode=block";
+  ssl_dhparam /etc/ssl/certs/dhparam.pem;
+  location / {
+    proxy_pass http://localhost:8080/scan-manager/;
+  }
+}
+END
+
+nginx -s stop
+nginx
 
 exit
