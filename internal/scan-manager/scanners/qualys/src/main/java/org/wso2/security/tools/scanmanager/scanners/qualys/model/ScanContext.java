@@ -65,6 +65,17 @@ public class ScanContext {
     // Regex to check whether authentication status is success or not
     private String authRegex;
 
+    // Report template id to generate report
+    private String reportTemplateId;
+
+    public String getReportTemplateId() {
+        return reportTemplateId;
+    }
+
+    public void setReportTemplateId(String reportTemplateId) {
+        this.reportTemplateId = reportTemplateId;
+    }
+
     public String getAuthRegex() {
         return authRegex;
     }

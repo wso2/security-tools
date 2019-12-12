@@ -66,7 +66,8 @@ public class ReportHandler {
 
         // Generate report for defined report types.
         for (String type : reportTypes) {
-            String reportId = qualysScanHandler.createReport(scanContext.getWebAppId(), scanContext.getJobID(), type);
+            String reportId = qualysScanHandler.createReport(scanContext.getWebAppId(), scanContext.getJobID(), type,
+                    scanContext.getReportTemplateId());
             awaitReportCreation(scanContext.getJobID(), reportId, type);
             String filepath = qualysScanHandler.downloadReport(scanContext.getJobID(), reportId, reportFolderPath);
             String logMessage = "Scan report for the application: " + scanContext.getWebAppName() + " is downloaded."

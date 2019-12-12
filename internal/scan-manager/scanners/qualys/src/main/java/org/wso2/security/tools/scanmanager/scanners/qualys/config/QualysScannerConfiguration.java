@@ -40,6 +40,15 @@ public class QualysScannerConfiguration extends YAMLConfigurationReader {
     private String defaultProfileId;
     private String defaultScannerAppliance;
     private String defaultProgressiveScanning;
+    private String defaultReportTemplateID;
+
+    public String getDefaultReportTemplateID() {
+        return defaultReportTemplateID;
+    }
+
+    public void setDefaultReportTemplateID(String defaultReportTemplateID) {
+        this.defaultReportTemplateID = defaultReportTemplateID;
+    }
 
     public String getHost() {
         return host;
