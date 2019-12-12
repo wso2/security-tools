@@ -220,7 +220,8 @@ public class QualysScanner implements Scanner {
                             + scannerScanRequest.getAppId();
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else {
-            scanContext.setReportTemplateId(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0));
+            scanContext
+                    .setReportTemplateId(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0));
         }
 
         List<String> authFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.AUTHENTICATION_SCRIPTS);
