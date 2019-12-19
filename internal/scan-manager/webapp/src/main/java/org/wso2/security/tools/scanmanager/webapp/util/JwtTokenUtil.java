@@ -57,10 +57,13 @@ public class JwtTokenUtil {
                     "are empty in the given JSON Web Token.";
             throw new ScanManagerWebappException(err);
         }
-        if (!validateSignature(jwtComponents, config.get(Constants.KEY_STORE_NAME).toString(),
-                config.get(Constants.KEY_STORE_PWD)
-                        .toString(), config.get(Constants.ALIAS).toString(), config.get(Constants.ALGORITHM)
-                        .toString())) {
+
+        String keyStoreName = config.get(Constants.KEY_STORE_NAME).toString();
+        String keyStorePwd = config.get(Constants.KEY_STORE_PWD).toString();
+        String alias = config.get(Constants.ALIAS).toString();
+        String algorithm = config.get(Constants.ALGORITHM).toString();
+
+        if (!validateSignature(jwtComponents, keyStoreName, keyStorePwd, alias, algorithm)) {
             String err = "Invalid signature";
             throw new ScanManagerWebappException(err);
         }
