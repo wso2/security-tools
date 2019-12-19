@@ -192,15 +192,18 @@ public class QualysScanHandler {
      * @param webId      web application ID
      * @param jobId      job ID
      * @param reportType report type
+     * @param reportTemplateID report template ID
      * @return report ID
      * @throws ScannerException error occurred while creating report.
      */
-    public String createReport(String webId, String jobId, String reportType) throws ScannerException {
+    public String createReport(String webId, String jobId, String reportType, String reportTemplateID)
+            throws ScannerException {
         HttpResponse response;
         String reportId = null;
         String createReportRequestBody = null;
         try {
-            createReportRequestBody = RequestBodyBuilder.buildReportCreationRequest(webId, jobId, reportType);
+            createReportRequestBody = RequestBodyBuilder
+                    .buildReportCreationRequest(webId, jobId, reportType, reportTemplateID);
         } catch (ParserConfigurationException | TransformerException e) {
             throw new ScannerException("Error occurred while building report creation API request body: ", e);
         }

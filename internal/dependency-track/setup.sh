@@ -198,7 +198,7 @@ server {
   
   client_max_body_size 50M;
   
-  # RSA certificat
+  # RSA certificate
   ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
   ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
   

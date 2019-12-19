@@ -87,8 +87,8 @@ public class QualysScanner implements Scanner {
         CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
     }
 
-    @Override public void startScan(ScannerScanRequest scanRequest) {
-        scanContext.setJobID(scanRequest.getJobId());
+    @Override
+    public void startScan(ScannerScanRequest scanRequest) {
         scanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
                 QUALYS_WEBAPP_KEYWORD).get(0));
         scanContext.setApplicationUrl(scanRequest.getPropertyMap().get(QualysScannerConstants.SCAN_URL).get(0));
@@ -104,7 +104,8 @@ public class QualysScanner implements Scanner {
         }
     }
 
-    @Override public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
+    @Override
+    public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
         boolean isValidParameters = false;
         try {
             isValidParameters = isValidParameters(scannerScanRequest);
@@ -114,7 +115,8 @@ public class QualysScanner implements Scanner {
         return isValidParameters;
     }
 
-    @Override public void cancelScan(ScannerScanRequest scanRequest) {
+    @Override
+    public void cancelScan(ScannerScanRequest scanRequest) {
         try {
             qualysScanHandler.cancelScan(scanContext);
         } catch (ScannerException e) {
@@ -123,7 +125,8 @@ public class QualysScanner implements Scanner {
         }
     }
 
-    @Override public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
+    @Override
+    public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
         return true;
     }
 
@@ -146,6 +149,8 @@ public class QualysScanner implements Scanner {
      */
     private Boolean isValidParameters(ScannerScanRequest scannerScanRequest) throws InvalidRequestException {
         String errorMessage;
+        scanContext.setJobID(scannerScanRequest.getJobId());
+        scanContext.setAuthId(null);
 
         // Validate webAppId.
         if (StringUtils.isEmpty(scannerScanRequest.getAppId()) || !scannerScanRequest.getAppId()
@@ -196,7 +201,7 @@ public class QualysScanner implements Scanner {
             scanContext.setType(parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0));
         }
 
-        // Validate progressive scan value
+        // Validate progressive scan value.
         if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PROGRESSIVE_SCAN).get(0))) {
             scanContext
                     .setProgressiveScanning(QualysScannerConfiguration.getInstance().getDefaultProgressiveScanning());
@@ -205,6 +210,18 @@ public class QualysScanner implements Scanner {
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else {
             scanContext.setProgressiveScanning(parameterMap.get(QualysScannerConstants.PROGRESSIVE_SCAN).get(0));
+        }
+
+        // Validate report template ID.
+        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0))) {
+            scanContext.setReportTemplateId(QualysScannerConfiguration.getInstance().getDefaultReportTemplateID());
+            String logMessage =
+                    "Report template ID for the scan is not provided. Default report template ID is set for "
+                            + scannerScanRequest.getAppId();
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+        } else {
+            scanContext
+                    .setReportTemplateId(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0));
         }
 
         List<String> authFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.AUTHENTICATION_SCRIPTS);
@@ -256,6 +273,8 @@ public class QualysScanner implements Scanner {
                 getConfigProperty(QualysScannerConstants.DEFAULT_SCAN_TYPE));
         QualysScannerConfiguration.getInstance().setDefaultProgressiveScanning(QualysScannerConfiguration.getInstance()
                 .getConfigProperty(QualysScannerConstants.DEFAULT_PROGRESSIVE_SCANNING));
+        QualysScannerConfiguration.getInstance().setDefaultReportTemplateID(QualysScannerConfiguration.getInstance().
+                getConfigProperty(QualysScannerConstants.DEFAULT_REPORT_TEMPLATE_ID));
     }
 
     /**

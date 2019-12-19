@@ -159,12 +159,13 @@ public class RequestBodyBuilder {
      * @param webAppId     web app id
      * @param jobId        job id
      * @param reportFormat report format
+     * @param reportTemplateID template id for report creation
      * @return request body
      * @throws ParserConfigurationException error occurred while parsing
      * @throws TransformerException         error occurred while building secure string writer
      */
-    public static String buildReportCreationRequest(String webAppId, String jobId, String reportFormat)
-            throws ParserConfigurationException, TransformerException {
+    public static String buildReportCreationRequest(String webAppId, String jobId, String reportFormat,
+            String reportTemplateID) throws ParserConfigurationException, TransformerException {
         String createReportRequestBody;
         DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
         DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -212,6 +213,13 @@ public class RequestBodyBuilder {
         Element id = document.createElement(QualysScannerConstants.ID_KEYWORD);
         id.appendChild(document.createTextNode(webAppId));
         webapp.appendChild(id);
+
+        Element template = document.createElement(QualysScannerConstants.TEMPLATE_KEYWORD);
+        report.appendChild(template);
+
+        Element templateId = document.createElement(QualysScannerConstants.ID_KEYWORD);
+        templateId.appendChild(document.createTextNode(reportTemplateID));
+        template.appendChild(templateId);
 
         StringWriter stringWriter = XMLUtil.buildSecureStringWriter(document);
         createReportRequestBody = stringWriter.getBuffer().toString();
