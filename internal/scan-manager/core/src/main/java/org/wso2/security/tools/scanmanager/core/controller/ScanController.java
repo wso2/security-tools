@@ -120,13 +120,13 @@ public class ScanController {
         }
 
         // Check whether the user(email) exists in the DB
-        User user = userService.getByName(scanRequest.getUser().getUsername());
+        User user = userService.getByUsername(scanRequest.getUser().getUsername());
         if (user == null) {
             // if the user is not already exists in the DB, crate new user and get the new User's Id
             user = new User(scanRequest.getUser().getUsername(), scanRequest.getUser().getEmail());
             userService.insert(user);
         }
-        user = userService.getByName(user.getUsername());
+        user = userService.getByUsername(user.getUsername());
         scan.setUserId(user.getId());
         scan = scanService.insert(scan);
 

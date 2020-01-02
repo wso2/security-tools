@@ -83,26 +83,28 @@ public class JWTValidationFilter implements Filter {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             HttpSession session = request.getSession();
 
-            if (session.getAttribute(Constants.USERNAME) == null) {
-                //if the session does not exist
-                String token = request.getHeader(Constants.JWT_HEADER);
-                String[] tokenArray = token.split("\\.");
-                try {
-                    if (JwtTokenUtil.validateJWT(tokenArray, getJwtConfigList())) {
+            try {
+                if (session.getAttribute(Constants.USERNAME) == null) {
+                    //if the session does not exist
+                    String token = request.getHeader(Constants.JWT_HEADER);
+                    if (token != null) {
+                        String[] tokenArray = token.split("\\.");
+
+                        JwtTokenUtil.validateJWT(tokenArray, getJwtConfigList());
                         //get the username from claims and assign it it session as attribute
-                        username = JwtTokenUtil.getUserNameFromJwt(tokenArray[1]);
+                        username = JwtTokenUtil.getUsernameFromJwt(tokenArray[1]);
                         session.setAttribute(Constants.USERNAME, username);
 
                         filterChain.doFilter(request, response);
                     } else {
-                        throw new ScanManagerWebappException("Error while validating the JWT token");
+                        throw new ScanManagerWebappException("JWT token value cannot be null in the request header.");
                     }
-                } catch (ScanManagerWebappException e) {
-                    resolver.resolveException(request, response, null, e);
-                    response.sendRedirect(Constants.ERROR_PAGE);
+                } else {
+                    filterChain.doFilter(request, response);
                 }
-            } else {
-                filterChain.doFilter(request, response);
+            } catch (ScanManagerWebappException e) {
+                resolver.resolveException(request, response, null, e);
+                response.sendRedirect(Constants.ERROR_PAGE);
             }
         }
     }

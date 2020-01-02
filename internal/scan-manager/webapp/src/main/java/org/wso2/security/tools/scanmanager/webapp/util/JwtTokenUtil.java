@@ -47,35 +47,19 @@ public class JwtTokenUtil {
      *
      * @param jwtComponents array for JWT Token component (Header,Payload,Signature)
      * @param config        JWT configuration to validate
-     * @return whether the JWT token is valid against the config
      * @throws ScanManagerWebappException when an error occurs while validating JWT token
      */
-    public static boolean validateJWT(String[] jwtComponents, HashMap config) throws ScanManagerWebappException {
-        jwtPayload = new JSONObject(getJWTDecode(jwtComponents[1]));
-        if (!validateMandatoryFields(jwtPayload)) {
-            String err = "Mandatory fields(Issuer, Subject, Expiration time or Audience) " +
-                    "are empty in the given JSON Web Token.";
-            throw new ScanManagerWebappException(err);
-        }
-
+    public static void validateJWT(String[] jwtComponents, HashMap config) throws ScanManagerWebappException {
+        jwtPayload = new JSONObject(getDecodedJWT(jwtComponents[1]));
         String keyStoreName = config.get(Constants.KEY_STORE_NAME).toString();
         String keyStorePwd = config.get(Constants.KEY_STORE_PWD).toString();
         String alias = config.get(Constants.ALIAS).toString();
         String algorithm = config.get(Constants.ALGORITHM).toString();
 
-        if (!validateSignature(jwtComponents, keyStoreName, keyStorePwd, alias, algorithm)) {
-            String err = "Invalid signature";
-            throw new ScanManagerWebappException(err);
-        }
-        if (!validateIssuer(jwtPayload, config.get(Constants.JWT_ISSUER).toString())) {
-            String err = "JWT contained invalid issuer name : " + jwtPayload.getString(Constants.JWT_ISSUER);
-            throw new ScanManagerWebappException(err);
-        }
-        if (!validateExpirationTime(jwtPayload)) {
-            String err = "JWT token is expired";
-            throw new ScanManagerWebappException(err);
-        }
-        return true;
+        validateMandatoryFields(jwtPayload);
+        validateSignature(jwtComponents, keyStoreName, keyStorePwd, alias, algorithm);
+        validateIssuer(jwtPayload, config.get(Constants.JWT_ISSUER).toString());
+        validateExpirationTime(jwtPayload);
     }
 
     /**
@@ -84,8 +68,8 @@ public class JwtTokenUtil {
      * @param jwtPayload JWT payload
      * @return the user email taken from the JWT token
      */
-    public static String getUserNameFromJwt(String jwtPayload) {
-        String jwtBody = getJWTDecode(jwtPayload);
+    public static String getUsernameFromJwt(String jwtPayload) {
+        String jwtBody = getDecodedJWT(jwtPayload);
         JSONObject jsonClaimObject = new JSONObject(jwtBody);
         return jsonClaimObject.getString(Constants.EMAIL_CLAIM);
     }
@@ -96,7 +80,7 @@ public class JwtTokenUtil {
      * @param jwtPayload JWT token's payload
      * @return decoded JWT payload
      */
-    public static String getJWTDecode(String jwtPayload) {
+    public static String getDecodedJWT(String jwtPayload) {
         if (jwtPayload != null) {
             byte[] decodedHeader = DatatypeConverter.parseBase64Binary(jwtPayload);
             return new String(decodedHeader, StandardCharsets.UTF_8);
@@ -108,15 +92,14 @@ public class JwtTokenUtil {
      * Validate the mandatory fields of the JWT token.
      *
      * @param jwtPayload JWT payload
-     * @return whether all mandatory fields are included in the JWT payload
+     * @throws ScanManagerWebappException when an error occurs while validating the mandatory fields of the JWT token
      */
-    private static boolean validateMandatoryFields(JSONObject jwtPayload) {
+    private static void validateMandatoryFields(JSONObject jwtPayload) throws ScanManagerWebappException {
         if (jwtPayload.getString(Constants.JWT_ISSUER).equals("") || jwtPayload.getString(Constants.JWT_SUBJECT)
-                .equals("") ||
-                jwtPayload.getInt(Constants.JWT_EXPIRY) == 0) {
-            return false;
+                .equals("") || jwtPayload.getInt(Constants.JWT_EXPIRY) == 0) {
+            throw new ScanManagerWebappException("Mandatory fields(Issuer, Subject or Expiration time) " +
+                    "are empty in the given JSON Web Token.");
         }
-        return true;
     }
 
     /**
@@ -127,35 +110,32 @@ public class JwtTokenUtil {
      * @param keyStorePwd   KeyStore password
      * @param alias         Alias of the certificate related to JWT signing
      * @param algorithm     JWT token signing algorithm
-     * @return whether the JWT signature is valid
      * @throws ScanManagerWebappException when an error occurs while validating the signature
      */
-    private static boolean validateSignature(String[] jwtComponents, String keyStoreName, String keyStorePwd
+    private static void validateSignature(String[] jwtComponents, String keyStoreName, String keyStorePwd
             , String alias, String algorithm) throws ScanManagerWebappException {
 
         if (jwtComponents != null) {
             byte[] jwtSignature = DatatypeConverter.parseBase64Binary(jwtComponents[2]);
             ClassPathResource path = new ClassPathResource(keyStoreName);
 
-            try {
+            try (FileInputStream fileInputStream = new FileInputStream(path.getURL().getPath())) {
                 KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                FileInputStream fileInputStream = new FileInputStream(path.getURL().getPath());
                 keyStore.load(fileInputStream, keyStorePwd.toCharArray());
                 Certificate certificate = keyStore.getCertificate(alias);
                 Signature signature = Signature.getInstance(algorithm);
                 signature.initVerify(certificate);
                 String jwtAssertion = jwtComponents[0] + "." + jwtComponents[1];
                 signature.update(jwtAssertion.getBytes(StandardCharsets.UTF_8));
-                fileInputStream.close();
 
-                return signature.verify(jwtSignature);
+                if (!signature.verify(jwtSignature)) {
+                    throw new ScanManagerWebappException("Invalid signature");
+                }
             } catch (SignatureException | CertificateException | NoSuchAlgorithmException
                     | InvalidKeyException | IOException | KeyStoreException e) {
                 throw new ScanManagerWebappException("Error occured while validating the JWT signature", e);
             }
-
         }
-        return false;
     }
 
     /**
@@ -163,20 +143,25 @@ public class JwtTokenUtil {
      *
      * @param jwtPayload JWT payload
      * @param issuer     value that should be the issuer of the JWT token
-     * @return whether the issuer of the JWT token is valid
+     * @throws ScanManagerWebappException when an error occurs while validating the JWT token issuer
      */
-    private static boolean validateIssuer(JSONObject jwtPayload, String issuer) {
-        return jwtPayload.getString(Constants.JWT_ISSUER).equals(issuer);
+    private static void validateIssuer(JSONObject jwtPayload, String issuer) throws ScanManagerWebappException {
+        if (!jwtPayload.getString(Constants.JWT_ISSUER).equals(issuer)) {
+            throw new ScanManagerWebappException("JWT contained invalid issuer name : " + jwtPayload
+                    .getString(Constants.JWT_ISSUER));
+        }
     }
 
     /**
      * Validate the Expiry time of the JWT token.
      *
      * @param jwtPayload JWT payload
-     * @return whether the JWT token is not expired
+     * @throws ScanManagerWebappException when an error occurs while validating the Expiry time of the JWT token
      */
-    private static boolean validateExpirationTime(JSONObject jwtPayload) {
+    private static void validateExpirationTime(JSONObject jwtPayload) throws ScanManagerWebappException {
         Object expTime = jwtPayload.get(Constants.JWT_EXPIRY);
-        return Long.parseLong(expTime.toString()) > System.currentTimeMillis();
+        if (!(Long.parseLong(expTime.toString()) > System.currentTimeMillis())) {
+            throw new ScanManagerWebappException("JWT token is expired");
+        }
     }
 }

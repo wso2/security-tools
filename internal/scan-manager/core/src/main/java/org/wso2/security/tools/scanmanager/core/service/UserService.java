@@ -35,8 +35,16 @@ public interface UserService {
     /**
      * Get user for a given username.
      *
-     * @param username username os the user
+     * @param username username of the user
      * @return the user for the given username
      */
-    public User getByName(String username);
+    public User getByUsername(String username);
+
+    /**
+     * Get user for a given username.
+     *
+     * @param id user id of the user
+     * @return the user for the given username
+     */
+    public User getById(String id);
 }
