@@ -71,8 +71,8 @@ public class Scan {
     @Enumerated(EnumType.STRING)
     private ScanType type;
 
-    @Column(name = "USER")
-    private String user;
+    @Column(name = "USER_ID")
+    private int userId;
 
     @Column(name = "SUBMITTED_TIMESTAMP")
     private Timestamp submittedTimestamp;
@@ -103,7 +103,7 @@ public class Scan {
     }
 
     public Scan(String jobId, String name, String description, Scanner scanner, ScanStatus status, int priority,
-                String product, ScanType type, String user, String scannerScanId, String scannerAppId,
+                String product, ScanType type, int userId, String scannerScanId, String scannerAppId,
                 String reportPath, Set<ScanFile> fileList, Set<ScanProperty> propertyList,
                 Timestamp submittedTimestamp, Timestamp startTimestamp) {
         this.jobId = jobId;
@@ -114,7 +114,7 @@ public class Scan {
         this.priority = priority;
         this.product = product;
         this.type = type;
-        this.user = user;
+        this.userId = userId;
         this.scannerScanId = scannerScanId;
         this.scannerAppId = scannerAppId;
         this.reportPath = reportPath;
@@ -134,7 +134,7 @@ public class Scan {
     }
 
     public Scan(String jobId, String name, String description, Scanner scanner, ScanStatus status, int priority,
-                String product, ScanType type, String user, Timestamp submittedTimestamp, Timestamp startTimestamp,
+                String product, ScanType type, int userId, Timestamp submittedTimestamp, Timestamp startTimestamp,
                 String scannerScanId, String scannerAppId, String reportPath, Set<ScanFile> fileList,
                 Set<ScanProperty> propertyList) {
         this.jobId = jobId;
@@ -145,7 +145,7 @@ public class Scan {
         this.priority = priority;
         this.product = product;
         this.type = type;
-        this.user = user;
+        this.userId = userId;
         this.scannerScanId = scannerScanId;
         this.scannerAppId = scannerAppId;
         this.reportPath = reportPath;
@@ -216,12 +216,12 @@ public class Scan {
         this.product = product;
     }
 
-    public String getUser() {
-        return user;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public Timestamp getStartTimestamp() {

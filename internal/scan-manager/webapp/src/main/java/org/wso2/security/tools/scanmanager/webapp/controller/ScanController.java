@@ -30,12 +30,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerLogResponse;
 import org.wso2.security.tools.scanmanager.common.external.model.Scanner;
 import org.wso2.security.tools.scanmanager.common.external.model.ScannerApp;
+import org.wso2.security.tools.scanmanager.common.external.model.User;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 import org.wso2.security.tools.scanmanager.webapp.service.LogService;
 import org.wso2.security.tools.scanmanager.webapp.service.ScanService;
@@ -78,13 +80,12 @@ public class ScanController {
     private static final String CONTENT_DISPOSITION_HEADER_NAME = "Content-Disposition";
     private static final String SCAN_LIST_RESPONSE_ATTRIBUTE_NAME = "scanListResponse";
     private static final String PREPARING_SCAN_LIST_ATTRIBUTE_NAME = "preparingScanList";
-
     private static final String LOG_RESPONSE_ATTRIBUTE_NAME = "logListResponse";
     private static final String SCANNER_DATA_ATTRIBUTE_NAME = "scannerData";
     private static final String PRODUCT_DATA_ATTRIBUTE_NAME = "productData";
     private static final String MAX_FILE_SIZE_ATTRIBUTE_NAME = "maxFileSize";
     private static final String SCAN_DATA_ATTRIBUTE_NAME = "scanData";
-    private static final String SCAN_NAME_PARAMETER_KEY = "scanName";
+    private static final String SCAN_REQUEST_USER_NAME = "username";
 
     @Autowired
     public ScanController(ScanService scanService, ScannerService scannerService, LogService logService,
@@ -117,8 +118,12 @@ public class ScanController {
                 parameterMap.put(requestParamMap.getKey(), requestParamMap.getValue()[0]);
             }
         }
+        String username = (String) (((StandardMultipartHttpServletRequest) multipartHttpServletRequest).getRequest())
+                .getSession().getAttribute(SCAN_REQUEST_USER_NAME);
+        User user = new User(username, username);
         Map<String, MultipartFile> fileMap = multipartHttpServletRequest.getFileMap();
-        Scan scan = scanService.submitScan(fileMap, parameterMap);
+
+        Scan scan = scanService.submitScan(fileMap, parameterMap, user);
         if (scan != null) {
             return "redirect:scans";
         } else {

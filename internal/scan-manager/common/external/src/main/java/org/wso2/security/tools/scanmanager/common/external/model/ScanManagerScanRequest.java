@@ -31,6 +31,7 @@ public class ScanManagerScanRequest {
     private ScanType scanType;
     private String productName;
     private String scannerId;
+    private User user;
     private Map<String, String> fileMap;
     private Map<String, String> propertyMap;
 
@@ -38,7 +39,8 @@ public class ScanManagerScanRequest {
     }
 
     public ScanManagerScanRequest(String scanName, String scanDescription, ScanType scanType, String productName,
-                                  String scannerId, Map<String, String> fileMap, Map<String, String> propertyMap) {
+                                  String scannerId, Map<String, String> fileMap, Map<String, String> propertyMap,
+                                  User user) {
         this.scanName = scanName;
         this.scanDescription = scanDescription;
         this.scanType = scanType;
@@ -46,6 +48,7 @@ public class ScanManagerScanRequest {
         this.scannerId = scannerId;
         this.fileMap = fileMap;
         this.propertyMap = propertyMap;
+        this.user = user;
     }
 
     public String getScanName() {
@@ -86,6 +89,10 @@ public class ScanManagerScanRequest {
 
     public void setScannerId(String scannerId) {
         this.scannerId = scannerId;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public Map<String, String> getFileMap() {

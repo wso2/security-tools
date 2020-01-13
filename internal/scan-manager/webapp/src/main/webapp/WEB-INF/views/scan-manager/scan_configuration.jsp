@@ -39,7 +39,7 @@
         <div class="col-md-6">
             <div class="row scan-manager-background-grey">
                 <div class="col-md-12">
-                    <form action="/scan-manager/submit-scan" method="post"
+                    <form action="submit-scan" method="post"
                           enctype="multipart/form-data" onsubmit="loading()">
                         <div class="form-group required">
                             <div class="row">
@@ -209,7 +209,7 @@
                             </c:forEach>
                         </c:if>
                         <br>
-                        <a class="btn btn-outline-primary" href="/scan-manager/scanners" role="button">Back</a>
+                        <a class="btn btn-outline-primary" href="scanners" role="button">Back</a>
                         <button class="btn btn-primary">Submit Scan</button>
                         <div id="divLoading">
                         </div>

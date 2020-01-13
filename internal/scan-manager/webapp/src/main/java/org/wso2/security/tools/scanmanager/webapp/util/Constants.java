@@ -51,4 +51,18 @@ public class Constants {
     public static final String FILES_BY_URL_POSTFIX = "byURL";
 
     public static final String MAX_FILE_SIZE_PROPERTY_KEY = "spring.http.multipart.maxFileSize";
+
+    public static final String ERROR_PAGE = "errorPage";
+    public static final String USERNAME = "username";
+    public static final String JWT_HEADER = "x-jwt-assertion";
+
+    public static final String EMAIL_CLAIM = "http://wso2.org/claims/emailaddress";
+    public static final String KEY_STORE_NAME = "keyStoreName";
+    public static final String KEY_STORE_PWD = "keyStorePwd";
+    public static final String JWT_ISSUER = "iss";
+    public static final String JWT_SUBJECT = "sub";
+    public static final String JWT_EXPIRY = "exp";
+    public static final String JWT_AUDIENCE = "aud";
+    public static final String ALIAS = "alias";
+    public static final String ALGORITHM = "algorithm";
 }
