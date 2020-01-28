@@ -1,1 +1,0 @@
-from eggtest import main
