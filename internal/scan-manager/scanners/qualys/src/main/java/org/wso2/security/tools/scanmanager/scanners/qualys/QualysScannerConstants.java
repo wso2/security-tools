@@ -24,8 +24,8 @@ package org.wso2.security.tools.scanmanager.scanners.qualys;
 public class QualysScannerConstants {
 
     // Constants related to Qualys configurations.
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
+    public static final String QUALYS_USERNAME = "qualys_username";
+    public static final String QUALYS_PASSWORD = "password";
     public static final String HOST = "host";
     public static final String DEFAULT_SCAN_TYPE = "default_scan_type";
     public static final String DEFAULT_PROFILE_ID = "default_profile_id";
@@ -33,6 +33,8 @@ public class QualysScannerConstants {
     public static final String DEFAULT_PROGRESSIVE_SCANNING = "default_progressive_scanning";
     public static final String DEFAULT_FTP_AUTH_SCRIPT_PATH = "default_auth_script_path";
     public static final String DEFAULT_FTP_CRAWL_SCRIPT_PATH = "default_crawl_script_path";
+    public static final String DEFAULT_STANDARD_AUTH_USERNAME = "default_standard_auth_username";
+    public static final String DEFAULT_STANDARD_AUTH_PASSWORD = "default_standard_auth_password";
     public static final String QUALYS_REPORT_FOLDER_PATH = "report_folder_path";
     public static final String REPORT_UPLOAD_RETRY_INTERVAL = "scan_report_upload_retry_interval";
     public static final String SCHEDULER_DELAY = "scheduler_delay";
@@ -96,6 +98,17 @@ public class QualysScannerConstants {
     public static final String WEB_APP_REPORT_KEYWORD = "webAppReport";
     public static final String AUTH_REGEX_KEYWORD = "authRegex";
     public static final String TEMPLATE_KEYWORD = "template";
+    public static final String WEBAPP_AUTH_TYPE = "webAppAuthType";
+    public static final String STANDARD_AUTH = "STANDARD";
+    public static final String SELENIUM_AUTH = "SELENIUM";
+    public static final String STANDARD_AUTH_USERNAME = "username";
+    public static final String STANDARD_AUTH_PASSWORD = "password";
+    public static final String SSL_ONLY = "sslOnly";
+    public static final String FIELD = "fields";
+    public static final String AUTH_FORM_RECORD_FIELD= "WebAppAuthFormRecordField";
+    public static final String NAME = "name";
+    public static final String VALUE = "value";
+    public static final String SET = "SET";
 
     // Constants used to handle API response.
     public static final String SUCCESS = "SUCCESS";

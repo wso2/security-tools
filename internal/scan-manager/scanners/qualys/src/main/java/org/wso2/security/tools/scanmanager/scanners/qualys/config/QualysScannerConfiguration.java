@@ -97,4 +97,5 @@ public class QualysScannerConfiguration extends YAMLConfigurationReader {
     public void setDefaultProgressiveScanning(String defaultProgressiveScanning) {
         this.defaultProgressiveScanning = defaultProgressiveScanning;
     }
+
 }

@@ -18,10 +18,12 @@
 
 # Qualys Scanner Configuration data
 ---
-username : [Username of Qualys Account]
-password : [Password of Qualys Account]
+qualys_username : [Username of Qualys Account]
+qualys_password : [Password of Qualys Account]
 host : [URL to Qualys API server. It is depend on the platform where Qualys account is located]
 scheduler_delay : [Time intervel (Min) between each scan check]
+default_standard_auth_username :
+default_standard_auth_password :
 default_scan_type : [Default scan type. Accepted values - VULNERABILTY , DISCOVERY]
 default_profile_id : [Default profile ID]
 default_scanner_appliance : [Default Scanner Appliance type. Accepted values - INTERNAL, EXTERNAL]

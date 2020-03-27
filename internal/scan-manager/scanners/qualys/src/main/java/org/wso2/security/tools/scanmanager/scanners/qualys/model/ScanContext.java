@@ -68,6 +68,9 @@ public class ScanContext {
     // Report template id to generate report
     private String reportTemplateId;
 
+    // Authentication type
+    private WebAppAuth webAppAuth;
+
     public String getReportTemplateId() {
         return reportTemplateId;
     }
@@ -186,5 +189,13 @@ public class ScanContext {
 
     public void setApplicationUrl(String applicationUrl) {
         this.applicationUrl = applicationUrl;
+    }
+
+    public WebAppAuth getWebAppAuth() {
+        return webAppAuth;
+    }
+
+    public void setWebAppAuth(WebAppAuth webAppAuth) {
+        this.webAppAuth = webAppAuth;
     }
 }

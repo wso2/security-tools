@@ -106,6 +106,80 @@ public class RequestBodyBuilder {
     }
 
     /**
+     * Build request body to create standard authentication record
+     *
+     * @param appID    application name in qualys
+     * @param username username
+     * @param password password
+     * @return create standard authentication request body in XML format
+     * @throws ParserConfigurationException error occurred while parsing
+     * @throws TransformerException         error occurred while building secure string writer.
+     */
+    public static String buildStandardAuthCreationRequest(String appID, char[] username, char[] password)
+            throws ParserConfigurationException, TransformerException {
+        String standardAuthRecordRequestBody;
+        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
+        doc.appendChild(root);
+
+        Element data = doc.createElement(QualysScannerConstants.DATA);
+        root.appendChild(data);
+
+        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
+        data.appendChild(webAppAuthRecord);
+
+        Element authRecordName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+        authRecordName.appendChild(doc.createTextNode("Standard Authentication for " + appID + " : " + getDate()));
+        webAppAuthRecord.appendChild(authRecordName);
+
+        Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
+        webAppAuthRecord.appendChild(formRecord);
+
+        Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
+        type.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH));
+        formRecord.appendChild(type);
+
+        //        Element sslOnly = doc.createElement(QualysScannerConstants.SSL_ONLY);
+        //        sslOnly.appendChild(doc.createTextNode("false"));
+
+        Element fields = doc.createElement(QualysScannerConstants.FIELD);
+        formRecord.appendChild(fields);
+
+        Element set = doc.createElement(QualysScannerConstants.SET);
+        fields.appendChild(set);
+
+        Element usernameField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
+        set.appendChild(usernameField);
+
+        Element usernameEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+        usernameEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_USERNAME));
+        usernameField.appendChild(usernameEntry);
+
+        Element usernameEntryValue = doc.createElement(QualysScannerConstants.VALUE);
+        usernameEntryValue.appendChild(doc.createTextNode(username.toString()));
+        usernameField.appendChild(usernameEntryValue);
+
+        Element passwordField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
+        set.appendChild(passwordField);
+
+        Element passwordEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+        passwordEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_PASSWORD));
+        passwordField.appendChild(passwordEntry);
+
+        Element passwordEntryValue = doc.createElement(QualysScannerConstants.VALUE);
+        passwordEntryValue.appendChild(doc.createTextNode(password.toString()));
+        passwordField.appendChild(passwordEntryValue);
+
+        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
+        standardAuthRecordRequestBody = stringWriter.getBuffer().toString();
+
+        return standardAuthRecordRequestBody;
+    }
+
+    /**
      * Build request body to update web app with authentication script.
      *
      * @param webAppName     web application name
@@ -156,9 +230,9 @@ public class RequestBodyBuilder {
     /**
      * Build request body to create report.
      *
-     * @param webAppId     web app id
-     * @param jobId        job id
-     * @param reportFormat report format
+     * @param webAppId         web app id
+     * @param jobId            job id
+     * @param reportFormat     report format
      * @param reportTemplateID template id for report creation
      * @return request body
      * @throws ParserConfigurationException error occurred while parsing
