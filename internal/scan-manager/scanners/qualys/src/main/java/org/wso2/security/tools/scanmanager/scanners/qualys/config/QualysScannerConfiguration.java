@@ -42,6 +42,16 @@ public class QualysScannerConfiguration extends YAMLConfigurationReader {
     private String defaultProgressiveScanning;
     private String defaultReportTemplateID;
 
+    public String getDefaultCrawlingScope() {
+        return defaultCrawlingScope;
+    }
+
+    public void setDefaultCrawlingScope(String defaultCrawlingScope) {
+        this.defaultCrawlingScope = defaultCrawlingScope;
+    }
+
+    private String defaultCrawlingScope;
+
     public String getDefaultReportTemplateID() {
         return defaultReportTemplateID;
     }

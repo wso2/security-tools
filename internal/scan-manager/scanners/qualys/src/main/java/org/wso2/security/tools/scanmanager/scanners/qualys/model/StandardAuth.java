@@ -20,19 +20,111 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.model;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
+import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.qualys.util.RequestBodyBuilder;
+
+import java.io.StringWriter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 /**
  * This class is to represent StandardAuth type of WebAppAuth for Qualys scan.
  */
-public class StandardAuth extends WebAppAuth {
+public class StandardAuth implements WebAppAuth {
 
     // Username for the StandardAuth type.
-    private char[] userName;
+    private char[] username;
 
     // Password for the StandardAuth type.
     private char[] password;
 
     public StandardAuth(char[] userName, char[] password) {
-        this.userName = userName;
+        this.username = userName;
         this.password = password;
+    }
+
+    public char[] getUsername() {
+        return username;
+    }
+
+    public void setUsername(char[] username) {
+        this.username = username;
+    }
+
+    public char[] getPassword() {
+        return password;
+    }
+
+    public void setPassword(char[] password) {
+        this.password = password;
+    }
+
+    @Override public String buildRequestBody(String appID) throws TransformerException, ParserConfigurationException {
+        String standardAuthRecordRequestBody;
+        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
+        doc.appendChild(root);
+
+        Element data = doc.createElement(QualysScannerConstants.DATA);
+        root.appendChild(data);
+
+        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
+        data.appendChild(webAppAuthRecord);
+
+        Element authRecordName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+        authRecordName.appendChild(doc.createTextNode("Standard Authentication for " + appID + " : " +
+                RequestBodyBuilder.getDate()));
+        webAppAuthRecord.appendChild(authRecordName);
+
+        Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
+        webAppAuthRecord.appendChild(formRecord);
+
+        Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
+        type.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH));
+        formRecord.appendChild(type);
+
+        //        Element sslOnly = doc.createElement(QualysScannerConstants.SSL_ONLY);
+        //        sslOnly.appendChild(doc.createTextNode("false"));
+
+        Element fields = doc.createElement(QualysScannerConstants.FIELD);
+        formRecord.appendChild(fields);
+
+        Element set = doc.createElement(QualysScannerConstants.SET);
+        fields.appendChild(set);
+
+        Element usernameField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
+        set.appendChild(usernameField);
+
+        Element usernameEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+        usernameEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_USERNAME));
+        usernameField.appendChild(usernameEntry);
+
+        Element usernameEntryValue = doc.createElement(QualysScannerConstants.VALUE);
+        usernameEntryValue.appendChild(doc.createTextNode(username.toString()));
+        usernameField.appendChild(usernameEntryValue);
+
+        Element passwordField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
+        set.appendChild(passwordField);
+
+        Element passwordEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+        passwordEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_PASSWORD));
+        passwordField.appendChild(passwordEntry);
+
+        Element passwordEntryValue = doc.createElement(QualysScannerConstants.VALUE);
+        passwordEntryValue.appendChild(doc.createTextNode(password.toString()));
+        passwordField.appendChild(passwordEntryValue);
+
+        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
+        standardAuthRecordRequestBody = stringWriter.getBuffer().toString();
+
+        return standardAuthRecordRequestBody;
     }
 }

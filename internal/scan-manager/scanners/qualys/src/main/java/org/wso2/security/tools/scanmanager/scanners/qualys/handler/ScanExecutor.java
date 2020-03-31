@@ -62,7 +62,8 @@ public class ScanExecutor implements Runnable {
 
             authScriptId = qualysScanHandler
                     .prepareScan(scanContext.getWebAppId(), scanContext.getJobID(), scanContext.getWebAppName(),
-                            fileMap, scanContext.getApplicationUrl(), scanContext.getAuthRegex());
+                            fileMap, scanContext.getApplicationUrl(), scanContext.getWebAppAuth(),
+                            scanContext.getCrawlingScope());
 
             // Set ScanContext Object.
             scanContext.setAuthId(authScriptId);
@@ -87,8 +88,7 @@ public class ScanExecutor implements Runnable {
                     qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
                 }
                 log.error(new CallbackLog(scanContext.getJobID(), "Scan status is updating to ERROR"));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR,
-                        null, null);
+                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
             } catch (ScannerException e1) {
                 message = "Error occurred while doing the cleanup task. " + scanContext.getJobID() + ErrorProcessingUtil
                         .getFullErrorMessage(e1);

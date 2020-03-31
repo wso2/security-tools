@@ -33,14 +33,14 @@ public class QualysScannerConstants {
     public static final String DEFAULT_PROGRESSIVE_SCANNING = "default_progressive_scanning";
     public static final String DEFAULT_FTP_AUTH_SCRIPT_PATH = "default_auth_script_path";
     public static final String DEFAULT_FTP_CRAWL_SCRIPT_PATH = "default_crawl_script_path";
-    public static final String DEFAULT_STANDARD_AUTH_USERNAME = "default_standard_auth_username";
-    public static final String DEFAULT_STANDARD_AUTH_PASSWORD = "default_standard_auth_password";
+    public static final String DEFAULT_CRAWLING_SCOPE = "default_crawling_scope";
     public static final String QUALYS_REPORT_FOLDER_PATH = "report_folder_path";
     public static final String REPORT_UPLOAD_RETRY_INTERVAL = "scan_report_upload_retry_interval";
     public static final String SCHEDULER_DELAY = "scheduler_delay";
     public static final String SCAN_URL = "scanURL";
     public static final String DEFAULT_REPORT_TEMPLATE_ID = "default_report_template_id";
     public static final String PARAMETER_REPORT_TEMPLATE_ID = "reportTemplateID";
+    public static final String PARAMETER_CRAWLING_SCOPE = "crawlingScope";
 
     // Qualys API Endpoint.
     public static final String QUALYS_START_SCAN_API = "/qps/rest/3.0/launch/was/wasscan";
@@ -58,6 +58,7 @@ public class QualysScannerConstants {
     public static final String QUALYS_SCAN_NAME_PREFIX = "New Discovery scan launch from APP : ";
     public static final String WEBAPPS_KEYWORD = "webapps";
     public static final String QUALYS_WEBAPP_KEYWORD = "WebApp";
+    public static final String QUALYS_CRAWLING_SCOPE_KEYWORD = "scope";
     public static final String QUALYS_OPTIONAL_PROFILE_TAG_NAME = "OptionProfile";
     public static final String NAME_KEYWORD = "name";
     public static final String SCAN_URL_KEYWORD = "url";
@@ -101,11 +102,12 @@ public class QualysScannerConstants {
     public static final String WEBAPP_AUTH_TYPE = "webAppAuthType";
     public static final String STANDARD_AUTH = "STANDARD";
     public static final String SELENIUM_AUTH = "SELENIUM";
+    public static final String NONE = "NONE";
     public static final String STANDARD_AUTH_USERNAME = "username";
     public static final String STANDARD_AUTH_PASSWORD = "password";
     public static final String SSL_ONLY = "sslOnly";
     public static final String FIELD = "fields";
-    public static final String AUTH_FORM_RECORD_FIELD= "WebAppAuthFormRecordField";
+    public static final String AUTH_FORM_RECORD_FIELD = "WebAppAuthFormRecordField";
     public static final String NAME = "name";
     public static final String VALUE = "value";
     public static final String SET = "SET";

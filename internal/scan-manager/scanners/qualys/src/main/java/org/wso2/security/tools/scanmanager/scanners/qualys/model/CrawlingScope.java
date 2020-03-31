@@ -20,15 +20,10 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.model;
 
-import java.io.IOException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 /**
- * Class to represent the WebAppAuth method for a scan.
+ * TODO : Class level comment
  */
-public interface WebAppAuth {
+public enum CrawlingScope {
 
-    String buildRequestBody (String appID) throws TransformerException, ParserConfigurationException, IOException;
-
+    ALL, LIMIT, SUBDOMAIN, DOMAINS
 }

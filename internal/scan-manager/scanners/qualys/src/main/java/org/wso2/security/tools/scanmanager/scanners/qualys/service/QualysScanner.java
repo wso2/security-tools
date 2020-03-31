@@ -40,14 +40,12 @@ import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerC
 import org.wso2.security.tools.scanmanager.scanners.qualys.handler.QualysApiInvoker;
 import org.wso2.security.tools.scanmanager.scanners.qualys.handler.QualysScanHandler;
 import org.wso2.security.tools.scanmanager.scanners.qualys.handler.ScanExecutor;
+import org.wso2.security.tools.scanmanager.scanners.qualys.handler.WebAppAuthFactory;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.CrawlingScope;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanType;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScannerApplianceType;
-import org.wso2.security.tools.scanmanager.scanners.qualys.model.SeleniumAuth;
-import org.wso2.security.tools.scanmanager.scanners.qualys.model.StandardAuth;
-import org.wso2.security.tools.scanmanager.scanners.qualys.model.WebAppAuth;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -109,7 +107,7 @@ import java.util.Map;
         boolean isValidParameters = false;
         try {
             isValidParameters = isValidParameters(scannerScanRequest);
-        } catch (InvalidRequestException e) {
+        } catch (InvalidRequestException | ScannerException e) {
             callbackErrorReport(ErrorProcessingUtil.getFullErrorMessage(e));
         }
         return isValidParameters;
@@ -145,7 +143,8 @@ import java.util.Map;
      * @return True if all parameters are valid
      * @throws InvalidRequestException throws if any of the parameter in not valid.
      */
-    private Boolean isValidParameters(ScannerScanRequest scannerScanRequest) throws InvalidRequestException {
+    private Boolean isValidParameters(ScannerScanRequest scannerScanRequest)
+            throws InvalidRequestException, ScannerException {
         String errorMessage;
         scanContext.setJobID(scannerScanRequest.getJobId());
         scanContext.setAuthId(null);
@@ -222,77 +221,26 @@ import java.util.Map;
                     .setReportTemplateId(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0));
         }
 
-        // Validate authentication type
-        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.WEBAPP_AUTH_TYPE).get(0))) {
-
-            // If authentication type is not provided, standard authentication type will be used.
-            scanContext.setWebAppAuth(createStandardWebAppAuth(QualysScannerConfiguration.getInstance().
-                            getConfigProperty(QualysScannerConstants.DEFAULT_STANDARD_AUTH_USERNAME).toCharArray(),
-                    QualysScannerConfiguration.getInstance().
-                            getConfigProperty(QualysScannerConstants.DEFAULT_STANDARD_AUTH_PASSWORD).toCharArray()));
-            String logMessage =
-                    "WebApp authentication type for scan is not provided. Standard authentication type is set for "
-                            + scannerScanRequest.getAppId();
+        // Validate crawling scope.
+        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE).get(0))) {
+            scanContext.setCrawlingScope(QualysScannerConfiguration.getInstance().getDefaultCrawlingScope());
+            String logMessage = "Crawling scope for the scan is not provided. Default crawling scope (ALL) is set for "
+                    + scannerScanRequest.getAppId();
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
-        } else if (parameterMap.get(QualysScannerConstants.WEBAPP_AUTH_TYPE).get(0)
-                .equals(QualysScannerConstants.STANDARD_AUTH)) {
-
-            // If password and username values are not provided, default username and password will be used for
-            // standard authentication.
-            if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.STANDARD_AUTH_USERNAME).get(0))
-                    || StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.STANDARD_AUTH_PASSWORD).get(0))) {
-                scanContext.setWebAppAuth(createStandardWebAppAuth(QualysScannerConfiguration.getInstance().
-                                getConfigProperty(QualysScannerConstants.DEFAULT_STANDARD_AUTH_USERNAME).toCharArray(),
-                        QualysScannerConfiguration.getInstance().
-                                getConfigProperty(QualysScannerConstants.DEFAULT_STANDARD_AUTH_PASSWORD)
-                                .toCharArray()));
-                String logMessage =
-                        "WebApp authentication type for scan is not provided. Standard authentication type is set for "
-                                + scannerScanRequest.getAppId();
-                log.warn(new CallbackLog(scanContext.getJobID(), logMessage));
-            } else {
-                scanContext.setWebAppAuth(createStandardWebAppAuth(
-                        parameterMap.get(QualysScannerConstants.STANDARD_AUTH_USERNAME).get(0).toCharArray(),
-                        parameterMap.get(QualysScannerConstants.STANDARD_AUTH_PASSWORD).get(0).toCharArray()));
-            }
-        } else if (parameterMap.get(QualysScannerConstants.WEBAPP_AUTH_TYPE).get(0)
-                .equals(QualysScannerConstants.SELENIUM_AUTH)) {
-            List<String> authFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.AUTHENTICATION_SCRIPTS);
-            if (authFiles.size() != 0) {
-                for (int i = 0; i < authFiles.size(); i++) {
-                    File file = new File(authFiles.get(0));
-                    if (!file.getName().endsWith(QualysScannerConstants.XML)) {
-                        errorMessage = "Invalid file type for Authentication Script";
-                        throw new InvalidRequestException(errorMessage);
-                    }
-                }
-
-                // If authentication script is provided, authentication status checker regex should be provided.
-                if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.AUTH_REGEX_KEYWORD).get(0))) {
-                    errorMessage = "Authentication checker regex is not provided for authentication script";
-                    throw new InvalidRequestException(errorMessage);
-                } else {
-                    scanContext.setWebAppAuth(createSeleniumWebAppAuth(authFiles.get(0).substring(0, authFiles.get(0).
-                                    lastIndexOf(File.separator)),
-                            parameterMap.get(QualysScannerConstants.AUTH_REGEX_KEYWORD).get(0)));
-                }
-            } else {
-                String logMessage =
-                        "Authentication script for the scan is not provided. Default authentication script will"
-                                + " be used. ";
-                log.info(new CallbackLog(scanContext.getJobID(), logMessage));
-            }
+        } else if (!EnumUtils.isValidEnum(CrawlingScope.class,
+                parameterMap.get(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE).get(0))) {
+            scanContext.setCrawlingScope(QualysScannerConfiguration.getInstance().getDefaultCrawlingScope());
+            String logMessage =
+                    "Invalid crawling scope. Default crawling scope (ALL) is set for " + scannerScanRequest.getAppId();
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+        } else {
+            scanContext.setCrawlingScope(parameterMap.get(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE).get(0));
         }
 
+        // Validate authentication type.
+        WebAppAuthFactory webAppAuthFactory = new WebAppAuthFactory();
+        scanContext.setWebAppAuth(webAppAuthFactory.getWebAppAuth(scannerScanRequest));
         return true;
-    }
-
-    private WebAppAuth createStandardWebAppAuth(char[] username, char[] password) {
-        return new StandardAuth(username, password);
-    }
-
-    private WebAppAuth createSeleniumWebAppAuth(String scriptFilesLocation, String authRegex) {
-        return new SeleniumAuth(scriptFilesLocation, authRegex);
     }
 
     /**
@@ -319,6 +267,8 @@ import java.util.Map;
                 .getConfigProperty(QualysScannerConstants.DEFAULT_PROGRESSIVE_SCANNING));
         QualysScannerConfiguration.getInstance().setDefaultReportTemplateID(QualysScannerConfiguration.getInstance().
                 getConfigProperty(QualysScannerConstants.DEFAULT_REPORT_TEMPLATE_ID));
+        QualysScannerConfiguration.getInstance().setDefaultCrawlingScope(QualysScannerConfiguration.getInstance().
+                getConfigProperty(QualysScannerConstants.DEFAULT_CRAWLING_SCOPE));
     }
 
     /**

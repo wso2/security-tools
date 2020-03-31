@@ -71,6 +71,16 @@ public class ScanContext {
     // Authentication type
     private WebAppAuth webAppAuth;
 
+    public String getCrawlingScope() {
+        return crawlingScope;
+    }
+
+    public void setCrawlingScope(String crawlingScope) {
+        this.crawlingScope = crawlingScope;
+    }
+
+    private String crawlingScope;
+
     public String getReportTemplateId() {
         return reportTemplateId;
     }

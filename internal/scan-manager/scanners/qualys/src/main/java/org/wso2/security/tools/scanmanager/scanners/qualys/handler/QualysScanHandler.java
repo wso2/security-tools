@@ -18,8 +18,6 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
@@ -27,20 +25,17 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.NodeList;
 import org.wso2.security.scanmanager.common.exception.RetryExceededException;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
-import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
-import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.WebAppAuth;
 import org.wso2.security.tools.scanmanager.scanners.qualys.util.RequestBodyBuilder;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -76,24 +71,22 @@ public class QualysScanHandler {
      * @param jobId          job ID
      * @param appName        web application name
      * @param applicationUrl application SCAN_URL for scan
-     * @param authRegex      regex to check whether authentication is succeeded or not
+     * @param webAppAuth     object which holds authentication type and it's metadata
+     * @param crawlingScope  crawling scope for the scan
      * @return authentication script ID
      * @throws ScannerException error occurred while adding authentication scripts
      */
     public String prepareScan(String appID, String jobId, String appName, Map<String, List<String>> fileMap,
-            String applicationUrl, String authRegex) throws ScannerException {
+            String applicationUrl, WebAppAuth webAppAuth, String crawlingScope) throws ScannerException {
         String authScriptId;
 
-        if (fileMap.get(QualysScannerConstants.AUTHENTICATION_SCRIPTS).size() != 0) {
-            // Download authentication script form ftp location.
-            File authScriptFile = downloadAuthenticationScripts(
-                    fileMap.get(QualysScannerConstants.AUTHENTICATION_SCRIPTS), appID, jobId);
+        if (webAppAuth != null) {
 
             // Add authentication script to Qualys scanner.
-            authScriptId = addAuthenticationRecord(appID, jobId, authScriptFile, authRegex);
+            authScriptId = addAuthenticationRecord(appID, jobId, webAppAuth);
 
             // Update web application with added authentication script.
-            updateWebApp(appID, appName, authScriptId, jobId, applicationUrl);
+            updateWebApp(appID, appName, authScriptId, jobId, applicationUrl, crawlingScope);
         } else {
             return null;
         }
@@ -189,9 +182,9 @@ public class QualysScanHandler {
     /**
      * Handle report creation task.
      *
-     * @param webId      web application ID
-     * @param jobId      job ID
-     * @param reportType report type
+     * @param webId            web application ID
+     * @param jobId            job ID
+     * @param reportType       report type
      * @param reportTemplateID report template ID
      * @return report ID
      * @throws ScannerException error occurred while creating report.
@@ -254,22 +247,18 @@ public class QualysScanHandler {
     /**
      * Add authentication script to Qualys Scanner as a web authentication record.
      *
-     * @param appId          Web application id
-     * @param jobId          Job ID
-     * @param authScriptFile authentication Script File
-     * @param authRegex      regex to check whether authentication is succeeded or not
+     * @param appId      Web application id
+     * @param jobId      Job ID
+     * @param webAppAuth Web application auth object
      * @return Authentication record id
      * @throws ScannerException Error occurred while adding authentication record
      */
-    private String addAuthenticationRecord(String appId, String jobId, File authScriptFile, String authRegex)
-            throws ScannerException {
+    private String addAuthenticationRecord(String appId, String jobId, WebAppAuth webAppAuth) throws ScannerException {
         HttpResponse response;
         String authScriptId = null;
         String addAuthRecordRequestBody = null;
         try {
-            // Only one authentication script can be provided for a scan.
-            addAuthRecordRequestBody = RequestBodyBuilder
-                    .buildAuthScriptCreationRequest(appId, authScriptFile.getAbsolutePath(), authRegex);
+            addAuthRecordRequestBody = webAppAuth.buildRequestBody(appId);
         } catch (ParserConfigurationException | TransformerException | IOException e) {
             throw new ScannerException(
                     "Error occurred while building authentication record creation API request body : ", e);
@@ -296,15 +285,16 @@ public class QualysScanHandler {
      * @param authScriptId   authentication record ID
      * @param jobId          job ID
      * @param applicationUrl application SCAN_URL for scan
+     * @param crawlingScope  crawling scope for the scan
      * @throws ScannerException error occurred while updating web application with authentication record id
      */
-    private void updateWebApp(String appID, String appName, String authScriptId, String jobId, String applicationUrl)
-            throws ScannerException {
+    private void updateWebApp(String appID, String appName, String authScriptId, String jobId, String applicationUrl,
+            String crawlingScope) throws ScannerException {
         HttpResponse response;
         String updateWebAppRequestBody = null;
         try {
             updateWebAppRequestBody = RequestBodyBuilder
-                    .buildWebAppUpdateRequest(appName, authScriptId, applicationUrl);
+                    .buildWebAppUpdateRequest(appName, authScriptId, applicationUrl, crawlingScope);
         } catch (ParserConfigurationException | TransformerException e) {
             throw new ScannerException("Error occurred while building update Web Application API request body: ", e);
         }
@@ -434,46 +424,6 @@ public class QualysScanHandler {
             String message = "Authentication record " + authId + " is deleted successfully";
             log.info(new CallbackLog(jobId, message));
         }
-    }
-
-    /**
-     * Download given authentication script from FTP Location.
-     *
-     * @param fileList authentication file list
-     * @param appId    application Id
-     * @param jobId    JobId
-     * @return Downloaded File
-     * @throws ScannerException Error occurred while downloading authentication scripts
-     */
-    private File downloadAuthenticationScripts(List<String> fileList, String appId, String jobId)
-            throws ScannerException {
-        String authenticationScriptLocation = fileList.get(0);
-        String authenticationScriptFileName = authenticationScriptLocation.substring(authenticationScriptLocation.
-                lastIndexOf(File.separator) + 1, authenticationScriptLocation.length());
-        String authenticationScriptFilePath = authenticationScriptLocation
-                .substring(0, authenticationScriptLocation.lastIndexOf(File.separator));
-
-        File authScriptFile = new File(QualysScannerConfiguration.getInstance()
-                .getConfigProperty(QualysScannerConstants.DEFAULT_FTP_AUTH_SCRIPT_PATH) + File.separator
-                + authenticationScriptFileName);
-        try {
-            String logMessage = "Authentication Script is downloading ....";
-            log.info(new CallbackLog(jobId, logMessage));
-            FileUtil.downloadFromFtp(authenticationScriptFilePath, authenticationScriptFileName, authScriptFile,
-                    QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
-                    (QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
-                            .toCharArray(),
-                    QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_HOST),
-                    Integer.parseInt(
-                            QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
-            logMessage = "Authentication Script is downloaded : " + authScriptFile;
-            log.info(new CallbackLog(jobId, logMessage));
-        } catch (IOException | JSchException | SftpException e) {
-            String logMessage = "Error occurred while downloading the authentication script :  " + ErrorProcessingUtil
-                    .getFullErrorMessage(e);
-            throw new ScannerException(logMessage);
-        }
-        return authScriptFile;
     }
 
     /**
