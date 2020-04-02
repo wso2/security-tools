@@ -73,11 +73,13 @@ public class QualysScanHandler {
      * @param applicationUrl application SCAN_URL for scan
      * @param webAppAuth     object which holds authentication type and it's metadata
      * @param crawlingScope  crawling scope for the scan
+     * @param blacklistRegex list of blacklist Regex
      * @return authentication script ID
      * @throws ScannerException error occurred while adding authentication scripts
      */
     public String prepareScan(String appID, String jobId, String appName, Map<String, List<String>> fileMap,
-            String applicationUrl, WebAppAuth webAppAuth, String crawlingScope) throws ScannerException {
+            String applicationUrl, WebAppAuth webAppAuth, String crawlingScope, List<String> blacklistRegex)
+            throws ScannerException {
         String authScriptId;
 
         if (webAppAuth != null) {
@@ -86,7 +88,7 @@ public class QualysScanHandler {
             authScriptId = addAuthenticationRecord(appID, jobId, webAppAuth);
 
             // Update web application with added authentication script.
-            updateWebApp(appID, appName, authScriptId, jobId, applicationUrl, crawlingScope);
+            updateWebApp(appID, appName, authScriptId, jobId, applicationUrl, crawlingScope, blacklistRegex);
         } else {
             return null;
         }
@@ -286,15 +288,16 @@ public class QualysScanHandler {
      * @param jobId          job ID
      * @param applicationUrl application SCAN_URL for scan
      * @param crawlingScope  crawling scope for the scan
+     * @param blacklistRegex list of blacklist Regex
      * @throws ScannerException error occurred while updating web application with authentication record id
      */
     private void updateWebApp(String appID, String appName, String authScriptId, String jobId, String applicationUrl,
-            String crawlingScope) throws ScannerException {
+            String crawlingScope, List<String> blacklistRegex) throws ScannerException {
         HttpResponse response;
         String updateWebAppRequestBody = null;
         try {
             updateWebAppRequestBody = RequestBodyBuilder
-                    .buildWebAppUpdateRequest(appName, authScriptId, applicationUrl, crawlingScope);
+                    .buildWebAppUpdateRequest(appName, authScriptId, applicationUrl, crawlingScope, blacklistRegex);
         } catch (ParserConfigurationException | TransformerException e) {
             throw new ScannerException("Error occurred while building update Web Application API request body: ", e);
         }

@@ -29,6 +29,7 @@ import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,139 +43,140 @@ public class RequestBodyBuilder {
 
     private static final Log log = LogFactory.getLog(RequestBodyBuilder.class);
 
-//    /**
-//     * Build request body to add authentication script
-//     *
-//     * @param appID     application name in qualys
-//     * @param filePath  authentication script file path
-//     * @param authRegex regex to check whether authentication is succeeded or not
-//     * @return add authentication request body in XML format
-//     * @throws ParserConfigurationException error occurred while parsing.
-//     * @throws IOException                  error occurred while reading the XML content file.
-//     * @throws TransformerException         error occurred while building secure string writer.
-//     */
-//    public static String buildAuthScriptCreationRequest(String appID, String filePath, String authRegex)
-//            throws ParserConfigurationException, IOException, TransformerException {
-//        String addAuthRecordRequestBody;
-//        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
-//        DocumentBuilder builder = dbf.newDocumentBuilder();
-//        Document doc = builder.newDocument();
-//
-//        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
-//        doc.appendChild(root);
-//
-//        Element data = doc.createElement(QualysScannerConstants.DATA);
-//        root.appendChild(data);
-//
-//        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
-//        data.appendChild(webAppAuthRecord);
-//
-//        File tempFile = new File(filePath);
-//        Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-//        name.appendChild(doc.createTextNode("Selenium Script for " + appID + " : " + getDate()));
-//        webAppAuthRecord.appendChild(name);
-//
-//        Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
-//        webAppAuthRecord.appendChild(formRecord);
-//
-//        Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
-//        type.appendChild(doc.createTextNode(QualysScannerConstants.SELENIUM));
-//        formRecord.appendChild(type);
-//
-//        Element seleniumScript = doc.createElement(QualysScannerConstants.SELENIUM_SCRIPT);
-//        formRecord.appendChild(seleniumScript);
-//
-//        Element seleniumScriptName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-//        seleniumScriptName.appendChild(doc.createTextNode("SELENIUM AUTHENTICATION SCRIPT"));
-//        seleniumScript.appendChild(seleniumScriptName);
-//
-//        Element scriptData = doc.createElement(QualysScannerConstants.DATA);
-//        scriptData.appendChild(doc.createTextNode(FileUtil.getContentFromFile(tempFile.getAbsolutePath())));
-//        seleniumScript.appendChild(scriptData);
-//
-//        Element regex = doc.createElement(QualysScannerConstants.REGEX);
-//        regex.appendChild(doc.createTextNode(authRegex));
-//        seleniumScript.appendChild(regex);
-//
-//        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
-//        addAuthRecordRequestBody = stringWriter.getBuffer().toString();
-//
-//        return addAuthRecordRequestBody;
-//    }
+    //    /**
+    //     * Build request body to add authentication script
+    //     *
+    //     * @param appID     application name in qualys
+    //     * @param filePath  authentication script file path
+    //     * @param authRegex regex to check whether authentication is succeeded or not
+    //     * @return add authentication request body in XML format
+    //     * @throws ParserConfigurationException error occurred while parsing.
+    //     * @throws IOException                  error occurred while reading the XML content file.
+    //     * @throws TransformerException         error occurred while building secure string writer.
+    //     */
+    //    public static String buildAuthScriptCreationRequest(String appID, String filePath, String authRegex)
+    //            throws ParserConfigurationException, IOException, TransformerException {
+    //        String addAuthRecordRequestBody;
+    //        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
+    //        DocumentBuilder builder = dbf.newDocumentBuilder();
+    //        Document doc = builder.newDocument();
+    //
+    //        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
+    //        doc.appendChild(root);
+    //
+    //        Element data = doc.createElement(QualysScannerConstants.DATA);
+    //        root.appendChild(data);
+    //
+    //        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
+    //        data.appendChild(webAppAuthRecord);
+    //
+    //        File tempFile = new File(filePath);
+    //        Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+    //        name.appendChild(doc.createTextNode("Selenium Script for " + appID + " : " + getDate()));
+    //        webAppAuthRecord.appendChild(name);
+    //
+    //        Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
+    //        webAppAuthRecord.appendChild(formRecord);
+    //
+    //        Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
+    //        type.appendChild(doc.createTextNode(QualysScannerConstants.SELENIUM));
+    //        formRecord.appendChild(type);
+    //
+    //        Element seleniumScript = doc.createElement(QualysScannerConstants.SELENIUM_SCRIPT);
+    //        formRecord.appendChild(seleniumScript);
+    //
+    //        Element seleniumScriptName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+    //        seleniumScriptName.appendChild(doc.createTextNode("SELENIUM AUTHENTICATION SCRIPT"));
+    //        seleniumScript.appendChild(seleniumScriptName);
+    //
+    //        Element scriptData = doc.createElement(QualysScannerConstants.DATA);
+    //        scriptData.appendChild(doc.createTextNode(FileUtil.getContentFromFile(tempFile.getAbsolutePath())));
+    //        seleniumScript.appendChild(scriptData);
+    //
+    //        Element regex = doc.createElement(QualysScannerConstants.REGEX);
+    //        regex.appendChild(doc.createTextNode(authRegex));
+    //        seleniumScript.appendChild(regex);
+    //
+    //        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
+    //        addAuthRecordRequestBody = stringWriter.getBuffer().toString();
+    //
+    //        return addAuthRecordRequestBody;
+    //    }
 
-//    /**
-//     * Build request body to create standard authentication record
-//     *
-//     * @param appID    application name in qualys
-//     * @param username username
-//     * @param password password
-//     * @return create standard authentication request body in XML format
-//     * @throws ParserConfigurationException error occurred while parsing
-//     * @throws TransformerException         error occurred while building secure string writer.
-//     */
-//    public static String buildStandardAuthCreationRequest(String appID, char[] username, char[] password)
-//            throws ParserConfigurationException, TransformerException {
-//        String standardAuthRecordRequestBody;
-//        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
-//        DocumentBuilder builder = dbf.newDocumentBuilder();
-//        Document doc = builder.newDocument();
-//
-//        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
-//        doc.appendChild(root);
-//
-//        Element data = doc.createElement(QualysScannerConstants.DATA);
-//        root.appendChild(data);
-//
-//        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
-//        data.appendChild(webAppAuthRecord);
-//
-//        Element authRecordName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-//        authRecordName.appendChild(doc.createTextNode("Standard Authentication for " + appID + " : " + getDate()));
-//        webAppAuthRecord.appendChild(authRecordName);
-//
-//        Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
-//        webAppAuthRecord.appendChild(formRecord);
-//
-//        Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
-//        type.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH));
-//        formRecord.appendChild(type);
-//
-//        //        Element sslOnly = doc.createElement(QualysScannerConstants.SSL_ONLY);
-//        //        sslOnly.appendChild(doc.createTextNode("false"));
-//
-//        Element fields = doc.createElement(QualysScannerConstants.FIELD);
-//        formRecord.appendChild(fields);
-//
-//        Element set = doc.createElement(QualysScannerConstants.SET);
-//        fields.appendChild(set);
-//
-//        Element usernameField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
-//        set.appendChild(usernameField);
-//
-//        Element usernameEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-//        usernameEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_USERNAME));
-//        usernameField.appendChild(usernameEntry);
-//
-//        Element usernameEntryValue = doc.createElement(QualysScannerConstants.VALUE);
-//        usernameEntryValue.appendChild(doc.createTextNode(username.toString()));
-//        usernameField.appendChild(usernameEntryValue);
-//
-//        Element passwordField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
-//        set.appendChild(passwordField);
-//
-//        Element passwordEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-//        passwordEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_PASSWORD));
-//        passwordField.appendChild(passwordEntry);
-//
-//        Element passwordEntryValue = doc.createElement(QualysScannerConstants.VALUE);
-//        passwordEntryValue.appendChild(doc.createTextNode(password.toString()));
-//        passwordField.appendChild(passwordEntryValue);
-//
-//        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
-//        standardAuthRecordRequestBody = stringWriter.getBuffer().toString();
-//
-//        return standardAuthRecordRequestBody;
-//    }
+    //    /**
+    //     * Build request body to create standard authentication record
+    //     *
+    //     * @param appID    application name in qualys
+    //     * @param username username
+    //     * @param password password
+    //     * @return create standard authentication request body in XML format
+    //     * @throws ParserConfigurationException error occurred while parsing
+    //     * @throws TransformerException         error occurred while building secure string writer.
+    //     */
+    //    public static String buildStandardAuthCreationRequest(String appID, char[] username, char[] password)
+    //            throws ParserConfigurationException, TransformerException {
+    //        String standardAuthRecordRequestBody;
+    //        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
+    //        DocumentBuilder builder = dbf.newDocumentBuilder();
+    //        Document doc = builder.newDocument();
+    //
+    //        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
+    //        doc.appendChild(root);
+    //
+    //        Element data = doc.createElement(QualysScannerConstants.DATA);
+    //        root.appendChild(data);
+    //
+    //        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
+    //        data.appendChild(webAppAuthRecord);
+    //
+    //        Element authRecordName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+    //        authRecordName.appendChild(doc.createTextNode("Standard Authentication for " + appID + " : "
+    // + getDate()));
+    //        webAppAuthRecord.appendChild(authRecordName);
+    //
+    //        Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
+    //        webAppAuthRecord.appendChild(formRecord);
+    //
+    //        Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
+    //        type.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH));
+    //        formRecord.appendChild(type);
+    //
+    //        //        Element sslOnly = doc.createElement(QualysScannerConstants.SSL_ONLY);
+    //        //        sslOnly.appendChild(doc.createTextNode("false"));
+    //
+    //        Element fields = doc.createElement(QualysScannerConstants.FIELD);
+    //        formRecord.appendChild(fields);
+    //
+    //        Element set = doc.createElement(QualysScannerConstants.SET);
+    //        fields.appendChild(set);
+    //
+    //        Element usernameField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
+    //        set.appendChild(usernameField);
+    //
+    //        Element usernameEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+    //        usernameEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_USERNAME));
+    //        usernameField.appendChild(usernameEntry);
+    //
+    //        Element usernameEntryValue = doc.createElement(QualysScannerConstants.VALUE);
+    //        usernameEntryValue.appendChild(doc.createTextNode(username.toString()));
+    //        usernameField.appendChild(usernameEntryValue);
+    //
+    //        Element passwordField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
+    //        set.appendChild(passwordField);
+    //
+    //        Element passwordEntry = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+    //        passwordEntry.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH_PASSWORD));
+    //        passwordField.appendChild(passwordEntry);
+    //
+    //        Element passwordEntryValue = doc.createElement(QualysScannerConstants.VALUE);
+    //        passwordEntryValue.appendChild(doc.createTextNode(password.toString()));
+    //        passwordField.appendChild(passwordEntryValue);
+    //
+    //        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
+    //        standardAuthRecordRequestBody = stringWriter.getBuffer().toString();
+    //
+    //        return standardAuthRecordRequestBody;
+    //    }
 
     /**
      * Build request body to update web app with authentication script.
@@ -183,12 +185,14 @@ public class RequestBodyBuilder {
      * @param authId         auth script Id
      * @param applicationUrl application url for scan
      * @param crawlingScope  crawling scope for the scan
+     * @param blacklistRegex list of blacklist Regex
      * @return update web app request body in XML format
      * @throws ParserConfigurationException error occurred while parsing
      * @throws TransformerException         error occurred while building secure string writer
      */
     public static String buildWebAppUpdateRequest(String webAppName, String authId, String applicationUrl,
-            String crawlingScope) throws ParserConfigurationException, TransformerException {
+            String crawlingScope, List<String> blacklistRegex)
+            throws ParserConfigurationException, TransformerException {
         String updateWebAppRequestBody;
         DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
         DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -205,6 +209,18 @@ public class RequestBodyBuilder {
         Element scope = doc.createElement(QualysScannerConstants.QUALYS_CRAWLING_SCOPE_KEYWORD);
         scope.appendChild(doc.createTextNode(crawlingScope));
         webApp.appendChild(scope);
+
+        Element blacklist = doc.createElement(QualysScannerConstants.BLACKLIST_KEY_WORD);
+        webApp.appendChild(blacklist);
+
+        Element setBlacklist = doc.createElement(QualysScannerConstants.SET);
+        blacklist.appendChild(setBlacklist);
+
+        for (int i = 0; i < blacklistRegex.size(); i++) {
+            Element urlEntry = doc.createElement(QualysScannerConstants.URL_ENTRY_WITH_REGEX);
+            urlEntry.appendChild(doc.createCDATASection(blacklistRegex.get(i)));
+            setBlacklist.appendChild(urlEntry);
+        }
 
         Element url = doc.createElement(QualysScannerConstants.SCAN_URL_KEYWORD);
         url.appendChild(doc.createTextNode(applicationUrl));

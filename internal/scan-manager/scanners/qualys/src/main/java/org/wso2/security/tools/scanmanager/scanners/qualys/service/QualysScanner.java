@@ -237,6 +237,17 @@ import java.util.Map;
             scanContext.setCrawlingScope(parameterMap.get(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE).get(0));
         }
 
+        // Validate black list regex
+        if (parameterMap.get(QualysScannerConstants.PARAMETER_BLACKLIST_REGEX).size() != 0) {
+            scanContext.setBlackListRegex(QualysScannerConfiguration.getInstance().getDefaultBlackListRegex());
+            String logMessage =
+                    "BlackList Regex set is not provided. Default blacklist set is set for " + scannerScanRequest
+                            .getAppId();
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+        } else {
+            scanContext.setBlackListRegex(parameterMap.get(QualysScannerConstants.PARAMETER_BLACKLIST_REGEX));
+        }
+
         // Validate authentication type.
         WebAppAuthFactory webAppAuthFactory = new WebAppAuthFactory();
         scanContext.setWebAppAuth(webAppAuthFactory.getWebAppAuth(scannerScanRequest));
@@ -269,6 +280,9 @@ import java.util.Map;
                 getConfigProperty(QualysScannerConstants.DEFAULT_REPORT_TEMPLATE_ID));
         QualysScannerConfiguration.getInstance().setDefaultCrawlingScope(QualysScannerConfiguration.getInstance().
                 getConfigProperty(QualysScannerConstants.DEFAULT_CRAWLING_SCOPE));
+        QualysScannerConfiguration.getInstance()
+                .setDefaultBlackListRegex(Arrays.asList(QualysScannerConfiguration.getInstance().
+                        getConfigProperty(QualysScannerConstants.DEFAULT_BLACKLIST_REGEX).split(",")));
     }
 
     /**

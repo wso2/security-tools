@@ -39,8 +39,10 @@ public class QualysScannerConstants {
     public static final String SCHEDULER_DELAY = "scheduler_delay";
     public static final String SCAN_URL = "scanURL";
     public static final String DEFAULT_REPORT_TEMPLATE_ID = "default_report_template_id";
+    public static final String DEFAULT_BLACKLIST_REGEX = "default_blacklist_regex";
     public static final String PARAMETER_REPORT_TEMPLATE_ID = "reportTemplateID";
     public static final String PARAMETER_CRAWLING_SCOPE = "crawlingScope";
+    public static final String PARAMETER_BLACKLIST_REGEX = "blacklistRegex";
 
     // Qualys API Endpoint.
     public static final String QUALYS_START_SCAN_API = "/qps/rest/3.0/launch/was/wasscan";
@@ -110,7 +112,9 @@ public class QualysScannerConstants {
     public static final String AUTH_FORM_RECORD_FIELD = "WebAppAuthFormRecordField";
     public static final String NAME = "name";
     public static final String VALUE = "value";
-    public static final String SET = "SET";
+    public static final String SET = "set";
+    public static final String BLACKLIST_KEY_WORD = "urlBlacklist";
+    public static final String URL_ENTRY_WITH_REGEX = "UrlEntry regex=\"true\"";
 
     // Constants used to handle API response.
     public static final String SUCCESS = "SUCCESS";

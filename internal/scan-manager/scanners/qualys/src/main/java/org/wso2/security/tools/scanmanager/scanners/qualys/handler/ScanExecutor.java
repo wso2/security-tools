@@ -63,7 +63,7 @@ public class ScanExecutor implements Runnable {
             authScriptId = qualysScanHandler
                     .prepareScan(scanContext.getWebAppId(), scanContext.getJobID(), scanContext.getWebAppName(),
                             fileMap, scanContext.getApplicationUrl(), scanContext.getWebAppAuth(),
-                            scanContext.getCrawlingScope());
+                            scanContext.getCrawlingScope(), scanContext.getBlackListRegex());
 
             // Set ScanContext Object.
             scanContext.setAuthId(authScriptId);

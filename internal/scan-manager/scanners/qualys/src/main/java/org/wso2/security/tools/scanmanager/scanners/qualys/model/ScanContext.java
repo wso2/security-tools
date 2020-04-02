@@ -18,6 +18,8 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.model;
 
+import java.util.List;
+
 /**
  * Qualys Scan Context
  */
@@ -70,6 +72,17 @@ public class ScanContext {
 
     // Authentication type
     private WebAppAuth webAppAuth;
+
+    // List which holds blacklist regex patterns
+    private List<String> blackListRegex;
+
+    public List<String> getBlackListRegex() {
+        return blackListRegex;
+    }
+
+    public void setBlackListRegex(List<String> blackListRegex) {
+        this.blackListRegex = blackListRegex;
+    }
 
     public String getCrawlingScope() {
         return crawlingScope;

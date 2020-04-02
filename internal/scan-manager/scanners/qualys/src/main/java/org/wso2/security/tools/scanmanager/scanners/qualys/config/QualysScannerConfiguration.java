@@ -20,6 +20,8 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.config;
 
 import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
 
+import java.util.List;
+
 /**
  * Qualys Scanner Specific Configuration.
  */
@@ -41,6 +43,15 @@ public class QualysScannerConfiguration extends YAMLConfigurationReader {
     private String defaultScannerAppliance;
     private String defaultProgressiveScanning;
     private String defaultReportTemplateID;
+    private List<String> defaultBlackListRegex;
+
+    public List<String> getDefaultBlackListRegex() {
+        return defaultBlackListRegex;
+    }
+
+    public void setDefaultBlackListRegex(List<String> defaultBlackListRegex) {
+        this.defaultBlackListRegex = defaultBlackListRegex;
+    }
 
     public String getDefaultCrawlingScope() {
         return defaultCrawlingScope;

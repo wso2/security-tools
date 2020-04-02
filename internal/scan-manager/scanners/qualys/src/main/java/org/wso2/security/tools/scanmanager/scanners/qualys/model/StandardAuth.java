@@ -27,6 +27,7 @@ import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstant
 import org.wso2.security.tools.scanmanager.scanners.qualys.util.RequestBodyBuilder;
 
 import java.io.StringWriter;
+import java.util.Arrays;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,24 +45,8 @@ public class StandardAuth implements WebAppAuth {
     private char[] password;
 
     public StandardAuth(char[] userName, char[] password) {
-        this.username = userName;
-        this.password = password;
-    }
-
-    public char[] getUsername() {
-        return username;
-    }
-
-    public void setUsername(char[] username) {
-        this.username = username;
-    }
-
-    public char[] getPassword() {
-        return password;
-    }
-
-    public void setPassword(char[] password) {
-        this.password = password;
+        this.username = Arrays.copyOf(userName, userName.length);
+        this.password = Arrays.copyOf(password, password.length);
     }
 
     @Override public String buildRequestBody(String appID) throws TransformerException, ParserConfigurationException {
@@ -80,8 +65,8 @@ public class StandardAuth implements WebAppAuth {
         data.appendChild(webAppAuthRecord);
 
         Element authRecordName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-        authRecordName.appendChild(doc.createTextNode("Standard Authentication for " + appID + " : " +
-                RequestBodyBuilder.getDate()));
+        authRecordName.appendChild(
+                doc.createTextNode("Standard Authentication for " + appID + " : " + RequestBodyBuilder.getDate()));
         webAppAuthRecord.appendChild(authRecordName);
 
         Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
@@ -108,7 +93,7 @@ public class StandardAuth implements WebAppAuth {
         usernameField.appendChild(usernameEntry);
 
         Element usernameEntryValue = doc.createElement(QualysScannerConstants.VALUE);
-        usernameEntryValue.appendChild(doc.createTextNode(username.toString()));
+        usernameEntryValue.appendChild(doc.createTextNode(Arrays.toString(username)));
         usernameField.appendChild(usernameEntryValue);
 
         Element passwordField = doc.createElement(QualysScannerConstants.AUTH_FORM_RECORD_FIELD);
@@ -119,11 +104,14 @@ public class StandardAuth implements WebAppAuth {
         passwordField.appendChild(passwordEntry);
 
         Element passwordEntryValue = doc.createElement(QualysScannerConstants.VALUE);
-        passwordEntryValue.appendChild(doc.createTextNode(password.toString()));
+        passwordEntryValue.appendChild(doc.createTextNode(Arrays.toString(password)));
         passwordField.appendChild(passwordEntryValue);
 
         StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
         standardAuthRecordRequestBody = stringWriter.getBuffer().toString();
+
+        Arrays.fill(username, '0');
+        Arrays.fill(password, '0');
 
         return standardAuthRecordRequestBody;
     }
