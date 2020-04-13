@@ -170,6 +170,94 @@ public class ScanServiceImpl implements ScanService {
         return preparingScan;
     }
 
+    @Override
+    public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException {
+        ScanManagerScansResponse scansResponse = null;
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+
+        try {
+            if (pageNumber != null) {
+                nameValuePairs.add(new BasicNameValuePair(PAGE_PARAM_NAME, pageNumber.toString()));
+            }
+
+            HTTPRequest getScansRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
+                    .getScanURL("", nameValuePairs).toString(), null, null);
+            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScansRequest);
+            if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper mapper = new ObjectMapper();
+                scansResponse = mapper.readValue(responseEntity.getBody(), ScanManagerScansResponse.class);
+            } else {
+                throw new ScanManagerWebappException("Unable to get the scans from scan manager");
+            }
+        } catch (RestClientException | IOException e) {
+            throw new ScanManagerWebappException("Unable to get the scans", e);
+        }
+        return scansResponse;
+    }
+
+    @Override
+    public List<ScanExternal> getPreparingScans() {
+        // Convert the scan object to scan external object.
+        List<ScanExternal> convertedPreparingScans = new ArrayList<>();
+        preparingScans.forEach(((scanId, scan) -> convertedPreparingScans.add(new ScanExternal(scan))));
+        convertedPreparingScans.sort(Comparator.comparing(ScanExternal::getSubmittedTimestamp).reversed());
+        return convertedPreparingScans;
+    }
+
+    @Override
+    public ScanExternal getScan(String jobId) throws ScanManagerWebappException {
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        ScanExternal scan = null;
+        try {
+            if (jobId.startsWith(PRE_JOB_ID_PREFIX)) {
+                if (preparingScans.containsKey(jobId)) {
+                    return new ScanExternal(preparingScans.get(jobId));
+                }
+            } else {
+                HTTPRequest getScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
+                        .getScanURL("/" + jobId, nameValuePairs).toString(), null, null);
+                ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScanRequest);
+                if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    scan = mapper.readValue(responseEntity.getBody(), ScanExternal.class);
+                } else {
+                    throw new ScanManagerWebappException("Unable to get the scans from scan manager");
+                }
+            }
+        } catch (RestClientException | IOException e) {
+            throw new ScanManagerWebappException("Unable to get the scan details for the job id: " + jobId, e);
+        }
+        return scan;
+    }
+
+    @Override
+    public void getScanReport(String reportPath, String outputFilePath) throws ScanManagerWebappException {
+        FTPUtil.downloadFromFTP(reportPath, outputFilePath);
+    }
+
+    @Override
+    public ResponseEntity stopScan(String id) throws ScanManagerWebappException {
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        try {
+            HTTPRequest stopScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
+                    .getScanURL(id, nameValuePairs).toString(), null, null);
+            return HTTPUtil.sendDELETE(stopScanRequest);
+        } catch (RestClientException e) {
+            throw new ScanManagerWebappException("Error occurred while stopping the scan with the job id: " + id);
+        }
+    }
+
+    @Override
+    public boolean clearScan(String id) {
+        // Clear scan from preparing scans list if the scan status is ERROR.
+        if (preparingScans.containsKey(id) && preparingScans.get(id).getStatus() == ScanStatus.ERROR) {
+            preparingScans.remove(id);
+            return logService.removeLogsForPreparingScan(id);
+        } else {
+            return false;
+        }
+    }
+
     private void writeToFile(MultipartFile file, Path filepath) throws ScanManagerWebappException {
         try (OutputStream destinationOutputStream = Files.newOutputStream(filepath)) {
             destinationOutputStream.write(file.getBytes());
@@ -291,94 +379,6 @@ public class ScanServiceImpl implements ScanService {
         } catch (RestClientException e) {
             throw new ScanManagerWebappException("Error occurred while submitting the scan request to scan manager " +
                     "API.", e);
-        }
-    }
-
-    @Override
-    public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException {
-        ScanManagerScansResponse scansResponse = null;
-        List<NameValuePair> nameValuePairs = new ArrayList<>();
-
-        try {
-            if (pageNumber != null) {
-                nameValuePairs.add(new BasicNameValuePair(PAGE_PARAM_NAME, pageNumber.toString()));
-            }
-
-            HTTPRequest getScansRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
-                    .getScanURL("", nameValuePairs).toString(), null, null);
-            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScansRequest);
-            if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
-                ObjectMapper mapper = new ObjectMapper();
-                scansResponse = mapper.readValue(responseEntity.getBody(), ScanManagerScansResponse.class);
-            } else {
-                throw new ScanManagerWebappException("Unable to get the scans from scan manager");
-            }
-        } catch (RestClientException | IOException e) {
-            throw new ScanManagerWebappException("Unable to get the scans", e);
-        }
-        return scansResponse;
-    }
-
-    @Override
-    public List<ScanExternal> getPreparingScans() {
-        // Convert the scan object to scan external object.
-        List<ScanExternal> convertedPreparingScans = new ArrayList<>();
-        preparingScans.forEach(((scanId, scan) -> convertedPreparingScans.add(new ScanExternal(scan))));
-        convertedPreparingScans.sort(Comparator.comparing(ScanExternal::getSubmittedTimestamp).reversed());
-        return convertedPreparingScans;
-    }
-
-    @Override
-    public ScanExternal getScan(String jobId) throws ScanManagerWebappException {
-        List<NameValuePair> nameValuePairs = new ArrayList<>();
-        ScanExternal scan = null;
-        try {
-            if (jobId.startsWith(PRE_JOB_ID_PREFIX)) {
-                if (preparingScans.containsKey(jobId)) {
-                    return new ScanExternal(preparingScans.get(jobId));
-                }
-            } else {
-                HTTPRequest getScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
-                        .getScanURL("/" + jobId, nameValuePairs).toString(), null, null);
-                ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScanRequest);
-                if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    scan = mapper.readValue(responseEntity.getBody(), ScanExternal.class);
-                } else {
-                    throw new ScanManagerWebappException("Unable to get the scans from scan manager");
-                }
-            }
-        } catch (RestClientException | IOException e) {
-            throw new ScanManagerWebappException("Unable to get the scan details for the job id: " + jobId, e);
-        }
-        return scan;
-    }
-
-    @Override
-    public void getScanReport(String reportPath, String outputFilePath) throws ScanManagerWebappException {
-        FTPUtil.downloadFromFTP(reportPath, outputFilePath);
-    }
-
-    @Override
-    public ResponseEntity stopScan(String id) throws ScanManagerWebappException {
-        List<NameValuePair> nameValuePairs = new ArrayList<>();
-        try {
-            HTTPRequest stopScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
-                    .getScanURL(id, nameValuePairs).toString(), null, null);
-            return HTTPUtil.sendDELETE(stopScanRequest);
-        } catch (RestClientException e) {
-            throw new ScanManagerWebappException("Error occurred while stopping the scan with the job id: " + id);
-        }
-    }
-
-    @Override
-    public boolean clearScan(String id) {
-        // Clear scan from preparing scans list if the scan status is ERROR.
-        if (preparingScans.containsKey(id) && preparingScans.get(id).getStatus() == ScanStatus.ERROR) {
-            preparingScans.remove(id);
-            return logService.removeLogsForPreparingScan(id);
-        } else {
-            return false;
         }
     }
 }

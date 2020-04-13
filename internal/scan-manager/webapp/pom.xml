@@ -152,6 +152,11 @@
             <groupId>org.owasp.encoder</groupId>
             <artifactId>encoder-jsp</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <version>${org.springframework.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -258,19 +263,19 @@
     </build>
 
     <properties>
-        <org.json.version>20131018</org.json.version>
-        <org.yaml.sankeyaml.version>1.24</org.yaml.sankeyaml.version>
-        <com.nimbusds.jose.version>2.26.1</com.nimbusds.jose.version>
-        <org.springframework.version>1.5.6.RELEASE</org.springframework.version>
-        <com.fasterxml.jackson.dataformat.yaml.version>2.3.0</com.fasterxml.jackson.dataformat.yaml.version>
-        <com.fasterxml.jackson.core.version>2.7.3</com.fasterxml.jackson.core.version>
-        <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
-        <tomcat.version>8.5.16</tomcat.version>
+        <org.json.version>20190722</org.json.version>
+        <org.yaml.sankeyaml.version>1.26</org.yaml.sankeyaml.version>
+        <com.nimbusds.jose.version>8.14</com.nimbusds.jose.version>
+        <org.springframework.version>2.2.6.RELEASE</org.springframework.version>
+        <com.fasterxml.jackson.dataformat.yaml.version>2.10.3</com.fasterxml.jackson.dataformat.yaml.version>
+        <com.fasterxml.jackson.core.version>2.10.0</com.fasterxml.jackson.core.version>
+        <org.apache.httpcomponents.httpclient.version>4.5.12</org.apache.httpcomponents.httpclient.version>
+        <tomcat.version>9.0.33</tomcat.version>
         <javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
         <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
         </org.wso2.security.tools.scanmanager.common.version>
         <commons.net.version>3.6</commons.net.version>
-        <commons.lang.version>3.9</commons.lang.version>
+        <commons.lang.version>3.10</commons.lang.version>
         <com.jcraft.jsch.version>0.1.55</com.jcraft.jsch.version>
         <commons.io.version>2.6</commons.io.version>
         <spring.mock.version>2.0.8</spring.mock.version>

@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.wso2.security.tools.scanmanager.common.config.ConfigurationReader;
 import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
@@ -32,7 +32,7 @@ import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader
  */
 @Configuration
 @EnableWebMvc
-public class AppConfiguration extends WebMvcConfigurerAdapter {
+public class AppConfiguration implements WebMvcConfigurer {
 
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {

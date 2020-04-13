@@ -217,23 +217,23 @@
     <properties>
         <maven.tomcat.plugin.version>2.2</maven.tomcat.plugin.version>
         <junit.version>4.11</junit.version>
-        <com.spotify.docker.client.version>8.15.1</com.spotify.docker.client.version>
-        <org.springframework.version>5.1.3.RELEASE</org.springframework.version>
-        <com.fasterxml.jackson.dataformat.yaml.version>2.7.8</com.fasterxml.jackson.dataformat.yaml.version>
-        <com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
+        <com.spotify.docker.client.version>8.16.0</com.spotify.docker.client.version>
+        <org.springframework.version>5.2.5.RELEASE</org.springframework.version>
+        <com.fasterxml.jackson.dataformat.yaml.version>2.10.3</com.fasterxml.jackson.dataformat.yaml.version>
+        <com.fasterxml.jackson.core.version>2.10.0</com.fasterxml.jackson.core.version>
         <javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
-        <org.yaml.snakeyaml.version>1.24</org.yaml.snakeyaml.version>
-        <javax.servlet.api.version>3.0.1</javax.servlet.api.version>
+        <org.yaml.snakeyaml.version>1.26</org.yaml.snakeyaml.version>
+        <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
         <commons.lang.version>2.6</commons.lang.version>
         <commons.net.version>3.6</commons.net.version>
-        <commons.io.version>2.4</commons.io.version>
-        <org.apache.httpcomponents.httpmime.version>4.3.1</org.apache.httpcomponents.httpmime.version>
+        <commons.io.version>2.6</commons.io.version>
+        <org.apache.httpcomponents.httpmime.version>4.5.12</org.apache.httpcomponents.httpmime.version>
         <log4j.version>1.2.17</log4j.version>
-        <mysql.connector.java>5.1.24</mysql.connector.java>
-        <org.springframework.data.jpa>1.11.0.RELEASE</org.springframework.data.jpa>
+        <mysql.connector.java>8.0.19</mysql.connector.java>
+        <org.springframework.data.jpa>2.2.6.RELEASE</org.springframework.data.jpa>
         <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
         </org.wso2.security.tools.scanmanager.common.version>
-        <org.hibernate.core.version>5.4.0.Final</org.hibernate.core.version>
+        <org.hibernate.core.version>5.4.14.Final</org.hibernate.core.version>
         <tomcat.http.port>8081</tomcat.http.port>
     </properties>
 

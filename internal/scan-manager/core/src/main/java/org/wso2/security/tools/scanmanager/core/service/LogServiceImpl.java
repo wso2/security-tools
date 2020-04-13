@@ -98,7 +98,7 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public Page<Log> getByScan(Scan scan, Integer pageNumber, Integer pageSize) {
-        Pageable pageable = new PageRequest(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return logDAO.getByScanOrderByTimeStampDesc(scan, pageable);
     }
 

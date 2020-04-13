@@ -81,7 +81,7 @@ public class LogServiceImplTest {
     public void testGetByScan(Log log) {
         Mockito.when(mockScanDAO.getByJobId(log.getScan().getJobId())).thenReturn(log.getScan());
         Mockito.when(mockLogDAO.getByScanOrderByTimeStampDesc(log.getScan(),
-                new PageRequest(1, 10))).thenReturn(new PageImpl<>(Collections.singletonList(log)));
+                PageRequest.of(1, 10))).thenReturn(new PageImpl<>(Collections.singletonList(log)));
 
         Page retrievedLogsPage = logService.getByScan(log.getScan(), 1, 10);
         Assert.assertNotNull(retrievedLogsPage);
