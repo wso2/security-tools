@@ -18,6 +18,7 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,8 +74,19 @@ public class ScanContext {
     // Authentication type
     private WebAppAuth webAppAuth;
 
+    // List which holds crawling script objects
+    private List<CrawlingScript> crawlingScriptList = new ArrayList<>();
+
     // List which holds blacklist regex patterns
     private List<String> blackListRegex;
+
+    public List<CrawlingScript> getCrawlingScriptList() {
+        return crawlingScriptList;
+    }
+
+    public void setCrawlingScriptList(List<CrawlingScript> crawlingScriptList) {
+        this.crawlingScriptList = crawlingScriptList;
+    }
 
     public List<String> getBlackListRegex() {
         return blackListRegex;

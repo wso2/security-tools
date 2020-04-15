@@ -21,7 +21,7 @@
 package org.wso2.security.tools.scanmanager.scanners.qualys.model;
 
 /**
- * TODO : Class level comment
+ * Enum for crawling scope of web application scan
  */
 public enum CrawlingScope {
 

@@ -49,7 +49,8 @@ public class StandardAuth implements WebAppAuth {
         this.password = Arrays.copyOf(password, password.length);
     }
 
-    @Override public String buildRequestBody(String appID) throws TransformerException, ParserConfigurationException {
+    @Override public String buildAuthRequestBody(String appID)
+            throws TransformerException, ParserConfigurationException {
         String standardAuthRecordRequestBody;
         DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
         DocumentBuilder builder = dbf.newDocumentBuilder();

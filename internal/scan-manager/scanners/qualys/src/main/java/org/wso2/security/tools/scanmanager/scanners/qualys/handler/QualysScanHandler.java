@@ -31,15 +31,23 @@ import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.CrawlingScript;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.WebAppAuth;
 import org.wso2.security.tools.scanmanager.scanners.qualys.util.RequestBodyBuilder;
 import org.xml.sax.SAXException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerException;
 
 /**
@@ -61,10 +69,8 @@ public class QualysScanHandler {
 
     /**
      * Perform prerequisite tasks of launching new scan when authentication script is provided. Prerequisite tasks are :
-     * 1. Download authentication scripts from ftp location.
-     * 2. Purge scan of provided web application.
-     * 3. Adding the authentication scripts to Qualys.
-     * 4. Update provided web application with added authentication script.
+     * 1. Adding the authentication scripts to Qualys.
+     * 2. Update provided web application with added authentication script.
      *
      * @param fileMap        map that contains the file paths
      * @param appID          application ID
@@ -77,7 +83,7 @@ public class QualysScanHandler {
      * @return authentication script ID
      * @throws ScannerException error occurred while adding authentication scripts
      */
-    public String prepareScan(String appID, String jobId, String appName, Map<String, List<String>> fileMap,
+    public String getAuthScriptId(String appID, String jobId, String appName, Map<String, List<String>> fileMap,
             String applicationUrl, WebAppAuth webAppAuth, String crawlingScope, List<String> blacklistRegex)
             throws ScannerException {
         String authScriptId;
@@ -93,6 +99,81 @@ public class QualysScanHandler {
             return null;
         }
         return authScriptId;
+    }
+
+    /**
+     * Adding crawling scripts to particular web application of Qualys Scan configurations.
+     * @param crawlingScriptFilePaths File paths of crawling scripts
+     * @param jobId job ID
+     * @param appID web application ID
+     * @param appName web Application Name
+     * @throws ScannerException error occurred while adding crawling scripts
+     */
+    public void addCrawlingScripts(List<String> crawlingScriptFilePaths, String jobId, String appID, String appName)
+            throws ScannerException {
+        HttpResponse response;
+        String addCrawlingScriptRequestBody = null;
+        try {
+            List<CrawlingScript> crawlingScripts = getCrawlingScripts(crawlingScriptFilePaths, jobId);
+            addCrawlingScriptRequestBody = RequestBodyBuilder.buildCrawlingScriptRequestBody(crawlingScripts);
+        } catch (ParserConfigurationException | TransformerException | IOException e) {
+            throw new ScannerException("Error occurred while addition of crawling script API request body : ", e);
+        }
+        try {
+            response = qualysApiInvoker.invokeUpdateWebApp(addCrawlingScriptRequestBody, appID);
+        } catch (IOException | InterruptedException | RetryExceededException e) {
+            throw new ScannerException("Error occurred while invoking web app update API : ", e);
+        }
+        NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.UPDATE_WEB_APP_AUTH);
+        if (serviceResponseNodeList != null) {
+            String message = " Crawling scripts for Web Application " + appName + " are successfully created. ";
+            log.info(new CallbackLog(jobId, message));
+        }
+    }
+
+    /**
+     * Get crawling script content and parse relevant configurations of crawling scripts.
+     * @param crawlingScriptFilePaths File paths of crawling scripts
+     * @param jobId job ID
+     * @return list of crawling script objects
+     * @throws ScannerException error occurred while adding crawling scripts
+     */
+    private List<CrawlingScript> getCrawlingScripts(List<String> crawlingScriptFilePaths, String jobId)
+            throws ScannerException {
+        List<CrawlingScript> listOfCrawlingScript = new ArrayList<>();
+        try {
+            for (String crawlingScriptFilePath : crawlingScriptFilePaths) {
+                CrawlingScript crawlingScript = new CrawlingScript();
+                crawlingScript.downloadAuthenticationScripts(crawlingScriptFilePath, jobId);
+                XMLStreamReader xr = XMLInputFactory.newInstance()
+                        .createXMLStreamReader(new FileInputStream(crawlingScript.getScriptFile()));
+                while (xr.hasNext()) {
+                    if (xr.next() == XMLStreamConstants.COMMENT) {
+                        String comment = xr.getText();
+                        switch (comment) {
+                        case QualysScannerConstants.STARTING_URL:
+                            crawlingScript.setStartingUrl(comment.split(QualysScannerConstants.DELIMITER)[1]);
+                            break;
+                        case QualysScannerConstants.REQUIRE_AUTHENTICATION:
+                            crawlingScript.setRequredAuthentication(
+                                    Boolean.parseBoolean(comment.split(QualysScannerConstants.DELIMITER)[1]));
+                            break;
+                        case QualysScannerConstants.STARTING_URL_REGEX:
+                            crawlingScript.setStartingUrlRegex(
+                                    Boolean.parseBoolean(comment.split(QualysScannerConstants.DELIMITER)[1]));
+                            break;
+                        default:
+                            String message = "Crawling Script Setting configurations are not given properly.";
+                            log.info(new CallbackLog(jobId, message));
+                        }
+                    }
+                }
+                listOfCrawlingScript.add(crawlingScript);
+            }
+            return listOfCrawlingScript;
+        } catch (FileNotFoundException | XMLStreamException e) {
+            throw new ScannerException("Error while setting crawling script properties", e);
+        }
     }
 
     /**
@@ -260,7 +341,7 @@ public class QualysScanHandler {
         String authScriptId = null;
         String addAuthRecordRequestBody = null;
         try {
-            addAuthRecordRequestBody = webAppAuth.buildRequestBody(appId);
+            addAuthRecordRequestBody = webAppAuth.buildAuthRequestBody(appId);
         } catch (ParserConfigurationException | TransformerException | IOException e) {
             throw new ScannerException(
                     "Error occurred while building authentication record creation API request body : ", e);
@@ -297,7 +378,7 @@ public class QualysScanHandler {
         String updateWebAppRequestBody = null;
         try {
             updateWebAppRequestBody = RequestBodyBuilder
-                    .buildWebAppUpdateRequest(appName, authScriptId, applicationUrl, crawlingScope, blacklistRegex);
+                    .buildWebAppAuthUpdateRequest(appName, authScriptId, applicationUrl, crawlingScope, blacklistRegex);
         } catch (ParserConfigurationException | TransformerException e) {
             throw new ScannerException("Error occurred while building update Web Application API request body: ", e);
         }
@@ -306,7 +387,7 @@ public class QualysScanHandler {
         } catch (RetryExceededException | InterruptedException | IOException e) {
             throw new ScannerException("Error occurred while invoking update Web Application API : ", e);
         }
-        NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.UPDATE_WEB_APP);
+        NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.UPDATE_WEB_APP_AUTH);
         if (serviceResponseNodeList != null) {
             String message =
                     " Web Application " + appName + " is successfully updated with web auth record: " + authScriptId;

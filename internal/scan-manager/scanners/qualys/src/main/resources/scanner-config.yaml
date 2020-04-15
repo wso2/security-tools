@@ -1,5 +1,5 @@
 #
-#Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+# Copyright (c) 2019, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 # WSO2 Inc. licenses this file to you under the Apache License,
 # Version 2.0 (the "License"); you may not use this file except
@@ -18,12 +18,12 @@
 
 # Qualys Scanner Configuration data
 ---
-qualys_username : [Username of Qualys Account]
-qualys_password : [Password of Qualys Account]
+username : [Username of Qualys Account]
+password : [Password of Qualys Account]
 host : [URL to Qualys API server. It is depend on the platform where Qualys account is located]
 scheduler_delay : [Time intervel (Min) between each scan check]
 default_crawling_scope : ALL
-default_blacklist_regex :
+default_blacklist_regex : https://*/logout.jag
 default_scan_type : [Default scan type. Accepted values - VULNERABILTY , DISCOVERY]
 default_profile_id : [Default profile ID]
 default_scanner_appliance : [Default Scanner Appliance type. Accepted values - INTERNAL, EXTERNAL]
@@ -38,5 +38,5 @@ ftp_username: [Username of FTP]
 ftp_password: [Password of FTP]]
 ftp_host: [Host of FTP]
 ftp_port: [Port of FTP]
-default_auth_script_path : [path to save authentication script]
+default_script_path : [path to save authentication script]
 report_folder_path : [path to download Qualys scan report]

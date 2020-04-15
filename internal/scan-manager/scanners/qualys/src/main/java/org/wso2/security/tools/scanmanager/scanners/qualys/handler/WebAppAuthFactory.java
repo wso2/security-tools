@@ -27,21 +27,32 @@ import org.wso2.security.tools.scanmanager.common.internal.model.ScannerScanRequ
 import org.wso2.security.tools.scanmanager.scanners.common.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
+import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.SeleniumAuth;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.StandardAuth;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.WebAppAuth;
 
-import java.io.File;
 import java.util.List;
 
 /**
- * Factory class to generate web abb auth objects.
+ * Factory class to generate web web application authentication type objects.
+ * This class is will get the type of the authentication type and based on that it will create the objects.
  */
 public class WebAppAuthFactory {
 
     private static final Logger log = LogManager.getLogger(WebAppAuthFactory.class);
 
+    /**
+     * Create web application authentication objects based on given type. Currently it supports,
+     *   01. NONE
+     *   02. STANDARD AUTHENTICATION (Basic authentication)
+     *   03. SELENIUM SCRIPT AUTHENTICATION
+     * @param scannerScanRequest Scan Request object which holds the scan related parameters
+     * @return web application authentication type object
+     * @throws InvalidRequestException error occured due to invalid values for authentication type related parameters.
+     * @throws ScannerException error occurred while cancelling scan
+     */
     public WebAppAuth getWebAppAuth(ScannerScanRequest scannerScanRequest)
             throws InvalidRequestException, ScannerException {
         String errorMessage;
@@ -77,14 +88,10 @@ public class WebAppAuthFactory {
         case QualysScannerConstants.SELENIUM:
             List<String> authFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.AUTHENTICATION_SCRIPTS);
             if (authFiles.size() != 0) {
-                for (int i = 0; i < authFiles.size(); i++) {
-                    File file = new File(authFiles.get(0));
-                    if (!file.getName().endsWith(QualysScannerConstants.XML)) {
-                        errorMessage = "Invalid file type for Authentication Script";
-                        throw new InvalidRequestException(errorMessage);
-                    }
+                if (FileUtil.validateFileType(authFiles, QualysScannerConstants.XML)) {
+                    log.info(new CallbackLog(scannerScanRequest.getJobId(),
+                            "Authentication Script file type is validated"));
                 }
-
                 // If authentication script is provided, authentication status checker regex should be provided.
                 if (StringUtils.isEmpty(
                         scannerScanRequest.getPropertyMap().get(QualysScannerConstants.AUTH_REGEX_KEYWORD).get(0))) {

@@ -35,6 +35,7 @@ import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
+import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
 import org.wso2.security.tools.scanmanager.scanners.qualys.handler.QualysApiInvoker;
@@ -235,6 +236,15 @@ import java.util.Map;
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else {
             scanContext.setCrawlingScope(parameterMap.get(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE).get(0));
+        }
+
+        // Validate crawling scripts.
+        List<String> crawlingScriptFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.CRAWLINGSCRIPTS);
+        if (crawlingScriptFiles.size() != 0) {
+            if (FileUtil.validateFileType(crawlingScriptFiles, QualysScannerConstants.XML)) {
+                String logMessage = "Crawling Scripts are valid file type of Selenium Scripts";
+                log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+            }
         }
 
         // Validate black list regex

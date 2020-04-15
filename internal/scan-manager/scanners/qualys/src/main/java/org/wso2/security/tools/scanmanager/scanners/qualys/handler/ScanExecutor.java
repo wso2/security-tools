@@ -24,6 +24,7 @@ import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerExce
 import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
+import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 
 import java.util.List;
@@ -61,12 +62,16 @@ public class ScanExecutor implements Runnable {
             qualysScanHandler.purgeScan(scanContext.getWebAppId(), scanContext.getJobID());
 
             authScriptId = qualysScanHandler
-                    .prepareScan(scanContext.getWebAppId(), scanContext.getJobID(), scanContext.getWebAppName(),
+                    .getAuthScriptId(scanContext.getWebAppId(), scanContext.getJobID(), scanContext.getWebAppName(),
                             fileMap, scanContext.getApplicationUrl(), scanContext.getWebAppAuth(),
                             scanContext.getCrawlingScope(), scanContext.getBlackListRegex());
 
             // Set ScanContext Object.
             scanContext.setAuthId(authScriptId);
+
+            qualysScanHandler
+                    .addCrawlingScripts(fileMap.get(QualysScannerConstants.CRAWLINGSCRIPTS), scanContext.getJobID(),
+                            scanContext.getWebAppId(), scanContext.getWebAppName());
 
             // Launch Scan.
             scannerScanId = qualysScanHandler.launchScan(scanContext);

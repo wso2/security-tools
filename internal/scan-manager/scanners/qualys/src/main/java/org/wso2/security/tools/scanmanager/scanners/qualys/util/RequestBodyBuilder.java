@@ -22,10 +22,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.CrawlingScript;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -190,7 +193,7 @@ public class RequestBodyBuilder {
      * @throws ParserConfigurationException error occurred while parsing
      * @throws TransformerException         error occurred while building secure string writer
      */
-    public static String buildWebAppUpdateRequest(String webAppName, String authId, String applicationUrl,
+    public static String buildWebAppAuthUpdateRequest(String webAppName, String authId, String applicationUrl,
             String crawlingScope, List<String> blacklistRegex)
             throws ParserConfigurationException, TransformerException {
         String updateWebAppRequestBody;
@@ -398,6 +401,71 @@ public class RequestBodyBuilder {
         launchScanRequestBody = stringWriter.getBuffer().toString();
 
         return launchScanRequestBody;
+    }
+
+    /**
+     * Build request body to add crawling scrip and relevant configuration for an appolication in qualys.
+     * @param listOfCrawlingScript crawling script objects
+     * @return request body in XML format
+     * @throws ParserConfigurationException error occurred while parsing
+     * @throws IOException IOException error occurred while performing any file operations
+     * @throws TransformerException error occurred while building secure string writer
+     */
+    public static String buildCrawlingScriptRequestBody(List<CrawlingScript> listOfCrawlingScript)
+            throws ParserConfigurationException, IOException, TransformerException {
+        String addCrawlingScriptRequestBody;
+        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
+        doc.appendChild(root);
+
+        Element data = doc.createElement(QualysScannerConstants.DATA);
+        root.appendChild(data);
+
+        Element webApp = doc.createElement(QualysScannerConstants.QUALYS_WEBAPP_KEYWORD);
+        data.appendChild(webApp);
+
+        Element crawlingScripts = doc.createElement(QualysScannerConstants.CRAWLINGSCRIPTS);
+        webApp.appendChild(crawlingScripts);
+
+        Element set = doc.createElement(QualysScannerConstants.SET);
+        crawlingScripts.appendChild(set);
+
+        for (int i = 0; i < listOfCrawlingScript.size(); i++) {
+            Element seleniumScript = doc.createElement(QualysScannerConstants.SELENIUM_SCRIPT);
+            set.appendChild(seleniumScript);
+
+            Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+            name.appendChild(doc.createCDATASection(
+                    listOfCrawlingScript.get(i).getScriptFileName() + " : " + RequestBodyBuilder.getDate()));
+            seleniumScript.appendChild(name);
+
+            Element startingUrl = doc.createElement(QualysScannerConstants.STARTING_URL);
+            startingUrl.appendChild(doc.createCDATASection(listOfCrawlingScript.get(i).getStartingUrl()));
+            seleniumScript.appendChild(startingUrl);
+
+            Element scriptContent = doc.createElement(QualysScannerConstants.DATA);
+            scriptContent.appendChild(doc.createCDATASection(
+                    FileUtil.getContentFromFile(listOfCrawlingScript.get(i).getScriptFile().getAbsolutePath())));
+            seleniumScript.appendChild(scriptContent);
+
+            Element requiresAuthentication = doc.createElement(QualysScannerConstants.REQUIRE_AUTHENTICATION);
+            requiresAuthentication
+                    .appendChild(doc.createTextNode(listOfCrawlingScript.get(i).getRequredAuthentication().toString()));
+            seleniumScript.appendChild(requiresAuthentication);
+
+            Element startingUrlRegex = doc.createElement(QualysScannerConstants.STARTING_URL_REGEX);
+            startingUrlRegex
+                    .appendChild(doc.createTextNode(listOfCrawlingScript.get(i).getStartingUrlRegex().toString()));
+            seleniumScript.appendChild(startingUrlRegex);
+        }
+
+        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
+        addCrawlingScriptRequestBody = stringWriter.getBuffer().toString();
+
+        return addCrawlingScriptRequestBody;
     }
 
     /**

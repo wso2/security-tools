@@ -29,6 +29,14 @@ import javax.xml.transform.TransformerException;
  */
 public interface WebAppAuth {
 
-    String buildRequestBody (String appID) throws TransformerException, ParserConfigurationException, IOException;
+    /**
+     * Build request body to add authentication method.
+     * @param appID application ID
+     * @return request body in XML format
+     * @throws TransformerException error occurred while building secure string writer
+     * @throws ParserConfigurationException error occurred while parsing
+     * @throws IOException error occurred while performing any file operations
+     */
+    String buildAuthRequestBody(String appID) throws TransformerException, ParserConfigurationException, IOException;
 
 }

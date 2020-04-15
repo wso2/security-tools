@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.util.StringUtils;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.common.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 
 import java.io.BufferedInputStream;
@@ -49,6 +50,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -95,8 +97,8 @@ public class FileUtil {
                 if (canonicalizedDestinationFilePath.startsWith(new File(destination).getCanonicalPath())) {
                     // if a valid zip file uploaded
                 } else {
-                    String errorMessage = "Attempt to upload invalid zip archive with file at " + currentEntry +
-                            ". File path is outside target directory";
+                    String errorMessage = "Attempt to upload invalid zip archive with file at " + currentEntry
+                            + ". File path is outside target directory";
                     log.error(errorMessage);
                 }
 
@@ -134,11 +136,11 @@ public class FileUtil {
      * @throws IOException      when the required file is not found or fails to create the file streams
      * @throws ScannerException when the file list that need to be archived is null
      */
-    public static void zipFiles(String source, String destination) throws ArchiveException, IOException,
-            ScannerException {
+    public static void zipFiles(String source, String destination)
+            throws ArchiveException, IOException, ScannerException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(destination);
-             ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream(
-                     ArchiveStreamFactory.ZIP, fileOutputStream)) {
+                ArchiveOutputStream archive = new ArchiveStreamFactory()
+                        .createArchiveOutputStream(ArchiveStreamFactory.ZIP, fileOutputStream)) {
             File newFile = new File(source);
             File[] fileList = newFile.listFiles();
             if (fileList != null) {
@@ -172,8 +174,8 @@ public class FileUtil {
      * @throws JSchException when unable to create the session for connecting the FTP server
      * @throws SftpException when unable to connect to the FTP server
      */
-    public static void downloadFromFtp(String filePathInFtp, String fileName, File outputFile, String ftpUsername
-            , char[] ftpPassword, String ftpHost, int ftpPort) throws JSchException, SftpException, IOException {
+    public static void downloadFromFtp(String filePathInFtp, String fileName, File outputFile, String ftpUsername,
+            char[] ftpPassword, String ftpHost, int ftpPort) throws JSchException, SftpException, IOException {
         ChannelSftp sftp = openFtpLocation(filePathInFtp, ftpUsername, ftpPassword, ftpHost, ftpPort);
 
         downloadFromFtp(sftp.get(fileName), outputFile);
@@ -194,9 +196,9 @@ public class FileUtil {
      * @throws IOException      when unable to crate stream using the upload file
      * @throws ScannerException when the upload file is null
      */
-    public static void uploadReport(String ftpReportUploadPath, File fileToUpload, String ftpUsername, char[]
-            ftpPassword, String ftpHost, int ftpPort) throws SftpException, JSchException, IOException,
-            ScannerException {
+    public static void uploadReport(String ftpReportUploadPath, File fileToUpload, String ftpUsername,
+            char[] ftpPassword, String ftpHost, int ftpPort)
+            throws SftpException, JSchException, IOException, ScannerException {
         ChannelSftp sftp = openFtpLocation(ftpReportUploadPath, ftpUsername, ftpPassword, ftpHost, ftpPort);
         uploadFileToFtp(sftp, fileToUpload);
     }
@@ -211,15 +213,15 @@ public class FileUtil {
      * @throws UnsupportedEncodingException when unable to create the print stream due to encoding type
      * @throws ScannerException             when unable to find the file path or unable to retrieve data from stream
      */
-    public static boolean saveReport(byte[] bytesResult, String filePath) throws FileNotFoundException,
-            UnsupportedEncodingException, ScannerException {
+    public static boolean saveReport(byte[] bytesResult, String filePath)
+            throws FileNotFoundException, UnsupportedEncodingException, ScannerException {
 
         if (bytesResult != null) {
             if (filePath.isEmpty()) {
                 throw new ScannerException("Output file path is missing.");
             } else {
-                try (PrintStream writer = new PrintStream(new FileOutputStream(filePath), true, StandardCharsets
-                        .UTF_8.name())) {
+                try (PrintStream writer = new PrintStream(new FileOutputStream(filePath), true,
+                        StandardCharsets.UTF_8.name())) {
                     writer.write(bytesResult, 0, bytesResult.length);
                     return true;
                 }
@@ -242,7 +244,7 @@ public class FileUtil {
      * @throws SftpException when unable to connect to the FTP server
      */
     private static ChannelSftp openFtpLocation(String filePathInFtp, String ftpUsername, char[] ftpPassword,
-                                               String ftpHost, int ftpPort) throws JSchException, SftpException {
+            String ftpHost, int ftpPort) throws JSchException, SftpException {
         JSch jsch = new JSch();
         Session session;
         Channel channel;
@@ -275,7 +277,8 @@ public class FileUtil {
         int readCount;
 
         try (BufferedInputStream sftpFileInputStream = new BufferedInputStream(input);
-             BufferedOutputStream downloadOutputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+                BufferedOutputStream downloadOutputStream = new BufferedOutputStream(
+                        new FileOutputStream(outputFile))) {
             while ((readCount = sftpFileInputStream.read(buffer)) > 0) {
                 downloadOutputStream.write(buffer, 0, readCount);
             }
@@ -302,8 +305,8 @@ public class FileUtil {
      * @throws SftpException    when unable to copy the file to the ftp location
      * @throws ScannerException when the upload file is null
      */
-    private static void uploadFileToFtp(ChannelSftp sftp, File fileToUpload) throws IOException, SftpException,
-            ScannerException {
+    private static void uploadFileToFtp(ChannelSftp sftp, File fileToUpload)
+            throws IOException, SftpException, ScannerException {
         if (fileToUpload != null) {
             File file = new File(String.valueOf(fileToUpload));
             try (InputStream inputStream = new FileInputStream(file)) {
@@ -366,5 +369,28 @@ public class FileUtil {
             }
         }
         return filePath;
+    }
+
+    /**
+     * Validate file type based on extension of the file
+     * @param listOfFileLocation Location of files
+     * @param fileSufix Sufix of the file type to be check
+     * @return true if it is a valid file type
+     * @throws InvalidRequestException throws invalid request exception if it is a invalid file type.
+     */
+    public static Boolean validateFileType(List<String> listOfFileLocation, String fileSufix)
+            throws InvalidRequestException {
+        String errorMessage;
+        Boolean isValidFileType = false;
+        for (int i = 0; i < listOfFileLocation.size(); i++) {
+            File file = new File(listOfFileLocation.get(0));
+            if (!file.getName().endsWith(fileSufix)) {
+                errorMessage = "Invalid file type for Authentication Script";
+                throw new InvalidRequestException(errorMessage);
+            } else {
+                isValidFileType = true;
+            }
+        }
+        return isValidFileType;
     }
 }

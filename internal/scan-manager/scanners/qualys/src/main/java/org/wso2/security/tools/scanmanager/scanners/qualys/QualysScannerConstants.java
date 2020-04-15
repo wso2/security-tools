@@ -31,7 +31,7 @@ public class QualysScannerConstants {
     public static final String DEFAULT_PROFILE_ID = "default_profile_id";
     public static final String DEFAULT_SCANNER_APPLIANCE = "default_scanner_appliance";
     public static final String DEFAULT_PROGRESSIVE_SCANNING = "default_progressive_scanning";
-    public static final String DEFAULT_FTP_AUTH_SCRIPT_PATH = "default_auth_script_path";
+    public static final String DEFAULT_FTP_SCRIPT_PATH = "default_script_path";
     public static final String DEFAULT_FTP_CRAWL_SCRIPT_PATH = "default_crawl_script_path";
     public static final String DEFAULT_CRAWLING_SCOPE = "default_crawling_scope";
     public static final String QUALYS_REPORT_FOLDER_PATH = "report_folder_path";
@@ -116,6 +116,12 @@ public class QualysScannerConstants {
     public static final String BLACKLIST_KEY_WORD = "urlBlacklist";
     public static final String URL_ENTRY_WITH_REGEX = "UrlEntry regex=\"true\"";
 
+    // Constants used to represents properties related to Qualys Crawling Script Configurations.
+    public static final String STARTING_URL = "startingUrl";
+    public static final String REQUIRE_AUTHENTICATION = "requiresAuthentication";
+    public static final String STARTING_URL_REGEX = "startingUrlRegex";
+    public static final String DELIMITER = ":";
+
     // Constants used to handle API response.
     public static final String SUCCESS = "SUCCESS";
     public static final String RESPONSE_CODE = "responseCode";
@@ -169,7 +175,8 @@ public class QualysScannerConstants {
     public static final String CREATE_REPORT = "create report";
     public static final String DOWNLOAD_REPORT = "download report";
     public static final String ADD_AUTH_SCRIPT = "add authentication script";
-    public static final String UPDATE_WEB_APP = "update web app";
+    public static final String UPDATE_WEB_APP_AUTH = "update web app with authentication script";
+    public static final String UPDATE_WEB_APP_CRAWLING_SCRIPT = "update web app with crawling script";
     public static final String GET_STATUS = "get scan status";
     public static final String GET_REPORT_STATUS = "get report status";
     public static final String CLEANUP = "cleanup";
