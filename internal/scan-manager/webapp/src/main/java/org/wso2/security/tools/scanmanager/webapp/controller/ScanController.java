@@ -22,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
@@ -85,7 +87,7 @@ public class ScanController {
     private static final String PRODUCT_DATA_ATTRIBUTE_NAME = "productData";
     private static final String MAX_FILE_SIZE_ATTRIBUTE_NAME = "maxFileSize";
     private static final String SCAN_DATA_ATTRIBUTE_NAME = "scanData";
-    private static final String SCAN_REQUEST_USER_NAME = "username";
+    private static final String EMAIL = "email";
 
     @Autowired
     public ScanController(ScanService scanService, ScannerService scannerService, LogService logService,
@@ -118,8 +120,15 @@ public class ScanController {
                 parameterMap.put(requestParamMap.getKey(), requestParamMap.getValue()[0]);
             }
         }
-        String username = (String) (((StandardMultipartHttpServletRequest) multipartHttpServletRequest).getRequest())
-                .getSession().getAttribute(SCAN_REQUEST_USER_NAME);
+        String username = null;
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        if (authentication.getPrincipal() instanceof OidcUser) {
+            OidcUser principal = ((OidcUser) authentication.getPrincipal());
+
+            username = principal.getClaims().get(EMAIL).toString();
+        }
+
         User user = new User(username, username);
         Map<String, MultipartFile> fileMap = multipartHttpServletRequest.getFileMap();
 
@@ -141,6 +150,7 @@ public class ScanController {
     @GetMapping(value = "scans")
     public ModelAndView getScans(@RequestParam(name = "page", required = false) Integer page)
             throws ScanManagerWebappException {
+
         ModelAndView scansView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + SCANS_VIEW);
 
         // List of scans submitted to scan manager API.

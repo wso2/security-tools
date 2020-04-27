@@ -21,7 +21,8 @@ package org.wso2.security.tools.scanmanager.webapp.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.JOB_ID_PARAM_NAME;
@@ -52,7 +54,7 @@ import static org.wso2.security.tools.scanmanager.webapp.util.Constants.PRE_JOB_
 @Service
 public class LogServiceImpl implements LogService {
 
-    private static final Logger logger = Logger.getLogger(LogServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(LogServiceImpl.class);
     private Map<String, List<Log>> preparingScanLogs = new ConcurrentHashMap<>();
 
     @Override
@@ -76,8 +78,12 @@ public class LogServiceImpl implements LogService {
                 ResponseEntity responseEntity = HTTPUtil.sendGET(getLogsRequest);
                 if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
                     ObjectMapper mapper = new ObjectMapper();
-                    scanManagerLogResponse = mapper.readValue(responseEntity.getBody().toString(),
-                            ScanManagerLogResponse.class);
+                    Optional<Object> body = Optional.ofNullable(responseEntity.getBody());
+                    if (body.isPresent()) {
+                        scanManagerLogResponse = mapper.readValue(body.toString(),
+                                ScanManagerLogResponse.class);
+                    }
+
                 } else {
                     throw new ScanManagerWebappException("Unable to get the scan logs for the job id: " + jobId);
                 }

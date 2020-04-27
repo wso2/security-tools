@@ -82,8 +82,8 @@
         </plugins>
     </build>
     <properties>
-        <org.yaml.snakeyaml.version>1.24</org.yaml.snakeyaml.version>
-        <org.springframework.version>5.1.3.RELEASE</org.springframework.version>
-        <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
+        <org.yaml.snakeyaml.version>1.26</org.yaml.snakeyaml.version>
+        <org.springframework.version>5.2.5.RELEASE</org.springframework.version>
+        <org.apache.httpcomponents.httpclient.version>4.5.12</org.apache.httpcomponents.httpclient.version>
     </properties>
 </project>

@@ -75,7 +75,7 @@
     <properties>
         <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
         </org.wso2.security.tools.scanmanager.common.version>
-        <com.fasterxml.jackson.core.version>2.9.7</com.fasterxml.jackson.core.version>
+        <com.fasterxml.jackson.core.version>2.10.0</com.fasterxml.jackson.core.version>
     </properties>
 
 </project>

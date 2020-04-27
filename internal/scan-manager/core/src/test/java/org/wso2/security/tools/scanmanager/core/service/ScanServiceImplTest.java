@@ -69,7 +69,7 @@ public class ScanServiceImplTest {
 
     @Test(dataProvider = "getScanData", dataProviderClass = ServiceTestDataProvider.class)
     public void testGetAll(Scan scan) {
-        Mockito.when(mockScanDAO.getAllByOrderBySubmittedTimestampDesc(new PageRequest(1, 10)))
+        Mockito.when(mockScanDAO.getAllByOrderBySubmittedTimestampDesc(PageRequest.of(1, 10)))
                 .thenReturn(new PageImpl<>(Collections.singletonList(scan)));
 
         Page retrievedScansPage = scanService.getAll(1, 10);
