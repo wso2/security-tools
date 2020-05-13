@@ -18,15 +18,17 @@
  * /
  */
 
-package org.wso2.security.tools.scanmanager.scanners.qualys.model;
+package org.wso2.security.tools.scanmanger.qualys.auth;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.SeleniumScript;
 import org.wso2.security.tools.scanmanager.scanners.qualys.util.RequestBodyBuilder;
 
 import java.io.IOException;
@@ -37,16 +39,18 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 /**
- * This class is to represent Seleium Authentication type of WebAppAuth for Qualys scan.
+ * This class is to represent Selenium Authentication type of WebAppAuthenticationRecordBuilder for Qualys scan.
  */
-public class SeleniumAuth extends SeleniumScript implements WebAppAuth {
+public class SeleniumAuthenticationRecordBuilder extends SeleniumScript implements WebAppAuthenticationRecordBuilder {
 
-    private static final Logger log = LogManager.getLogger(SeleniumAuth.class);
+    private static final Logger log = LogManager.getLogger(SeleniumAuthenticationRecordBuilder.class);
 
     // Regex to check whether authentication status is success or not
     private String authRegex;
 
-    public SeleniumAuth(String authRegex) {
+    public SeleniumAuthenticationRecordBuilder(String authRegex, String scriptFileLocation, String jobId)
+            throws ScannerException {
+        super(scriptFileLocation, jobId);
         this.authRegex = authRegex;
     }
 
@@ -89,7 +93,8 @@ public class SeleniumAuth extends SeleniumScript implements WebAppAuth {
         seleniumScript.appendChild(seleniumScriptName);
 
         Element scriptData = doc.createElement(QualysScannerConstants.DATA);
-        scriptData.appendChild(doc.createCDATASection(FileUtil.getContentFromFile(this.scriptFile.getAbsolutePath())));
+        scriptData.appendChild(
+                doc.createCDATASection(FileUtil.getContentFromFile(this.getScriptFile().getAbsolutePath())));
         seleniumScript.appendChild(scriptData);
 
         Element regex = doc.createElement(QualysScannerConstants.REGEX);
@@ -101,42 +106,4 @@ public class SeleniumAuth extends SeleniumScript implements WebAppAuth {
 
         return addAuthRecordRequestBody;
     }
-
-    //    /**
-    //     * Download given authentication script from FTP Location.
-    //     *
-    //     * @param authenticationScriptLocation Authentication script file location
-    //     * @param jobId                        JobId
-    //     * @throws ScannerException Error occurred while downloading authentication scripts
-    //     */
-    //    public void downloadAuthenticationScripts(String authenticationScriptLocation, String jobId)
-    //            throws ScannerException {
-    //        String authenticationScriptFileName = authenticationScriptLocation.substring(authenticationScriptLocation.
-    //                lastIndexOf(File.separator) + 1, authenticationScriptLocation.length());
-    //        String authenticationScriptFilePath = authenticationScriptLocation
-    //                .substring(0, authenticationScriptLocation.lastIndexOf(File.separator));
-    //
-    //        authScriptFile = new File(QualysScannerConfiguration.getInstance()
-    //                .getConfigProperty(QualysScannerConstants.DEFAULT_FTP_SCRIPT_PATH) + File.separator
-    //                + authenticationScriptFileName);
-    //        try {
-    //            String logMessage = "Authentication Script is downloading ....";
-    //            log.info(new CallbackLog(jobId, logMessage));
-    //            FileUtil.downloadFromFtp(authenticationScriptFilePath, authenticationScriptFileName, authScriptFile,
-    //                    QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_USERNAME),
-    //                    (QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PASSWORD))
-    //                            .toCharArray(),
-    //                    QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_HOST),
-    //                    Integer.parseInt(
-    //                            QualysScannerConfiguration.getInstance().
-    // getConfigProperty(ScannerConstants.FTP_PORT)));
-    //            logMessage = "Authentication Script is downloaded : " + authScriptFile;
-    //            log.info(new CallbackLog(jobId, logMessage));
-    //        } catch (IOException | JSchException | SftpException e) {
-    //            String logMessage = "Error occurred while downloading the authentication script :  " +
-    // ErrorProcessingUtil
-    //                    .getFullErrorMessage(e);
-    //            throw new ScannerException(logMessage);
-    //        }
-    //    }
 }

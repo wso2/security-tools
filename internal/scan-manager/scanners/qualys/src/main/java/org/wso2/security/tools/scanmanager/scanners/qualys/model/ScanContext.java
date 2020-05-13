@@ -18,6 +18,9 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.model;
 
+import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
+import org.wso2.security.tools.scanmanger.qualys.auth.WebAppAuthenticationRecordBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,21 +74,34 @@ public class ScanContext {
     // Report template id to generate report
     private String reportTemplateId;
 
-    // Authentication type
-    private WebAppAuth webAppAuth;
+    // Authentication builder type
+    private WebAppAuthenticationRecordBuilder webAppAuthenticationRecordBuilder;
 
     // List which holds crawling script objects
-    private List<CrawlingScript> crawlingScriptList = new ArrayList<>();
+    private List<CrawlingScript> listOfCrawlingScripts;
 
     // List which holds blacklist regex patterns
     private List<String> blackListRegex;
 
-    public List<CrawlingScript> getCrawlingScriptList() {
-        return crawlingScriptList;
+    // Crawling scope for scan
+    private String crawlingScope;
+
+    public List<CrawlingScript> getListOfCrawlingScripts() {
+        return listOfCrawlingScripts;
     }
 
-    public void setCrawlingScriptList(List<CrawlingScript> crawlingScriptList) {
-        this.crawlingScriptList = crawlingScriptList;
+    /**
+     * Get crawling script content and parse relevant configurations of crawling scripts.
+     *
+     * @param crawlingScriptFilePaths File paths of crawling scripts
+     * @throws ScannerException error occurred while adding crawling scripts
+     */
+    public void setListOfCrawlingScripts(List<String> crawlingScriptFilePaths) throws ScannerException {
+        listOfCrawlingScripts = new ArrayList<>();
+        for (String crawlingScriptFilePath : crawlingScriptFilePaths) {
+            CrawlingScript crawlingScript = new CrawlingScript(crawlingScriptFilePath, this.jobID);
+            listOfCrawlingScripts.add(crawlingScript);
+        }
     }
 
     public List<String> getBlackListRegex() {
@@ -103,8 +119,6 @@ public class ScanContext {
     public void setCrawlingScope(String crawlingScope) {
         this.crawlingScope = crawlingScope;
     }
-
-    private String crawlingScope;
 
     public String getReportTemplateId() {
         return reportTemplateId;
@@ -226,11 +240,12 @@ public class ScanContext {
         this.applicationUrl = applicationUrl;
     }
 
-    public WebAppAuth getWebAppAuth() {
-        return webAppAuth;
+    public WebAppAuthenticationRecordBuilder getWebAppAuthenticationRecordBuilder() {
+        return webAppAuthenticationRecordBuilder;
     }
 
-    public void setWebAppAuth(WebAppAuth webAppAuth) {
-        this.webAppAuth = webAppAuth;
+    public void setWebAppAuthenticationRecordBuilder(
+            WebAppAuthenticationRecordBuilder webAppAuthenticationRecordBuilder) {
+        this.webAppAuthenticationRecordBuilder = webAppAuthenticationRecordBuilder;
     }
 }

@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.util.StringUtils;
 import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.common.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 
 import java.io.BufferedInputStream;
@@ -376,18 +375,12 @@ public class FileUtil {
      * @param listOfFileLocation Location of files
      * @param fileSufix Sufix of the file type to be check
      * @return true if it is a valid file type
-     * @throws InvalidRequestException throws invalid request exception if it is a invalid file type.
      */
-    public static Boolean validateFileType(List<String> listOfFileLocation, String fileSufix)
-            throws InvalidRequestException {
-        String errorMessage;
+    public static Boolean validateFileType(List<String> listOfFileLocation, String fileSufix) {
         Boolean isValidFileType = false;
         for (int i = 0; i < listOfFileLocation.size(); i++) {
             File file = new File(listOfFileLocation.get(0));
-            if (!file.getName().endsWith(fileSufix)) {
-                errorMessage = "Invalid file type for Authentication Script";
-                throw new InvalidRequestException(errorMessage);
-            } else {
+            if (file.getName().endsWith(fileSufix)) {
                 isValidFileType = true;
             }
         }

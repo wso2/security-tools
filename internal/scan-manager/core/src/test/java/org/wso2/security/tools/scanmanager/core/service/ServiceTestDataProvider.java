@@ -71,7 +71,8 @@ public class ServiceTestDataProvider {
     private static Scan buildScan() {
         Scanner scanner = new Scanner();
         ScannerApp scannerApp = new ScannerApp(null, SCANNER_APP_ID, SCANNER_APP_NAME, TEST_PRODUCT_ID);
-        ScannerField scannerField = new ScannerField("testField", null, "testField", null, "file", 2, true);
+        ScannerField scannerField = new ScannerField("testField", null, "testField",
+                null, "file", 2, true, "test1,test2");
 
         scanner.setId(TEST_SCANNER_ID);
         scanner.setName("testScanner");

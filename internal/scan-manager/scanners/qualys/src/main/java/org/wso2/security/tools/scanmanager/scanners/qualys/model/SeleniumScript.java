@@ -43,10 +43,14 @@ public abstract class SeleniumScript {
     private static final Logger log = LogManager.getLogger(SeleniumScript.class);
 
     // Script File
-    File scriptFile;
+    private File scriptFile;
 
     // Name of the script file
-    String scriptFileName;
+    private String scriptFileName;
+
+    public SeleniumScript(String scriptFileLocation, String jobId) throws ScannerException {
+        downloadSeleniumScripts(scriptFileLocation, jobId);
+    }
 
     public File getScriptFile() {
         return scriptFile;
@@ -65,13 +69,13 @@ public abstract class SeleniumScript {
     }
 
     /**
-     * Download given authentication script from FTP Location.
+     * Download given selenium script from FTP Location.
      *
-     * @param scriptFileLocation Authentication script file location
-     * @param jobId              JobId
-     * @throws ScannerException Error occurred while downloading authentication scripts
+     * @param scriptFileLocation selenium script file location
+     * @param jobId              jobId
+     * @throws ScannerException error occurred while downloading authentication scripts
      */
-    public void downloadAuthenticationScripts(String scriptFileLocation, String jobId) throws ScannerException {
+    private void downloadSeleniumScripts(String scriptFileLocation, String jobId) throws ScannerException {
         this.scriptFileName = scriptFileLocation.substring(scriptFileLocation.
                 lastIndexOf(File.separator) + 1, scriptFileLocation.length());
         String scriptFilePath = scriptFileLocation.substring(0, scriptFileLocation.lastIndexOf(File.separator));
@@ -91,7 +95,7 @@ public abstract class SeleniumScript {
             logMessage = scriptFileName + " Script is downloaded";
             log.info(new CallbackLog(jobId, logMessage));
         } catch (IOException | JSchException | SftpException e) {
-            String logMessage = "Error occurred while downloading the authentication script :  " + ErrorProcessingUtil
+            String logMessage = "Error occurred while downloading the selenium script :  " + ErrorProcessingUtil
                     .getFullErrorMessage(e);
             throw new ScannerException(logMessage);
         }

@@ -25,7 +25,7 @@ public class QualysScannerConstants {
 
     // Constants related to Qualys configurations.
     public static final String QUALYS_USERNAME = "qualys_username";
-    public static final String QUALYS_PASSWORD = "password";
+    public static final String QUALYS_PASSWORD = "qualys_password";
     public static final String HOST = "host";
     public static final String DEFAULT_SCAN_TYPE = "default_scan_type";
     public static final String DEFAULT_PROFILE_ID = "default_profile_id";
@@ -114,7 +114,9 @@ public class QualysScannerConstants {
     public static final String VALUE = "value";
     public static final String SET = "set";
     public static final String BLACKLIST_KEY_WORD = "urlBlacklist";
-    public static final String URL_ENTRY_WITH_REGEX = "UrlEntry regex=\"true\"";
+    public static final String URL_ENTRY_WITH_REGEX = "UrlEntry";
+    public static final String CRAWLING_SELENIUM_SCRIPT = "SeleniumScript";
+    public static final String NEWLINE_REGEX = "\\r?\\n";
 
     // Constants used to represents properties related to Qualys Crawling Script Configurations.
     public static final String STARTING_URL = "startingUrl";
@@ -175,7 +177,7 @@ public class QualysScannerConstants {
     public static final String CREATE_REPORT = "create report";
     public static final String DOWNLOAD_REPORT = "download report";
     public static final String ADD_AUTH_SCRIPT = "add authentication script";
-    public static final String UPDATE_WEB_APP_AUTH = "update web app with authentication script";
+    public static final String UPDATE_WEB_APP_AUTH = "update web app with provided configuration";
     public static final String UPDATE_WEB_APP_CRAWLING_SCRIPT = "update web app with crawling script";
     public static final String GET_STATUS = "get scan status";
     public static final String GET_REPORT_STATUS = "get report status";

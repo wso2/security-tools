@@ -25,5 +25,6 @@ package org.wso2.security.tools.scanmanager.scanners.qualys.model;
  */
 public enum CrawlingScope {
 
-    ALL, LIMIT, SUBDOMAIN, DOMAINS
+    // Currently it supports ALL and LIMIT. SUBDOMAIN, DOMAINS options will be included next phase.
+    ALL, LIMIT
 }

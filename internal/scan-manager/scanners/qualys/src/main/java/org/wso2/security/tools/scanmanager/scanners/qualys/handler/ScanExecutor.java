@@ -62,16 +62,21 @@ public class ScanExecutor implements Runnable {
             qualysScanHandler.purgeScan(scanContext.getWebAppId(), scanContext.getJobID());
 
             authScriptId = qualysScanHandler
-                    .getAuthScriptId(scanContext.getWebAppId(), scanContext.getJobID(), scanContext.getWebAppName(),
-                            fileMap, scanContext.getApplicationUrl(), scanContext.getWebAppAuth(),
-                            scanContext.getCrawlingScope(), scanContext.getBlackListRegex());
+                    .getAuthScriptId(scanContext.getWebAppId(), scanContext.getJobID(),
+                            scanContext.getWebAppAuthenticationRecordBuilder());
 
             // Set ScanContext Object.
             scanContext.setAuthId(authScriptId);
 
-            qualysScanHandler
-                    .addCrawlingScripts(fileMap.get(QualysScannerConstants.CRAWLINGSCRIPTS), scanContext.getJobID(),
-                            scanContext.getWebAppId(), scanContext.getWebAppName());
+            // Update web application related configurations.
+            qualysScanHandler.updateWebApp(scanContext);
+
+            // Set list of crawling script objects.
+            scanContext.setListOfCrawlingScripts(fileMap.get(QualysScannerConstants.CRAWLINGSCRIPTS));
+
+            // Add crawling script and it's configurations for scan.
+            qualysScanHandler.addCrawlingSetting(scanContext.getListOfCrawlingScripts(), scanContext.getJobID(),
+                    scanContext.getWebAppId(), scanContext.getWebAppName());
 
             // Launch Scan.
             scannerScanId = qualysScanHandler.launchScan(scanContext);

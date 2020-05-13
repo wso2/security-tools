@@ -66,11 +66,14 @@ public class ScannerField {
     @Column(name = "IS_REQUIRED")
     private boolean isRequired;
 
+    @Column(name = "FIELD_VALUE")
+    private String propertyValueList;
+
     public ScannerField() {
     }
 
     public ScannerField(String fieldId, Scanner scanner, String displayName, String description, String type,
-                        Integer order, boolean isRequired) {
+                        Integer order, boolean isRequired, String propertyValueList) {
         this.fieldId = fieldId;
         this.scanner = scanner;
         this.displayName = displayName;
@@ -78,6 +81,7 @@ public class ScannerField {
         this.type = type;
         this.order = order;
         this.isRequired = isRequired;
+        this.propertyValueList = propertyValueList;
     }
 
     public Integer getId() {
@@ -142,5 +146,13 @@ public class ScannerField {
 
     public void setRequired(boolean required) {
         isRequired = required;
+    }
+
+    public String getPropertyValueList() {
+        return propertyValueList;
+    }
+
+    public void setPropertyValueList(String propertyValueList) {
+        this.propertyValueList = propertyValueList;
     }
 }
