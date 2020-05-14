@@ -17,7 +17,8 @@
  */
 package org.wso2.security.tools.scanmanager.webapp.exception;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,7 +31,7 @@ import static org.wso2.security.tools.scanmanager.webapp.util.Constants.DEFAULT_
 @ControllerAdvice
 public class ScanManagerWebappExceptionHandler {
 
-    private static final Logger logger = Logger.getLogger(ScanManagerWebappExceptionHandler.class);
+    private static final Logger logger = LogManager.getLogger(ScanManagerWebappExceptionHandler.class);
 
     /**
      * Exception handler for type Exception.

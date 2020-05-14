@@ -19,12 +19,12 @@ package org.wso2.security.tools.scanmanager.webapp.config;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
-import org.bouncycastle.util.Arrays;
 import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappException;
 import org.wso2.security.tools.scanmanager.webapp.util.Constants;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
