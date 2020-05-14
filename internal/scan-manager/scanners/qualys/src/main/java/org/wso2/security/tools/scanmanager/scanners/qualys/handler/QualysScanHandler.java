@@ -39,7 +39,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
