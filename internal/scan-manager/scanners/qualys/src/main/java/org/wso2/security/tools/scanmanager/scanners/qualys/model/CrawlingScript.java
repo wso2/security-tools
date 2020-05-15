@@ -102,7 +102,7 @@ public class CrawlingScript extends SeleniumScript {
                     String propertyKey = comment.trim().split(QualysScannerConstants.DELIMITER, 2)[0];
                     switch (propertyKey) {
                     case QualysScannerConstants.STARTING_URL:
-                        this.setStartingUrl(comment.trim().split(QualysScannerConstants.DELIMITER)[1]);
+                        this.setStartingUrl(comment.trim().split(QualysScannerConstants.DELIMITER, 2)[1]);
                         break;
                     case QualysScannerConstants.REQUIRE_AUTHENTICATION:
                         this.setRequredAuthentication(

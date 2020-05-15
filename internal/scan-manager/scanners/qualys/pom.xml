@@ -158,8 +158,8 @@
         </plugins>
     </build>
     <properties>
-        <org.springframework.version>4.3.10.RELEASE</org.springframework.version>
-        <org.springframework.boot.maven.version>1.5.6.RELEASE</org.springframework.boot.maven.version>
+        <org.springframework.version>5.2.5.RELEASE</org.springframework.version>
+        <org.springframework.boot.maven.version>2.2.6.RELEASE</org.springframework.boot.maven.version>
         <maven.assembly.plugin.version>2.4.1</maven.assembly.plugin.version>
         <org.apache.logging.log4j.version>2.11.0</org.apache.logging.log4j.version>
         <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>

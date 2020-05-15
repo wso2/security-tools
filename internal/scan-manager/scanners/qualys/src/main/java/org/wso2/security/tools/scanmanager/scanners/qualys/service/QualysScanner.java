@@ -47,6 +47,7 @@ import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanType;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScannerApplianceType;
 import org.wso2.security.tools.scanmanger.qualys.auth.WebAppAuthenticationRecordBuilderFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -252,6 +253,8 @@ public class QualysScanner implements Scanner {
 
         // Validate crawling scripts.
         List<String> crawlingScriptFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.CRAWLINGSCRIPTS);
+        scanContext.setScriptFilesLocation(crawlingScriptFiles.get(0).substring(0,
+                crawlingScriptFiles.get(0).lastIndexOf(File.separator)));
         if (crawlingScriptFiles.size() != 0) {
             if (FileUtil.validateFileType(crawlingScriptFiles, QualysScannerConstants.XML)) {
                 String logMessage = "Crawling Scripts are valid file type of Selenium Scripts";

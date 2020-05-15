@@ -61,9 +61,8 @@ public class ScanExecutor implements Runnable {
             // Purging Scan before launching the scan.
             qualysScanHandler.purgeScan(scanContext.getWebAppId(), scanContext.getJobID());
 
-            authScriptId = qualysScanHandler
-                    .getAuthScriptId(scanContext.getWebAppId(), scanContext.getJobID(),
-                            scanContext.getWebAppAuthenticationRecordBuilder());
+            authScriptId = qualysScanHandler.getAuthScriptId(scanContext.getWebAppId(), scanContext.getJobID(),
+                    scanContext.getWebAppAuthenticationRecordBuilder());
 
             // Set ScanContext Object.
             scanContext.setAuthId(authScriptId);
