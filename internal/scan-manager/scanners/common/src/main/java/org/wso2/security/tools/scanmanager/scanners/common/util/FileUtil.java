@@ -50,6 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -383,7 +384,7 @@ public class FileUtil {
         Boolean isValidFileType = false;
         for (int i = 0; i < listOfFileLocation.size(); i++) {
             File file = new File(listOfFileLocation.get(0));
-            if (file.getName().toLowerCase().endsWith(fileSufix)) {
+            if (file.getName().toLowerCase(Locale.ENGLISH).endsWith(fileSufix)) {
                 isValidFileType = true;
             }
         }
