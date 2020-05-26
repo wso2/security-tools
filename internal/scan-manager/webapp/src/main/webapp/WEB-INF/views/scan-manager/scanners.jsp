@@ -32,6 +32,8 @@
         <div class="page-header">
             <h1>Scanners</h1>
             <h5>Select a scanner to start scanning process </h5>
+            <h6>If you are new to conducting a security scan, make sure you have read ther <a href="<Documentaion Link>">'User Guide'</a>.</h6>
+            <h6>For any help, contact WSO2 Security Team.</h6>
         </div>
     </div>
     <hr>

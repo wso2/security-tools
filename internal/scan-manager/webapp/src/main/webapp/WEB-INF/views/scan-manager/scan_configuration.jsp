@@ -166,41 +166,118 @@
                                     </c:when>
                                     <c:otherwise>
                                         <div class="form-group">
-                                            
                                             <c:choose>
                                                 <c:when test="${field.isRequired()}">
-                                                    <div class="required">
-                                                        <div class="row">
-                                                            <div class="col-md-11">
-                                                                <label for="${field.fieldId}" style="font-weight:500">
-                                                                        ${field.displayName}</label>
-                                                            </div>
-                                                            <c:if test="${not empty field.description}">
-                                                                <div class="col-md-1 help-tip">
-                                                                    <p>${field.description}</p>
+                                                    <c:choose>
+                                                        <c:when test="${field.type eq 'text'}">
+                                                            <div class="required">
+                                                                <div class="row">
+                                                                    <div class="col-md-11">
+                                                                        <label for="${field.fieldId}" style="font-weight:500">
+                                                                                ${field.displayName}</label>
+                                                                    </div>
+                                                                    <c:if test="${not empty field.description}">
+                                                                        <div class="col-md-1 help-tip">
+                                                                            <p>${field.description}</p>
+                                                                        </div>
+                                                                    </c:if>
                                                                 </div>
-                                                            </c:if>
-                                                        </div>
-                                                        <input type="${field.type}" class="form-control"
-                                                               id="${field.fieldId}"
-                                                               name="${field.fieldId}" required>
-                                                    </div>
+                                                                <input type="${field.type}" class="form-control"
+                                                                       id="${field.fieldId}"
+                                                                       name="${field.fieldId}" required>
+                                                            </div>
+                                                        </c:when>
+                                                        <c:when test="${field.type eq 'dropdown'}">
+                                                            <div class="required">
+                                                                <div class="row">
+                                                                    <div class="col-md-11">
+                                                                        <label for="${field.fieldId}" style="font-weight:500">
+                                                                                ${field.displayName}</label>
+                                                                    </div>
+                                                                    <c:if test="${not empty field.description}">
+                                                                        <div class="col-md-1 help-tip">
+                                                                            <p>${field.description}</p>
+                                                                        </div>
+                                                                    </c:if>
+                                                                </div>
+                                                                <select id="${field.fieldId}" name="${field.fieldId}" class="form-control form-control-lg">
+                                                                    <c:forTokens items = "${field.propertyValueList}" delims = "," var = "propertyValue">
+                                                                        <option value="${propertyValue}">${propertyValue}</option>
+                                                                    </c:forTokens>
+                                                                    </span>
+                                                                </select>
+                                                            </div>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div class="required">
+                                                                <div class="row">
+                                                                    <div class="col-md-11">
+                                                                        <label for="${field.fieldId}" style="font-weight:500">
+                                                                                ${field.displayName}</label>
+                                                                    </div>
+                                                                    <c:if test="${not empty field.description}">
+                                                                        <div class="col-md-1 help-tip">
+                                                                            <p>${field.description}</p>
+                                                                        </div>
+                                                                    </c:if>
+                                                                </div>
+                                                                <textarea name="${field.fieldId}" id="${field.fieldId}" class="form-control" rows="5" required></textarea>
+                                                            </div>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <div class="row">
-                                                        <div class="col-md-11">
-                                                            <label for="${field.fieldId}" style="font-weight: 500">
-                                                                    ${field.displayName}</label>
-                                                        </div>
-                                                        <c:if test="${not empty field.description}">
-                                                            <div class="col-md-1 help-tip">
-                                                                <p>${field.description}</p>
+                                                    <c:choose>
+                                                        <c:when test="${field.type eq 'text'}">
+                                                            <div class="row">
+                                                                <div class="col-md-11">
+                                                                    <label for="${field.fieldId}" style="font-weight: 500">
+                                                                            ${field.displayName}</label>
+                                                                </div>
+                                                                <c:if test="${not empty field.description}">
+                                                                    <div class="col-md-1 help-tip">
+                                                                        <p>${field.description}</p>
+                                                                    </div>
+                                                                </c:if>
                                                             </div>
-                                                        </c:if>
-                                                    </div>
-                                                    <input type="${field.type}" class="form-control"
-                                                           id="${field.fieldId}"
-                                                           name="${field.fieldId}">
+                                                            <input type="${field.type}" class="form-control"
+                                                            id="${field.fieldId}"
+                                                            name="${field.fieldId}">
+                                                        </c:when>
+                                                        <c:when test="${field.type eq 'dropdown'}">
+                                                            <div class="row">
+                                                                <div class="col-md-11">
+                                                                    <label for="${field.fieldId}" style="font-weight: 500">
+                                                                            ${field.displayName}</label>
+                                                                </div>
+                                                                <c:if test="${not empty field.description}">
+                                                                    <div class="col-md-1 help-tip">
+                                                                        <p>${field.description}</p>
+                                                                    </div>
+                                                                </c:if>
+                                                            </div>
+                                                            <select id="${field.fieldId}" name="${field.fieldId}" class="form-control form-control-lg">
+                                                                <c:forTokens items = "${field.propertyValueList}" delims = "," var = "propertyValue">
+                                                                    <option value="${propertyValue}">${propertyValue}</option>
+                                                                </c:forTokens>
+                                                                </span>
+                                                            </select>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div class="row">
+                                                                <div class="col-md-11">
+                                                                    <label for="${field.fieldId}" style="font-weight: 500">
+                                                                            ${field.displayName}</label>
+                                                                </div>
+                                                                <c:if test="${not empty field.description}">
+                                                                    <div class="col-md-1 help-tip">
+                                                                        <p>${field.description}</p>
+                                                                    </div>
+                                                                </c:if>
+                                                            </div>
+                                                            <textarea name="${field.fieldId}" id="${field.fieldId}" class="form-control" rows="5"></textarea>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
