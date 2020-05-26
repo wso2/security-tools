@@ -29,6 +29,7 @@
     cursor: default;
     padding-left: 0px;
     padding-right: 0px;
+    white-space: pre-line;
 }
 
 .help-tip:before {

@@ -78,8 +78,9 @@ public class StandardAuthenticationRecordBuilder implements WebAppAuthentication
         type.appendChild(doc.createTextNode(QualysScannerConstants.STANDARD_AUTH));
         formRecord.appendChild(type);
 
-        //        Element sslOnly = doc.createElement(QualysScannerConstants.SSL_ONLY);
-        //        sslOnly.appendChild(doc.createTextNode("false"));
+        // Following element needs to be added if credentials needs to be sent only on secure connections.
+        // Element sslOnly = doc.createElement(QualysScannerConstants.SSL_ONLY);
+        // sslOnly.appendChild(doc.createTextNode("false"));
 
         Element fields = doc.createElement(QualysScannerConstants.FIELD);
         formRecord.appendChild(fields);

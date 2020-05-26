@@ -245,6 +245,11 @@ public class StatusHandler {
                 log.info(new CallbackLog(scanContext.getJobID(),
                         "Authentication of scanning web application" + " is got succeeded."));
                 break;
+            case QualysScannerConstants.AUTH_NONE:
+                isScanAuthenticationSuccessful = true;
+                log.info(new CallbackLog(scanContext.getJobID(),
+                        "Authentication of scanning web application" + " is not set."));
+                break;
             default:
                 isScanAuthenticationSuccessful = false;
             }

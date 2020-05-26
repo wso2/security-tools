@@ -96,8 +96,8 @@ public class FileUtil {
                 if (canonicalizedDestinationFilePath.startsWith(new File(destination).getCanonicalPath())) {
                     // if a valid zip file uploaded
                 } else {
-                    String errorMessage = "Attempt to upload invalid zip archive with file at " + currentEntry
-                            + ". File path is outside target directory";
+                    String errorMessage = "Attempt to upload invalid zip archive with file at " + currentEntry +
+                            ". File path is outside target directory";
                     log.error(errorMessage);
                 }
 
@@ -137,9 +137,11 @@ public class FileUtil {
      */
     public static void zipFiles(String source, String destination)
             throws ArchiveException, IOException, ScannerException {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(destination);
-                ArchiveOutputStream archive = new ArchiveStreamFactory()
-                        .createArchiveOutputStream(ArchiveStreamFactory.ZIP, fileOutputStream)) {
+        try (
+            FileOutputStream fileOutputStream = new FileOutputStream(destination);
+            ArchiveOutputStream archive =
+                    new ArchiveStreamFactory().createArchiveOutputStream(ArchiveStreamFactory.ZIP, fileOutputStream)
+        ) {
             File newFile = new File(source);
             File[] fileList = newFile.listFiles();
             if (fileList != null) {
@@ -275,9 +277,10 @@ public class FileUtil {
         byte[] buffer = new byte[1024];
         int readCount;
 
-        try (BufferedInputStream sftpFileInputStream = new BufferedInputStream(input);
-                BufferedOutputStream downloadOutputStream = new BufferedOutputStream(
-                        new FileOutputStream(outputFile))) {
+        try (
+             BufferedInputStream sftpFileInputStream = new BufferedInputStream(input);
+             BufferedOutputStream downloadOutputStream = new BufferedOutputStream(new FileOutputStream(outputFile))
+        ) {
             while ((readCount = sftpFileInputStream.read(buffer)) > 0) {
                 downloadOutputStream.write(buffer, 0, readCount);
             }
@@ -380,7 +383,7 @@ public class FileUtil {
         Boolean isValidFileType = false;
         for (int i = 0; i < listOfFileLocation.size(); i++) {
             File file = new File(listOfFileLocation.get(0));
-            if (file.getName().endsWith(fileSufix)) {
+            if (file.getName().toLowerCase().endsWith(fileSufix)) {
                 isValidFileType = true;
             }
         }

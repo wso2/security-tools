@@ -155,6 +155,7 @@ public class QualysScannerConstants {
     public static final String AUTH_SUCCESSFUL = "SUCCESSFUL";
     public static final String AUTH_FAILED = "FAILED";
     public static final String AUTH_PARTIAL = "PARTIAL";
+    public static final String AUTH_NONE = "NONE";
 
     // Qualys Results Status.
     public static final String NO_HOST_ALIVE = "NO_HOST_ALIVE";

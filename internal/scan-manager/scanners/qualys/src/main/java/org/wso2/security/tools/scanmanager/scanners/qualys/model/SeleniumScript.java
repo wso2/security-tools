@@ -42,10 +42,10 @@ public abstract class SeleniumScript {
 
     private static final Logger log = LogManager.getLogger(SeleniumScript.class);
 
-    // Script File
+    // Reference to the Selenium script.
     private File scriptFile;
 
-    // Name of the script file
+    // Name of the script file.
     private String scriptFileName;
 
     public SeleniumScript(String scriptFileLocation, String jobId) throws ScannerException {

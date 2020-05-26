@@ -161,7 +161,7 @@
         <org.springframework.version>5.2.5.RELEASE</org.springframework.version>
         <org.springframework.boot.maven.version>2.2.6.RELEASE</org.springframework.boot.maven.version>
         <maven.assembly.plugin.version>2.4.1</maven.assembly.plugin.version>
-        <org.apache.logging.log4j.version>2.11.0</org.apache.logging.log4j.version>
+        <org.apache.logging.log4j.version>2.13.1</org.apache.logging.log4j.version>
         <com.jcraft.jsch.version>0.1.54</com.jcraft.jsch.version>
         <org.wso2.orbit.xerces.version>2.12.0.wso2v1</org.wso2.orbit.xerces.version>
         <org.apache.commons.version>1.16</org.apache.commons.version>
