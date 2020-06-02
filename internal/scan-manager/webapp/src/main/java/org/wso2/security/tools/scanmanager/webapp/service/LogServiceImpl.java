@@ -80,7 +80,7 @@ public class LogServiceImpl implements LogService {
                     ObjectMapper mapper = new ObjectMapper();
                     Optional<Object> body = Optional.ofNullable(responseEntity.getBody());
                     if (body.isPresent()) {
-                        scanManagerLogResponse = mapper.readValue(body.toString(),
+                        scanManagerLogResponse = mapper.readValue(String.valueOf(body.get()),
                                 ScanManagerLogResponse.class);
                     }
 

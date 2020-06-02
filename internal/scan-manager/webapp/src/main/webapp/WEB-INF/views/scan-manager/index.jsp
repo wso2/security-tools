@@ -35,13 +35,13 @@
     <hr>
     <div class="row">
         <div class="col-md-12" style="margin-top: 50px; text-align: center; margin-bottom: 20px;">
-            <a class="btn btn-primary scan-manager-index-page-button" href="scanners"
+            <a class="btn btn-primary scan-manager-index-page-button" href="/scan-manager/scanners"
                role="button">Start a New Scan</a>
             <br>
-            <a class="btn btn-primary scan-manager-index-page-button" href="scans"
+            <a class="btn btn-primary scan-manager-index-page-button" href="/scan-manager/scans"
                role="button">View Scans</a>
             <br>
-            <a class="btn btn-blue-grey scan-manager-index-page-button" href="/"
+            <a class="btn btn-blue-grey scan-manager-index-page-button" href="/scan-manager/"
                role="button">Help</a>
             <br>
         </div>
