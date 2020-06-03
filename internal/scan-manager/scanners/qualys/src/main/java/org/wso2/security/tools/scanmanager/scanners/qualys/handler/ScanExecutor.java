@@ -24,6 +24,7 @@ import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerExce
 import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
+import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 
 import java.util.List;
@@ -60,12 +61,21 @@ public class ScanExecutor implements Runnable {
             // Purging Scan before launching the scan.
             qualysScanHandler.purgeScan(scanContext.getWebAppId(), scanContext.getJobID());
 
-            authScriptId = qualysScanHandler
-                    .prepareScan(scanContext.getWebAppId(), scanContext.getJobID(), scanContext.getWebAppName(),
-                            fileMap, scanContext.getApplicationUrl(), scanContext.getAuthRegex());
+            authScriptId = qualysScanHandler.getAuthScriptId(scanContext.getWebAppId(), scanContext.getJobID(),
+                    scanContext.getWebAppAuthenticationRecordBuilder());
 
             // Set ScanContext Object.
             scanContext.setAuthId(authScriptId);
+
+            // Update web application related configurations.
+            qualysScanHandler.updateWebApp(scanContext);
+
+            // Set list of crawling script objects.
+            scanContext.setListOfCrawlingScripts(fileMap.get(QualysScannerConstants.CRAWLINGSCRIPTS));
+
+            // Add crawling script and it's configurations for scan.
+            qualysScanHandler.addCrawlingSetting(scanContext.getListOfCrawlingScripts(), scanContext.getJobID(),
+                    scanContext.getWebAppId(), scanContext.getWebAppName());
 
             // Launch Scan.
             scannerScanId = qualysScanHandler.launchScan(scanContext);
@@ -87,8 +97,7 @@ public class ScanExecutor implements Runnable {
                     qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
                 }
                 log.error(new CallbackLog(scanContext.getJobID(), "Scan status is updating to ERROR"));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR,
-                        null, null);
+                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
             } catch (ScannerException e1) {
                 message = "Error occurred while doing the cleanup task. " + scanContext.getJobID() + ErrorProcessingUtil
                         .getFullErrorMessage(e1);

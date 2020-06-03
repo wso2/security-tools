@@ -24,21 +24,25 @@ package org.wso2.security.tools.scanmanager.scanners.qualys;
 public class QualysScannerConstants {
 
     // Constants related to Qualys configurations.
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
+    public static final String QUALYS_USERNAME = "qualys_username";
+    public static final String QUALYS_PASSWORD = "qualys_password";
     public static final String HOST = "host";
     public static final String DEFAULT_SCAN_TYPE = "default_scan_type";
     public static final String DEFAULT_PROFILE_ID = "default_profile_id";
     public static final String DEFAULT_SCANNER_APPLIANCE = "default_scanner_appliance";
     public static final String DEFAULT_PROGRESSIVE_SCANNING = "default_progressive_scanning";
-    public static final String DEFAULT_FTP_AUTH_SCRIPT_PATH = "default_auth_script_path";
+    public static final String DEFAULT_FTP_SCRIPT_PATH = "default_script_path";
     public static final String DEFAULT_FTP_CRAWL_SCRIPT_PATH = "default_crawl_script_path";
+    public static final String DEFAULT_CRAWLING_SCOPE = "default_crawling_scope";
     public static final String QUALYS_REPORT_FOLDER_PATH = "report_folder_path";
     public static final String REPORT_UPLOAD_RETRY_INTERVAL = "scan_report_upload_retry_interval";
     public static final String SCHEDULER_DELAY = "scheduler_delay";
     public static final String SCAN_URL = "scanURL";
     public static final String DEFAULT_REPORT_TEMPLATE_ID = "default_report_template_id";
+    public static final String DEFAULT_BLACKLIST_REGEX = "default_blacklist_regex";
     public static final String PARAMETER_REPORT_TEMPLATE_ID = "reportTemplateID";
+    public static final String PARAMETER_CRAWLING_SCOPE = "crawlingScope";
+    public static final String PARAMETER_BLACKLIST_REGEX = "blacklistRegex";
 
     // Qualys API Endpoint.
     public static final String QUALYS_START_SCAN_API = "/qps/rest/3.0/launch/was/wasscan";
@@ -56,6 +60,7 @@ public class QualysScannerConstants {
     public static final String QUALYS_SCAN_NAME_PREFIX = "New Discovery scan launch from APP : ";
     public static final String WEBAPPS_KEYWORD = "webapps";
     public static final String QUALYS_WEBAPP_KEYWORD = "WebApp";
+    public static final String QUALYS_CRAWLING_SCOPE_KEYWORD = "scope";
     public static final String QUALYS_OPTIONAL_PROFILE_TAG_NAME = "OptionProfile";
     public static final String NAME_KEYWORD = "name";
     public static final String SCAN_URL_KEYWORD = "url";
@@ -96,6 +101,28 @@ public class QualysScannerConstants {
     public static final String WEB_APP_REPORT_KEYWORD = "webAppReport";
     public static final String AUTH_REGEX_KEYWORD = "authRegex";
     public static final String TEMPLATE_KEYWORD = "template";
+    public static final String WEBAPP_AUTH_TYPE = "webAppAuthType";
+    public static final String STANDARD_AUTH = "STANDARD";
+    public static final String SELENIUM_AUTH = "SELENIUM";
+    public static final String NONE = "NONE";
+    public static final String STANDARD_AUTH_USERNAME = "username";
+    public static final String STANDARD_AUTH_PASSWORD = "password";
+    public static final String SSL_ONLY = "sslOnly";
+    public static final String FIELD = "fields";
+    public static final String AUTH_FORM_RECORD_FIELD = "WebAppAuthFormRecordField";
+    public static final String NAME = "name";
+    public static final String VALUE = "value";
+    public static final String SET = "set";
+    public static final String BLACKLIST_KEY_WORD = "urlBlacklist";
+    public static final String URL_ENTRY_WITH_REGEX = "UrlEntry";
+    public static final String CRAWLING_SELENIUM_SCRIPT = "SeleniumScript";
+    public static final String NEWLINE_REGEX = "\\r?\\n";
+
+    // Constants used to represents properties related to Qualys Crawling Script Configurations.
+    public static final String STARTING_URL = "startingUrl";
+    public static final String REQUIRE_AUTHENTICATION = "requiresAuthentication";
+    public static final String STARTING_URL_REGEX = "startingUrlRegex";
+    public static final String DELIMITER = ":";
 
     // Constants used to handle API response.
     public static final String SUCCESS = "SUCCESS";
@@ -128,6 +155,7 @@ public class QualysScannerConstants {
     public static final String AUTH_SUCCESSFUL = "SUCCESSFUL";
     public static final String AUTH_FAILED = "FAILED";
     public static final String AUTH_PARTIAL = "PARTIAL";
+    public static final String AUTH_NONE = "NONE";
 
     // Qualys Results Status.
     public static final String NO_HOST_ALIVE = "NO_HOST_ALIVE";
@@ -150,7 +178,8 @@ public class QualysScannerConstants {
     public static final String CREATE_REPORT = "create report";
     public static final String DOWNLOAD_REPORT = "download report";
     public static final String ADD_AUTH_SCRIPT = "add authentication script";
-    public static final String UPDATE_WEB_APP = "update web app";
+    public static final String UPDATE_WEB_APP_AUTH = "update web app with provided configuration";
+    public static final String UPDATE_WEB_APP_CRAWLING_SCRIPT = "update web app with crawling script";
     public static final String GET_STATUS = "get scan status";
     public static final String GET_REPORT_STATUS = "get report status";
     public static final String CLEANUP = "cleanup";

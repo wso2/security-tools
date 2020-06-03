@@ -35,14 +35,17 @@ import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.service.Scanner;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
+import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
 import org.wso2.security.tools.scanmanager.scanners.qualys.handler.QualysApiInvoker;
 import org.wso2.security.tools.scanmanager.scanners.qualys.handler.QualysScanHandler;
 import org.wso2.security.tools.scanmanager.scanners.qualys.handler.ScanExecutor;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.CrawlingScope;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanType;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScannerApplianceType;
+import org.wso2.security.tools.scanmanger.qualys.auth.WebAppAuthenticationRecordBuilderFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -87,8 +90,7 @@ public class QualysScanner implements Scanner {
         CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
     }
 
-    @Override
-    public void startScan(ScannerScanRequest scanRequest) {
+    @Override public void startScan(ScannerScanRequest scanRequest) {
         scanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
                 QUALYS_WEBAPP_KEYWORD).get(0));
         scanContext.setApplicationUrl(scanRequest.getPropertyMap().get(QualysScannerConstants.SCAN_URL).get(0));
@@ -104,19 +106,17 @@ public class QualysScanner implements Scanner {
         }
     }
 
-    @Override
-    public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
+    @Override public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
         boolean isValidParameters = false;
         try {
             isValidParameters = isValidParameters(scannerScanRequest);
-        } catch (InvalidRequestException e) {
+        } catch (InvalidRequestException | ScannerException e) {
             callbackErrorReport(ErrorProcessingUtil.getFullErrorMessage(e));
         }
         return isValidParameters;
     }
 
-    @Override
-    public void cancelScan(ScannerScanRequest scanRequest) {
+    @Override public void cancelScan(ScannerScanRequest scanRequest) {
         try {
             qualysScanHandler.cancelScan(scanContext);
         } catch (ScannerException e) {
@@ -125,8 +125,7 @@ public class QualysScanner implements Scanner {
         }
     }
 
-    @Override
-    public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
+    @Override public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
         return true;
     }
 
@@ -142,16 +141,20 @@ public class QualysScanner implements Scanner {
 
     /**
      * Validate Scan Parameters related to Qualys Scanner.
+     * For mandatory parameter, validation happens in UI side (If value is not provided for mandatory fields, web app
+     * will not allow to submit the scan. Therefore mandatory parameters won't be empty when it reaches the scan.
+     * For optional parameters, if value is not given by the user then parameter key won't be in the request.
+     * Therefore it's enough to check whether parameter value is in request or not.
      *
      * @param scannerScanRequest Scanner Request
      * @return True if all parameters are valid
      * @throws InvalidRequestException throws if any of the parameter in not valid.
      */
-    private Boolean isValidParameters(ScannerScanRequest scannerScanRequest) throws InvalidRequestException {
+    private Boolean isValidParameters(ScannerScanRequest scannerScanRequest)
+            throws InvalidRequestException, ScannerException {
         String errorMessage;
         scanContext.setJobID(scannerScanRequest.getJobId());
         scanContext.setAuthId(null);
-
         // Validate webAppId.
         if (StringUtils.isEmpty(scannerScanRequest.getAppId()) || !scannerScanRequest.getAppId()
                 .matches(QualysScannerConstants.INTEGER_REGEX)) {
@@ -213,41 +216,76 @@ public class QualysScanner implements Scanner {
         }
 
         // Validate report template ID.
-        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0))) {
+        if (!parameterMap.containsKey(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID)) {
             scanContext.setReportTemplateId(QualysScannerConfiguration.getInstance().getDefaultReportTemplateID());
             String logMessage =
                     "Report template ID for the scan is not provided. Default report template ID is set for "
                             + scannerScanRequest.getAppId();
             log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         } else {
-            scanContext
-                    .setReportTemplateId(parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0));
-        }
-
-        List<String> authFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.AUTHENTICATION_SCRIPTS);
-        if (authFiles.size() != 0) {
-            for (int i = 0; i < authFiles.size(); i++) {
-                File file = new File(authFiles.get(0));
-                if (!file.getName().endsWith(QualysScannerConstants.XML)) {
-                    errorMessage = "Invalid file type for Authentication Script";
-                    throw new InvalidRequestException(errorMessage);
-                }
-            }
-
-            // If authentication script is provided, authentication status checker regex should be provided.
-            if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.AUTH_REGEX_KEYWORD).get(0))) {
-                errorMessage = "Authentication checker regex is not provided for authentication script";
-                throw new InvalidRequestException(errorMessage);
+            String templateID = parameterMap.get(QualysScannerConstants.PARAMETER_REPORT_TEMPLATE_ID).get(0);
+            if (StringUtils.isNumeric(templateID)) {
+                scanContext.setReportTemplateId(templateID);
             } else {
-                scanContext.setAuthRegex(parameterMap.get(QualysScannerConstants.AUTH_REGEX_KEYWORD).get(0));
+                scanContext.setReportTemplateId(QualysScannerConfiguration.getInstance().getDefaultReportTemplateID());
+                String logMessage =
+                        "Provided report template id is not numeric value. Default report template ID is set for "
+                                + scannerScanRequest.getAppId();
+                log.info(new CallbackLog(scanContext.getJobID(), logMessage));
             }
-        } else {
-            String logMessage = "Authentication script for the scan is not provided. Default authentication script will"
-                    + " be used. ";
-            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
         }
-        scanContext.setScriptFilesLocation(authFiles.get(0).substring(0, authFiles.get(0).
-                lastIndexOf(File.separator)));
+
+        // Validate crawling scope.
+        if (!parameterMap.containsKey(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE)) {
+            scanContext.setCrawlingScope(QualysScannerConfiguration.getInstance().getDefaultCrawlingScope());
+            String logMessage = "Crawling scope for the scan is not provided. Default crawling scope (ALL) is set for "
+                    + scannerScanRequest.getAppId();
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+        } else if (!EnumUtils.isValidEnum(CrawlingScope.class,
+                parameterMap.get(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE).get(0))) {
+            scanContext.setCrawlingScope(QualysScannerConfiguration.getInstance().getDefaultCrawlingScope());
+            String logMessage =
+                    "Invalid crawling scope. Default crawling scope (ALL) is set for " + scannerScanRequest.getAppId();
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+        } else {
+            scanContext.setCrawlingScope(parameterMap.get(QualysScannerConstants.PARAMETER_CRAWLING_SCOPE).get(0));
+        }
+
+        // Validate crawling scripts.
+        List<String> crawlingScriptFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.CRAWLINGSCRIPTS);
+        scanContext.setScriptFilesLocation(crawlingScriptFiles.get(0).substring(0,
+                crawlingScriptFiles.get(0).lastIndexOf(File.separator)));
+        if (crawlingScriptFiles.size() != 0) {
+            if (FileUtil.validateFileType(crawlingScriptFiles, QualysScannerConstants.XML)) {
+                String logMessage = "Crawling Scripts are valid file type of Selenium Scripts";
+                log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+            } else {
+                errorMessage = "Invalid file type for Crawling Scripts";
+                log.error(new CallbackLog(scanContext.getJobID(), errorMessage));
+                throw new InvalidRequestException(errorMessage);
+            }
+        }
+
+        // Validate black list regex
+        if (!parameterMap.containsKey(QualysScannerConstants.PARAMETER_BLACKLIST_REGEX)) {
+            scanContext.setBlackListRegex(QualysScannerConfiguration.getInstance().getDefaultBlackListRegex());
+            String logMessage =
+                    "BlackList Regex set is not provided. Default blacklist set is set for " + scannerScanRequest
+                            .getAppId();
+            scanContext.setBlackListRegex(QualysScannerConfiguration.getInstance().getDefaultBlackListRegex());
+            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+        } else {
+            List<String> listOfBlacklistRegex = Arrays
+                    .asList(parameterMap.get(QualysScannerConstants.PARAMETER_BLACKLIST_REGEX).get(0)
+                            .split(QualysScannerConstants.NEWLINE_REGEX));
+            scanContext.setBlackListRegex(listOfBlacklistRegex);
+        }
+
+        // Validate authentication type.
+        WebAppAuthenticationRecordBuilderFactory webAppAuthenticationRecordBuilderFactory =
+                new WebAppAuthenticationRecordBuilderFactory();
+        scanContext.setWebAppAuthenticationRecordBuilder(
+                webAppAuthenticationRecordBuilderFactory.getWebAppAuth(scannerScanRequest));
         return true;
     }
 
@@ -275,6 +313,11 @@ public class QualysScanner implements Scanner {
                 .getConfigProperty(QualysScannerConstants.DEFAULT_PROGRESSIVE_SCANNING));
         QualysScannerConfiguration.getInstance().setDefaultReportTemplateID(QualysScannerConfiguration.getInstance().
                 getConfigProperty(QualysScannerConstants.DEFAULT_REPORT_TEMPLATE_ID));
+        QualysScannerConfiguration.getInstance().setDefaultCrawlingScope(QualysScannerConfiguration.getInstance().
+                getConfigProperty(QualysScannerConstants.DEFAULT_CRAWLING_SCOPE));
+        QualysScannerConfiguration.getInstance()
+                .setDefaultBlackListRegex(Arrays.asList(QualysScannerConfiguration.getInstance().
+                        getConfigProperty(QualysScannerConstants.DEFAULT_BLACKLIST_REGEX).split(",")));
     }
 
     /**
@@ -286,9 +329,9 @@ public class QualysScanner implements Scanner {
     private char[] setCredentials() throws ScannerException {
         char[] basicAuth;
         char[] qualysUsername = QualysScannerConfiguration.getInstance().
-                getConfigProperty(QualysScannerConstants.USERNAME).toCharArray();
+                getConfigProperty(QualysScannerConstants.QUALYS_USERNAME).toCharArray();
         char[] qualysPassword = QualysScannerConfiguration.getInstance().
-                getConfigProperty(QualysScannerConstants.PASSWORD).toCharArray();
+                getConfigProperty(QualysScannerConstants.QUALYS_PASSWORD).toCharArray();
         String credential = new String(qualysUsername) + ":" + new String(qualysPassword);
         try {
             basicAuth = new String(new Base64().encode(credential.getBytes(Charset.forName("UTF-8"))), "UTF-8")

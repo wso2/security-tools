@@ -41,7 +41,7 @@
             <a class="btn btn-primary scan-manager-index-page-button" href="/scan-manager/scans"
                role="button">View Scans</a>
             <br>
-            <a class="btn btn-blue-grey scan-manager-index-page-button" href="/scan-manager/"
+            <a class="btn btn-blue-grey scan-manager-index-page-button" href="<Documentation Link>"
                role="button">Help</a>
             <br>
         </div>

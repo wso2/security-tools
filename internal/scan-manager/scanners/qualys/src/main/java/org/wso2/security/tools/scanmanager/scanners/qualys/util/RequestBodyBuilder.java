@@ -25,13 +25,14 @@ import org.w3c.dom.Element;
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.CrawlingScript;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,76 +47,21 @@ public class RequestBodyBuilder {
     private static final Log log = LogFactory.getLog(RequestBodyBuilder.class);
 
     /**
-     * Build request body to add authentication script
+     * Build request body to update web app with authentication script. Using this request body crawling scope also
+     * will be updated for a web application
      *
-     * @param appID     application name in qualys
-     * @param filePath  authentication script file path
-     * @param authRegex regex to check whether authentication is succeeded or not
-     * @return add authentication request body in XML format
-     * @throws ParserConfigurationException error occurred while parsing.
-     * @throws IOException                  error occurred while reading the XML content file.
-     * @throws TransformerException         error occurred while building secure string writer.
-     */
-    public static String buildAuthScriptCreationRequest(String appID, String filePath, String authRegex)
-            throws ParserConfigurationException, IOException, TransformerException {
-        String addAuthRecordRequestBody;
-        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
-        DocumentBuilder builder = dbf.newDocumentBuilder();
-        Document doc = builder.newDocument();
-
-        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
-        doc.appendChild(root);
-
-        Element data = doc.createElement(QualysScannerConstants.DATA);
-        root.appendChild(data);
-
-        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
-        data.appendChild(webAppAuthRecord);
-
-        File tempFile = new File(filePath);
-        Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-        name.appendChild(doc.createTextNode("Selenium Script for " + appID + " : " + getDate()));
-        webAppAuthRecord.appendChild(name);
-
-        Element formRecord = doc.createElement(QualysScannerConstants.FORM_RECORD);
-        webAppAuthRecord.appendChild(formRecord);
-
-        Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
-        type.appendChild(doc.createTextNode(QualysScannerConstants.SELENIUM));
-        formRecord.appendChild(type);
-
-        Element seleniumScript = doc.createElement(QualysScannerConstants.SELENIUM_SCRIPT);
-        formRecord.appendChild(seleniumScript);
-
-        Element seleniumScriptName = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
-        seleniumScriptName.appendChild(doc.createTextNode("SELENIUM AUTHENTICATION SCRIPT"));
-        seleniumScript.appendChild(seleniumScriptName);
-
-        Element scriptData = doc.createElement(QualysScannerConstants.DATA);
-        scriptData.appendChild(doc.createTextNode(FileUtil.getContentFromFile(tempFile.getAbsolutePath())));
-        seleniumScript.appendChild(scriptData);
-
-        Element regex = doc.createElement(QualysScannerConstants.REGEX);
-        regex.appendChild(doc.createTextNode(authRegex));
-        seleniumScript.appendChild(regex);
-
-        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
-        addAuthRecordRequestBody = stringWriter.getBuffer().toString();
-
-        return addAuthRecordRequestBody;
-    }
-
-    /**
-     * Build request body to update web app with authentication script.
-     *
+     * @param jobID          web application name
      * @param webAppName     web application name
      * @param authId         auth script Id
      * @param applicationUrl application url for scan
+     * @param crawlingScope  crawling scope for the scan
+     * @param blacklistRegex list of blacklist Regex
      * @return update web app request body in XML format
      * @throws ParserConfigurationException error occurred while parsing
      * @throws TransformerException         error occurred while building secure string writer
      */
-    public static String buildWebAppUpdateRequest(String webAppName, String authId, String applicationUrl)
+    public static String buildWebAppConfigUpdateRequest(String jobID, String webAppName, String authId,
+            String applicationUrl, String crawlingScope, List<String> blacklistRegex)
             throws ParserConfigurationException, TransformerException {
         String updateWebAppRequestBody;
         DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
@@ -130,22 +76,43 @@ public class RequestBodyBuilder {
         Element webApp = doc.createElement(QualysScannerConstants.QUALYS_WEBAPP_KEYWORD);
         data.appendChild(webApp);
 
+        Element scope = doc.createElement(QualysScannerConstants.QUALYS_CRAWLING_SCOPE_KEYWORD);
+        scope.appendChild(doc.createTextNode(crawlingScope));
+        webApp.appendChild(scope);
+
+        Element blacklist = doc.createElement(QualysScannerConstants.BLACKLIST_KEY_WORD);
+        webApp.appendChild(blacklist);
+
+        Element setBlacklist = doc.createElement(QualysScannerConstants.SET);
+        blacklist.appendChild(setBlacklist);
+
+        for (int i = 0; i < blacklistRegex.size(); i++) {
+            Element urlEntry = doc.createElement(QualysScannerConstants.URL_ENTRY_WITH_REGEX);
+            urlEntry.setAttribute(QualysScannerConstants.REGEX, QualysScannerConstants.TRUE);
+            urlEntry.appendChild(doc.createCDATASection(blacklistRegex.get(i)));
+            setBlacklist.appendChild(urlEntry);
+        }
+
         Element url = doc.createElement(QualysScannerConstants.SCAN_URL_KEYWORD);
         url.appendChild(doc.createTextNode(applicationUrl));
         webApp.appendChild(url);
 
-        Element authRecords = doc.createElement(QualysScannerConstants.AUTH_RECORDS);
-        webApp.appendChild(authRecords);
+        // authId will be null when authentication script is not provided. In this case application default auth id
+        // will be taken by Qualys Scan
+        if (authId != null) {
+            Element authRecords = doc.createElement(QualysScannerConstants.AUTH_RECORDS);
+            webApp.appendChild(authRecords);
 
-        Element add = doc.createElement(QualysScannerConstants.ADD);
-        authRecords.appendChild(add);
+            Element add = doc.createElement(QualysScannerConstants.ADD);
+            authRecords.appendChild(add);
 
-        Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
-        add.appendChild(webAppAuthRecord);
+            Element webAppAuthRecord = doc.createElement(QualysScannerConstants.WEB_APP_AUTH_RECORD);
+            add.appendChild(webAppAuthRecord);
 
-        Element id = doc.createElement(QualysScannerConstants.ID_KEYWORD);
-        id.appendChild(doc.createTextNode(authId));
-        webAppAuthRecord.appendChild(id);
+            Element id = doc.createElement(QualysScannerConstants.ID_KEYWORD);
+            id.appendChild(doc.createTextNode(authId));
+            webAppAuthRecord.appendChild(id);
+        }
 
         StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
         updateWebAppRequestBody = stringWriter.getBuffer().toString();
@@ -156,9 +123,9 @@ public class RequestBodyBuilder {
     /**
      * Build request body to create report.
      *
-     * @param webAppId     web app id
-     * @param jobId        job id
-     * @param reportFormat report format
+     * @param webAppId         web app id
+     * @param jobId            job id
+     * @param reportFormat     report format
      * @param reportTemplateID template id for report creation
      * @return request body
      * @throws ParserConfigurationException error occurred while parsing
@@ -309,11 +276,77 @@ public class RequestBodyBuilder {
     }
 
     /**
+     * Build request body to add crawling scripts and relevant configuration for an application in qualys.
+     *
+     * @param listOfCrawlingScript crawling script objects
+     * @return request body in XML format
+     * @throws ParserConfigurationException error occurred while parsing
+     * @throws IOException                  IOException error occurred while performing any file operations
+     * @throws TransformerException         error occurred while building secure string writer
+     */
+    public static String buildCrawlingSettingRequestBody(List<CrawlingScript> listOfCrawlingScript)
+            throws ParserConfigurationException, IOException, TransformerException {
+        String addCrawlingScriptRequestBody;
+        DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.newDocument();
+
+        Element root = doc.createElement(QualysScannerConstants.SERVICE_REQUEST);
+        doc.appendChild(root);
+
+        Element data = doc.createElement(QualysScannerConstants.DATA);
+        root.appendChild(data);
+
+        Element webApp = doc.createElement(QualysScannerConstants.QUALYS_WEBAPP_KEYWORD);
+        data.appendChild(webApp);
+
+        Element crawlingScripts = doc.createElement(QualysScannerConstants.CRAWLINGSCRIPTS);
+        webApp.appendChild(crawlingScripts);
+
+        Element set = doc.createElement(QualysScannerConstants.SET);
+        crawlingScripts.appendChild(set);
+
+        for (int i = 0; i < listOfCrawlingScript.size(); i++) {
+            Element seleniumScript = doc.createElement(QualysScannerConstants.CRAWLING_SELENIUM_SCRIPT);
+            set.appendChild(seleniumScript);
+
+            Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
+            name.appendChild(doc.createCDATASection(
+                    listOfCrawlingScript.get(i).getScriptFileName() + " : " + RequestBodyBuilder.getDate()));
+            seleniumScript.appendChild(name);
+
+            Element startingUrl = doc.createElement(QualysScannerConstants.STARTING_URL);
+            startingUrl.appendChild(doc.createCDATASection(listOfCrawlingScript.get(i).getStartingUrl()));
+            seleniumScript.appendChild(startingUrl);
+
+            Element scriptContent = doc.createElement(QualysScannerConstants.DATA);
+            scriptContent.appendChild(doc.createCDATASection(
+                    FileUtil.getContentFromFile(listOfCrawlingScript.get(i).getScriptFile().getAbsolutePath())));
+            seleniumScript.appendChild(scriptContent);
+
+            Element requiresAuthentication = doc.createElement(QualysScannerConstants.REQUIRE_AUTHENTICATION);
+            requiresAuthentication
+                    .appendChild(doc.createTextNode(listOfCrawlingScript.get(i).getRequredAuthentication().toString()));
+            seleniumScript.appendChild(requiresAuthentication);
+
+            Element startingUrlRegex = doc.createElement(QualysScannerConstants.STARTING_URL_REGEX);
+            startingUrlRegex
+                    .appendChild(doc.createTextNode(listOfCrawlingScript.get(i).getStartingUrlRegex().toString()));
+            seleniumScript.appendChild(startingUrlRegex);
+        }
+
+        StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
+        addCrawlingScriptRequestBody = stringWriter.getBuffer().toString();
+
+        return addCrawlingScriptRequestBody;
+    }
+
+    /**
      * Get the current date.
      *
      * @return formatted date and time
      */
-    private static String getDate() {
+    public static String getDate() {
         Date date = new Date();
         SimpleDateFormat ft = new SimpleDateFormat("E yyyy.MM.dd 'at' hh:mm:ss");
         return ft.format(date);
