@@ -290,6 +290,7 @@
                         <button class="btn btn-primary">Submit Scan</button>
                         <div id="divLoading">
                         </div>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                     </form>
                 </div>
             </div>

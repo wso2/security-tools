@@ -40,10 +40,6 @@ public class Application extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests(authorize -> authorize
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(withDefaults());
+        http.authorizeRequests(authorize -> authorize.anyRequest().authenticated()).oauth2Login(withDefaults());
     }
 }

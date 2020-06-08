@@ -114,6 +114,7 @@
                                         <input type="hidden" name="jobId"
                                                value="${scanListResponse.scanList.get(index).jobId}"/>
                                         <button class="btn btn-danger">Cancel</button>
+                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                     </form>
                                 </c:if>
                                 <form action="logs" method="get"
@@ -217,6 +218,7 @@
                                         <input type="hidden" name="jobId"
                                                value="${preparingScanList.get(index).jobId}"/>
                                         <button class="btn btn-blue-grey">Clear</button>
+                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                     </form>
                                 </c:if>
                                 <form action="logs" method="get"
