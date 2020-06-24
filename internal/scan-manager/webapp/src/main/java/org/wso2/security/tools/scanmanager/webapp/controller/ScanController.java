@@ -51,6 +51,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +64,7 @@ import static org.wso2.security.tools.scanmanager.webapp.util.Constants.LOGS_VIE
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.MAX_FILE_SIZE_PROPERTY_KEY;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCANS_VIEW;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_CONFIGURATION_VIEW;
+import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_MANAGER_INDEX;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_MANAGER_VIEW;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.SCAN_REPORT_DATA_DIRECTORY_NAME;
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.URL_SEPARATOR;
@@ -99,8 +101,27 @@ public class ScanController {
     }
 
     @GetMapping(value = "/")
-    public String scanManager() {
-        return "scan-manager/index";
+    public ModelAndView scanManager() throws ScanManagerWebappException {
+        List<Scanner> scanners = null;
+        ModelAndView scannerConfigModel = new ModelAndView(SCAN_MANAGER_VIEW + File.separator + SCAN_MANAGER_INDEX);
+        List<String> productList = new ArrayList<>();
+
+        // Get the product list.
+            scanners = scannerService.getScanners();
+            for (Scanner scanner : scanners) {
+                List<String> scannerSpecificProductLst = scanner.getApps().stream().map(ScannerApp::getAssignedProduct)
+                        .collect(Collectors.toList());
+                Set<String> set = new HashSet<>(scannerSpecificProductLst);
+                scannerSpecificProductLst.clear();
+                scannerSpecificProductLst.addAll(set);
+                for (String product : scannerSpecificProductLst) {
+                    if (!productList.contains(product)) {
+                        productList.add(product);
+                    }
+                }
+            }
+            scannerConfigModel.addObject(PRODUCT_DATA_ATTRIBUTE_NAME, productList);
+        return scannerConfigModel;
     }
 
     /**
@@ -148,8 +169,8 @@ public class ScanController {
      * @throws ScanManagerWebappException when an error occurs while getting the list of scans
      */
     @GetMapping(value = "scans")
-    public ModelAndView getScans(@RequestParam(name = "page", required = false) Integer page)
-            throws ScanManagerWebappException {
+    public ModelAndView getScans(
+            @RequestParam(name = "page", required = false) Integer page) throws ScanManagerWebappException {
 
         ModelAndView scansView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + SCANS_VIEW);
 
@@ -158,6 +179,35 @@ public class ScanController {
 
         // list of scan preparing to be submitted to scan manager API.
         scansView.addObject(PREPARING_SCAN_LIST_ATTRIBUTE_NAME, scanService.getPreparingScans());
+        return scansView;
+    }
+
+    /**
+     * Get the list of scans by given product.
+     *
+     * @param page    required page number
+     * @param product product
+     * @return scans view
+     * @throws ScanManagerWebappException when an error occurs while getting the list of scans
+     */
+    @GetMapping(value = "scansByProduct")
+    public ModelAndView getScansByProducts(
+            @RequestParam(name = "page", required = false) Integer page, @RequestParam("product") String product)
+            throws ScanManagerWebappException {
+
+        ModelAndView scansView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + SCANS_VIEW);
+
+        // List of scans submitted to scan manager API.
+        scansView.addObject(SCAN_LIST_RESPONSE_ATTRIBUTE_NAME, scanService.getScansByProduct(product, page));
+
+        // list of scan preparing to be submitted to scan manager API.
+        List<ScanExternal> preparingScansByProduct = new ArrayList<>();
+        for (ScanExternal scanExternal : scanService.getPreparingScans()) {
+            if (!scanExternal.getProduct().equals(product)) {
+                preparingScansByProduct.add(scanExternal);
+            }
+        }
+        scansView.addObject(PREPARING_SCAN_LIST_ATTRIBUTE_NAME, preparingScansByProduct);
         return scansView;
     }
 
@@ -171,7 +221,7 @@ public class ScanController {
      */
     @GetMapping(value = "logs")
     public ModelAndView getLogs(@RequestParam(name = "page", required = false) Integer page,
-                                @RequestParam("jobId") String jobId) throws ScanManagerWebappException {
+            @RequestParam("jobId") String jobId) throws ScanManagerWebappException {
         ModelAndView logsView = new ModelAndView(SCAN_MANAGER_VIEW + URL_SEPARATOR + LOGS_VIEW);
         ScanManagerLogResponse scanManagerLogResponse = logService.getLogs(jobId, page);
         logsView.addObject(LOG_RESPONSE_ATTRIBUTE_NAME, scanManagerLogResponse);
@@ -187,7 +237,8 @@ public class ScanController {
      * @throws ScanManagerWebappException when an error occurs while cancelling the scan
      */
     @PostMapping(value = "stop")
-    public String stopScan(@RequestParam("jobId") String jobId) throws ScanManagerWebappException {
+    public String stopScan(@RequestParam("jobId") String jobId)
+            throws ScanManagerWebappException {
         ResponseEntity<String> responseEntity = scanService.stopScan(jobId);
         if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
             return "redirect:scans";
@@ -204,7 +255,8 @@ public class ScanController {
      * @throws ScanManagerWebappException when an error occurs while clearing the scan
      */
     @PostMapping(value = "clear")
-    public String clearScan(@RequestParam("jobId") String jobId) throws ScanManagerWebappException {
+    public String clearScan(@RequestParam("jobId") String jobId)
+            throws ScanManagerWebappException {
         if (scanService.clearScan(jobId)) {
             return "redirect:scans";
         } else {
@@ -220,8 +272,8 @@ public class ScanController {
      * @throws ScanManagerWebappException when an error occurs while downloading the scan report
      */
     @GetMapping(value = "report")
-    public void getReport(HttpServletResponse response, @RequestParam("jobId") String jobId)
-            throws ScanManagerWebappException {
+    public void getReport(HttpServletResponse response,
+            @RequestParam("jobId") String jobId) throws ScanManagerWebappException {
         ScanExternal scan = scanService.getScan(jobId);
         if (scan != null) {
             if (StringUtils.isBlank(scan.getScanReportPath())) {
@@ -230,30 +282,29 @@ public class ScanController {
 
             // Download the scan report temporally into the local machine.
             File file = new File(scan.getScanReportPath());
-            File reportDirectory =
-                    new File(SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + scan.getJobId());
+            File reportDirectory = new File(SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + scan.getJobId());
             if (!reportDirectory.exists() && !reportDirectory.mkdirs()) {
                 throw new ScanManagerWebappException("Error occurred while creating the report output directory");
             }
-            File outputFile = new File(SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + scan.getJobId()
-                    + File.separator + file.getName());
-            scanService.getScanReport(scan.getScanReportPath(),
-                    outputFile.getPath());
+            File outputFile = new File(
+                    SCAN_REPORT_DATA_DIRECTORY_NAME + File.separator + scan.getJobId() + File.separator + file
+                            .getName());
+            scanService.getScanReport(scan.getScanReportPath(), outputFile.getPath());
 
             String mimeType = URLConnection.guessContentTypeFromName(file.getName());
             if (mimeType == null) {
                 mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
             }
             response.setContentType(mimeType);
-            response.setHeader(CONTENT_DISPOSITION_HEADER_NAME, String.format("inline; filename=\""
-                    + outputFile.getName() + "\""));
+            response.setHeader(CONTENT_DISPOSITION_HEADER_NAME,
+                    String.format("inline; filename=\"" + outputFile.getName() + "\""));
             response.setContentLength((int) outputFile.length());
 
             try (InputStream inputStream = new BufferedInputStream(new FileInputStream(outputFile))) {
                 FileCopyUtils.copy(inputStream, response.getOutputStream());
             } catch (IOException e) {
-                throw new ScanManagerWebappException("Error occurred while downloading scan report for " +
-                        "the scan: " + jobId, e);
+                throw new ScanManagerWebappException(
+                        "Error occurred while downloading scan report for " + "the scan: " + jobId, e);
             }
         } else {
             throw new ScanManagerWebappException("Unable to find a scan for the given id: " + jobId);
@@ -268,18 +319,18 @@ public class ScanController {
      * @throws ScanManagerWebappException when an error occurs while getting scanner configuration
      */
     @GetMapping(value = "configuration")
-    public ModelAndView getScannerConfig(@RequestParam("scannerId") String scannerId)
-            throws ScanManagerWebappException {
+    public ModelAndView getScannerConfig(
+            @RequestParam("scannerId") String scannerId) throws ScanManagerWebappException {
         Scanner scanner = null;
-        ModelAndView scannerConfigModel = new ModelAndView(SCAN_MANAGER_VIEW +
-                File.separator + SCAN_CONFIGURATION_VIEW);
+        ModelAndView scannerConfigModel = new ModelAndView(
+                SCAN_MANAGER_VIEW + File.separator + SCAN_CONFIGURATION_VIEW);
 
         scanner = scannerService.getScanner(scannerId);
         scannerConfigModel.addObject(SCANNER_DATA_ATTRIBUTE_NAME, scanner);
 
         // List the applicable products for the given scanner.
-        List<String> productLst =
-                scanner.getApps().stream().map(ScannerApp::getAssignedProduct).collect(Collectors.toList());
+        List<String> productLst = scanner.getApps().stream().map(ScannerApp::getAssignedProduct)
+                .collect(Collectors.toList());
         Set<String> set = new HashSet<>(productLst);
         productLst.clear();
         productLst.addAll(set);

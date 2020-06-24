@@ -53,6 +53,14 @@ public final class ScannerConstants {
     public static final String CONTENT_DISPOSITION_PATTERN = "attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"";
     public static final String CONTENT_DISPOSITION = "content-disposition";
 
+    // Email alerter related constants.
+    public static final String SMTP_SERVER_HOST = "smtp_server_host";
+    public static final String SMTP_SERVER_PORT = "smtp.server.port";
+    public static final String SMTP_USERNAME = "smtp.username";
+    public static final String SMTP_PASSWORD = "smtp.password";
+    public static final String SMTP_ENABLE_DEBUG = "smtp.enable.debug";
+    public static final String EMAIL_FROM_ADDRESS = "email.fromaddress";
+
     private ScannerConstants() {
     }
 }

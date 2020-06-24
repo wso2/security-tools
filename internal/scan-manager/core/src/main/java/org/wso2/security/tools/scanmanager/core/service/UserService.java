@@ -41,10 +41,10 @@ public interface UserService {
     public User getByUsername(String username);
 
     /**
-     * Get user for a given username.
+     * Get user for a given userId.
      *
      * @param id user id of the user
-     * @return the user for the given username
+     * @return the user for the given userId
      */
-    public User getById(String id);
+    public User getById(int id);
 }

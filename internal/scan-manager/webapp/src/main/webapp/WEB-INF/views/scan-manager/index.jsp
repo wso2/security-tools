@@ -38,8 +38,19 @@
             <a class="btn btn-primary scan-manager-index-page-button" href="scanners"
                role="button">Start a New Scan</a>
             <br>
-            <a class="btn btn-primary scan-manager-index-page-button" href="scans"
-               role="button">View Scans</a>
+            <%--<a class="btn btn-primary scan-manager-index-page-button" href="scans"--%>
+               <%--role="button">View Scans</a>--%>
+            <c:if test="${productData.size() gt 0}">
+                    <form action="scansByProduct" method="get" style="text-align: center;">
+                    <select class="btn btn-primary scan-manager-index-page-dropdown" id="product" name="product">
+                        <option value="" disabled selected>Choose a product</option>
+                        <c:forEach items="${productData}" var="product">
+                            <option value="${product}">${product}</option>
+                        </c:forEach>
+                    </select>
+                    <input type="submit" class="btn btn-primary scan-manager-index-page-dropdown-button" value="View Scans">
+                    </form>
+            </c:if>
             <br>
             <a class="btn btn-blue-grey scan-manager-index-page-button" href="<Documentation Link>"
                role="button">Help</a>

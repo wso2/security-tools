@@ -33,7 +33,7 @@ public interface UserDAO extends PagingAndSortingRepository<User, Integer> {
      * @param id user id assigned for a user
      * @return user object for the given user id
      */
-    public User getById(String id);
+    public User getById(int id);
 
     /**
      * Get User by username.

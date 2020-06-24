@@ -20,6 +20,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="e" uri="https://www.owasp.org/index.php/OWASP_Java_Encoder_Project" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,6 +45,7 @@
                     <c:forEach begin="0" end="${scanListResponse.scanList.size() - 1}" var="index">
                         <div class="row scan-manager-background-grey">
                             <div class="col-md-8" style="margin-bottom: 15px;">
+                                <c:set var = "product" scope = "session" value = "${scanListResponse.scanList.get(index).product}"/>
                                 <b>Name: </b>${e:forHtml(scanListResponse.scanList.get(index).name)}</br>
                                 <b>Job ID: </b>${scanListResponse.scanList.get(index).jobId}</br>
                                 <c:choose>
@@ -129,8 +131,9 @@
                     </c:forEach>
                     <div class="row">
                         <div class="col-md-6" style="padding-left: 0px;">
-                            <form action="scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scansByProduct" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="1"/>
+                                <input type="hidden" name="product" value="${product}"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isFirstPage()}">
                                         <button class="btn btn-primary">First</button>
@@ -140,8 +143,9 @@
                                     </c:otherwise>
                                 </c:choose>
                             </form>
-                            <form action="scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scansByProduct" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="${scanListResponse.currentPage - 1}"/>
+                                <input type="hidden" name="product" value="${product}"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isFirstPage()}">
                                         <button class="btn btn-primary">Previous Page</button>
@@ -151,8 +155,9 @@
                                     </c:otherwise>
                                 </c:choose>
                             </form>
-                            <form action="scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scansByProduct" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="${scanListResponse.currentPage + 1}"/>
+                                <input type="hidden" name="product" value="${product}"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isLastPage()}">
                                         <button class="btn btn-primary">Next Page</button>
@@ -162,8 +167,9 @@
                                     </c:otherwise>
                                 </c:choose>
                             </form>
-                            <form action="scans" method="get" class="scan-manager-page-nav-button">
+                            <form action="scansByProduct" method="get" class="scan-manager-page-nav-button">
                                 <input type="hidden" name="page" value="${scanListResponse.totalPages}"/>
+                                <input type="hidden" name="product" value="${product}"/>
                                 <c:choose>
                                     <c:when test="${!scanListResponse.isLastPage()}">
                                         <button class="btn btn-primary">Last</button>

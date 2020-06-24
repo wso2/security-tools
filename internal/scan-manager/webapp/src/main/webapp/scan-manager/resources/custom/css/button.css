@@ -48,3 +48,20 @@
     font-size: 25px;
     margin-bottom: 15px;
 }
+
+.scan-manager-index-page-dropdown {
+    height: 100px;
+    width: 300px;
+    font-size: 35px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+.scan-manager-index-page-dropdown-button {
+    height: 100px;
+    width: 300px;
+    font-size: 35px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+
+}

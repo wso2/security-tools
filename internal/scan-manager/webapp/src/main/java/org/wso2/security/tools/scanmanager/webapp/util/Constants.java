@@ -27,6 +27,7 @@ public class Constants {
 
     public static final String SCHEME = "http";
     public static final String SCAN_MANAGER_ENDPOINT = "/scan-manager";
+    public static final String SCAN_MANAGER_INDEX = "index";
     public static final String SCAN_MANAGER_VIEW = "scan-manager";
     public static final String SCANNERS_VIEW_NAME = "scanners";
     public static final String SCAN_CONFIGURATION_VIEW = "scan_configuration";

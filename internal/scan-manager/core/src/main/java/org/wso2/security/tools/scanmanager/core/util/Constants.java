@@ -37,4 +37,12 @@ public class Constants {
 
     public static final Integer DEFAULT_SCAN_PAGE_SIZE = 10;
     public static final Integer DEFAULT_LOG_PAGE_SIZE = 10;
+
+    // Constants related to Email
+    public static final String SMTP_SERVER_HOST = "smtpServerHost";
+    public static final String SMTP_SERVER_PORT = "smtpServerPort";
+    public static final String SMTP_USERNAME = "smtpUsername";
+    public static final String SMTP_PASSWORD = "smtpPassword";
+    public static final String SMTP_ENABLE_DEBUG = "smtpEnableDebug";
+    public static final String EMAIL_FROM_ADDRESS = "emailFromaddress";
 }

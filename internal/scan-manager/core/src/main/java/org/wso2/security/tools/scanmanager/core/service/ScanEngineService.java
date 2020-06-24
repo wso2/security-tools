@@ -46,4 +46,12 @@ public interface ScanEngineService {
      * @return scan manager container model representing the removed scanner
      */
     public Container removeContainer(Scan scan);
+
+    /**
+     * Send notification upon scan completion.
+     *
+     * @param scan scan object
+     * @param toAddress recipient email address. This will be an email address of scan launcher
+     */
+    public void sendNotification(Scan scan, String toAddress);
 }

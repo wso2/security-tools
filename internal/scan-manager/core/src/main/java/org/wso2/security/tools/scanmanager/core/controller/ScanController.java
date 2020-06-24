@@ -166,27 +166,26 @@ public class ScanController {
     /**
      * Get the list of available scans by page.
      *
-     * @param page required page number
+     * @param product product name
+     * @param page    required page number
      * @return the requested scans page
      */
-    @GetMapping(path = "scans")
-    @ResponseBody
-    public ResponseEntity<ScanManagerScansResponse> getScans(@RequestParam(name = "page", required = false)
-                                                                     Integer page) {
+    @GetMapping(path = "scans") @ResponseBody
+    public ResponseEntity<ScanManagerScansResponse> getScans(@RequestParam("product") String product,
+            @RequestParam(name = "page", required = false) Integer page) {
         Integer scanPageSize = ScanManagerConfiguration.getInstance().getScanPageSize();
         if (page == null) {
             page = 1;  // Initialize to first page if no page number is defined.
         }
 
         // Internal page indexing starts at 0
-        Page<Scan> scansPage = scanService.getAll(page - 1, scanPageSize);
-        List<ScanExternal> scanExternalList =
-                scansPage.getContent().parallelStream()
-                        .map(ScanExternal::new)
-                        .collect(Collectors.toList());
-        return new ResponseEntity<>(new ScanManagerScansResponse(scanExternalList, scansPage.getTotalPages(),
-                page, scansPage.getSize(), scansPage.hasNext(), scansPage.hasPrevious(), scansPage.isFirst(),
-                scansPage.isLast()), HttpStatus.OK);
+        Page<Scan> scansPage = scanService.getScanByProduct(page - 1, scanPageSize, product);
+        List<ScanExternal> scanExternalList = scansPage.getContent().parallelStream().map(ScanExternal::new)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(
+                new ScanManagerScansResponse(scanExternalList, scansPage.getTotalPages(), page, scansPage.getSize(),
+                        scansPage.hasNext(), scansPage.hasPrevious(), scansPage.isFirst(), scansPage.isLast()),
+                HttpStatus.OK);
     }
 
     /**
@@ -258,9 +257,8 @@ public class ScanController {
      * @throws ScanManagerException      when an error occurs while updating the priority of the scan
      * @throws ResourceNotFoundException when unable to find a scan for the given job id
      */
-    @PostMapping(value = "scans/{jobId}")
-    public ResponseEntity updateScanPriority(@PathVariable("jobId") String jobId,
-                                             @RequestBody ScanPriorityUpdateRequest scanPriorityUpdateRequest)
+    @PostMapping(value = "scans/{jobId}") public ResponseEntity updateScanPriority(@PathVariable("jobId") String jobId,
+            @RequestBody ScanPriorityUpdateRequest scanPriorityUpdateRequest)
             throws ResourceNotFoundException, ScanManagerException {
         Scan scan = scanService.getByJobId(jobId);
         if (scan != null) {

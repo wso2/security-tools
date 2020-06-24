@@ -53,6 +53,17 @@ public interface ScanService {
     public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException;
 
     /**
+     * Get the list of scans for a given product and page.
+     *
+     * @param product product name
+     * @param pageNumber page number
+     * @return scan manager response containing a list of scans for the given page number and product
+     * @throws ScanManagerWebappException when an error occurs when getting the list of scans
+     */
+    public ScanManagerScansResponse getScansByProduct(String product, Integer pageNumber)
+            throws ScanManagerWebappException;
+
+    /**
      * Get the list of scans under preparation to be submitted to scan manager API.
      *
      * @return scan manager response containing a list of scans under preparation to be submitted to scan manager API
