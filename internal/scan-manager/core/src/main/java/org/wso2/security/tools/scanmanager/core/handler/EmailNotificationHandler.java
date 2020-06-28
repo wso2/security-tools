@@ -22,6 +22,7 @@ package org.wso2.security.tools.scanmanager.core.handler;
 
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.core.config.ScanManagerConfiguration;
+import org.wso2.security.tools.scanmanager.core.config.ScanMangerConfigurationBuilder;
 import org.wso2.security.tools.scanmanager.core.exception.ResourceNotFoundException;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.model.Email;
@@ -39,6 +40,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import static org.wso2.security.tools.scanmanager.core.util.Constants.SMTP_PASSWORD;
+
 /**
  * This class provides the implementation for the email notification operations.
  */
@@ -54,8 +57,7 @@ public class EmailNotificationHandler implements NotificationHandler {
     private static final String EMAIL_TEMPLATE_SCAN_TYPE_PLACEHOLDER = "{ScannerId}";
     private static final String EMAIL_TEMPLATE_SCAN_STATUS_PLACEHOLDER = "{scanStatus}";
 
-    @Override
-    public void sendNotification(Scan scan, String toAddress) throws ScanManagerException {
+    @Override public void sendNotification(Scan scan, String toAddress) throws ScanManagerException {
 
         // Set smtp configurations.
         Properties props = new Properties();
@@ -66,15 +68,11 @@ public class EmailNotificationHandler implements NotificationHandler {
         props.setProperty("mail.smtp.ssl.trust", ScanManagerConfiguration.getInstance().getSmtpServerHost());
         props.setProperty("mail.debug", "true");
 
-        Session session = Session.getInstance(props, new Authenticator() {
-            @Override protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(ScanManagerConfiguration.getInstance().getSmtpUserName(),
-                        String.valueOf(ScanManagerConfiguration.getInstance().getSmtpPassword()));
-            }
-        });
+        char[] password = ((String) ScanMangerConfigurationBuilder.getConfiguration().get(SMTP_PASSWORD)).toCharArray();
+        Session session = getSession(props, password);
 
         // Clear credential.
-        Arrays.fill(ScanManagerConfiguration.getInstance().getSmtpPassword(), '0');
+        Arrays.fill(password, '0');
         try {
             Email email = assembleEmail(scan, toAddress);
             MimeMessage message = new MimeMessage(session);
@@ -97,7 +95,7 @@ public class EmailNotificationHandler implements NotificationHandler {
     /**
      * This method use to form complete email.
      *
-     * @param scan object which represents scan
+     * @param scan      object which represents scan
      * @param toAddress email address of scan launcher
      * @return email object
      * @throws ResourceNotFoundException error occurred if email template in not found
@@ -115,8 +113,8 @@ public class EmailNotificationHandler implements NotificationHandler {
      * This method is used to build email body. This method reads the email template file and replace the relevant
      * information from scan object.
      *
-     * @param scan object which represents scan
-     * @param status status of scan
+     * @param scan      object which represents scan
+     * @param status    status of scan
      * @param toAddress email address of scan launcher
      * @return email body
      * @throws ResourceNotFoundException error occurred if email template file is not found
@@ -130,5 +128,14 @@ public class EmailNotificationHandler implements NotificationHandler {
                 .replace(EMAIL_TEMPLATE_SCAN_TYPE_PLACEHOLDER, scan.getScanner().getName())
                 .replace(EMAIL_TEMPLATE_SCAN_STATUS_PLACEHOLDER, status);
         return htmlwithContent;
+    }
+
+    private static Session getSession(Properties props, char[] password) {
+        return Session.getInstance(props, new Authenticator() {
+            @Override protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(ScanManagerConfiguration.getInstance().getSmtpUserName(),
+                        String.valueOf(password));
+            }
+        });
     }
 }

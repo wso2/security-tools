@@ -44,7 +44,6 @@ public class ScanManagerConfiguration {
     private String smtpServerHost;
     private Integer smtpServerPort;
     private String smtpUserName;
-    private char[] smtpPassword;
     private String emailFromaddress;
     private List<String> emailCCaddress;
 
@@ -57,7 +56,6 @@ public class ScanManagerConfiguration {
     private static final String SMTP_SERVERHOST_KEY = "smtpServerHost";
     private static final String SMTP_SERVERPORT_KEY = "smtpServerPort";
     private static final String SMTP_USERNAME = "smtpUsername";
-    private static final String SMTP_PASSWORD = "smtpPassword";
     private static final String SMTP_EMAIL_FROM_ADDRESS = "emailFromaddress";
     private static final String SMTP_EMAIL_CC_ADDRESS = "emailCCaddress";
     private static final String IS_NOTIFICATION_ENABLED = "isNotificationEnabled";
@@ -86,7 +84,6 @@ public class ScanManagerConfiguration {
         String smtpServerHost = (String) configObjectMap.get(SMTP_SERVERHOST_KEY);
         Integer smtpServerPort = (Integer) configObjectMap.get(SMTP_SERVERPORT_KEY);
         String smtpUserName = (String) configObjectMap.get(SMTP_USERNAME);
-        //        String smtpPassword = (String) configObjectMap.get(SMTP_PASSWORD);
         String smtpEmailFromAddress = (String) configObjectMap.get(SMTP_EMAIL_FROM_ADDRESS);
         String smtpEmailCCAddress = (String) configObjectMap.get(SMTP_EMAIL_CC_ADDRESS);
         Boolean isNotificationEnabled = (Boolean) configObjectMap.get(IS_NOTIFICATION_ENABLED);
@@ -112,11 +109,10 @@ public class ScanManagerConfiguration {
         } else {
             throw new ScanManagerException("Unable to find scaner service port configuration");
         }
-        if (smtpServerHost != null || scanManagerPort != null || smtpUserName != null || smtpPassword != null) {
+        if (smtpServerHost != null || smtpServerPort != null || smtpUserName != null) {
             this.smtpServerHost = smtpServerHost;
             this.smtpServerPort = smtpServerPort;
             this.smtpUserName = smtpUserName;
-            this.smtpPassword = ((String) configObjectMap.get(SMTP_PASSWORD)).toCharArray();
         } else {
             throw new ScanManagerException("Unable to find email notification related configuration");
         }
@@ -186,10 +182,6 @@ public class ScanManagerConfiguration {
 
     public String getSmtpUserName() {
         return smtpUserName;
-    }
-
-    public char[] getSmtpPassword() {
-        return smtpPassword;
     }
 
     public String getEmailFromaddress() {
