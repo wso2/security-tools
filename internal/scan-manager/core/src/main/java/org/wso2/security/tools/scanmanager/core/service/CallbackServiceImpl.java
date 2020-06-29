@@ -35,11 +35,14 @@ public class CallbackServiceImpl implements CallbackService {
 
     private ScanEngineService scanEngineService;
     private ScanService scanService;
+    private UserService userService;
 
     @Autowired
-    public CallbackServiceImpl(ScanEngineService scanEngineService, ScanService scanService) {
+    public CallbackServiceImpl(ScanEngineService scanEngineService, ScanService scanService,
+            UserService userService) {
         this.scanEngineService = scanEngineService;
         this.scanService = scanService;
+        this.userService = userService;
     }
 
     @Override
@@ -51,36 +54,42 @@ public class CallbackServiceImpl implements CallbackService {
             // synchronized block.
             Scan newScanObject = scanService.getByJobId(scan.getJobId());
             switch (scanStatus) {
-                case RUNNING:
-                    if (newScanObject.getStatus() == ScanStatus.SUBMITTED) {
-                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                        newScanObject.setStartTimestamp(timestamp);
-                        if (StringUtils.isNotBlank(scannerScanId)) {
-                            newScanObject.setScannerScanId(scannerScanId);
-                        } else {
-                            throw new InvalidRequestException("Scanner scan id cannot be found");
-                        }
-                        newScanObject.setStatus(scanStatus);
-                    }
-                    break;
-                case COMPLETED:
-                    if (StringUtils.isNotBlank(scanReportPath)) {
-                        newScanObject.setReportPath(scanReportPath);
+            case RUNNING:
+                if (newScanObject.getStatus() == ScanStatus.SUBMITTED) {
+                    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                    newScanObject.setStartTimestamp(timestamp);
+                    if (StringUtils.isNotBlank(scannerScanId)) {
+                        newScanObject.setScannerScanId(scannerScanId);
                     } else {
-                        throw new InvalidRequestException("Scan report path cannot be found");
+                        throw new InvalidRequestException("Scanner scan id cannot be found");
                     }
                     newScanObject.setStatus(scanStatus);
-                    scanEngineService.removeContainer(newScanObject);
-                    new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromCallback").start();
-                    break;
-                case ERROR:
-                case CANCELED:
-                    newScanObject.setStatus(scanStatus);
-                    scanEngineService.removeContainer(newScanObject);
-                    new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromCallback").start();
-                    break;
-                default:
-                    throw new InvalidRequestException("Unsupported scan status: " + scanStatus);
+                }
+                break;
+            case COMPLETED:
+                if (StringUtils.isNotBlank(scanReportPath)) {
+                    newScanObject.setReportPath(scanReportPath);
+                } else {
+                    throw new InvalidRequestException("Scan report path cannot be found");
+                }
+                newScanObject.setStatus(scanStatus);
+
+                // Once a scan is completed, notification will be send to launcher of the scan.
+                scanEngineService.sendNotification(scan, userService.getById(scan.getUserId()).getEmail());
+                scanEngineService.removeContainer(newScanObject);
+                new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromCallback").start();
+                break;
+            case ERROR:
+            case CANCELED:
+                newScanObject.setStatus(scanStatus);
+
+                // Once a scan is completed with error or cancelled, notification will be send to launcher of the scan.
+                scanEngineService.sendNotification(scan, userService.getById(scan.getUserId()).getEmail());
+                scanEngineService.removeContainer(newScanObject);
+                new Thread(() -> scanEngineService.beginPendingScans(), "BeginPendingScansFromCallback").start();
+                break;
+            default:
+                throw new InvalidRequestException("Unsupported scan status: " + scanStatus);
             }
             scanService.update(newScanObject);
         }

@@ -150,8 +150,9 @@ public class ScanServiceImpl implements ScanService {
             }
 
             // Begin the pre scans tasks and initiate the scan submission.
-            new Thread(() -> beginScanSubmit(storedFileMap, parameterMap, filesToBeDownloadedFromURL,
-                    preparingScan, user), "BeginScanSubmitToScanManagerAPI").start();
+            new Thread(
+                    () -> beginScanSubmit(storedFileMap, parameterMap, filesToBeDownloadedFromURL, preparingScan, user),
+                    "BeginScanSubmitToScanManagerAPI").start();
         } catch (ScanManagerWebappException e) {
 
             // Update the status if the scan under preparation to ERROR.
@@ -171,6 +172,33 @@ public class ScanServiceImpl implements ScanService {
     }
 
     @Override
+    public ScanManagerScansResponse getScansByProduct(String product, Integer pageNumber)
+            throws ScanManagerWebappException {
+        ScanManagerScansResponse scansResponse = null;
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        try {
+            if (pageNumber != null) {
+                nameValuePairs.add(new BasicNameValuePair(PAGE_PARAM_NAME, pageNumber.toString()));
+            }
+            nameValuePairs.add(new BasicNameValuePair("product", product));
+            HTTPRequest getScansRequest = new HTTPRequest(
+                    ScanManagerWebappConfiguration.getInstance().getScanURL("", nameValuePairs).toString(), null, null);
+            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScansRequest);
+            if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper mapper = new ObjectMapper();
+                scansResponse = mapper.readValue(responseEntity.getBody(), ScanManagerScansResponse.class);
+
+            } else {
+                throw new ScanManagerWebappException("Unable to get the scans from scan manager for given product");
+            }
+        } catch (RestClientException | IOException e) {
+            throw new ScanManagerWebappException("Unable to get the scans for given product", e);
+        }
+
+        return scansResponse;
+    }
+
+    @Override
     public ScanManagerScansResponse getScans(Integer pageNumber) throws ScanManagerWebappException {
         ScanManagerScansResponse scansResponse = null;
         List<NameValuePair> nameValuePairs = new ArrayList<>();
@@ -180,8 +208,8 @@ public class ScanServiceImpl implements ScanService {
                 nameValuePairs.add(new BasicNameValuePair(PAGE_PARAM_NAME, pageNumber.toString()));
             }
 
-            HTTPRequest getScansRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
-                    .getScanURL("", nameValuePairs).toString(), null, null);
+            HTTPRequest getScansRequest = new HTTPRequest(
+                    ScanManagerWebappConfiguration.getInstance().getScanURL("", nameValuePairs).toString(), null, null);
             ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScansRequest);
             if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -194,6 +222,7 @@ public class ScanServiceImpl implements ScanService {
         }
         return scansResponse;
     }
+
 
     @Override
     public List<ScanExternal> getPreparingScans() {
@@ -214,8 +243,9 @@ public class ScanServiceImpl implements ScanService {
                     return new ScanExternal(preparingScans.get(jobId));
                 }
             } else {
-                HTTPRequest getScanRequest = new HTTPRequest(ScanManagerWebappConfiguration.getInstance()
-                        .getScanURL("/" + jobId, nameValuePairs).toString(), null, null);
+                HTTPRequest getScanRequest = new HTTPRequest(
+                        ScanManagerWebappConfiguration.getInstance().getScanURL("/" + jobId, nameValuePairs).toString(),
+                        null, null);
                 ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScanRequest);
                 if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
                     ObjectMapper mapper = new ObjectMapper();
@@ -247,8 +277,7 @@ public class ScanServiceImpl implements ScanService {
         }
     }
 
-    @Override
-    public boolean clearScan(String id) {
+    @Override public boolean clearScan(String id) {
         // Clear scan from preparing scans list if the scan status is ERROR.
         if (preparingScans.containsKey(id) && preparingScans.get(id).getStatus() == ScanStatus.ERROR) {
             preparingScans.remove(id);
@@ -354,7 +383,7 @@ public class ScanServiceImpl implements ScanService {
     }
 
     private ResponseEntity sendSubmitScanRequest(Map<String, String> uploadedFileMap, Map<String, String> parameterMap,
-                                                 User user) throws ScanManagerWebappException {
+            User user) throws ScanManagerWebappException {
         List<NameValuePair> nameValuePairs = new ArrayList<>();
         Map<String, Object> requestParams = new HashMap<>();
 

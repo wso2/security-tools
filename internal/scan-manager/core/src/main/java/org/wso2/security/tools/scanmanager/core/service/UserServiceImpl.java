@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(String id) {
+    public User getById(int id) {
         return userDAO.getById(id);
     }
 }

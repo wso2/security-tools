@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.SCANNER_APP_ID;
+import static org.wso2.security.tools.scanmanager.core.util.ScanManagerTestConstants.TEST_PRODUCT_ID;
 
 /**
  * Test class for scan service methods.
@@ -69,10 +70,11 @@ public class ScanServiceImplTest {
 
     @Test(dataProvider = "getScanData", dataProviderClass = ServiceTestDataProvider.class)
     public void testGetAll(Scan scan) {
-        Mockito.when(mockScanDAO.getAllByOrderBySubmittedTimestampDesc(PageRequest.of(1, 10)))
+        Mockito.when(mockScanDAO.getScanByProductByOrderBySubmittedTimestampDesc(TEST_PRODUCT_ID,
+                PageRequest.of(1, 10)))
                 .thenReturn(new PageImpl<>(Collections.singletonList(scan)));
 
-        Page retrievedScansPage = scanService.getAll(1, 10);
+        Page retrievedScansPage = scanService.getScanByProduct(1, 10, TEST_PRODUCT_ID);
         Assert.assertNotNull(retrievedScansPage);
 
         List<Scan> retrievedScans = retrievedScansPage.getContent();

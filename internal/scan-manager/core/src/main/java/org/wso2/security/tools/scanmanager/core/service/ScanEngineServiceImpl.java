@@ -36,6 +36,7 @@ import org.wso2.security.tools.scanmanager.common.util.HTTPUtil;
 import org.wso2.security.tools.scanmanager.core.config.ScanManagerConfiguration;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.handler.ContainerHandler;
+import org.wso2.security.tools.scanmanager.core.handler.NotificationHandler;
 import org.wso2.security.tools.scanmanager.core.model.Container;
 import org.wso2.security.tools.scanmanager.core.util.Constants;
 
@@ -66,6 +67,7 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     private ScannerService scannerService;
     private LogService logService;
     private ContainerHandler dockerHandler;
+    private NotificationHandler emailNotificationHandler;
 
     private static final String PROPERTY_MAP_PARAMETER_NAME = "propertyMap";
     private static final String FILE_MAP_PARAMETER_NAME = "fileMap";
@@ -75,12 +77,13 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     private static final Integer SCANNER_SERVICE_WAIT_TIME = 10000;
 
     @Autowired
-    public ScanEngineServiceImpl(ScanService scanService, ScannerService scannerService, LogService logService,
-                                 ContainerHandler dockerHandler) {
+    public ScanEngineServiceImpl(ScanService scanService, ScannerService scannerService,
+            LogService logService, ContainerHandler dockerHandler, NotificationHandler emailNotificationHandler) {
         this.scanService = scanService;
         this.scannerService = scannerService;
         this.logService = logService;
         this.dockerHandler = dockerHandler;
+        this.emailNotificationHandler = emailNotificationHandler;
     }
 
     @Override
@@ -98,11 +101,9 @@ public class ScanEngineServiceImpl implements ScanEngineService {
 
                     // There can be multiple scanner apps for a given product in a particular scanner. We need to
                     // identify the currently occupied apps and check for any available free app to start the scan.
-                    List<String> occupiedApps = getOccupiedApps(newScanObject.getScanner(),
-                            newScanObject.getProduct());
-                    List<ScannerApp> scannerApps =
-                            scannerService.getAppsByScannerAndAssignedProduct(newScanObject.getScanner(),
-                                    newScanObject.getProduct());
+                    List<String> occupiedApps = getOccupiedApps(newScanObject.getScanner(), newScanObject.getProduct());
+                    List<ScannerApp> scannerApps = scannerService
+                            .getAppsByScannerAndAssignedProduct(newScanObject.getScanner(), newScanObject.getProduct());
 
                     logService.insert(newScanObject, LogType.INFO,
                             "Checking for a free scanner application for the scan: " + scan.getJobId());
@@ -112,8 +113,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
                             freeAppFound = true;
 
                             logService.insert(newScanObject, LogType.INFO,
-                                    "Free scanner app found. Initiating the scan with the scanner app id: " +
-                                            scannerApp.getAppId());
+                                    "Free scanner app found. Initiating the scan with the scanner app id: " + scannerApp
+                                            .getAppId());
 
                             // Initiating the scan request to create a scanner container and send the start scan request
                             // to the container micro service.
@@ -143,10 +144,9 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     }
 
     private List<String> getOccupiedApps(Scanner scanner, String product) {
-        return scanService.getByStatusesAndScannerAndProduct(new ArrayList<>(Arrays.asList(ScanStatus.SUBMITTED,
-                ScanStatus.RUNNING, ScanStatus.CANCEL_PENDING)), scanner, product).stream()
-                .map(Scan::getScannerAppId)
-                .collect(Collectors.toList());
+        return scanService.getByStatusesAndScannerAndProduct(
+                new ArrayList<>(Arrays.asList(ScanStatus.SUBMITTED, ScanStatus.RUNNING, ScanStatus.CANCEL_PENDING)),
+                scanner, product).stream().map(Scan::getScannerAppId).collect(Collectors.toList());
     }
 
     @Override
@@ -158,16 +158,16 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             Scan newScanObject = scanService.getByJobId(scan.getJobId());
 
             // A scan can be cancelled only if the scan is any of the following status.
-            if (newScanObject.getStatus() == ScanStatus.SUBMIT_PENDING ||
-                    newScanObject.getStatus() == ScanStatus.SUBMITTED ||
-                    newScanObject.getStatus() == ScanStatus.RUNNING) {
+            if (newScanObject.getStatus() == ScanStatus.SUBMIT_PENDING
+                    || newScanObject.getStatus() == ScanStatus.SUBMITTED
+                    || newScanObject.getStatus() == ScanStatus.RUNNING) {
                 try {
                     List<Container> containerInfos = dockerHandler.list();
                     boolean isContainerFound = false;
                     for (Container containerInfo : containerInfos) {
                         Map<String, String> labels = containerInfo.getLabels();
-                        if (labels != null && labels.containsKey(CONTAINER_SCAN_JOB_ID_LABEL_NAME) &&
-                                labels.get(CONTAINER_SCAN_JOB_ID_LABEL_NAME).equals(scan.getJobId())) {
+                        if (labels != null && labels.containsKey(CONTAINER_SCAN_JOB_ID_LABEL_NAME) && labels
+                                .get(CONTAINER_SCAN_JOB_ID_LABEL_NAME).equals(scan.getJobId())) {
                             isContainerFound = true;
 
                             // A container is running for this particular scan. Hence we need to send a cancel scan
@@ -208,12 +208,9 @@ public class ScanEngineServiceImpl implements ScanEngineService {
 
     private URI buildScannerScanURI(Container containerInfo) throws ScanManagerException {
         try {
-            return (new URIBuilder())
-                    .setHost(ScanManagerConfiguration.getInstance().getScannerServiceHost())
-                    .setPort(containerInfo.getPortMappings().get(ScanManagerConfiguration.getInstance()
-                            .getScannerServicePort()))
-                    .setScheme(SCHEME).setPath(SCANNER_SCAN_ENDPOINT)
-                    .build();
+            return (new URIBuilder()).setHost(ScanManagerConfiguration.getInstance().getScannerServiceHost()).setPort(
+                    containerInfo.getPortMappings().get(ScanManagerConfiguration.getInstance().getScannerServicePort()))
+                    .setScheme(SCHEME).setPath(SCANNER_SCAN_ENDPOINT).build();
         } catch (URISyntaxException e) {
             throw new ScanManagerException("Error occurred while building the scan URI", e);
         }
@@ -241,16 +238,28 @@ public class ScanEngineServiceImpl implements ScanEngineService {
         return removedContainerInfo;
     }
 
+    @Override
+    public void sendNotification(Scan scan, String toAddress) {
+        logService.insert(scan, LogType.INFO, "Scan completion notification starts...");
+        if (ScanManagerConfiguration.getInstance().getNotificationEnabled()) {
+            try {
+                emailNotificationHandler.sendNotification(scan, toAddress);
+                logService.insert(scan, LogType.INFO, "Scan completion notification has successfully done...");
+            } catch (ScanManagerException e) {
+                logService.insertError(scan, e);
+            }
+        }
+    }
+
     private void initiateScanRequest(Scan scan, ScannerApp scannerApp) throws ScanManagerException {
         Container containerInfo = null;
         try {
             logService.insert(scan, LogType.INFO, "Creating a container for the scan");
-            containerInfo = createContainer(scan, scannerApp, ScanManagerConfiguration
-                    .getInstance().getScannerServiceHost(), ScanManagerConfiguration.getInstance()
-                    .getScannerServicePort());
+            containerInfo = createContainer(scan, scannerApp,
+                    ScanManagerConfiguration.getInstance().getScannerServiceHost(),
+                    ScanManagerConfiguration.getInstance().getScannerServicePort());
             dockerHandler.start(containerInfo.getId());
-            logService.insert(scan, LogType.INFO,
-                    "Scanner container started. Container id: " + containerInfo.getId());
+            logService.insert(scan, LogType.INFO, "Scanner container started. Container id: " + containerInfo.getId());
 
             // Sleep till the scanner service is started.
             Thread.sleep(SCANNER_SERVICE_WAIT_TIME);
@@ -274,12 +283,10 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             requestParams.put(JOB_ID_PARAMETER_NAME, scan.getJobId());
             requestParams.put(SCANNER_APP_ID_PARAMETER_NAME, scannerApp.getAppId());
 
-            Map<String, List<String>> fileMap = scan.getFileList().stream()
-                    .collect(Collectors.toMap(ScanFile::getName,
-                            scanFile -> Collections.singletonList(scanFile.getLocation())));
-            Map<String, List<String>> propertyMap = scan.getPropertyList().stream()
-                    .collect(Collectors.toMap(ScanProperty::getName,
-                            scanProperty -> Collections.singletonList(scanProperty.getValue())));
+            Map<String, List<String>> fileMap = scan.getFileList().stream().collect(
+                    Collectors.toMap(ScanFile::getName, scanFile -> Collections.singletonList(scanFile.getLocation())));
+            Map<String, List<String>> propertyMap = scan.getPropertyList().stream().collect(Collectors
+                    .toMap(ScanProperty::getName, scanProperty -> Collections.singletonList(scanProperty.getValue())));
             requestParams.put(FILE_MAP_PARAMETER_NAME, fileMap);
             requestParams.put(PROPERTY_MAP_PARAMETER_NAME, propertyMap);
             MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
@@ -287,26 +294,28 @@ public class ScanEngineServiceImpl implements ScanEngineService {
             ResponseEntity response = HTTPUtil.sendPOST(startScanRequest);
 
             if (response.getStatusCode().isError()) {
-                throw new ScanManagerException("Error occurred while sending start scan request to the scanner " +
-                        "service");
+                throw new ScanManagerException(
+                        "Error occurred while sending start scan request to the scanner " + "service");
             }
         } catch (RestClientException e) {
             throw new ScanManagerException("Error occurred while connecting to the scanner service endpoint");
         }
     }
 
-    private Container createContainer(Scan scan, ScannerApp scannerApp, String containerHost,
-                                      Integer containerPort) throws ScanManagerException {
+    private Container createContainer(Scan scan, ScannerApp scannerApp, String containerHost, Integer containerPort)
+            throws ScanManagerException {
         Map<String, String> labels = new HashMap<>();
         labels.put(CONTAINER_SCAN_JOB_ID_LABEL_NAME, scan.getJobId());
         labels.put(CONTAINER_APP_LABEL_NAME, scannerApp.getAppId());
         labels.put(CONTAINER_SCANNER_LABEL_NAME, scannerApp.getScanner().getName());
 
-        String[] envVariables =
-                new String[]{CONTAINER_ENV_NAME_SCAN_MANAGER_HOST + "=" + ScanManagerConfiguration.getInstance()
-                        .getScanManagerHost(), CONTAINER_ENV_NAME_SCAN_MANAGER_PORT + "=" + ScanManagerConfiguration
-                        .getInstance().getScanManagerPort()};
-        return dockerHandler.create(scannerApp.getScanner().getImage(), containerHost, containerPort, labels,
-                new ArrayList<>(), envVariables);
+        String[] envVariables = new String[] {
+                CONTAINER_ENV_NAME_SCAN_MANAGER_HOST + "=" + ScanManagerConfiguration.getInstance()
+                        .getScanManagerHost(),
+                CONTAINER_ENV_NAME_SCAN_MANAGER_PORT + "=" + ScanManagerConfiguration.getInstance()
+                        .getScanManagerPort() };
+        return dockerHandler
+                .create(scannerApp.getScanner().getImage(), containerHost, containerPort, labels, new ArrayList<>(),
+                        envVariables);
     }
 }

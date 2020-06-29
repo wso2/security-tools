@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!--
+  ~ /*
+  ~ *  Copyright (c) 2020, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ *
+  ~ *  WSO2 Inc. licenses this file to you under the Apache License,
+  ~ *  Version 2.0 (the "License"); you may not use this file except
+  ~ *  in compliance with the License.
+  ~ *  You may obtain a copy of the License at
+  ~ *
+  ~ *    http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing,
+  ~ * software distributed under the License is distributed on an
+  ~ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ * KIND, either express or implied.  See the License for the
+  ~ * specific language governing permissions and limitations
+  ~ * under the License.
+  ~ */
+  -->
+
+<html>
+<head>
+    <style>
+        #scanDetails {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 50%;
+            cellpadding: "5";
+            cellspacing: "2"
+        }
+
+        #scanDetails td, #scanDetails th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #scanDetails tr:nth-child(even){background-color: #f2f2f2;}
+
+        #scanDetails tr:hover {background-color: #ddd;}
+
+        #scanDetails th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color :rgba(0,0,0,0.7);color:white;
+        }
+    </style>
+</head>
+<body>
+
+This automated email notification is sent from Scan Manager upon scan completion.
+<br />
+<br />
+
+
+<table id="scanDetails">
+
+    <tr>
+        <th colspan = "2">Scan Summary Details</th>
+    </tr>
+    <tr>
+        <td>Scan Title</td>
+        <td>{scanTitle}</td>
+    </tr>
+    <tr>
+        <td>Scan Job ID</td>
+        <td>{jobId}</td>
+    </tr>
+    <tr>
+        <td>Product Name</td>
+        <td>{productName}</td>
+    </tr>
+    <tr>
+        <td>Launched By</td>
+        <td>{launchedBy}</td>
+    </tr>
+    <tr>
+        <td>Scan Type</td>
+        <td>{ScannerId}</td>
+    </tr>
+    <tr>
+        <td>Scan Status</td>
+        <td>{scanStatus}</td>
+    </tr>
+</table>
+
+
+<br />
+<br />
+
+To download the scan report and view further information <details></details>, <a href="https://<scan manager host name>/scan-manager/scans">click here. </a>
+
+
+If you have any issues in conducting a new scan or downloading scan report using WSO2 Scan Manager, please contact WSO2 Security & Compliance Team.
+
+<br />
+<br />
+WSO2 Scan Manager.
+
+</body>
+</html>

@@ -39,10 +39,13 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
     /**
      * Get all scans.
      *
+     * @param product product name
      * @param pageable page request object
      * @return page containing the list of requested scans
      */
-    public Page<Scan> getAllByOrderBySubmittedTimestampDesc(Pageable pageable);
+    @Query("select o from Scan o where o.product = :product")
+    public Page<Scan> getScanByProductByOrderBySubmittedTimestampDesc(@Param("product") String product,
+            Pageable pageable);
 
     /**
      * Get scan by job id.
@@ -112,4 +115,16 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
     @Query("select o from Scan o where o.status in :statuses and o.scanner = :scanner and o.product = :product")
     public List<Scan> getByStatusInAndScannerAndProduct(@Param("statuses") List<ScanStatus> statuses, @Param(
             "scanner") Scanner scanner, @Param("product") String product);
+
+//    /**
+//     * Get logs by scan.
+//     *
+//     * @param product scan details
+//     * @param pageable page information
+//     * @return list of logs for a given scan
+//     */
+//    public Page<Scan> getByScanOrderByTimeStampDesc(String product, Pageable pageable);
+
+    @Query("select o from Scan o where o.product = :product")
+    public List<Scan> getByProduct(@Param("product") String product);
 }

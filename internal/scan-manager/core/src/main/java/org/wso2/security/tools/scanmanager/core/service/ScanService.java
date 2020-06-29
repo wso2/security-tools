@@ -47,13 +47,14 @@ public interface ScanService {
     public Scan insert(Scan scan);
 
     /**
-     * Get all scans by page.
+     * Get all scans of given product by page.
      *
      * @param pageNumber page number
      * @param pageSize   size of the page
-     * @return a page containing the requested scans
+     * @param product product
+     * @return a page containing the requested scans of given product
      */
-    public Page<Scan> getAll(Integer pageNumber, Integer pageSize);
+    public Page<Scan> getScanByProduct(Integer pageNumber, Integer pageSize, String product);
 
     /**
      * Get scan by job id.

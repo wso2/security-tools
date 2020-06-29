@@ -16,11 +16,24 @@
 
 # Scan Manager Configuration
 
-scanManagerHost:
-scanManagerPort:
+scanManagerHost: [IP address of docker]
+scanManagerPort: [Port number]
 
-scannerServiceHost:
-scannerServicePort:
+scannerServiceHost: [IP address of scanner service]
+scannerServicePort: [Port number of scanner service]
 
-scanPageSize:
-logPageSize:
+scanPageSize: [Optional; page size for scan pagination; default value is 10]
+logPageSize: [Optional; page size for log pagination; default value is 10]
+
+# Notification Configuration
+isNotificationEnabled: true
+notificationSubject: SCAN MANAGER - Scan completion of Job
+
+# EMAIL Notification Configurations
+smtpServerHost: [SMTP host name]
+smtpServerPort: [SMTP port number]
+smtpUsername: [SMTP username]
+smtpPassword: [SMTP password]
+smtpEnableDebug: [True if debug is enabled; False if debug is disabled]
+emailFromaddress: [Email address of sender]
+emailCCaddress: [Optional; Email addresses of CC list. Values should be comma seperated]

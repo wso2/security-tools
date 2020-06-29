@@ -170,6 +170,11 @@
             <artifactId>powermock-api-mockito</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>${com.sun.mail.javax.mail}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -235,6 +240,7 @@
         </org.wso2.security.tools.scanmanager.common.version>
         <org.hibernate.core.version>5.4.14.Final</org.hibernate.core.version>
         <tomcat.http.port>8081</tomcat.http.port>
+        <com.sun.mail.javax.mail>1.6.2</com.sun.mail.javax.mail>
     </properties>
 
 </project>
