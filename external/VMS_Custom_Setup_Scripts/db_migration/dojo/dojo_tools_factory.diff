@@ -1,0 +1,16 @@
+diff --git a/dojo/tools/factory.py b/dojo/tools/factory.py
+index a24c14bb..1dff61db 100755
+--- a/dojo/tools/factory.py
++++ b/dojo/tools/factory.py
+@@ -1,4 +1,5 @@
++from dojo.tools.aa.parser import AA
+ from dojo.tools.burp.parser import BurpXmlParser
+ from dojo.tools.dsop.parser import DsopParser
+ from dojo.tools.nessus.parser import NessusCSVParser, NessusXMLParser
+@@ -93,6 +94,8 @@ def import_parser_factory(file, test, active, verified, scan_type=None):
+         parser = BurpEnterpriseHtmlParser(file, test)
++    elif scan_type == "Temp Parser":
++        parser = TempParser(file, test)
+     elif scan_type == "Nessus Scan":
+         filename = file.name.lower()
+         if filename.endswith("csv"):

@@ -1,0 +1,38 @@
+diff --cc dojo/engagement/views.py
+index e32352cd,2240de66..00000000
+--- a/dojo/engagement/views.py
++++ b/dojo/engagement/views.py
+@@@ -593,16 -574,7 +593,17 @@@ def import_scan_results(request, eid=No
+                  return HttpResponseRedirect(reverse('import_scan_results', args=(eid,)))
+  
+              try:
+ +
+++                i = 0
+                  for item in parser.items:
+                      print("item blowup")
+                      print(item)
+@@@ -685,9 -680,37 +686,26 @@@
+                          if notes is not None:
+                              for note in notes:
+                                  item.notes.add(note)
++
++                     if parser.note1 is not None:
++                         if str(parser.note1[i].entry) != ("nan"):
++                             item.notes.add(parser.note1[i])
+++
++                     if parser.note2 is not None:
++                         if str(parser.note2[i].entry) != "nan":
++                             item.notes.add(parser.note2[i])
+++
+++                    if parser.note5 is not None:
+++                        if str(parser.note5[i].entry) != "nan":
+++                            item.notes.add(parser.note5[i])
+++
+++                    if parser.note6 is not None:
+++                        if str(parser.note6[i].entry) != "nan":
+++                            item.notes.add(parser.note6[i])
++                     i += 1
++ 
+                      if item.unsaved_tags is not None:
+                          item.tags = item.unsaved_tags
+  

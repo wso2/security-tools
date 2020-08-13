@@ -1,0 +1,64 @@
+diff --git a/dojo/utils.py b/dojo/utils.py
+index ef772b21..05ebbeca 100644
+--- a/dojo/utils.py
++++ b/dojo/utils.py
+@@ -468,22 +468,10 @@ def rename_whitesource_finding():
+ 
+ 
+@@ -544,20 +523,12 @@ def deduplication_wso2_custom(new_finding, attributes):
+             similar_findings_product = list(similar_findings_product)
+             original_finding = get_original_finding(new_finding, attributes, similar_findings_product)
+
+             if original_finding is None:
+                 product_name = new_finding.test.engagement.product.name
++                product_name = product_name.rstrip('0123456789')
+                 similar_findings_product_versions = finding_filtered.filter(
+                     test__engagement__product__name__startswith=product_name).exclude(
+                     test__engagement__product=new_finding.test.engagement.product)
+ 
+@@ -584,68 +555,51 @@ def deduplication_wso2_custom(new_finding, attributes):
+                             original_finding = None
+ 
+             if original_finding is not None:
+                 notes = original_finding.notes.all()
+                 new_notes = new_finding.notes.all()
+
+
++                note1 = notes.filter(note_type__name="Use Case")
++                note2 = notes.filter(note_type__name="Vulnerability Influence")
++                note5 = notes.filter(note_type__name="WSO2 Resolution")
++                note7 = notes.filter(note_type__name="Resolution")
++                note3 = new_notes.filter(note_type__name="Use Case")
++                note4 = new_notes.filter(note_type__name="Vulnerability Influence")
++                note6 = new_notes.filter(note_type__name="WSO2 Resolution")
++                note8 = new_notes.filter(note_type__name="Resolution")
++
++                if not note3:
++                    print("NOTE 3 IS NULL")
++                else:
++                    if str(note3.values('entry')) == str(note1.values('entry')):
++                        new_finding.notes.remove(note3[0])
++                if not note6:
++                    print("NOTE 6 IS NULL")
++                else:
++                    if str(note6.values('entry')) == str(note5.values('entry')):
++                        new_finding.notes.remove(note6[0])
++                if not note8:
++                    print("NOTE 3 IS NULL")
++                else:
++                    if str(note8.values('entry')) == str(note7.values('entry')):
++                        new_finding.notes.remove(note8[0])
++                if not note4:
++                    print("NOTE 4 IS NULL")
++                else:
++                    if str(note4.values('entry')) == str(note2.values('entry')):
++                        new_finding.notes.remove(note4[0])
++
+                 deduplicationLogger.debug('New finding ' + str(new_finding.id) + ' is a duplicate of existing finding ' + str(original_finding.id))
+                 new_finding.duplicate = True
+                 new_finding.active = False
+                 new_finding.verified = False
+                 new_finding.duplicate_finding = original_finding
++                original_finding.duplicate_list.add(new_finding)
+                 original_finding.found_by.add(new_finding.test.test_type)
+                 super(Finding, new_finding).save()
