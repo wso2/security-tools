@@ -71,6 +71,10 @@ public class ScannerServiceImpl implements ScannerService {
         return scannerAppDAO.getByScannerAndAssignedProduct(scanner, productName);
     }
 
+    @Override public ScannerApp getByScannerAndAppId(Scanner scanner, String appId) {
+        return scannerAppDAO.getByScannerAndAppId(scanner,appId);
+    }
+
     @Override
     public void removeByScannerId(String scannerId) throws ScanManagerException {
         Integer updatedRows = scannerDAO.removeById(scannerId);

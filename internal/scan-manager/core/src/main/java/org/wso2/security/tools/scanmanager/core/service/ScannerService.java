@@ -69,6 +69,14 @@ public interface ScannerService {
     public List<ScannerApp> getAppsByScannerAndAssignedProduct(Scanner scanner, String productName);
 
     /**
+     * Get the scanner app for a given scanner and app id.
+     * @param scanner scanner object
+     * @param appId app id
+     * @return scanner app for the given scanner and app id
+     */
+    public ScannerApp getByScannerAndAppId(Scanner scanner, String appId);
+
+    /**
      * Remove a scanner by id.
      *
      * @param scannerId scanner id of the scanner to be removed

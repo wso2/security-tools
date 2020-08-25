@@ -1,19 +1,21 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *   Copyright (c) 2020, WSO2 Inc., WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ * /
  */
 package org.wso2.security.tools.scanmanager.core.handler;
 
@@ -26,14 +28,21 @@ import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.wso2.security.tools.scanmanager.common.external.model.Scan;
+import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.model.Container;
+import org.wso2.security.tools.scanmanager.core.service.ScanService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +50,7 @@ import java.util.stream.Collectors;
  */
 public class DockerContainerHandler implements ContainerHandler {
 
+    private static final Logger log = LogManager.getLogger(DockerContainerHandler.class);
     private static final int SECONDS_TO_WAIT_BEFORE_KILLING_CONTAINER = 5;
     private static final int CONTAINER_HOST_PORT_MINIMUM_VALUE = 20000;
 
@@ -132,6 +142,15 @@ public class DockerContainerHandler implements ContainerHandler {
             dockerClient.startContainer(containerId);
         } catch (DockerCertificateException | DockerException | InterruptedException e) {
             throw new ScanManagerException("Error occurred while starting the docker container with container id: " +
+                    containerId, e);
+        }
+    }
+
+    @Override public void restart(String containerId) throws ScanManagerException {
+        try (DockerClient dockerClient = getNewDockerClient()){
+            dockerClient.restartContainer(containerId);
+        } catch (DockerCertificateException | DockerException | InterruptedException e) {
+            throw new ScanManagerException("Error occurred while restarting the docker container with container id: " +
                     containerId, e);
         }
     }

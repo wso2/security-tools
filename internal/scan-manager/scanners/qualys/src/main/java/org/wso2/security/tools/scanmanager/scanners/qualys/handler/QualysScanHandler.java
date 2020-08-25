@@ -32,7 +32,7 @@ import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.CrawlingScript;
-import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.QualysScanContext;
 import org.wso2.security.tools.scanmanager.scanners.qualys.util.RequestBodyBuilder;
 import org.wso2.security.tools.scanmanger.qualys.auth.WebAppAuthenticationRecordBuilder;
 import org.xml.sax.SAXException;
@@ -120,16 +120,16 @@ public class QualysScanHandler {
     /**
      * Launching the scan in qualys scan portal.
      *
-     * @param scanContext object that contains the scanner specific parameters
+     * @param qualysScanContext object that contains the scanner specific parameters
      * @return scanner scan Id
      * @throws ScannerException error occurred while launching the scan
      */
-    public String launchScan(ScanContext scanContext) throws ScannerException {
+    public String launchScan(QualysScanContext qualysScanContext) throws ScannerException {
         String launchScanRequestBody;
         String scannerScanId = null;
         HttpResponse response;
         try {
-            launchScanRequestBody = RequestBodyBuilder.buildScanLaunchRequest(scanContext);
+            launchScanRequestBody = RequestBodyBuilder.buildScanLaunchRequest(qualysScanContext);
         } catch (ParserConfigurationException | TransformerException e) {
             throw new ScannerException("Error occurred while building launch scan request body : ", e);
         }
@@ -142,8 +142,8 @@ public class QualysScanHandler {
         if (serviceResponseNodeList != null) {
             scannerScanId = XMLUtil.getTagValue(serviceResponseNodeList, QualysScannerConstants.ID_KEYWORD);
             String message =
-                    " Qualys Scan for " + scanContext.getJobID() + " has successfully submitted " + scannerScanId;
-            log.info(new CallbackLog(scanContext.getJobID(), message));
+                    " Qualys Scan for " + qualysScanContext.getJobID() + " has successfully submitted " + scannerScanId;
+            log.info(new CallbackLog(qualysScanContext.getJobID(), message));
         }
         return scannerScanId;
     }
@@ -151,20 +151,45 @@ public class QualysScanHandler {
     /**
      * Cancelling Scan.
      *
-     * @param scanContext scan context object which holds the scan related metadata
+     * @param qualysScanContext scan context object which holds the scan related metadata
      * @throws ScannerException error occurred while cancelling scan
      */
-    public void cancelScan(ScanContext scanContext) throws ScannerException {
+    public void cancelScan(QualysScanContext qualysScanContext) throws ScannerException {
         HttpResponse response;
-        String status = retrieveScanStatus(scanContext.getScannerScanId());
+
+        // If scanner id and authentication id are empty then scan is not launched in Qualys sanner yet prior to cancelling
+        // scan.
+        if(StringUtils.isEmpty(qualysScanContext.getScannerScanId()) &&
+                StringUtils.isEmpty(qualysScanContext.getAuthId())){
+            log.info(new CallbackLog(qualysScanContext.getJobID(), "Scan is not initiated in Qualys Scanner yet."));
+            CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.CANCELED, null,
+                    qualysScanContext.getScannerScanId());
+            return;
+        }
+
+        // If scanner id is empty and authentication id is not empty then scan is not launched in Qualys scanner
+        // yet prior to cancelling scan. But created authentication id needs to be removed.
+        if(StringUtils.isEmpty(qualysScanContext.getScannerScanId()) &&
+                !StringUtils.isEmpty(qualysScanContext.getAuthId())){
+            String message = "Scan for Job ID : " + qualysScanContext.getJobID() + " got cancelled ";
+            log.info(new CallbackLog(qualysScanContext.getJobID(), message));
+
+            // Delete added authentication record before updating the status.
+            doCleanUp(qualysScanContext.getAuthId(), qualysScanContext.getJobID());
+            CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.CANCELED, null,
+                    qualysScanContext.getScannerScanId());
+            return;
+        }
+
+        String status = retrieveScanStatus(qualysScanContext.getScannerScanId());
         try {
             if ((status.equalsIgnoreCase(QualysScannerConstants.RUNNING)) || status
                     .equalsIgnoreCase(QualysScannerConstants.SUBMITTED)) {
-                response = qualysApiInvoker.invokeCancelScan(scanContext.getScannerScanId());
+                response = qualysApiInvoker.invokeCancelScan(qualysScanContext.getScannerScanId());
             } else {
-                String message = "Could not find an active scan for scanId : " + scanContext.getScannerScanId();
-                log.info(new CallbackLog(scanContext.getJobID(), message));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
+                String message = "Could not find an active scan for scanId : " + qualysScanContext.getScannerScanId();
+                log.info(new CallbackLog(qualysScanContext.getJobID(), message));
+                CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.ERROR, null, null);
                 return;
             }
         } catch (IOException | InterruptedException | RetryExceededException e) {
@@ -172,13 +197,13 @@ public class QualysScanHandler {
         }
         NodeList serviceResponseNodeList = processServiceResponse(response, QualysScannerConstants.CANCEL_SCAN);
         if (serviceResponseNodeList != null) {
-            String message = "Scan for Job ID : " + scanContext.getJobID() + " got cancelled ";
-            log.info(new CallbackLog(scanContext.getJobID(), message));
+            String message = "Scan for Job ID : " + qualysScanContext.getJobID() + " got cancelled ";
+            log.info(new CallbackLog(qualysScanContext.getJobID(), message));
 
             // Delete added authentication record before updating the status.
-            doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
-            CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.CANCELED, null,
-                    scanContext.getScannerScanId());
+            doCleanUp(qualysScanContext.getAuthId(), qualysScanContext.getJobID());
+            CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.CANCELED, null,
+                    qualysScanContext.getScannerScanId());
         }
     }
 
@@ -305,24 +330,24 @@ public class QualysScanHandler {
     /**
      * Update Web Application with created web authentication record and other configs.
      *
-     * @param scanContext Object which holds the configuration related parameters
+     * @param qualysScanContext Object which holds the configuration related parameters
      * @throws ScannerException error occurred while updating web application with authentication record id and other
      *                          configs
      */
-    public void updateWebApp(ScanContext scanContext) throws ScannerException {
+    public void updateWebApp(QualysScanContext qualysScanContext) throws ScannerException {
         HttpResponse response;
         String updateWebAppRequestBody = null;
-        String appName = scanContext.getWebAppName();
+        String appName = qualysScanContext.getWebAppName();
         try {
             updateWebAppRequestBody = RequestBodyBuilder
-                    .buildWebAppConfigUpdateRequest(scanContext.getJobID(), appName, scanContext.getAuthId(),
-                            scanContext.getApplicationUrl(), scanContext.getCrawlingScope(),
-                            scanContext.getBlackListRegex());
+                    .buildWebAppConfigUpdateRequest(qualysScanContext.getJobID(), appName, qualysScanContext.getAuthId(),
+                            qualysScanContext.getApplicationUrl(), qualysScanContext.getCrawlingScope(),
+                            qualysScanContext.getBlackListRegex());
         } catch (ParserConfigurationException | TransformerException e) {
             throw new ScannerException("Error occurred while building update Web Application API request body: ", e);
         }
         try {
-            response = qualysApiInvoker.invokeUpdateWebApp(updateWebAppRequestBody, scanContext.getWebAppId());
+            response = qualysApiInvoker.invokeUpdateWebApp(updateWebAppRequestBody, qualysScanContext.getWebAppId());
         } catch (RetryExceededException | InterruptedException | IOException e) {
             throw new ScannerException("Error occurred while invoking update Web Application API : ", e);
         }
@@ -330,7 +355,7 @@ public class QualysScanHandler {
         if (serviceResponseNodeList != null) {
             String message =
                     " Web Application " + appName + " is successfully updated with given configurations: ";
-            log.info(new CallbackLog(scanContext.getJobID(), message));
+            log.info(new CallbackLog(qualysScanContext.getJobID(), message));
         }
     }
 

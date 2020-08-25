@@ -68,6 +68,10 @@ public class ScanServiceImpl implements ScanService {
         return scanDAO.getByJobId(jobId);
     }
 
+    @Override public ScanStatus getStatusByJobId(String jobId) {
+        return scanDAO.getStatusByJobId(jobId);
+    }
+
     @Override
     public void updateStatus(String jobId, ScanStatus status) throws ScanManagerException {
         Integer updatedRows = scanDAO.updateStatus(status, jobId);
@@ -89,6 +93,13 @@ public class ScanServiceImpl implements ScanService {
         Integer updatedRows = scanDAO.updateScannerAppId(scannerAppId, jobId);
         if (updatedRows != 1) {
             throw new ScanManagerException("Error occurred while updating scanner app id of the scan: " + jobId);
+        }
+    }
+
+    @Override public void updateContainerID(String jobId, String containerID) throws ScanManagerException {
+        Integer updatedRows = scanDAO.updateContainerId(containerID,jobId);
+        if(updatedRows != 1){
+            throw new ScanManagerException("Error occured while updating scan container ID of the scan: " + jobId);
         }
     }
 

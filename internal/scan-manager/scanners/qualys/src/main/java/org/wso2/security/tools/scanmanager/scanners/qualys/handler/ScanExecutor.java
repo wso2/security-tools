@@ -18,15 +18,24 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
+import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanager.scanners.common.model.CallbackLog;
 import org.wso2.security.tools.scanmanager.scanners.common.util.CallbackUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
-import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.QualysScanContext;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,18 +45,18 @@ import java.util.Map;
 public class ScanExecutor implements Runnable {
 
     private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(ScanExecutor.class);
-    private ScanContext scanContext;
+    private QualysScanContext qualysScanContext;
     private Map<String, List<String>> fileMap;
     private QualysScanHandler qualysScanHandler;
 
-    public ScanExecutor(ScanContext scanContext, Map<String, List<String>> fileMap,
+    public ScanExecutor(QualysScanContext qualysScanContext, Map<String, List<String>> fileMap,
             QualysScanHandler qualysScanHandler) {
         if (log.isDebugEnabled()) {
             String logMessage =
-                    "Scan Executor thread is being initialized for the application:" + scanContext.getWebAppId();
-            log.debug(new CallbackLog(scanContext.getJobID(), logMessage));
+                    "Scan Executor thread is being initialized for the application:" + qualysScanContext.getWebAppId();
+            log.debug(new CallbackLog(qualysScanContext.getJobID(), logMessage));
         }
-        this.scanContext = scanContext;
+        this.qualysScanContext = qualysScanContext;
         this.fileMap = fileMap;
         this.qualysScanHandler = qualysScanHandler;
     }
@@ -58,52 +67,81 @@ public class ScanExecutor implements Runnable {
 
         // Prepare Web Application for launching scan.
         try {
-            // Purging Scan before launching the scan.
-            qualysScanHandler.purgeScan(scanContext.getWebAppId(), scanContext.getJobID());
 
-            authScriptId = qualysScanHandler.getAuthScriptId(scanContext.getWebAppId(), scanContext.getJobID(),
-                    scanContext.getWebAppAuthenticationRecordBuilder());
+            // If scanner scan id is empty, then current request is to initiate either new scan or
+            // pre process for the current request is not completed successfully prior to container unavailability
+            if(StringUtils.isEmpty(qualysScanContext.getScannerScanId())) {
 
-            // Set ScanContext Object.
-            scanContext.setAuthId(authScriptId);
+                // Purging Scan before launching the scan.
+                qualysScanHandler.purgeScan(qualysScanContext.getWebAppId(), qualysScanContext.getJobID());
 
-            // Update web application related configurations.
-            qualysScanHandler.updateWebApp(scanContext);
+                authScriptId = qualysScanHandler.getAuthScriptId(qualysScanContext.getWebAppId(), qualysScanContext.getJobID(),
+                        qualysScanContext.getWebAppAuthenticationRecordBuilder());
 
-            // Set list of crawling script objects.
-            scanContext.setListOfCrawlingScripts(fileMap.get(QualysScannerConstants.CRAWLINGSCRIPTS));
+                if (StringUtils.isEmpty(qualysScanContext.getAuthId())) {
 
-            // Add crawling script and it's configurations for scan.
-            qualysScanHandler.addCrawlingSetting(scanContext.getListOfCrawlingScripts(), scanContext.getJobID(),
-                    scanContext.getWebAppId(), scanContext.getWebAppName());
-
-            // Launch Scan.
-            scannerScanId = qualysScanHandler.launchScan(scanContext);
-            scanContext.setScannerScanId(scannerScanId);
-
-            // Initiate ScheduledExecutorService to update scan status.
-            StatusHandler statusChecker = new StatusHandler(qualysScanHandler, scanContext,
-                    scanContext.getSchedulerDelay(), scanContext.getSchedulerDelay());
-            statusChecker.activateStatusHandler();
-        } catch (ScannerException e) {
-            String message = "Failed to start scan " + scanContext.getJobID() + ". " + ErrorProcessingUtil
-                    .getFullErrorMessage(e);
-            log.error(new CallbackLog(scanContext.getJobID(), message));
-            try {
-                // Performing clean up task.
-                if (scanContext.getAuthId() != null) {
-                    message = "Deleting added authentication script before update the status to scan manager";
-                    log.info(new CallbackLog(scanContext.getJobID(), message));
-                    qualysScanHandler.doCleanUp(scanContext.getAuthId(), scanContext.getJobID());
+                    // Set authentication script id.
+                    qualysScanContext.setAuthId(authScriptId);
                 }
-                log.error(new CallbackLog(scanContext.getJobID(), "Scan status is updating to ERROR"));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
-            } catch (ScannerException e1) {
-                message = "Error occurred while doing the cleanup task. " + scanContext.getJobID() + ErrorProcessingUtil
-                        .getFullErrorMessage(e1);
-                log.error(new CallbackLog(scanContext.getJobID(), message));
-                CallbackUtil.updateScanStatus(scanContext.getJobID(), ScanStatus.ERROR, null, null);
+
+                // Update web application related configurations.
+                qualysScanHandler.updateWebApp(qualysScanContext);
+
+                if(fileMap.containsKey(QualysScannerConstants.CRAWLINGSCRIPTS) &&
+                        fileMap.get(QualysScannerConstants.CRAWLINGSCRIPTS).size()!=0) {
+                    // Set list of crawling script objects.
+                    qualysScanContext.setListOfCrawlingScripts(fileMap.get(QualysScannerConstants.CRAWLINGSCRIPTS));
+
+                    // Add crawling script and it's configurations for scan.
+                    qualysScanHandler.addCrawlingSetting(qualysScanContext.getListOfCrawlingScripts(),
+                            qualysScanContext.getJobID(),
+                            qualysScanContext.getWebAppId(), qualysScanContext.getWebAppName());
+                }
+
+                // Launch Scan.
+                scannerScanId = qualysScanHandler.launchScan(qualysScanContext);
+                qualysScanContext.setScannerScanId(scannerScanId);
+
+                // Write scan context object to yaml file.
+                ObjectMapper scanContextObjectMapper = new ObjectMapper(new YAMLFactory());
+                scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                scanContextObjectMapper.writeValue(new File(ScannerConstants.SCAN_CONTEXT_FILE_NAME), qualysScanContext);
+
+                // Initiate ScheduledExecutorService to update scan status.
+                initiateStatusChecker();
+            }else {
+                // Initiate ScheduledExecutorService to update scan status of resume scan.
+                initiateStatusChecker();
             }
+        } catch (ScannerException e) {
+            String message = "Failed to start scan " + qualysScanContext.getJobID() + ". " + ErrorProcessingUtil
+                    .getFullErrorMessage(e);
+            log.error(new CallbackLog(qualysScanContext.getJobID(), message));
+            try {
+
+                // Performing clean up task.
+                if (!StringUtils.isEmpty(qualysScanContext.getAuthId())) {
+                    message = "Deleting added authentication script before update the status to scan manager";
+                    log.info(new CallbackLog(qualysScanContext.getJobID(), message));
+                    qualysScanHandler.doCleanUp(qualysScanContext.getAuthId(), qualysScanContext.getJobID());
+                }
+                log.error(new CallbackLog(qualysScanContext.getJobID(), "Scan status is updating to ERROR"));
+                CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.ERROR, null, null);
+            } catch (ScannerException e1) {
+                message = "Error occurred while doing the cleanup task. " + qualysScanContext.getJobID() + ErrorProcessingUtil
+                        .getFullErrorMessage(e1);
+                log.error(new CallbackLog(qualysScanContext.getJobID(), message));
+                CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.ERROR, null, null);
+            }
+        } catch (IOException e) {
+            String message = "Error occured while generating scan context file";
+            log.error(new CallbackLog(qualysScanContext.getJobID(), message));
         }
+    }
+
+    private void initiateStatusChecker(){
+        StatusHandler statusChecker = new StatusHandler(qualysScanHandler, qualysScanContext,
+                qualysScanContext.getSchedulerDelay(), qualysScanContext.getSchedulerDelay());
+        statusChecker.activateStatusHandler();
     }
 }

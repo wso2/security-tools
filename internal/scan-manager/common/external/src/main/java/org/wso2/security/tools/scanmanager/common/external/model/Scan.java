@@ -89,6 +89,9 @@ public class Scan {
     @Column(name = "REPORT_PATH")
     private String reportPath;
 
+    @Column(name = "CONTAINER_ID")
+    private String containerId;
+
     @OneToMany(mappedBy = "scan", fetch = FetchType.EAGER)
     @Cascade(CascadeType.ALL)
     @JsonManagedReference
@@ -104,7 +107,7 @@ public class Scan {
 
     public Scan(String jobId, String name, String description, Scanner scanner, ScanStatus status, int priority,
                 String product, ScanType type, int userId, String scannerScanId, String scannerAppId,
-                String reportPath, Set<ScanFile> fileList, Set<ScanProperty> propertyList,
+                String reportPath, String containerId, Set<ScanFile> fileList, Set<ScanProperty> propertyList,
                 Timestamp submittedTimestamp, Timestamp startTimestamp) {
         this.jobId = jobId;
         this.name = name;
@@ -118,6 +121,7 @@ public class Scan {
         this.scannerScanId = scannerScanId;
         this.scannerAppId = scannerAppId;
         this.reportPath = reportPath;
+        this.containerId = containerId;
         this.fileList = fileList;
         this.propertyList = propertyList;
 
@@ -135,7 +139,7 @@ public class Scan {
 
     public Scan(String jobId, String name, String description, Scanner scanner, ScanStatus status, int priority,
                 String product, ScanType type, int userId, Timestamp submittedTimestamp, Timestamp startTimestamp,
-                String scannerScanId, String scannerAppId, String reportPath, Set<ScanFile> fileList,
+                String scannerScanId, String scannerAppId, String reportPath, String containerId, Set<ScanFile> fileList,
                 Set<ScanProperty> propertyList) {
         this.jobId = jobId;
         this.name = name;
@@ -149,6 +153,7 @@ public class Scan {
         this.scannerScanId = scannerScanId;
         this.scannerAppId = scannerAppId;
         this.reportPath = reportPath;
+        this.containerId = containerId;
         this.fileList = fileList;
         this.propertyList = propertyList;
 
@@ -298,5 +303,13 @@ public class Scan {
 
     public void setType(ScanType type) {
         this.type = type;
+    }
+
+    public String getContainerId() {
+        return containerId;
+    }
+
+    public void setContainerId(String containerId) {
+        this.containerId = containerId;
     }
 }

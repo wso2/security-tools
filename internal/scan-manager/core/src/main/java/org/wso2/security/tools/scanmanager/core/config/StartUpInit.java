@@ -48,6 +48,10 @@ public class StartUpInit {
 
             // Starting all pending scans during the application startup.
             scanEngineService.beginPendingScans();
+
+            // Starting resume scan process during the application startup. This is
+            // to resume a scan whenever unavailability of docker container
+            scanEngineService.resumeScans();
         } catch (ScanManagerException e) {
             logger.error("Error occurred while initializing", e);
         }

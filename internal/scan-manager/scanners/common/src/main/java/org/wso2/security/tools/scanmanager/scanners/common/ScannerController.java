@@ -71,16 +71,27 @@ public class ScannerController {
         ResponseEntity responseEntity;
         responseEntity = validateStartScanReq(scannerScanRequest);
         if (responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)) {
-            if (scanner.validateStartScan(scannerScanRequest)) {
-                log.info("Invoking start scan API.");
-                startScanThread = new Thread(() -> scanner.startScan(scannerScanRequest), "StartScanThread");
+            System.out.println(scannerScanRequest.getIsResume());
+            // If current scan request is to initiate new scan
+            if(!Boolean.parseBoolean(scannerScanRequest.getIsResume())) {
+                if (scanner.validateStartScan(scannerScanRequest)) {
+                    log.info("Invoking start scan API.");
+                    startScanThread = new Thread(() -> scanner.startScan(scannerScanRequest), "StartScanThread");
+                    startScanThread.start();
+                    hasScanStarted = true;
+                } else {
+                    String message = "Start scan request validation is failed.";
+                    log.error(message);
+                    responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(), message),
+                            HttpStatus.BAD_REQUEST);
+                }
+            } else{
+
+                // If current scan request is to resume scan
+                log.info("Invoking start scan API for resume scan.");
+                startScanThread = new Thread(() -> scanner.resumeScan(scannerScanRequest), "StartResumeScanThread");
                 startScanThread.start();
                 hasScanStarted = true;
-            } else {
-                String message = "Start scan request validation is failed.";
-                log.error(message);
-                responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
-                        message), HttpStatus.BAD_REQUEST);
             }
         }
         return responseEntity;

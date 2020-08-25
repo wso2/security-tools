@@ -29,6 +29,7 @@ public final class ScannerConstants {
     public static final String XML_FILE_EXTENSION = ".xml";
     public static final String CALLBACK_RETRY_INCREASE_SECONDS = "callback_retry_interval_seconds";
     public static final String CONFIGURTION_FILE_NAME = "scanner-config.yaml";
+    public static final String SCAN_CONTEXT_FILE_NAME = "scan-context.yaml";
     public static final String RESOURCE_FILE_PATH = "src/main/resources";
     public static final String DEFAULT_FTP_PRODUCT_PATH = "default_product_path";
     public static final String CONTENT_TYPE = "Content-Type";

@@ -29,6 +29,7 @@ public class ScannerScanRequest {
     private String jobId;
     private Map<String, List<String>> fileMap;
     private Map<String, List<String>> propertyMap;
+    private String isResume;
 
     public String getJobId() {
         return jobId;
@@ -60,5 +61,13 @@ public class ScannerScanRequest {
 
     public void setAppId(String appId) {
         this.appId = appId;
+    }
+
+    public String getIsResume() {
+        return isResume;
+    }
+
+    public void setIsResume(String isResume) {
+        this.isResume = isResume;
     }
 }

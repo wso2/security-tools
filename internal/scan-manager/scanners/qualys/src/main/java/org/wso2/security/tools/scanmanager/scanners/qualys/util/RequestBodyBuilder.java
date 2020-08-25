@@ -26,7 +26,7 @@ import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.common.util.XMLUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.model.CrawlingScript;
-import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.QualysScanContext;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -198,12 +198,12 @@ public class RequestBodyBuilder {
     /**
      * Build launch scan request body.
      *
-     * @param scanContext qualys scanner parameters
+     * @param qualysScanContext qualys scanner parameters
      * @return launch scan request body in XML format
      * @throws ParserConfigurationException error occurred while parsing
      * @throws TransformerException         error occurred while building secure string writer
      */
-    public static String buildScanLaunchRequest(ScanContext scanContext)
+    public static String buildScanLaunchRequest(QualysScanContext qualysScanContext)
             throws ParserConfigurationException, TransformerException {
         String launchScanRequestBody;
         DocumentBuilderFactory dbf = XMLUtil.getSecuredDocumentBuilderFactory();
@@ -220,11 +220,11 @@ public class RequestBodyBuilder {
 
         Element name = doc.createElement(QualysScannerConstants.NAME_KEYWORD);
         name.appendChild(doc.createTextNode(
-                QualysScannerConstants.QUALYS_SCAN_NAME_PREFIX + scanContext.getWebAppId() + getDate()));
+                QualysScannerConstants.QUALYS_SCAN_NAME_PREFIX + qualysScanContext.getWebAppId() + getDate()));
         wasScan.appendChild(name);
 
         Element type = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
-        type.appendChild(doc.createTextNode(scanContext.getType()));
+        type.appendChild(doc.createTextNode(qualysScanContext.getType()));
         wasScan.appendChild(type);
 
         Element target = doc.createElement(QualysScannerConstants.TARGET);
@@ -234,20 +234,20 @@ public class RequestBodyBuilder {
         target.appendChild(webApp);
 
         Element webAppId = doc.createElement(QualysScannerConstants.ID_KEYWORD);
-        webAppId.appendChild(doc.createTextNode(scanContext.getWebAppId()));
+        webAppId.appendChild(doc.createTextNode(qualysScanContext.getWebAppId()));
         webApp.appendChild(webAppId);
 
         Element webAppAuthRecord = doc.createElement("webAppAuthRecord");
         target.appendChild(webAppAuthRecord);
 
         // If authentication script is not provided, default auth record will be used.
-        if (scanContext.getAuthId() == null) {
+        if (qualysScanContext.getAuthId() == null) {
             Element defaultAuthRecord = doc.createElement(QualysScannerConstants.IS_DEFAULT);
             defaultAuthRecord.appendChild(doc.createTextNode(QualysScannerConstants.TRUE));
             webAppAuthRecord.appendChild(defaultAuthRecord);
         } else {
             Element webAppAuthRecordId = doc.createElement(QualysScannerConstants.ID_KEYWORD);
-            webAppAuthRecordId.appendChild(doc.createTextNode(scanContext.getAuthId()));
+            webAppAuthRecordId.appendChild(doc.createTextNode(qualysScanContext.getAuthId()));
             webAppAuthRecord.appendChild(webAppAuthRecordId);
         }
 
@@ -255,18 +255,18 @@ public class RequestBodyBuilder {
         target.appendChild(scannerAppliance);
 
         Element scannerApplianceType = doc.createElement(QualysScannerConstants.TYPE_KEYWORD);
-        scannerApplianceType.appendChild(doc.createTextNode(scanContext.getScannerApplianceType()));
+        scannerApplianceType.appendChild(doc.createTextNode(qualysScanContext.getScannerApplianceType()));
         scannerAppliance.appendChild(scannerApplianceType);
 
         Element profile = doc.createElement(QualysScannerConstants.PROFILE);
         wasScan.appendChild(profile);
 
         Element profileId = doc.createElement(QualysScannerConstants.ID_KEYWORD);
-        profileId.appendChild(doc.createTextNode(scanContext.getProfileId()));
+        profileId.appendChild(doc.createTextNode(qualysScanContext.getProfileId()));
         profile.appendChild(profileId);
 
         Element progressiveScanning = doc.createElement(QualysScannerConstants.PROGRESSIVE_SCANNING_KEYWORD);
-        progressiveScanning.appendChild(doc.createTextNode(scanContext.getProgressiveScanning()));
+        progressiveScanning.appendChild(doc.createTextNode(qualysScanContext.getProgressiveScanning()));
         wasScan.appendChild(progressiveScanning);
 
         StringWriter stringWriter = XMLUtil.buildSecureStringWriter(doc);
