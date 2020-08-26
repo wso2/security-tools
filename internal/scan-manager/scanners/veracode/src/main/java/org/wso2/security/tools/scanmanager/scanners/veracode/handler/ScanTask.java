@@ -86,17 +86,25 @@ public class ScanTask {
     }
 
     public void run() {
-        if (!isResumeScan && isScanRunning()) {
-            // If another scans is running on the actual Veracode cloud scanner, then the start scan request
-            // would be failed and Scan status is updated as 'ERROR'.
+        if (isScanRunning()) {
+            if (isResumeScan) {
 
-            String logMessage = "Currently another scan is running on the application id  : " + scanContext.getAppId()
-                    + ". So please check this scan before proceed with another scan.";
-            log.error(new CallbackLog(scanContext.getJobId(), logMessage));
-            CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
-        } else if (isResumeScan && isScanRunning()) {
-            getScanReport();
+                // If resume scan is true and scan is running, scan needs to be resumed from get scan report task.
+                getScanReport();
+            } else {
+
+                // If another scans is running on the actual Veracode cloud scanner, then the start scan request
+                // would be failed and Scan status is updated as 'ERROR'.
+                String logMessage =
+                        "Currently another scan is running on the application id  : " + scanContext.getAppId()
+                                + ". So please check this scan before proceed with another scan.";
+                log.error(new CallbackLog(scanContext.getJobId(), logMessage));
+                CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
+            }
         } else {
+
+            // If resume scan is true and scan is not running, scan needs to be resumed from initial state.
+            // If resume scan is false and scan is not running, request is to do new scan.
             if (handleUploadingTask()) {
                 if (handleResultProcessTask()) {
                     String logMessage =
@@ -190,7 +198,7 @@ public class ScanTask {
                 UploadAPIWrapper uploadAPIWrapper = VeracodeAPIUtil.getUploadAPIWrapper();
                 result = uploadAPIWrapper.getBuildInfo(scanContext.getAppId());
                 currentScanStatus = VeracodeResultProcessor.getScanStatus(result);
-                if (ScanStatus.RUNNING.equals(currentScanStatus)) {
+                if (ScanStatus.RUNNING.equals(currentScanStatus) || ScanStatus.SUBMITTED.equals(currentScanStatus)) {
                     isScanRunning = true;
                 }
             } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
@@ -305,7 +313,8 @@ public class ScanTask {
 
                     CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
                 }
-            } catch (IOException | JSchException | SftpException | SAXException | ScannerException | ArchiveException | ParserConfigurationException e) {
+            } catch (IOException | JSchException | SftpException | SAXException | ScannerException |
+                    ArchiveException | ParserConfigurationException e) {
                 String logMessage =
                         "Error occured while creating the scan zip artifact for application : " + scanContext.getAppId()
                                 + "\n" + ErrorProcessingUtil.getFullErrorMessage(e);
@@ -624,7 +633,8 @@ public class ScanTask {
                     log.error(new CallbackLog(scanContext.getJobId(), logMessage));
                 }
             }
-        } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException | ArchiveException | ScannerException e) {
+        } catch (XPathExpressionException | ParserConfigurationException | SAXException | IOException |
+                ArchiveException | ScannerException e) {
             String logMessage;
             if (e.getClass().isInstance(ScannerException.class)) {
                 logMessage = "Extracting scan report zip is failed for the application: " + scanContext.getAppId() + " "
@@ -760,7 +770,8 @@ public class ScanTask {
                                 .getInstance().getConfigProperty(VeracodeScannerConstants.
                                         VERACODE_OUTPUT_FOLDER_PATH) + " for the application " + scanContext.getAppId();
                 log.info(new CallbackLog(scanContext.getJobId(), logMessage));
-            } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException | ScannerException e) {
+            } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException |
+                    ScannerException e) {
                 String logMessage =
                         "Error occured while downloading the sca reports for the application " + scanContext.getAppId();
                 log.error(new CallbackLog(scanContext.getJobId(), logMessage));

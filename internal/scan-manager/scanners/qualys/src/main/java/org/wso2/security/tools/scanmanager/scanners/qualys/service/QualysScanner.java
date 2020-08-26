@@ -19,8 +19,8 @@
 package org.wso2.security.tools.scanmanager.scanners.qualys.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,8 +61,8 @@ import java.util.Map;
 /**
  * This class is responsible to initiate the generic use cases of Qualys scanner
  */
-@Component("QualysScanner") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) public class QualysScanner
-        implements Scanner {
+@Component("QualysScanner") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class QualysScanner implements Scanner {
 
     private static final Logger log = LogManager.getLogger(QualysScanner.class);
     private QualysScanHandler qualysScanHandler;
@@ -76,7 +76,6 @@ import java.util.Map;
         QualysApiInvoker qualysApiInvoker = new QualysApiInvoker();
         qualysApiInvoker.setBasicAuth(setCredentials());
         this.qualysScanHandler = new QualysScanHandler(qualysApiInvoker);
-        this.qualysScanContext = getQualysScanContext();
 
         // Setting callbackUrls.
         String callbackUrl =
@@ -89,10 +88,15 @@ import java.util.Map;
                 .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS);
         Long callbackRetryInterval = Long.parseLong(QualysScannerConfiguration.getInstance()
                 .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
-        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
+        String scanContextCallBackUrl = callbackUrl + QualysScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_SCAN_CONTEXT);
+        String callbackGetScanContext = callbackUrl + ScannerConstants.GET_SCAN_CONTEXT;
+        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval, scanContextCallBackUrl,
+                callbackGetScanContext);
     }
 
-    @Override public void startScan(ScannerScanRequest scanRequest) {
+    @Override
+    public void startScan(ScannerScanRequest scanRequest) {
         qualysScanContext.setWebAppName(scanRequest.getPropertyMap().get(QualysScannerConstants.
                 QUALYS_WEBAPP_KEYWORD).get(0));
         qualysScanContext.setApplicationUrl(scanRequest.getPropertyMap().get(QualysScannerConstants.SCAN_URL).get(0));
@@ -109,8 +113,12 @@ import java.util.Map;
         }
     }
 
-    @Override public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
+    @Override
+    public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
         boolean isValidParameters = false;
+        if (qualysScanContext == null) {
+            qualysScanContext = new QualysScanContext();
+        }
         try {
             isValidParameters = isValidParameters(scannerScanRequest);
         } catch (InvalidRequestException | ScannerException e) {
@@ -128,20 +136,26 @@ import java.util.Map;
         }
     }
 
-    @Override
-    public void resumeScan(ScannerScanRequest scannerScanRequest) {
+    @Override public void resumeScan(ScannerScanRequest scannerScanRequest) {
 
-        // If scanner Id is not set prior to unavailability of container, the resuming scan needs to be start
-        // from scan request validation.
+        String scanContextJsonString = CallbackUtil.getScanContext(scannerScanRequest.getJobId());
         try {
-            System.out.println("9999999999999");
-            if (StringUtils.isEmpty(qualysScanContext.getScannerScanId())) {
-                isValidParameters(scannerScanRequest);
+            if (!StringUtils.isEmpty(scanContextJsonString)) {
+                ObjectMapper scanContextObjectMapper = new ObjectMapper();
+                scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                qualysScanContext = scanContextObjectMapper.readValue(scanContextJsonString, QualysScanContext.class);
+            } else {
+
+                // If scan context is not set prior to unavailability of container, the resuming scan needs to be start
+                // from scan request validation.
+                if (!isValidParameters(scannerScanRequest)) {
+                    return;
+                }
             }
 
             // Spawn thread to resume the scan.
             startQualysScan(scannerScanRequest.getFileMap());
-        } catch (InvalidRequestException | ScannerException e) {
+        } catch (InvalidRequestException | ScannerException | JsonProcessingException e) {
             callbackErrorReport(ErrorProcessingUtil.getFullErrorMessage(e));
         }
     }
@@ -159,7 +173,6 @@ import java.util.Map;
         scanExecutorThread = new Thread(scanExecutor);
         scanExecutorThread.setName("Scan Executor Thread for Qualys");
         scanExecutorThread.start();
-        CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.SUBMITTED, null, null);
     }
 
     /**
@@ -187,17 +200,12 @@ import java.util.Map;
             qualysScanContext.setWebAppId(scannerScanRequest.getAppId());
         }
         Map<String, List<String>> parameterMap = scannerScanRequest.getPropertyMap();
-        System.out.println(scannerScanRequest.getPropertyMap().size());
-        for (Map.Entry<String, List<String>> entry : parameterMap.entrySet()) {
-            System.out.println(entry.getKey() + "/" + entry.getValue() );
-        }
+
 
         // Validate profile id.
-        if (!parameterMap.containsKey(QualysScannerConstants.PROFILE_ID) ||
-                StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.PROFILE_ID).get(0))) {
-            System.out.println("2.1");
+        if (!parameterMap.containsKey(QualysScannerConstants.PROFILE_ID) || StringUtils
+                .isEmpty(parameterMap.get(QualysScannerConstants.PROFILE_ID).get(0))) {
             qualysScanContext.setProfileId(QualysScannerConfiguration.getInstance().getDefaultProfileId());
-            System.out.println("2.2");
             String logMessage = "Profile ID is not provided. Default profile ID is set as profile ID value";
             log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
         } else if (!parameterMap.get(QualysScannerConstants.PROFILE_ID).get(0).
@@ -225,8 +233,8 @@ import java.util.Map;
         }
 
         // Validate scan type.
-        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0)) ||
-                !parameterMap.containsKey(QualysScannerConstants.TYPE_KEYWORD)) {
+        if (StringUtils.isEmpty(parameterMap.get(QualysScannerConstants.TYPE_KEYWORD).get(0)) || !parameterMap
+                .containsKey(QualysScannerConstants.TYPE_KEYWORD)) {
             qualysScanContext.setType(QualysScannerConfiguration.getInstance().getDefaultScanType());
             String logMessage = "Scan type for the scan is not provided. Default scan type is set as scan type ";
             log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
@@ -289,8 +297,9 @@ import java.util.Map;
         }
 
         // Validate crawling scripts.
-        if(scannerScanRequest.getFileMap().containsKey(QualysScannerConstants.CRAWLINGSCRIPTS)) {
-            List<String> crawlingScriptFiles = scannerScanRequest.getFileMap().get(QualysScannerConstants.CRAWLINGSCRIPTS);
+        if (scannerScanRequest.getFileMap().containsKey(QualysScannerConstants.CRAWLINGSCRIPTS)) {
+            List<String> crawlingScriptFiles = scannerScanRequest.getFileMap()
+                    .get(QualysScannerConstants.CRAWLINGSCRIPTS);
             if (crawlingScriptFiles.size() != 0) {
                 qualysScanContext.setScriptFilesLocation(crawlingScriptFiles.get(0)
                         .substring(0, crawlingScriptFiles.get(0).lastIndexOf(File.separator)));
@@ -322,7 +331,8 @@ import java.util.Map;
 
         if (StringUtils.isEmpty(qualysScanContext.getAuthId())) {
             // Validate authentication type.
-            WebAppAuthenticationRecordBuilderFactory webAppAuthenticationRecordBuilderFactory = new WebAppAuthenticationRecordBuilderFactory();
+            WebAppAuthenticationRecordBuilderFactory webAppAuthenticationRecordBuilderFactory =
+                    new WebAppAuthenticationRecordBuilderFactory();
             qualysScanContext.setWebAppAuthenticationRecordBuilder(
                     webAppAuthenticationRecordBuilderFactory.getWebAppAuth(scannerScanRequest));
         }
@@ -404,27 +414,4 @@ import java.util.Map;
         CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.ERROR, null, null);
     }
 
-    private QualysScanContext getQualysScanContext() {
-        File contextFile = new File(ScannerConstants.SCAN_CONTEXT_FILE_NAME);
-        QualysScanContext qualysScanContext = null;
-        if (contextFile.exists()) {
-
-            // Instantiating a new ObjectMapper as a YAMLFactory
-            ObjectMapper scanContextObjectMapper = new ObjectMapper(new YAMLFactory());
-            scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-            // Mapping the employee from the YAML file to the Employee class
-            try {
-                qualysScanContext = scanContextObjectMapper.readValue(contextFile, QualysScanContext.class);
-                System.out.println("nn");
-                String message = "Scan context is recreated for job ID: " + qualysScanContext.getJobID();
-                log.info(new CallbackLog(qualysScanContext.getJobID(), message));
-            } catch (IOException e) {
-                log.error("could not read file due to "+ e.getMessage());
-            }
-        } else {
-            qualysScanContext = new QualysScanContext();
-        }
-        return qualysScanContext;
-    }
 }

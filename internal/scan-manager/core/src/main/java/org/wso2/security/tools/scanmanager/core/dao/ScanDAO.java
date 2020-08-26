@@ -71,6 +71,24 @@ public interface ScanDAO extends PagingAndSortingRepository<Scan, String> {
     public int updateStatus(ScanStatus status, String jobId);
 
     /**
+     * Get Scan Context by jobID
+     * @param jobId job id assigned for the scan
+     * @return Scan Context for the given job id
+     */
+    public String getScanContextByJobId(String jobId);
+
+    /**
+     * Update scan context.
+     *
+     * @param scanContextJsonString scan context json string
+     * @param jobId  scan job id
+     * @return number of rows that were updated
+     */
+    @Modifying
+    @Query("update Scan u set u.scanContext = ?1 where u.jobId = ?2")
+    public int updateScanContext(String scanContextJsonString, String jobId);
+
+    /**
      * Update scan containerID.
      *
      * @param containerId scan containerID

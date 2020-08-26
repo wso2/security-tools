@@ -45,7 +45,9 @@ public final class ScannerConstants {
     // Scan manager config.
     public static final String SCAN_MANAGER_CALLBACK_URL_ENDPOINT = "scan_manager_callback_url_endpoint";
     public static final String SCAN_MANAGER_CALLBACK_STATUS = "scan_manager_callback_status";
+    public static final String SCAN_MANAGER_SCAN_CONTEXT = "scan_manager_callback_scancontext";
     public static final String SCAN_MANAGER_CALLBACK_LOG = "scan_manager_callback_log";
+    public static final String GET_SCAN_CONTEXT = "scan-context";
     public static final String SCAN_MANAGER_HOST = "SCAN_MANAGER_HOST";
     public static final String SCAN_MANAGER_PORT = "SCAN_MANAGER_PORT";
     public static final String HTTP_PROTOCOL = "http://";

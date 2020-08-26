@@ -72,6 +72,13 @@ public interface ScanService {
     public ScanStatus getStatusByJobId(String jobId);
 
     /**
+     * Get scan context by job id.
+     * @param jobId job id for the scan
+     * @return scan context for the given job id
+     */
+    public String getScanContextByJobId(String jobId);
+
+    /**
      * Update the scan status.
      *
      * @param jobId  job id for the scan
@@ -79,6 +86,15 @@ public interface ScanService {
      * @throws ScanManagerException when an error occurs while updating the scan status
      */
     public void updateStatus(String jobId, ScanStatus status) throws ScanManagerException;
+
+    /**
+     * Update the scan context
+     *
+     * @param jobId job id for the scan
+     * @param scanContextString scan context string
+     * @throws ScanManagerException when an error occurs while updating the scan status
+     */
+    public void updateScanContext(String jobId, String scanContextString) throws ScanManagerException;
 
     /**
      * Update scan priority.

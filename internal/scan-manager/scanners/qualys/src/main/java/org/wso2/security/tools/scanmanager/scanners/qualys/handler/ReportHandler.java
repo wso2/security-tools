@@ -66,12 +66,14 @@ public class ReportHandler {
 
         // Generate report for defined report types.
         for (String type : reportTypes) {
-            String reportId = qualysScanHandler.createReport(qualysScanContext.getWebAppId(), qualysScanContext.getJobID(), type,
+            String reportId = qualysScanHandler.createReport(qualysScanContext.getWebAppId(),
+                    qualysScanContext.getJobID(), type,
                     qualysScanContext.getReportTemplateId());
             awaitReportCreation(qualysScanContext.getJobID(), reportId, type);
-            String filepath = qualysScanHandler.downloadReport(qualysScanContext.getJobID(), reportId, reportFolderPath);
-            String logMessage = "Scan report for the application: " + qualysScanContext.getWebAppName() + " is downloaded."
-                    + " Scan Report Type : " + type + " Location : " + filepath;
+            String filepath = qualysScanHandler.downloadReport(qualysScanContext.getJobID(), reportId,
+                    reportFolderPath);
+            String logMessage = "Scan report for the application: " + qualysScanContext.getWebAppName() +
+                    " is downloaded. Scan Report Type : " + type + " Location : " + filepath;
             log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
         }
 
@@ -99,8 +101,8 @@ public class ReportHandler {
      * @param reportPath            path that needs to upload
      * @return true if reports are uploaded to ftp location successfully
      */
-    private boolean uploadReportToFtp(QualysScanContext qualysScanContext, String scanReportFtpLocation, String reportPath)
-            throws ScannerException {
+    private boolean uploadReportToFtp(QualysScanContext qualysScanContext, String scanReportFtpLocation,
+            String reportPath) throws ScannerException {
         boolean isReportUploaded = false;
         try {
             FileUtil.uploadReport(scanReportFtpLocation, new File(reportPath),
@@ -111,7 +113,8 @@ public class ReportHandler {
                     Integer.parseInt(
                             QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
             String logMessage =
-                    "Scan report is uploaded to the FTP server for the application: " + qualysScanContext.getWebAppName();
+                    "Scan report is uploaded to the FTP server for the application: " +
+                            qualysScanContext.getWebAppName();
             log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
             isReportUploaded = true;
         } catch (SftpException | JSchException e) {

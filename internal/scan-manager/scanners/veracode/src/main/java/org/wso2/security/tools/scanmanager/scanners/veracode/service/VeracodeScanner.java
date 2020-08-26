@@ -18,8 +18,8 @@
 package org.wso2.security.tools.scanmanager.scanners.veracode.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.veracode.apiwrapper.cli.VeracodeCommand;
 import com.veracode.apiwrapper.wrappers.UploadAPIWrapper;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +43,6 @@ import org.wso2.security.tools.scanmanager.scanners.veracode.model.ScanContext;
 import org.wso2.security.tools.scanmanager.scanners.veracode.util.VeracodeAPIUtil;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
@@ -67,7 +66,7 @@ import javax.xml.xpath.XPathExpressionException;
     public VeracodeScanner() throws IOException {
         loadConfiguration();
         VeracodeCommand.Options options;
-        scanContext = getScanContext();
+        //        scanContext = getScanContext();
         //        scanContext = new ScanContext();
 
         options = new VeracodeCommand.Options();
@@ -92,8 +91,11 @@ import javax.xml.xpath.XPathExpressionException;
                 .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS);
         Long callbackRetryInterval = Long.parseLong(VeracodeScannerConfiguration.getInstance()
                 .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
-
-        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
+        String scanContextCallBackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_SCAN_CONTEXT);
+        String callbackGetScanContext = callbackUrl + ScannerConstants.GET_SCAN_CONTEXT;
+        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval, scanContextCallBackUrl,
+                callbackGetScanContext);
     }
 
     /**
@@ -127,16 +129,15 @@ import javax.xml.xpath.XPathExpressionException;
                     String message = "Current thread is interrupted. ";
                     log.error(new CallbackLog(scanContext.getJobId(), message));
                 } else {
-
-                    // Write scan context object to yaml file.
-                    ObjectMapper scanContextObjectMapper = new ObjectMapper(new YAMLFactory());
-                    scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
                     try {
-                        scanContextObjectMapper.writeValue(new File(ScannerConstants.SCAN_CONTEXT_FILE_NAME),
-                                scanContext);
-                    } catch (IOException e) {
-                        String message = "Error occured while writing scan context file. ";
-                        callbackErrorReport(message);
+                        // Persist scan context object.
+                        ObjectMapper scanContextObjectMapper = new ObjectMapper();
+                        scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                        String scanContextJsonString = scanContextObjectMapper.writeValueAsString(scanContext);
+                        CallbackUtil.updateScanContext(scanContext.getJobId(), scanContextJsonString, Long.valueOf(0));
+                    } catch (JsonProcessingException e) {
+                        log.error(new CallbackLog(scanContext.getJobId(),
+                                "Error occured while persisting scan context"));
                     }
                     ScanTask scanTask = new ScanTask(scanContext, false);
                     scanTask.run();
@@ -154,6 +155,7 @@ import javax.xml.xpath.XPathExpressionException;
         if (StringUtils.isEmpty(scannerScanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT))) {
             return false;
         } else {
+            scanContext = new ScanContext();
             return true;
         }
     }
@@ -200,7 +202,21 @@ import javax.xml.xpath.XPathExpressionException;
     }
 
     @Override public void resumeScan(ScannerScanRequest scanRequest) {
-        System.out.println(scanContext.getAppId());
+        String scanContextJsonString = CallbackUtil.getScanContext(scanRequest.getJobId());
+        try {
+            if (!StringUtils.isEmpty(scanContextJsonString)) {
+                ObjectMapper scanContextObjectMapper = new ObjectMapper();
+                scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                scanContext = scanContextObjectMapper.readValue(scanContextJsonString, ScanContext.class);
+            } else {
+                if (!validateStartScan(scanRequest)) {
+                    return;
+                }
+            }
+        } catch (JsonProcessingException e) {
+            callbackErrorReport(ErrorProcessingUtil.getFullErrorMessage(e));
+        }
+
         ScanTask scanTask = new ScanTask(scanContext, true);
         log.info(new CallbackLog(scanContext.getJobId(), "Scan is to be resumed"));
         scanTask.run();
@@ -220,28 +236,5 @@ import javax.xml.xpath.XPathExpressionException;
         log.error(new CallbackLog(scanContext.getJobId(), message));
 
         CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.ERROR, null, null);
-    }
-
-    private ScanContext getScanContext() {
-        File contextFile = new File(ScannerConstants.SCAN_CONTEXT_FILE_NAME);
-        ScanContext scanContext = null;
-        if (contextFile.exists()) {
-
-            // Instantiating a new ObjectMapper as a YAMLFactory
-            ObjectMapper scanContextObjectMapper = new ObjectMapper(new YAMLFactory());
-            scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-            // Mapping the employee from the YAML file to the Employee class
-            try {
-                scanContext = scanContextObjectMapper.readValue(contextFile, ScanContext.class);
-                String message = "Scan context is recreated for job ID: " + scanContext.getJobId();
-                log.info(new CallbackLog(scanContext.getJobId(), message));
-            } catch (IOException e) {
-                log.error("could not read file");
-            }
-        } else {
-            scanContext = new ScanContext();
-        }
-        return scanContext;
     }
 }

@@ -157,10 +157,10 @@ public class QualysScanHandler {
     public void cancelScan(QualysScanContext qualysScanContext) throws ScannerException {
         HttpResponse response;
 
-        // If scanner id and authentication id are empty then scan is not launched in Qualys sanner yet prior to cancelling
-        // scan.
-        if(StringUtils.isEmpty(qualysScanContext.getScannerScanId()) &&
-                StringUtils.isEmpty(qualysScanContext.getAuthId())){
+        // If scanner id and authentication id are empty then scan is not launched in Qualys sanner yet prior
+        // to cancelling scan.
+        if (StringUtils.isEmpty(qualysScanContext.getScannerScanId()) && StringUtils
+                .isEmpty(qualysScanContext.getAuthId())) {
             log.info(new CallbackLog(qualysScanContext.getJobID(), "Scan is not initiated in Qualys Scanner yet."));
             CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.CANCELED, null,
                     qualysScanContext.getScannerScanId());
@@ -169,8 +169,8 @@ public class QualysScanHandler {
 
         // If scanner id is empty and authentication id is not empty then scan is not launched in Qualys scanner
         // yet prior to cancelling scan. But created authentication id needs to be removed.
-        if(StringUtils.isEmpty(qualysScanContext.getScannerScanId()) &&
-                !StringUtils.isEmpty(qualysScanContext.getAuthId())){
+        if (StringUtils.isEmpty(qualysScanContext.getScannerScanId()) && !StringUtils
+                .isEmpty(qualysScanContext.getAuthId())) {
             String message = "Scan for Job ID : " + qualysScanContext.getJobID() + " got cancelled ";
             log.info(new CallbackLog(qualysScanContext.getJobID(), message));
 
@@ -340,7 +340,8 @@ public class QualysScanHandler {
         String appName = qualysScanContext.getWebAppName();
         try {
             updateWebAppRequestBody = RequestBodyBuilder
-                    .buildWebAppConfigUpdateRequest(qualysScanContext.getJobID(), appName, qualysScanContext.getAuthId(),
+                    .buildWebAppConfigUpdateRequest(qualysScanContext.getJobID(), appName,
+                            qualysScanContext.getAuthId(),
                             qualysScanContext.getApplicationUrl(), qualysScanContext.getCrawlingScope(),
                             qualysScanContext.getBlackListRegex());
         } catch (ParserConfigurationException | TransformerException e) {

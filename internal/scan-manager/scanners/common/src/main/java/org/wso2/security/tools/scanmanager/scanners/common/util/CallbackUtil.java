@@ -40,13 +40,17 @@ public class CallbackUtil {
     private static final Logger log = LogManager.getLogger(CallbackUtil.class);
     private static String scanManagerLogCallbackURL;
     private static String scanManagerStatusCallbackURL;
+    private static String scanManagerScanContextURL;
+    private static String scanManagerGetScanContext;
     private static Long retryTimeInterval = Long.valueOf(0);
 
     public static void setCallbackUrls(String scanManagerLogCallbackURL, String scanManagerStatusCallbackURL,
-                                       Long retryTimeInterval) {
+            Long retryTimeInterval, String scanManagerScanContextURL, String scanManagerGetScanContext) {
         CallbackUtil.scanManagerLogCallbackURL = scanManagerLogCallbackURL;
         CallbackUtil.scanManagerStatusCallbackURL = scanManagerStatusCallbackURL;
         CallbackUtil.retryTimeInterval = retryTimeInterval;
+        CallbackUtil.scanManagerScanContextURL = scanManagerScanContextURL;
+        CallbackUtil.scanManagerGetScanContext = scanManagerGetScanContext;
     }
 
     /**
@@ -71,7 +75,7 @@ public class CallbackUtil {
      * @param statusUpdateRetryTimeInterval retrying time to callback for updating the status
      */
     public static void updateScanStatus(String jobId, ScanStatus scanStatus, String reportPath, String scannerScanId,
-                                        Long statusUpdateRetryTimeInterval) {
+            Long statusUpdateRetryTimeInterval) {
         int responseCode = -1;
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("jobId", jobId);
@@ -92,12 +96,12 @@ public class CallbackUtil {
 
         if (HttpStatus.OK.value() == responseCode) {
             log.info("Callback status update is successfully completed. ");
-        } else if (HttpStatus.NOT_FOUND.value() == responseCode || HttpStatus.INTERNAL_SERVER_ERROR.value()
-                == responseCode || responseCode == -1) {
+        } else if (HttpStatus.NOT_FOUND.value() == responseCode
+                || HttpStatus.INTERNAL_SERVER_ERROR.value() == responseCode || responseCode == -1) {
             statusUpdateRetryTimeInterval += retryTimeInterval;
             try {
-                log.info("Callback log endpoint is not currently available and will retry after " +
-                        statusUpdateRetryTimeInterval + " Seconds");
+                log.info("Callback log endpoint is not currently available and will retry after "
+                        + statusUpdateRetryTimeInterval + " Seconds");
                 TimeUnit.SECONDS.sleep(statusUpdateRetryTimeInterval);
             } catch (InterruptedException e) {
                 log.error(e);
@@ -108,6 +112,69 @@ public class CallbackUtil {
         } else {
             log.warn("Callback status update failed with the response code : " + responseCode);
         }
+    }
+
+    /**
+     * Update scan context in scan manager.
+     *
+     * @param jobId                              job ID
+     * @param scanContextJsonString              scan context value in json string
+     * @param scanContextUpdateRetryTimeInterval retrying time to callback for updating the status
+     */
+    public static void updateScanContext(String jobId, String scanContextJsonString,
+            Long scanContextUpdateRetryTimeInterval) {
+        int responseCode = -1;
+        Map<String, Object> requestParams = new HashMap<>();
+        requestParams.put("jobId", jobId);
+        if (scanContextJsonString != null) {
+            requestParams.put("scanContextJsonString", scanContextJsonString);
+        }
+
+        try {
+            HTTPRequest scanContextUpdateRequest = new HTTPRequest(scanManagerScanContextURL, null, requestParams);
+            responseCode = HTTPUtil.sendPOST(scanContextUpdateRequest).getStatusCode().value();
+        } catch (RestClientException e) {
+            log.error(e);
+        }
+
+        if (HttpStatus.OK.value() == responseCode) {
+            log.info("Callback status update scan context is successfully completed. ");
+        } else if (HttpStatus.NOT_FOUND.value() == responseCode
+                || HttpStatus.INTERNAL_SERVER_ERROR.value() == responseCode || responseCode == -1) {
+            scanContextUpdateRetryTimeInterval += retryTimeInterval;
+            try {
+                log.info("Callback update scan context endpoint is not currently available and will retry after "
+                        + scanContextUpdateRetryTimeInterval + " Seconds");
+                TimeUnit.SECONDS.sleep(scanContextUpdateRetryTimeInterval);
+            } catch (InterruptedException e) {
+                log.error(e);
+            }
+
+            // Retrying updating the scan context in scan manager.
+            updateScanContext(jobId, scanContextJsonString, scanContextUpdateRetryTimeInterval);
+        } else {
+            log.warn("Callback scan status update failed with the response code : " + responseCode);
+        }
+    }
+
+    /**
+     * Get scan context.
+     *
+     * @param jobId job ID
+     * @return Scan context
+     */
+    public static String getScanContext(String jobId) {
+        String scanContext = null;
+        if (jobId != null) {
+            HTTPRequest getScanContextRequest = new HTTPRequest(scanManagerGetScanContext + "/" + jobId, null, null);
+            ResponseEntity<String> responseEntity = HTTPUtil.sendGET(getScanContextRequest);
+            if (responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful()) {
+                scanContext = responseEntity.getBody();
+            } else {
+                log.error("Error occured while retreiving scan context");
+            }
+        }
+        return scanContext;
     }
 
     /**

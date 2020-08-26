@@ -76,8 +76,10 @@ import static org.wso2.security.tools.scanmanager.core.util.Constants.SCHEME;
     private static final String RESUME_STATUS_PARAMETER_NAME = "isResume";
     private static final String SCANNER_SCAN_ENDPOINT = "/scanner/scan";
     private static final Integer SCANNER_SERVICE_WAIT_TIME = 10000;
-    private final long INITIAL_DELAY = 0;
-    private final long DELAY_BETWEEN_RUNS = 2;
+
+    // Configuration fot resilience task
+    private static final long INITIAL_DELAY = 0;
+    private static final long DELAY_BETWEEN_RUNS = 2;
     private static final int NUM_THREADS = 1;
 
     @Autowired public ScanEngineServiceImpl(ScanService scanService, ScannerService scannerService,
@@ -166,41 +168,36 @@ import static org.wso2.security.tools.scanmanager.core.util.Constants.SCHEME;
                     || newScanObject.getStatus() == ScanStatus.SUBMITTED
                     || newScanObject.getStatus() == ScanStatus.RUNNING) {
                 try {
-                    List<Container> containerInfos = dockerHandler.list();
-                    boolean isContainerFound = false;
-                    for (Container containerInfo : containerInfos) {
-                        Map<String, String> labels = containerInfo.getLabels();
-                        if (labels != null && labels.containsKey(CONTAINER_SCAN_JOB_ID_LABEL_NAME) && labels
-                                .get(CONTAINER_SCAN_JOB_ID_LABEL_NAME).equals(scan.getJobId())) {
-                            isContainerFound = true;
+                    Container containerInfo = dockerHandler.inspect(scan.getContainerId());
+                    Map<String, String> labels = containerInfo.getLabels();
+                    if (containerInfo.isRunning()) {
 
-                            // A container is running for this particular scan. Hence we need to send a cancel scan
-                            // request to the container.
-                            URI uri = buildScannerScanURI(containerInfo);
-                            Map<String, Object> requestParams = new HashMap<>();
-                            requestParams.put(JOB_ID_PARAMETER_NAME, scan.getJobId());
-                            requestParams.put(SCANNER_APP_ID_PARAMETER_NAME, labels.get(CONTAINER_APP_LABEL_NAME));
-                            MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
-                            HTTPRequest scanCancelRequest = new HTTPRequest(uri.toString(), requestHeaders,
-                                    requestParams);
-                            ResponseEntity response = HTTPUtil.sendDELETE(scanCancelRequest);
-                            if (response.getStatusCode().isError()) {
-                                throw new ScanManagerException("Unable to submit the cancel scan request");
-                            }
-
-                            // Cannot update the status to canceled from here as the scanner microservice needs to
-                            // conduct the actual scan cancellation and update the status as cancelled. Hence,
-                            // updating the status to cancel pending.
-                            scanService.updateStatus(scan.getJobId(), ScanStatus.CANCEL_PENDING);
-                            logService.insert(newScanObject, LogType.INFO, "Cancel scan request submitted");
-                            break;
+                        // A container is running for this particular scan. Hence we need to send a cancel scan
+                        // request to the container.
+                        URI uri = buildScannerScanURI(containerInfo);
+                        Map<String, Object> requestParams = new HashMap<>();
+                        requestParams.put(JOB_ID_PARAMETER_NAME, scan.getJobId());
+                        requestParams.put(SCANNER_APP_ID_PARAMETER_NAME, labels.get(CONTAINER_APP_LABEL_NAME));
+                        MultiValueMap<String, String> requestHeaders = new LinkedMultiValueMap<>();
+                        HTTPRequest scanCancelRequest = new HTTPRequest(uri.toString(), requestHeaders, requestParams);
+                        ResponseEntity response = HTTPUtil.sendDELETE(scanCancelRequest);
+                        if (response.getStatusCode().isError()) {
+                            throw new ScanManagerException("Unable to submit the cancel scan request");
                         }
-                    }
-                    if (!isContainerFound) {
 
-                        // No container has been found for this scan. Hence, we can change the status to canceled.
-                        scanService.updateStatus(scan.getJobId(), ScanStatus.CANCELED);
-                        logService.insert(newScanObject, LogType.INFO, "Scan cancelled");
+                        // Cannot update the status to canceled from here as the scanner microservice needs to
+                        // conduct the actual scan cancellation and update the status as cancelled. Hence,
+                        // updating the status to cancel pending.
+                        scanService.updateStatus(scan.getJobId(), ScanStatus.CANCEL_PENDING);
+                        logService.insert(newScanObject, LogType.INFO, "Cancel scan request submitted");
+                    } else {
+                        doScanRecovery(containerInfo, scan);
+
+                        // Cannot update the status to canceled from here as the container is not found for running
+                        // scan and container needs to restart.
+                        scanService.updateStatus(scan.getJobId(), ScanStatus.CANCEL_PENDING);
+                        logService.insert(newScanObject, LogType.INFO, "Cancel scan request submitted");
+                        cancelScan(scan);
                     }
                 } catch (RestClientException | ScanManagerException e) {
                     logService.insertError(newScanObject, e);
@@ -323,55 +320,68 @@ import static org.wso2.security.tools.scanmanager.core.util.Constants.SCHEME;
         schduler.scheduleWithFixedDelay(checkContainerStatusTask, INITIAL_DELAY, DELAY_BETWEEN_RUNS, TimeUnit.MINUTES);
     }
 
+    /**
+     * Perform scan recovery task upon availability of container.
+     *
+     * @param containerInfo Container information
+     * @param scan          Scan object
+     */
+    private void doScanRecovery(Container containerInfo, Scan scan) {
+
+        // If container is not exist, restart the container
+        try {
+            dockerHandler.restart(containerInfo.getId());
+
+            // Sleep till the scanner service is started.
+            Thread.sleep(SCANNER_SERVICE_WAIT_TIME);
+        } catch (ScanManagerException | InterruptedException e) {
+            logService.insert(scan, LogType.ERROR,
+                    "Error occurred while restarting the container : " + containerInfo.getId());
+        }
+        logService.insert(scan, LogType.INFO, "Scanner container restarted. Container id: " + scan.getContainerId());
+        ScannerApp scannerApp = scannerService.getByScannerAndAppId(scan.getScanner(), scan.getScannerAppId());
+
+        // Initiate the scan request
+        try {
+            sendStartScanRequest(containerInfo, scannerApp, scan, true);
+            logService.insert(scan, LogType.INFO, "Scan is resumed for job Id : " + scan.getJobId());
+        } catch (ScanManagerException e) {
+            logService.insert(scan, LogType.ERROR, "Error occured while resuming scan : " + containerInfo.getId());
+        }
+    }
+
     private final class CheckContainerStatusTask implements Runnable {
 
-        @Override public void run() {
-            System.out.println("llllllllllllllll");
-            List<Scan> listofActiveScans = new ArrayList<Scan>();
+        @Override
+        public void run() {
+            List<Scan> listofActiveScans;
             listofActiveScans = scanService.getByStatus(ScanStatus.RUNNING);
             listofActiveScans.addAll(scanService.getByStatus(ScanStatus.SUBMITTED));
-            if (listofActiveScans.size() != 0) {
-                for (Scan scan : listofActiveScans) {
 
-                    // Get the container Id of running or submitted scan.
-                    Container containerInfo = null;
-                    try {
-                        containerInfo = dockerHandler.inspect(scan.getContainerId());
-                    } catch (ScanManagerException e) {
-                        logService.insert(scan, LogType.ERROR,
-                                "Error occured while getting the container information : " + containerInfo.getId());
-                    }
-                    if (containerInfo.isRunning()) {
-                        break;
-                    } else {
+            for (Scan scan : listofActiveScans) {
 
-                        // If container is not exist, restart the container
-                        try {
-                            dockerHandler.restart(containerInfo.getId());
-
-                            // Sleep till the scanner service is started.
-                            Thread.sleep(SCANNER_SERVICE_WAIT_TIME);
-                        } catch (ScanManagerException | InterruptedException e) {
-                            logService.insert(scan, LogType.ERROR,
-                                    "Error occured while restarting the container : " + containerInfo.getId());
-                        }
-                        logService.insert(scan, LogType.INFO,
-                                "Scanner container restarted. Container id: " + scan.getContainerId());
-                        ScannerApp scannerApp = scannerService
-                                .getByScannerAndAppId(scan.getScanner(), scan.getScannerAppId());
-
-                        // Initiate the scan request
-                        try {
-                            sendStartScanRequest(containerInfo, scannerApp, scan, true);
-                            logService.insert(scan, LogType.INFO,
-                                    "Scan is resumed for job Id : " + scan.getJobId());
-                        } catch (ScanManagerException e) {
-                            logService.insert(scan, LogType.ERROR,
-                                    "Error occured while resuming scan : " + containerInfo.getId());
-                        }
-                    }
+                // Get the container Id of running or submitted scan.
+                Container containerInfo = null;
+                try {
+                    containerInfo = dockerHandler.inspect(scan.getContainerId());
+                } catch (ScanManagerException e) {
+                    logService.insert(scan, LogType.ERROR,
+                            "Error occured while getting the container information : " + scan.getJobId());
                 }
 
+                // Here Container from life cycle "STOP" and "DESTROY" which is not casued by manual interaction,
+                // needs to be restarted. If container is in that state, container needs to be restarted and scan
+                // needs to be resumed.
+                if (containerInfo != null) {
+                    if (containerInfo.isRunning()) {
+                        continue;
+                    } else {
+                        doScanRecovery(containerInfo, scan);
+                    }
+                } else {
+                    logService.insert(scan, LogType.ERROR,
+                            "Could not recover container for given : " + scan.getJobId());
+                }
             }
         }
     }

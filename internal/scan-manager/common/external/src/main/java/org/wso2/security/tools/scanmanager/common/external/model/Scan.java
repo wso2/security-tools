@@ -92,6 +92,9 @@ public class Scan {
     @Column(name = "CONTAINER_ID")
     private String containerId;
 
+    @Column(name = "SCAN_CONTEXT")
+    private String scanContext;
+
     @OneToMany(mappedBy = "scan", fetch = FetchType.EAGER)
     @Cascade(CascadeType.ALL)
     @JsonManagedReference
@@ -107,8 +110,8 @@ public class Scan {
 
     public Scan(String jobId, String name, String description, Scanner scanner, ScanStatus status, int priority,
                 String product, ScanType type, int userId, String scannerScanId, String scannerAppId,
-                String reportPath, String containerId, Set<ScanFile> fileList, Set<ScanProperty> propertyList,
-                Timestamp submittedTimestamp, Timestamp startTimestamp) {
+                String reportPath, String containerId, String scanContext, Set<ScanFile> fileList,
+            Set<ScanProperty> propertyList, Timestamp submittedTimestamp, Timestamp startTimestamp) {
         this.jobId = jobId;
         this.name = name;
         this.description = description;
@@ -122,6 +125,7 @@ public class Scan {
         this.scannerAppId = scannerAppId;
         this.reportPath = reportPath;
         this.containerId = containerId;
+        this.scanContext = scanContext;
         this.fileList = fileList;
         this.propertyList = propertyList;
 
@@ -139,8 +143,8 @@ public class Scan {
 
     public Scan(String jobId, String name, String description, Scanner scanner, ScanStatus status, int priority,
                 String product, ScanType type, int userId, Timestamp submittedTimestamp, Timestamp startTimestamp,
-                String scannerScanId, String scannerAppId, String reportPath, String containerId, Set<ScanFile> fileList,
-                Set<ScanProperty> propertyList) {
+                String scannerScanId, String scannerAppId, String scanContext, String reportPath, String containerId,
+                Set<ScanFile> fileList, Set<ScanProperty> propertyList) {
         this.jobId = jobId;
         this.name = name;
         this.description = description;
@@ -154,6 +158,7 @@ public class Scan {
         this.scannerAppId = scannerAppId;
         this.reportPath = reportPath;
         this.containerId = containerId;
+        this.scanContext = scanContext;
         this.fileList = fileList;
         this.propertyList = propertyList;
 
@@ -311,5 +316,13 @@ public class Scan {
 
     public void setContainerId(String containerId) {
         this.containerId = containerId;
+    }
+
+    public String getScanContext() {
+        return scanContext;
+    }
+
+    public void setScanContext(String scanContext) {
+        this.scanContext = scanContext;
     }
 }

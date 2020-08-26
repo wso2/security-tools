@@ -30,19 +30,14 @@ import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.wso2.security.tools.scanmanager.common.external.model.Scan;
-import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.model.Container;
-import org.wso2.security.tools.scanmanager.core.service.ScanService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -63,7 +58,7 @@ public class DockerContainerHandler implements ContainerHandler {
                 throw new ScanManagerException("Error occurred while reading the container port that is required " +
                         "for binding to the host port");
             }
-            String[] exposedPorts = {containerPort.toString()};
+            String[] exposedPorts = { containerPort.toString() };
             HashMap<String, List<PortBinding>> portBindings = new HashMap<>();
 
             Integer hostPort = generateHostPort();
@@ -146,8 +141,9 @@ public class DockerContainerHandler implements ContainerHandler {
         }
     }
 
-    @Override public void restart(String containerId) throws ScanManagerException {
-        try (DockerClient dockerClient = getNewDockerClient()){
+    @Override
+    public void restart(String containerId) throws ScanManagerException {
+        try (DockerClient dockerClient = getNewDockerClient()) {
             dockerClient.restartContainer(containerId);
         } catch (DockerCertificateException | DockerException | InterruptedException e) {
             throw new ScanManagerException("Error occurred while restarting the docker container with container id: " +

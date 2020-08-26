@@ -18,6 +18,7 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.handler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
@@ -80,13 +81,15 @@ public class StatusHandler {
      */
     private final class CheckStatusTask implements Runnable {
 
-        @Override public void run() {
+        @Override
+        public void run() {
             if (log.isDebugEnabled()) {
                 String message = " Scheduled Executor Service is started to check scan status periodically";
                 log.debug(new CallbackLog(qualysScanContext.getJobID(), message));
             }
             String status;
             try {
+
                 // Retrieve Qualys Scan status from Qualys Scanner.
                 status = qualysScanHandler.retrieveScanStatus(qualysScanContext.getScannerScanId());
                 if (!currentScannerStatus.equalsIgnoreCase(status)) {
@@ -103,7 +106,8 @@ public class StatusHandler {
                 try {
                     // Delete added authentication record before updating the status.
                     qualysScanHandler.doCleanUp(qualysScanContext.getAuthId(), qualysScanContext.getJobID());
-                    log.error(new CallbackLog(qualysScanContext.getJobID(), ErrorProcessingUtil.getFullErrorMessage(e)));
+                    log.error(new CallbackLog(qualysScanContext.getJobID(),
+                            ErrorProcessingUtil.getFullErrorMessage(e)));
                     CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.ERROR, null,
                             qualysScanContext.getScannerScanId());
                 } catch (ScannerException e1) {
@@ -136,7 +140,8 @@ public class StatusHandler {
             case QualysScannerConstants.TIME_LIMIT_EXCEEDED:
                 scanRelauncher = new ScanReLauncher();
                 scanRelauncher.run();
-                log.info(new CallbackLog(qualysScanContext.getJobID(), "Scan is relaunched due to TIME LIMIT EXCEED"));
+                log.info(new CallbackLog(qualysScanContext.getJobID(),
+                        "Scan is relaunched due to TIME LIMIT EXCEED"));
                 scheduler.shutdown();
                 break;
             case QualysScannerConstants.SCANNER_NOT_AVAILABLE:
@@ -201,8 +206,8 @@ public class StatusHandler {
             case RUNNING:
             case SUBMITTED:
                 logMessage =
-                        "Scan status for the application: " + qualysScanContext.getWebAppId() + " is updated to " + scanStatus
-                                .name();
+                        "Scan status for the application: " + qualysScanContext.getWebAppId() + " is updated to " +
+                                scanStatus.name();
                 log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
                 CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), ScanStatus.RUNNING, null,
                         qualysScanContext.getScannerScanId());
@@ -210,13 +215,17 @@ public class StatusHandler {
             case CANCELED:
             case ERROR:
                 logMessage =
-                        "Scan status for the application: " + qualysScanContext.getWebAppId() + " is updated to " + scanStatus
-                                .name();
+                        "Scan status for the application: " + qualysScanContext.getWebAppId() + " is updated to " +
+                                scanStatus.name();
                 log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
 
-                // Delete added authentication record before updating the status.
-                qualysScanHandler.doCleanUp(qualysScanContext.getAuthId(), qualysScanContext.getJobID());
-                CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), scanStatus, null, qualysScanContext.getScannerScanId());
+                if (StringUtils.isEmpty(qualysScanContext.getAuthId())) {
+
+                    // Delete added authentication record before updating the status.
+                    qualysScanHandler.doCleanUp(qualysScanContext.getAuthId(), qualysScanContext.getJobID());
+                }
+                CallbackUtil.updateScanStatus(qualysScanContext.getJobID(), scanStatus, null,
+                        qualysScanContext.getScannerScanId());
                 scheduler.shutdown();
                 break;
             default:
@@ -238,7 +247,8 @@ public class StatusHandler {
                         "Scan is failed since authentication is partially " + "successful"));
                 break;
             case QualysScannerConstants.AUTH_FAILED:
-                log.error(new CallbackLog(qualysScanContext.getJobID(), "Scan is failed due to authentication failure"));
+                log.error(new CallbackLog(qualysScanContext.getJobID(),
+                        "Scan is failed due to authentication failure"));
                 break;
             case QualysScannerConstants.AUTH_SUCCESSFUL:
                 isScanAuthenticationSuccessful = true;
@@ -277,7 +287,8 @@ public class StatusHandler {
                                 + "documentation for more information"));
                 break;
             case QualysScannerConstants.TIME_LIMIT_EXCEEDED:
-                log.error(new CallbackLog(qualysScanContext.getJobID(), "Scan is relaunched due to TIME LIMIT EXCEED"));
+                log.error(new CallbackLog(qualysScanContext.getJobID(),
+                        "Scan is relaunched due to TIME LIMIT EXCEED"));
                 Runnable scanRelauncher = new ScanReLauncher();
                 scanRelauncher.run();
                 scheduler.shutdown();
@@ -287,7 +298,8 @@ public class StatusHandler {
                         + "Please check qualys documentation for more information"));
                 break;
             case QualysScannerConstants.SCAN_INTERNAL_ERROR:
-                log.error(new CallbackLog(qualysScanContext.getJobID(), "Scan is failed due to scan internal error. "
+                log.error(new CallbackLog(qualysScanContext.getJobID(),
+                        "Scan is failed due to scan internal error. "
                         + "Please check qualys documentation for more information"));
                 break;
             case QualysScannerConstants.FINISHED:

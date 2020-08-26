@@ -18,18 +18,9 @@
 
 package org.wso2.security.tools.scanmanager.scanners.qualys.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.wso2.security.tools.scanmanager.common.config.YAMLConfigurationReader;
-import org.wso2.security.tools.scanmanager.scanners.common.ScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.common.exception.ScannerException;
 import org.wso2.security.tools.scanmanger.qualys.auth.WebAppAuthenticationRecordBuilder;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 

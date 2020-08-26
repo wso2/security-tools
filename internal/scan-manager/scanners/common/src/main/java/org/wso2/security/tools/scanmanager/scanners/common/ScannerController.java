@@ -71,9 +71,9 @@ public class ScannerController {
         ResponseEntity responseEntity;
         responseEntity = validateStartScanReq(scannerScanRequest);
         if (responseEntity.getStatusCode().equals(HttpStatus.ACCEPTED)) {
-            System.out.println(scannerScanRequest.getIsResume());
+
             // If current scan request is to initiate new scan
-            if(!Boolean.parseBoolean(scannerScanRequest.getIsResume())) {
+            if (!Boolean.parseBoolean(scannerScanRequest.getIsResume())) {
                 if (scanner.validateStartScan(scannerScanRequest)) {
                     log.info("Invoking start scan API.");
                     startScanThread = new Thread(() -> scanner.startScan(scannerScanRequest), "StartScanThread");
@@ -85,7 +85,7 @@ public class ScannerController {
                     responseEntity = new ResponseEntity<>(new ErrorMessage(HttpStatus.BAD_REQUEST.value(), message),
                             HttpStatus.BAD_REQUEST);
                 }
-            } else{
+            } else {
 
                 // If current scan request is to resume scan
                 log.info("Invoking start scan API for resume scan.");
