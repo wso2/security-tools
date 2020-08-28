@@ -23,7 +23,7 @@ index d7e7ecda..934827e7 100755
 @@ -297,6 +297,7 @@ class ImportScanForm(forms.Form):
      SCAN_TYPE_CHOICES = (("", "Please Select a Scan Type"),
                           ("Netsparker Scan", "Netsparker Scan"),
-+                         ("Temp Parser", "Temp Parser"),
++                         ("Migration Parser", "Migration Parser"),
                           ("Burp Scan", "Burp Scan"),
                           ("Nessus Scan", "Nessus Scan"),
                           ("Nmap Scan", "Nmap Scan"),

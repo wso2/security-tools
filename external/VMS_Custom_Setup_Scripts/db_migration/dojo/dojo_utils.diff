@@ -29,7 +29,7 @@ index ef772b21..05ebbeca 100644
 
              if original_finding is None:
                  product_name = new_finding.test.engagement.product.name
-+                product_name = product_name.rstrip('0123456789')
++                product_name = product_name.rstrip('0123456789.')
                  similar_findings_product_versions = finding_filtered.filter(
                      test__engagement__product__name__startswith=product_name).exclude(
                      test__engagement__product=new_finding.test.engagement.product)
@@ -42,35 +42,35 @@ index ef772b21..05ebbeca 100644
                  new_notes = new_finding.notes.all()
 
 
-+                note1 = notes.filter(note_type__name="Use Case")
-+                note2 = notes.filter(note_type__name="Vulnerability Influence")
-+                note5 = notes.filter(note_type__name="WSO2 Resolution")
-+                note7 = notes.filter(note_type__name="Resolution")
-+                note3 = new_notes.filter(note_type__name="Use Case")
-+                note4 = new_notes.filter(note_type__name="Vulnerability Influence")
-+                note6 = new_notes.filter(note_type__name="WSO2 Resolution")
-+                note8 = new_notes.filter(note_type__name="Resolution")
++                old_use_case = notes.filter(note_type__name="Use Case")
++                old_vulnerability_influence = notes.filter(note_type__name="Vulnerability Influence")
++                old_wso2_resolution = notes.filter(note_type__name="WSO2 Resolution")
++                old_resolution = notes.filter(note_type__name="Resolution")
++                new_use_case = new_notes.filter(note_type__name="Use Case")
++                new_vulnerability_influence = new_notes.filter(note_type__name="Vulnerability Influence")
++                new_wso2_resolution = new_notes.filter(note_type__name="WSO2 Resolution")
++                new_resolution = new_notes.filter(note_type__name="Resolution")
 +
-+                if not note3:
-+                    print("NOTE 3 IS NULL")
++                if not new_use_case:
++                    print("New Use Case is NULL")
 +                else:
-+                    if str(note3.values('entry')) == str(note1.values('entry')):
-+                        new_finding.notes.remove(note3[0])
-+                if not note6:
-+                    print("NOTE 6 IS NULL")
++                    if str(new_use_case.values('entry')) == str(old_use_case.values('entry')):
++                        new_finding.notes.remove(new_use_case[0])
++                if not new_vulnerability_influence:
++                    print("New Vulnerability Influence is NULL")
 +                else:
-+                    if str(note6.values('entry')) == str(note5.values('entry')):
-+                        new_finding.notes.remove(note6[0])
-+                if not note8:
-+                    print("NOTE 3 IS NULL")
++                    if str(new_vulnerability_influence.values('entry')) == str(old_vulnerability_influence.values('entry')):
++                        new_finding.notes.remove(new_vulnerability_influence[0])
++                if not new_wso2_resolution:
++                    print("New WSO2 Resolution is NULL")
 +                else:
-+                    if str(note8.values('entry')) == str(note7.values('entry')):
-+                        new_finding.notes.remove(note8[0])
-+                if not note4:
-+                    print("NOTE 4 IS NULL")
++                    if str(new_wso2_resolution.values('entry')) == str(old_wso2_resolution.values('entry')):
++                        new_finding.notes.remove(new_wso2_resolution[0])
++                if not new_resolution:
++                    print("New Resolution is NULL")
 +                else:
-+                    if str(note4.values('entry')) == str(note2.values('entry')):
-+                        new_finding.notes.remove(note4[0])
++                    if str(new_resolution.values('entry')) == str(old_resolution.values('entry')):
++                        new_finding.notes.remove(new_resolution[0])
 +
                  deduplicationLogger.debug('New finding ' + str(new_finding.id) + ' is a duplicate of existing finding ' + str(original_finding.id))
                  new_finding.duplicate = True

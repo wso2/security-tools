@@ -34,21 +34,21 @@ index e32352cd,2240de66..00000000
                               for note in notes:
                                   item.notes.add(note)
 +
-+                     if parser.note1 is not None:
-+                         if str(parser.note1[i].entry) != ("nan"):
-+                             item.notes.add(parser.note1[i])
++                     if parser.use_case_notes is not None:
++                         if str(parser.use_case_notes[i].entry) != ("nan"):
++                             item.notes.add(parser.use_case_notes[i])
 ++
-+                     if parser.note2 is not None:
-+                         if str(parser.note2[i].entry) != "nan":
-+                             item.notes.add(parser.note2[i])
++                     if parser.vul_influence_notes is not None:
++                         if str(parser.vul_influence_notes[i].entry) != "nan":
++                             item.notes.add(parser.vul_influence_notes[i])
 ++
-++                    if parser.note5 is not None:
-++                        if str(parser.note5[i].entry) != "nan":
-++                            item.notes.add(parser.note5[i])
+++                    if parser.wso2_resolution_notes is not None:
+++                        if str(parser.wso2_resolution_notes[i].entry) != "nan":
+++                            item.notes.add(parser.wso2_resolution_notes[i])
 ++
-++                    if parser.note6 is not None:
-++                        if str(parser.note6[i].entry) != "nan":
-++                            item.notes.add(parser.note6[i])
+++                    if parser.resolution_notes is not None:
+++                        if str(parser.resolution_notes[i].entry) != "nan":
+++                            item.notes.add(parser.resolution_notes[i])
 +                     i += 1
 + 
                       if item.unsaved_tags is not None:

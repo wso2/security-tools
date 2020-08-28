@@ -16,13 +16,26 @@
   -- under the License.
 */
 
-
-CREATE PROCEDURE component_migrate()
-    BEGIN
-        DECLARE c int;
-        SET c = 1 ;
-        WHILE c<10 DO
-            update dojo_finding p1 set p1.sourcefilepath=(select SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(p2.description,'Vulnerable Module:',2),'Vulnerable Module:',-1),'Type:',1) from(select * from dojo_finding) p2 where sourcefilepath IS NULL order by id limit 1),p1.description=(select SUBSTRING_INDEX(p2.description,'Vulnerable Module:',1)from (select * from dojo_finding) p2 where sourcefilepath IS NULL order by id limit 1) where p1.id=(select p2.id from(select * from dojo_finding) p2 where sourcefilepath IS NULL order by id limit 1);
-            SET c = c + 1 ;
-        END WHILE ;
-    END
+update
+    dojo_finding p1
+set
+    p1.sourcefilepath =
+    (
+        select
+            SUBSTRING_INDEX(SUBSTRING_INDEX(p2.description, 'References:', -1), 'Type:', 1)
+        from
+            (select * from dojo_finding) p2
+        where
+            p2.id =  p1.id
+    )
+,
+    p1.description =
+    (
+        select
+            SUBSTRING_INDEX(p3.description, 'References:', 1)
+        from
+            (select * from dojo_finding) p3
+        where
+            p3.id =  p1.id
+    )
+;
