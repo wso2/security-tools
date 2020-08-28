@@ -27,19 +27,20 @@ from tastypie import bundle
 from dojo.models import Finding, Notes, Note_Type, User
 
 
-class TempParser(object):
+class MigrationParser(object):
 
     def __init__(self, filename, test):
         dupes = dict()
-        notes1 = dict()
-        notes2 = dict()
-        notes3 = dict()
-        notes4 = dict()
+        use_case_notes_dict = dict()
+        vul_influence_notes_dict = dict()
+        wso2_resolution_notes_dict = dict()
+        resolution_notes_dict = dict()
+
         self.items = ()
-        self.note1 = ()
-        self.note2 = ()
-        self.note5 = ()
-        self.note6 = ()
+        self.use_case_notes = ()
+        self.vul_influence_notes = ()
+        self.wso2_resolution_notes = ()
+        self.resolution_notes = ()
 
         if filename is None:
             self.items = ()
@@ -96,32 +97,24 @@ class TempParser(object):
                                   impact=impact,
                                   url='N/A')
 
-            note3 = Notes(entry=use_case_note, note_type=Note_Type(id=2), author=User.objects.all().first())
-            note4 = Notes(entry=vul_influence_note, note_type=Note_Type(id=3), author=User.objects.all().first())
-            note6 = Notes(entry=WSO2_resolution, note_type=Note_Type(id=1), author=User.objects.all().first())
-            note7 = Notes(entry=resolution_note, note_type=Note_Type(id=4), author=User.objects.all().first())
-            note3.save()
-            note4.save()
-            note6.save()
-            note7.save()
+            use_case_note = Notes(entry=use_case_note, note_type=Note_Type(id=2), author=User.objects.all().first())
+            vul_influence_note = Notes(entry=vul_influence_note, note_type=Note_Type(id=3), author=User.objects.all().first())
+            wso2_resolution_note = Notes(entry=WSO2_resolution, note_type=Note_Type(id=1), author=User.objects.all().first())
+            resolution_note = Notes(entry=resolution_note, note_type=Note_Type(id=4), author=User.objects.all().first())
+
+            use_case_note.save()
+            vul_influence_note.save()
+            wso2_resolution_note.save()
+            resolution_note.save()
 
             dupes[dupe_key] = finding
-            notes1[dupe_key] = note3
-            notes2[dupe_key] = note4
-            notes3[dupe_key] = note6
-            notes4[dupe_key] = note7
-
-            dupes[dupe_key] = finding
-            notes1[dupe_key] = note3
-            notes2[dupe_key] = note4
-            notes3[dupe_key] = note6
-            notes4[dupe_key] = note7
-
-                # self.process_endpoints(finding, df, i)
+            use_case_notes_dict[dupe_key] = use_case_note
+            vul_influence_notes_dict[dupe_key] = vul_influence_note
+            wso2_resolution_notes_dict[dupe_key] = wso2_resolution_note
+            resolution_notes_dict[dupe_key] = resolution_note
 
         self.items = list(dupes.values())
-        self.note1 = list(notes1.values())
-        self.note2 = list(notes2.values())
-        self.note5 = list(notes3.values())
-        self.note6 = list(notes4.values())
-        print(self.items)
+        self.use_case_notes = list(use_case_notes_dict.values())
+        self.vul_influence_notes = list(vul_influence_notes_dict.values())
+        self.wso2_resolution_notes = list(wso2_resolution_notes_dict.values())
+        self.resolution_notes = list(resolution_notes_dict.values())
