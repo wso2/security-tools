@@ -22,12 +22,12 @@ fullPathBackupFile="$backupFolder/$fileName"
 logfile="$backupFolder/backup_log_$(date +'%Y_%m').txt"
 vmsBackupTag="[VMS Backup Process]"
 
-mysqlPassword=$(cat $HOME/scripts/config/mysqlPassword.conf)
-mysqlUsername=$(cat $HOME/scripts/config/mysqlUsername.conf)
-databaseName=$(cat $HOME/scripts/config/databaseName.conf)
+mysqlPassword=$(cat $HOME/scripts/config.conf | grep "mysql_password" | cut -d '=' -f2)
+mysqlUsername=$(cat $HOME/scripts/config.conf | grep "mysql_username" | cut -d '=' -f2)
+databaseName=$(cat $HOME/scripts/config.conf | grep "database_name" | cut -d '=' -f2)
 
 echo $vmsBackupTag "$(date +'%d-%m-%Y %H:%M:%S') : Starting mysqldump" >> $logfile
-mysqldump --user=$mysqlUsername --password=$mysqlpassword --default-character-set=utf8 $databaseName | gzip > $fullPathBackupFile
+docker exec -it django-defectdojo_mysql_1 mysqldump --user=$mysqlUsername --password=$mysqlpassword --default-character-set=utf8 $databaseName | gzip > $fullPathBackupFile
 echo $vmsBackupTag "$(date +'%d-%m-%Y %H:%M:%S') : Finishing mysqldump" >> $logfile
 
 find $backupFolder -name db_backup_* -mmin +$((60*1)) -exec rm {} \;

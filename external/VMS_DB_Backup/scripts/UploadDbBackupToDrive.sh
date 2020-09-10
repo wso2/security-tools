@@ -23,10 +23,10 @@ vmsBackupTag="[VMS Backup Process]"
 echo "backupFolder $backupFolder"
 echo "file $fileName"
 
-client_id=$(cat $HOME/scripts/config/googleClientId.conf)
-client_secret=$(cat $HOME/scripts/config/googleClientSecret.conf)
-refresh_token=$(cat $HOME/scripts/config/googleRefreshToken.conf)
-googleDriveFolderId=$(cat $HOME/scripts/config/googleDriveFolderId.conf)
+client_id=$(cat $HOME/scripts/config.conf | grep "client_id" | cut -d '=' -f2)
+client_secret=$(cat $HOME/scripts/config.conf | grep "client_secret" | cut -d '=' -f2)
+refresh_token=$(cat $HOME/scripts/config.conf | grep "refresh_token" | cut -d '=' -f2)
+googleDriveFolderId=$(cat $HOME/scripts/config.conf | grep "google_drive_folder_id" | cut -d '=' -f2)
 grant_type=refresh_token
 
 echo $vmsBackupTag "$(date +'%d-%m-%Y %H:%M:%S') : Calling the token endpoint to get a access token" >> "$logfile"
