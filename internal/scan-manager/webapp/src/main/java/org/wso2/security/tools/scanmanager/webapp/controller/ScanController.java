@@ -18,6 +18,9 @@
 package org.wso2.security.tools.scanmanager.webapp.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.http.fileupload.FileItemIterator;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
@@ -31,8 +34,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
@@ -51,12 +52,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.wso2.security.tools.scanmanager.webapp.util.Constants.LOGS_VIEW;
@@ -106,20 +106,21 @@ public class ScanController {
     /**
      * Submit a scan request.
      *
-     * @param multipartHttpServletRequest servlet request containing the scan file and parameter maps
+     * @param httpServletRequest servlet httpServletRequest containing the scan file and parameter maps
      * @return the scans view
      * @throws ScanManagerWebappException when an error occurs while submitting the scan
      */
     @PostMapping(value = "submit-scan")
-    public String startScan(MultipartHttpServletRequest multipartHttpServletRequest)
-            throws ScanManagerWebappException {
-        Map<String, String> parameterMap = new HashMap<>();
+    public String startScan(HttpServletRequest httpServletRequest) throws ScanManagerWebappException {
 
-        for (Map.Entry<String, String[]> requestParamMap : multipartHttpServletRequest.getParameterMap().entrySet()) {
-            if (!requestParamMap.getValue()[0].isEmpty()) {
-                parameterMap.put(requestParamMap.getKey(), requestParamMap.getValue()[0]);
-            }
+        boolean isMultipart = ServletFileUpload.isMultipartContent(httpServletRequest);
+        if (!isMultipart) {
+            // Return for invalid httpServletRequests.
+            return null;
         }
+
+        ServletFileUpload upload = new ServletFileUpload();
+
         String username = null;
         Authentication authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
@@ -130,9 +131,16 @@ public class ScanController {
         }
 
         User user = new User(username, username);
-        Map<String, MultipartFile> fileMap = multipartHttpServletRequest.getFileMap();
 
-        Scan scan = scanService.submitScan(fileMap, parameterMap, user);
+
+        FileItemIterator itemIterator = null;
+        try {
+            itemIterator = upload.getItemIterator(httpServletRequest);
+        } catch (FileUploadException | IOException e) {
+            throw new ScanManagerWebappException("An error occurred while submitting the scan", e);
+        }
+
+        Scan scan = scanService.submitScan(user, itemIterator);
         if (scan != null) {
             return "redirect:scans";
         } else {

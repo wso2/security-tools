@@ -23,11 +23,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.tomcat.util.http.fileupload.FileItemIterator;
+import org.apache.tomcat.util.http.fileupload.FileItemStream;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.apache.tomcat.util.http.fileupload.util.Streams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.multipart.MultipartFile;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanExternal;
 import org.wso2.security.tools.scanmanager.common.external.model.ScanManagerScansResponse;
@@ -44,12 +48,11 @@ import org.wso2.security.tools.scanmanager.webapp.exception.ScanManagerWebappExc
 import org.wso2.security.tools.scanmanager.webapp.util.FTPUtil;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -71,11 +74,10 @@ import static org.wso2.security.tools.scanmanager.webapp.util.Constants.PRE_JOB_
 @Service
 public class ScanServiceImpl implements ScanService {
 
-    private LogService logService;
-
     private static final String SCAN_REQUEST_FILE_MAP_ATTRIBUTE_NAME = "fileMap";
     private static final String SCAN_REQUEST_PROPERTY_MAP_ATTRIBUTE_NAME = "propertyMap";
     private static final String SCAN_REQUEST_SCAN_NAME_ATTRIBUTE_NAME = "scanName";
+    private static final String SCAN_PRE_JOB_ID = "preJobId";
     private static final String SCAN_REQUEST_SCAN_DESCRIPTION_ATTRIBUTE_NAME = "scanDescription";
     private static final String SCAN_REQUEST_SCAN_TYPE_ATTRIBUTE_NAME = "scanType";
     private static final String SCAN_REQUEST_PRODUCT_NAME_ATTRIBUTE_NAME = "productName";
@@ -83,10 +85,9 @@ public class ScanServiceImpl implements ScanService {
     private static final String SCAN_REQUEST_USER = "user";
     private static final String SCAN_REQUEST_SCANNER_NAME_ATTRIBUTE_NAME = "scannerName";
     private static final String SCAN_ARTIFACT_DIRECTORY = "scans";
-
     private static final Integer ARTIFACT_DOWNLOAD_CONNECTION_TIMEOUT = 10000;
     private static final Integer ARTIFACT_DOWNLOAD_READ_TIMEOUT = 10000;
-
+    private LogService logService;
     // Temporary hold the scans till the pre-scan tasks are completed.
     private Map<String, Scan> preparingScans = new ConcurrentHashMap<>();
 
@@ -96,32 +97,62 @@ public class ScanServiceImpl implements ScanService {
     }
 
     @Override
-    public Scan submitScan(Map<String, MultipartFile> fileMap, Map<String, String> parameterMap, User user) {
+    public Scan submitScan(User user, FileItemIterator fileItemIterator) {
         Map<String, String> filesToBeDownloadedFromURL = new HashMap<>();
         Map<String, String> storedFileMap = new HashMap<>();
-        File scanDirectoryLocation = null;
+        Map<String, String> parameterMap = new HashMap<>();
 
-        // Add scan to the scans under preparation list till the pre scan tasks are completed.
-        Scan preparingScan = addScanToPreparing(parameterMap);
-        logService.insert(preparingScan, LogType.INFO, "Scan is preparing to be submitted to scan manager API. Job " +
-                "Id: " + preparingScan.getJobId());
+        File scanDirectoryLocation = null;
+        String preJobId = PRE_JOB_ID_PREFIX + UUID.randomUUID().toString();
+        Scan preparingScan = new Scan(preJobId);
+
         try {
             // Create a directory with the scan job id.
-            scanDirectoryLocation = new File(SCAN_ARTIFACT_DIRECTORY + File.separator + preparingScan.getJobId());
+            scanDirectoryLocation = new File(SCAN_ARTIFACT_DIRECTORY + File.separator + preJobId);
+            parameterMap.put(SCAN_PRE_JOB_ID, preJobId);
+
             if (!scanDirectoryLocation.exists() && !scanDirectoryLocation.mkdirs()) {
                 throw new ScanManagerWebappException("Error occurred while creating the scan directory");
             }
 
-            // Store the uploaded files in a temp scan directory.
-            for (Map.Entry<String, MultipartFile> entry : fileMap.entrySet()) {
-                if (!entry.getValue().isEmpty()) {
-                    String unifiedFileName = entry.getKey() + "." +
-                            FilenameUtils.getExtension(entry.getValue().getOriginalFilename());
-                    Path unifiedFilePath = Paths.get(scanDirectoryLocation.toPath().toString(), unifiedFileName);
-                    writeToFile(entry.getValue(), unifiedFilePath);
-                    storedFileMap.put(entry.getKey(), unifiedFilePath.toString());
+            while (fileItemIterator.hasNext()) {
+                FileItemStream item = fileItemIterator.next();
+                String fieldName = item.getFieldName();
+                InputStream stream = item.openStream();
+                byte[] buffer = new byte[stream.available()];
+
+                if (item.isFormField()) {
+                    String fieldValue = Streams.asString(stream);
+                    parameterMap.put(fieldName, fieldValue);
+                    stream.close();
+                } else {
+                    OutputStream out = new FileOutputStream(scanDirectoryLocation.toPath().toString() + item.getName());
+                    storedFileMap.put(fieldName, scanDirectoryLocation.toPath().toString() + item.getName());
+
+                    IOUtils.copy(stream, out);
+                    out.write(buffer);
+                    stream.close();
+                    out.close();
                 }
             }
+
+        } catch (FileUploadException | IOException | ScanManagerWebappException e) {
+            logService.insertError(preparingScan, e);
+
+            // Delete local scan artifacts directory.
+            try {
+                FileUtils.deleteDirectory(scanDirectoryLocation);
+            } catch (IOException ex) {
+                logService.insertError(preparingScan, ex);
+            }
+        }
+
+        // Add scan to the scans under preparation list till the pre scan tasks are completed.
+        preparingScan = addScanToPreparing(parameterMap, preparingScan);
+        logService.insert(preparingScan, LogType.INFO, "Scan is preparing to be submitted to scan manager API. Job " +
+                "Id: " + preparingScan.getJobId());
+
+        try {
 
             Iterator<Map.Entry<String, String>> iter = parameterMap.entrySet().iterator();
             while (iter.hasNext()) {
@@ -150,8 +181,9 @@ public class ScanServiceImpl implements ScanService {
             }
 
             // Begin the pre scans tasks and initiate the scan submission.
+            Scan finalPreparingScan = preparingScan;
             new Thread(() -> beginScanSubmit(storedFileMap, parameterMap, filesToBeDownloadedFromURL,
-                    preparingScan, user), "BeginScanSubmitToScanManagerAPI").start();
+                    finalPreparingScan, user), "BeginScanSubmitToScanManagerAPI").start();
         } catch (ScanManagerWebappException e) {
 
             // Update the status if the scan under preparation to ERROR.
@@ -167,6 +199,7 @@ public class ScanServiceImpl implements ScanService {
                 logService.insertError(preparingScan, ex);
             }
         }
+
         return preparingScan;
     }
 
@@ -258,17 +291,9 @@ public class ScanServiceImpl implements ScanService {
         }
     }
 
-    private void writeToFile(MultipartFile file, Path filepath) throws ScanManagerWebappException {
-        try (OutputStream destinationOutputStream = Files.newOutputStream(filepath)) {
-            destinationOutputStream.write(file.getBytes());
-        } catch (IOException e) {
-            throw new ScanManagerWebappException("IO Exception occurred while writing files to the disk", e);
-        }
-    }
-
-    private Scan addScanToPreparing(Map<String, String> parameterMap) {
-        String preJobId = PRE_JOB_ID_PREFIX + UUID.randomUUID().toString();
-        Scan preparingScan = new Scan(preJobId);
+    private Scan addScanToPreparing(Map<String, String> parameterMap, Scan preparingScan) {
+//        String preJobId = PRE_JOB_ID_PREFIX + UUID.randomUUID().toString();
+//        Scan preparingScan = new Scan(parameterMap.get(SCAN_PRE_JOB_ID));
         preparingScan.setName(parameterMap.get(SCAN_REQUEST_SCAN_NAME_ATTRIBUTE_NAME));
         preparingScan.setDescription(parameterMap.get(SCAN_REQUEST_SCAN_DESCRIPTION_ATTRIBUTE_NAME));
 
@@ -281,7 +306,7 @@ public class ScanServiceImpl implements ScanService {
         preparingScan.setProduct(parameterMap.get(SCAN_REQUEST_PRODUCT_NAME_ATTRIBUTE_NAME));
         preparingScan.setType(ScanType.valueOf(parameterMap.get(SCAN_REQUEST_SCAN_TYPE_ATTRIBUTE_NAME)));
 
-        preparingScans.put(preJobId, preparingScan);
+        preparingScans.put(preparingScan.getJobId(), preparingScan);
         return preparingScan;
     }
 
