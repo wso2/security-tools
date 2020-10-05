@@ -19,14 +19,27 @@ package org.wso2.security.tools.scanmanager.webapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * The main class that starts the spring boot application.
  */
+@Configuration
+@EnableWebSecurity
 @SpringBootApplication
-public class Application {
+public class Application extends WebSecurityConfigurerAdapter {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+    }
+
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests(authorize -> authorize.anyRequest().authenticated()).oauth2Login(withDefaults());
     }
 }
