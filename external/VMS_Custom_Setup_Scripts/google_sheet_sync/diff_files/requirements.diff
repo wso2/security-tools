@@ -1,0 +1,8 @@
+diff --git a/requirements.txt b/requirements.txt
+index 52e6d919..15bfa4e6 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1,0 +1,1 @@
+ google-auth-oauthlib==0.4.1
+ drf_yasg==1.17.1
++oauth2client>=2.0.1
