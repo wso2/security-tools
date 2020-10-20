@@ -1,0 +1,707 @@
+diff --git a/dojo/google_sheet/views.py b/dojo/google_sheet/views.py
+index 2b728207..77399398 100644
+--- a/dojo/google_sheet/views.py
++++ b/dojo/google_sheet/views.py
+@@ -5,7 +5,14 @@ import json
+ import datetime
+ import httplib2
+ import googleapiclient.discovery
++import oauth2client
+ from google.oauth2 import service_account
++from oauth2client import client, file, tools
++from httplib2 import Http
++from apiclient import discovery, errors
++from apiclient import discovery, errors
++from httplib2 import Http
++from oauth2client import client, file, tools
+ 
+ from django.shortcuts import render, get_object_or_404
+ from django.http import HttpResponseRedirect
+@@ -69,8 +76,8 @@ def configure_google_sheets(request):
+                 # Create a dictionary object from the uploaded credentials file
+                 if len(request.FILES) != 0:
+                     cred_file = request.FILES['cred_file']
+-                    cred_byte = cred_file.read()                          # read data from the temporary uploaded file
+-                    cred_str = cred_byte.decode('utf8')                 # convert bytes object to string
++                    # cred_byte = cred_file.read()                          # read data from the temporary uploaded file
++                    # cred_str = cred_byte.decode('utf8')                 # convert bytes object to string
+                     initial = True
+                 else:
+                     cred_str = system_settings.credentials
+@@ -78,7 +85,7 @@ def configure_google_sheets(request):
+ 
+                 # Get the drive folder ID
+                 drive_folder_ID = form.cleaned_data['drive_folder_ID']
+-                validate_inputs = validate_drive_authentication(request, cred_str, drive_folder_ID)
++                validate_inputs = validate_drive_authentication(request, cred_file, drive_folder_ID)
+ 
+                 if validate_inputs:
+                     # Create a dictionary of column names and widths
+@@ -124,12 +131,22 @@ def configure_google_sheets(request):
+     })
+ 
+ 
+-def validate_drive_authentication(request, cred_str, drive_folder_ID):
++def validate_drive_authentication(request, cred_file, drive_folder_ID):
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    service_account_info = json.loads(cred_str)
++
+     try:
+-        # Validate the uploaded credentials file
+-        credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
++        # define variables
++        credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++        clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++
++        # define store
++        store = oauth2client.file.Storage(credentials_file_path)
++        credentials = store.get()
++
++        if not credentials or credentials.invalid:
++            flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++            credentials = tools.run_flow(flow, store)
++
+     except ValueError:
+         messages.add_message(
+             request,
+@@ -138,8 +155,10 @@ def validate_drive_authentication(request, cred_str, drive_folder_ID):
+             extra_tags='alert-danger')
+         return False
+     else:
+-        sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+-        drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++        http = credentials.authorize(Http())
++        drive_service = discovery.build('drive', 'v3', http=http)
++        sheets_service = discovery.build('sheets', 'v4',  http=http)
++
+         spreadsheet = {
+             'properties': {
+                 'title': 'Test spreadsheet'
+@@ -205,14 +224,25 @@ def export_to_sheet(request, tid):
+     spreadsheet_name = test.engagement.product.name + "-" + test.engagement.name + "-" + str(test.id)
+     service_account_info = json.loads(system_settings.credentials)
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++
+     try:
+-        drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++        http = credentials.authorize(Http())
++        drive_service = discovery.build('drive', 'v3', http=http)
++        sheets_service = discovery.build('sheets', 'v4', http=http)
+         folder_id = system_settings.drive_folder_ID
+         files = drive_service.files().list(q="mimeType='application/vnd.google-apps.spreadsheet' and parents in '%s' and name='%s'" % (folder_id, spreadsheet_name),
+                                               spaces='drive',
+                                               pageSize=10,
+                                               fields='files(id, name)').execute()
++
+         spreadsheets = files.get('files')
+         if len(spreadsheets) == 1:
+             spreadsheetId = spreadsheets[0].get('id')
+@@ -275,11 +305,20 @@ def create_googlesheet(request, tid):
+         raise Exception('User must have an email address to use this feature.')
+     test = Test.objects.get(id=tid)
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+-    drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    drive_service = discovery.build('drive', 'v3', http=http)
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     # Create a new spreadsheet
+     spreadsheet_name = test.engagement.product.name + "-" + test.engagement.name + "-" + str(test.id)
+     spreadsheet = {
+@@ -306,10 +345,20 @@ def create_googlesheet(request, tid):
+ def sync_findings(request, tid, spreadsheetId):
+     test = Test.objects.get(id=tid)
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
++    SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        client.fro
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     res = {}
+     spreadsheet = sheets_service.spreadsheets().get(spreadsheetId=spreadsheetId).execute()
+     sheet_names = []
+@@ -318,11 +367,12 @@ def sync_findings(request, tid, spreadsheetId):
+         try:
+             date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+             sheet_names.append(date)
+-        except:
++        except  Exception as ex:
++            print(ex)
+             pass
+     try:
+         sheet_title = str(max(sheet_names))
+-    except:
++    except Exception as e:
+         raise Exception('Existing Google Spreadsheet has errors. Delete the speadsheet and export again.')
+     res['sheet_title'] = sheet_title
+ 
+@@ -453,12 +503,20 @@ def sync_findings(request, tid, spreadsheetId):
+ 
+ def populate_sheet(tid, spreadsheetId):
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+-    service_account_email = service_account_info['client_email']
+     email_address = system_settings.email_address
+-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
++    SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     findings_list = get_findings_list(tid)
+     row_count = len(findings_list)
+     column_count = len(findings_list[0])
+@@ -560,7 +618,7 @@ def populate_sheet(tid, spreadsheetId):
+                                   },
+                                   "editors": {
+                                         "users": [
+-                                            service_account_email,
++                                            # service_account_email,
+                                             email_address
+                                         ]
+                                   },
+@@ -631,7 +689,7 @@ def populate_sheet(tid, spreadsheetId):
+                                         },
+                                   "editors": {
+                                         "users": [
+-                                            service_account_email,
++                                            # service_account_email,
+                                             email_address
+                                         ]
+                                   },
+@@ -759,7 +817,7 @@ def populate_sheet(tid, spreadsheetId):
+                                     },
+                               "editors": {
+                                     "users": [
+-                                        service_account_email,
++                                        # service_account_email,
+                                         email_address
+                                     ]
+                               },
+diff --git a/dojo/google_sheet/views.py b/dojo/google_sheet/views.py
+index 2b728207..d1514239 100644
+--- a/dojo/google_sheet/views.py
++++ b/dojo/google_sheet/views.py
+@@ -5,7 +5,14 @@ import json
+ import datetime
+ import httplib2
+ import googleapiclient.discovery
++import oauth2client
+ from google.oauth2 import service_account
++from oauth2client import client, file, tools
++from httplib2 import Http
++from apiclient import discovery, errors
++from apiclient import discovery, errors
++from httplib2 import Http
++from oauth2client import client, file, tools
+ 
+ from django.shortcuts import render, get_object_or_404
+ from django.http import HttpResponseRedirect
+@@ -69,8 +76,8 @@ def configure_google_sheets(request):
+                 # Create a dictionary object from the uploaded credentials file
+                 if len(request.FILES) != 0:
+                     cred_file = request.FILES['cred_file']
+-                    cred_byte = cred_file.read()                          # read data from the temporary uploaded file
+-                    cred_str = cred_byte.decode('utf8')                 # convert bytes object to string
++                    # cred_byte = cred_file.read()                          # read data from the temporary uploaded file
++                    # cred_str = cred_byte.decode('utf8')                 # convert bytes object to string
+                     initial = True
+                 else:
+                     cred_str = system_settings.credentials
+@@ -78,7 +85,7 @@ def configure_google_sheets(request):
+ 
+                 # Get the drive folder ID
+                 drive_folder_ID = form.cleaned_data['drive_folder_ID']
+-                validate_inputs = validate_drive_authentication(request, cred_str, drive_folder_ID)
++                validate_inputs = validate_drive_authentication(request, cred_file, drive_folder_ID)
+ 
+                 if validate_inputs:
+                     # Create a dictionary of column names and widths
+@@ -124,12 +131,22 @@ def configure_google_sheets(request):
+     })
+ 
+ 
+-def validate_drive_authentication(request, cred_str, drive_folder_ID):
++def validate_drive_authentication(request, cred_file, drive_folder_ID):
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    service_account_info = json.loads(cred_str)
++
+     try:
+-        # Validate the uploaded credentials file
+-        credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
++        # define variables
++        credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++        clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++
++        # define store
++        store = oauth2client.file.Storage(credentials_file_path)
++        credentials = store.get()
++
++        if not credentials or credentials.invalid:
++            flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++            credentials = tools.run_flow(flow, store)
++
+     except ValueError:
+         messages.add_message(
+             request,
+@@ -138,8 +155,10 @@ def validate_drive_authentication(request, cred_str, drive_folder_ID):
+             extra_tags='alert-danger')
+         return False
+     else:
+-        sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+-        drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++        http = credentials.authorize(Http())
++        drive_service = discovery.build('drive', 'v3', http=http)
++        sheets_service = discovery.build('sheets', 'v4',  http=http)
++
+         spreadsheet = {
+             'properties': {
+                 'title': 'Test spreadsheet'
+@@ -205,14 +224,25 @@ def export_to_sheet(request, tid):
+     spreadsheet_name = test.engagement.product.name + "-" + test.engagement.name + "-" + str(test.id)
+     service_account_info = json.loads(system_settings.credentials)
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++
+     try:
+-        drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++        http = credentials.authorize(Http())
++        drive_service = discovery.build('drive', 'v3', http=http)
++        sheets_service = discovery.build('sheets', 'v4', http=http)
+         folder_id = system_settings.drive_folder_ID
+         files = drive_service.files().list(q="mimeType='application/vnd.google-apps.spreadsheet' and parents in '%s' and name='%s'" % (folder_id, spreadsheet_name),
+                                               spaces='drive',
+                                               pageSize=10,
+                                               fields='files(id, name)').execute()
++
+         spreadsheets = files.get('files')
+         if len(spreadsheets) == 1:
+             spreadsheetId = spreadsheets[0].get('id')
+@@ -275,11 +305,20 @@ def create_googlesheet(request, tid):
+         raise Exception('User must have an email address to use this feature.')
+     test = Test.objects.get(id=tid)
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+-    drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    drive_service = discovery.build('drive', 'v3', http=http)
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     # Create a new spreadsheet
+     spreadsheet_name = test.engagement.product.name + "-" + test.engagement.name + "-" + str(test.id)
+     spreadsheet = {
+@@ -300,16 +339,26 @@ def create_googlesheet(request, tid):
+                                         fields='id, parents').execute()
+     # Share created Spreadsheet with current user
+     drive_service.permissions().create(body={'type': 'user', 'role': 'writer', 'emailAddress': user_email}, fileId=spreadsheetId).execute()
+-    populate_sheet(tid, spreadsheetId)
++    populate_sheet(tid, spreadsheetId, request)
+ 
+ 
+ def sync_findings(request, tid, spreadsheetId):
+     test = Test.objects.get(id=tid)
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
++    SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        client.fro
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     res = {}
+     spreadsheet = sheets_service.spreadsheets().get(spreadsheetId=spreadsheetId).execute()
+     sheet_names = []
+@@ -318,11 +367,12 @@ def sync_findings(request, tid, spreadsheetId):
+         try:
+             date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+             sheet_names.append(date)
+-        except:
++        except  Exception as ex:
++            print(ex)
+             pass
+     try:
+         sheet_title = str(max(sheet_names))
+-    except:
++    except Exception as e:
+         raise Exception('Existing Google Spreadsheet has errors. Delete the speadsheet and export again.')
+     res['sheet_title'] = sheet_title
+ 
+@@ -447,18 +497,27 @@ def sync_findings(request, tid, spreadsheetId):
+                                             errors.append({'finding_id': finding_id, 'column_names': note_column_name, 'error': error})
+                 finding_db.save()
+     res['errors'] = errors
+-    populate_sheet(tid, spreadsheetId)
++    populate_sheet(tid, spreadsheetId, request)
+     return res
+ 
+ 
+-def populate_sheet(tid, spreadsheetId):
++def populate_sheet(tid, spreadsheetId, request):
++    user_email = request.user.email
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+-    service_account_email = service_account_info['client_email']
+     email_address = system_settings.email_address
+-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
++    SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     findings_list = get_findings_list(tid)
+     row_count = len(findings_list)
+     column_count = len(findings_list[0])
+@@ -560,7 +619,7 @@ def populate_sheet(tid, spreadsheetId):
+                                   },
+                                   "editors": {
+                                         "users": [
+-                                            service_account_email,
++                                            user_email,
+                                             email_address
+                                         ]
+                                   },
+@@ -631,7 +690,7 @@ def populate_sheet(tid, spreadsheetId):
+                                         },
+                                   "editors": {
+                                         "users": [
+-                                            service_account_email,
++                                            # service_account_email,
+                                             email_address
+                                         ]
+                                   },
+@@ -759,7 +818,7 @@ def populate_sheet(tid, spreadsheetId):
+                                     },
+                               "editors": {
+                                     "users": [
+-                                        service_account_email,
++                                        # service_account_email,
+                                         email_address
+                                     ]
+                               },
+diff --git a/dojo/google_sheet/views.py b/dojo/google_sheet/views.py
+index 2b728207..7a547a19 100644
+--- a/dojo/google_sheet/views.py
++++ b/dojo/google_sheet/views.py
+@@ -5,7 +5,14 @@ import json
+ import datetime
+ import httplib2
+ import googleapiclient.discovery
++import oauth2client
+ from google.oauth2 import service_account
++from oauth2client import client, file, tools
++from httplib2 import Http
++from apiclient import discovery, errors
++from apiclient import discovery, errors
++from httplib2 import Http
++from oauth2client import client, file, tools
+ 
+ from django.shortcuts import render, get_object_or_404
+ from django.http import HttpResponseRedirect
+@@ -69,8 +76,8 @@ def configure_google_sheets(request):
+                 # Create a dictionary object from the uploaded credentials file
+                 if len(request.FILES) != 0:
+                     cred_file = request.FILES['cred_file']
+-                    cred_byte = cred_file.read()                          # read data from the temporary uploaded file
+-                    cred_str = cred_byte.decode('utf8')                 # convert bytes object to string
++                    # cred_byte = cred_file.read()                          # read data from the temporary uploaded file
++                    # cred_str = cred_byte.decode('utf8')                 # convert bytes object to string
+                     initial = True
+                 else:
+                     cred_str = system_settings.credentials
+@@ -78,7 +85,7 @@ def configure_google_sheets(request):
+ 
+                 # Get the drive folder ID
+                 drive_folder_ID = form.cleaned_data['drive_folder_ID']
+-                validate_inputs = validate_drive_authentication(request, cred_str, drive_folder_ID)
++                validate_inputs = validate_drive_authentication(request, cred_file, drive_folder_ID)
+ 
+                 if validate_inputs:
+                     # Create a dictionary of column names and widths
+@@ -124,12 +131,22 @@ def configure_google_sheets(request):
+     })
+ 
+ 
+-def validate_drive_authentication(request, cred_str, drive_folder_ID):
++def validate_drive_authentication(request, cred_file, drive_folder_ID):
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    service_account_info = json.loads(cred_str)
++
+     try:
+-        # Validate the uploaded credentials file
+-        credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
++        # define variables
++        credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++        clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++
++        # define store
++        store = oauth2client.file.Storage(credentials_file_path)
++        credentials = store.get()
++
++        if not credentials or credentials.invalid:
++            flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++            credentials = tools.run_flow(flow, store)
++
+     except ValueError:
+         messages.add_message(
+             request,
+@@ -138,8 +155,10 @@ def validate_drive_authentication(request, cred_str, drive_folder_ID):
+             extra_tags='alert-danger')
+         return False
+     else:
+-        sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+-        drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++        http = credentials.authorize(Http())
++        drive_service = discovery.build('drive', 'v3', http=http)
++        sheets_service = discovery.build('sheets', 'v4',  http=http)
++
+         spreadsheet = {
+             'properties': {
+                 'title': 'Test spreadsheet'
+@@ -205,14 +224,25 @@ def export_to_sheet(request, tid):
+     spreadsheet_name = test.engagement.product.name + "-" + test.engagement.name + "-" + str(test.id)
+     service_account_info = json.loads(system_settings.credentials)
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++
+     try:
+-        drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++        http = credentials.authorize(Http())
++        drive_service = discovery.build('drive', 'v3', http=http)
++        sheets_service = discovery.build('sheets', 'v4', http=http)
+         folder_id = system_settings.drive_folder_ID
+         files = drive_service.files().list(q="mimeType='application/vnd.google-apps.spreadsheet' and parents in '%s' and name='%s'" % (folder_id, spreadsheet_name),
+                                               spaces='drive',
+                                               pageSize=10,
+                                               fields='files(id, name)').execute()
++
+         spreadsheets = files.get('files')
+         if len(spreadsheets) == 1:
+             spreadsheetId = spreadsheets[0].get('id')
+@@ -275,11 +305,20 @@ def create_googlesheet(request, tid):
+         raise Exception('User must have an email address to use this feature.')
+     test = Test.objects.get(id=tid)
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+     SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
+-    drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    drive_service = discovery.build('drive', 'v3', http=http)
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     # Create a new spreadsheet
+     spreadsheet_name = test.engagement.product.name + "-" + test.engagement.name + "-" + str(test.id)
+     spreadsheet = {
+@@ -300,16 +339,26 @@ def create_googlesheet(request, tid):
+                                         fields='id, parents').execute()
+     # Share created Spreadsheet with current user
+     drive_service.permissions().create(body={'type': 'user', 'role': 'writer', 'emailAddress': user_email}, fileId=spreadsheetId).execute()
+-    populate_sheet(tid, spreadsheetId)
++    populate_sheet(tid, spreadsheetId, request)
+ 
+ 
+ def sync_findings(request, tid, spreadsheetId):
+     test = Test.objects.get(id=tid)
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
++    SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        client.fro
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     res = {}
+     spreadsheet = sheets_service.spreadsheets().get(spreadsheetId=spreadsheetId).execute()
+     sheet_names = []
+@@ -318,11 +367,12 @@ def sync_findings(request, tid, spreadsheetId):
+         try:
+             date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+             sheet_names.append(date)
+-        except:
++        except  Exception as ex:
++            print(ex)
+             pass
+     try:
+         sheet_title = str(max(sheet_names))
+-    except:
++    except Exception as e:
+         raise Exception('Existing Google Spreadsheet has errors. Delete the speadsheet and export again.')
+     res['sheet_title'] = sheet_title
+ 
+@@ -447,18 +497,27 @@ def sync_findings(request, tid, spreadsheetId):
+                                             errors.append({'finding_id': finding_id, 'column_names': note_column_name, 'error': error})
+                 finding_db.save()
+     res['errors'] = errors
+-    populate_sheet(tid, spreadsheetId)
++    populate_sheet(tid, spreadsheetId, request)
+     return res
+ 
+ 
+-def populate_sheet(tid, spreadsheetId):
++def populate_sheet(tid, spreadsheetId, request):
++    user_email = request.user.email
+     system_settings = get_object_or_404(System_Settings, id=1)
+-    service_account_info = json.loads(system_settings.credentials)
+-    service_account_email = service_account_info['client_email']
+     email_address = system_settings.email_address
+-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+-    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+-    sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials, cache_discovery=False)
++    SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
++    credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++    clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++    store = oauth2client.file.Storage(credentials_file_path)
++    credentials = store.get()
++
++    if not credentials or credentials.invalid:
++        flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++        credentials = tools.run_flow(flow, store)
++        print(credentials)
++
++    http = credentials.authorize(Http())
++    sheets_service = discovery.build('sheets', 'v4', http=http)
+     findings_list = get_findings_list(tid)
+     row_count = len(findings_list)
+     column_count = len(findings_list[0])
+@@ -560,7 +619,7 @@ def populate_sheet(tid, spreadsheetId):
+                                   },
+                                   "editors": {
+                                         "users": [
+-                                            service_account_email,
++                                            user_email,
+                                             email_address
+                                         ]
+                                   },
+@@ -631,7 +690,7 @@ def populate_sheet(tid, spreadsheetId):
+                                         },
+                                   "editors": {
+                                         "users": [
+-                                            service_account_email,
++                                            user_email,
+                                             email_address
+                                         ]
+                                   },
+@@ -759,7 +818,7 @@ def populate_sheet(tid, spreadsheetId):
+                                     },
+                               "editors": {
+                                     "users": [
+-                                        service_account_email,
++                                        user_email,
+                                         email_address
+                                     ]
+                               },
