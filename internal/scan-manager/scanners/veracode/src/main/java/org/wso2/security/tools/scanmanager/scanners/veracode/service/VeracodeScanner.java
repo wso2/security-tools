@@ -50,8 +50,9 @@ import javax.xml.xpath.XPathExpressionException;
 /**
  * Represents the Veracode Scanner.
  */
-@Component("VeracodeScannerImpl") @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON) public class VeracodeScanner
-        implements Scanner {
+@Component("VeracodeScannerImpl")
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+public class VeracodeScanner implements Scanner {
 
     private static final Logger log = LogManager.getLogger(VeracodeScanner.class);
 
@@ -66,8 +67,6 @@ import javax.xml.xpath.XPathExpressionException;
     public VeracodeScanner() throws IOException {
         loadConfiguration();
         VeracodeCommand.Options options;
-        //        scanContext = getScanContext();
-        //        scanContext = new ScanContext();
 
         options = new VeracodeCommand.Options();
         options._output_folderpath = VeracodeScannerConfiguration.getInstance()
@@ -114,7 +113,8 @@ import javax.xml.xpath.XPathExpressionException;
      *
      * @param scanRequest Object that represent the required information for the scanner operation
      */
-    @Override public void startScan(ScannerScanRequest scanRequest) {
+    @Override
+    public void startScan(ScannerScanRequest scanRequest) {
         scanContext.setJobId(scanRequest.getJobId());
         scanContext.setAppId(scanRequest.getAppId());
         scanContext.setArtifactLocation(scanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT).get(0));
@@ -150,7 +150,8 @@ import javax.xml.xpath.XPathExpressionException;
         }
     }
 
-    @Override public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
+    @Override
+    public boolean validateStartScan(ScannerScanRequest scannerScanRequest) {
 
         if (StringUtils.isEmpty(scannerScanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT))) {
             return false;
@@ -165,7 +166,8 @@ import javax.xml.xpath.XPathExpressionException;
      *
      * @param scanRequest Object that represent the required information for tha scanner operation
      */
-    @Override public void cancelScan(ScannerScanRequest scanRequest) {
+    @Override
+    public void cancelScan(ScannerScanRequest scanRequest) {
         String scanInfoResult;
         String deleteApiResult;
         ScanStatus currentScanStatus;
@@ -201,7 +203,8 @@ import javax.xml.xpath.XPathExpressionException;
         }
     }
 
-    @Override public void resumeScan(ScannerScanRequest scanRequest) {
+    @Override
+    public void resumeScan(ScannerScanRequest scanRequest) {
         String scanContextJsonString = CallbackUtil.getScanContext(scanRequest.getJobId());
         try {
             if (!StringUtils.isEmpty(scanContextJsonString)) {
@@ -222,7 +225,8 @@ import javax.xml.xpath.XPathExpressionException;
         scanTask.run();
     }
 
-    @Override public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
+    @Override
+    public boolean validateCancelScan(ScannerScanRequest scannerScanRequest) {
         return true;
     }
 

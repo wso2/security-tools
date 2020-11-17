@@ -364,23 +364,23 @@ import static org.wso2.security.tools.scanmanager.core.util.Constants.SCHEME;
                 Container containerInfo = null;
                 try {
                     containerInfo = dockerHandler.inspect(scan.getContainerId());
+
+                    // Here Container from life cycle "STOP" and "DESTROY" which is not casued by manual interaction,
+                    // needs to be restarted. If container is in that state, container needs to be restarted and scan
+                    // needs to be resumed.
+                    if (containerInfo != null) {
+                        if (containerInfo.isRunning()) {
+                            continue;
+                        } else {
+                            doScanRecovery(containerInfo, scan);
+                        }
+                    } else {
+                        logService.insert(scan, LogType.ERROR,
+                                "Could not recover container for given : " + scan.getJobId());
+                    }
                 } catch (ScanManagerException e) {
                     logService.insert(scan, LogType.ERROR,
                             "Error occured while getting the container information : " + scan.getJobId());
-                }
-
-                // Here Container from life cycle "STOP" and "DESTROY" which is not casued by manual interaction,
-                // needs to be restarted. If container is in that state, container needs to be restarted and scan
-                // needs to be resumed.
-                if (containerInfo != null) {
-                    if (containerInfo.isRunning()) {
-                        continue;
-                    } else {
-                        doScanRecovery(containerInfo, scan);
-                    }
-                } else {
-                    logService.insert(scan, LogType.ERROR,
-                            "Could not recover container for given : " + scan.getJobId());
                 }
             }
         }
