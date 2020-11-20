@@ -29,6 +29,7 @@ public final class ScannerConstants {
     public static final String XML_FILE_EXTENSION = ".xml";
     public static final String CALLBACK_RETRY_INCREASE_SECONDS = "callback_retry_interval_seconds";
     public static final String CONFIGURTION_FILE_NAME = "scanner-config.yaml";
+    public static final String SCAN_CONTEXT_FILE_NAME = "scan-context.yaml";
     public static final String RESOURCE_FILE_PATH = "src/main/resources";
     public static final String DEFAULT_FTP_PRODUCT_PATH = "default_product_path";
     public static final String CONTENT_TYPE = "Content-Type";
@@ -44,7 +45,9 @@ public final class ScannerConstants {
     // Scan manager config.
     public static final String SCAN_MANAGER_CALLBACK_URL_ENDPOINT = "scan_manager_callback_url_endpoint";
     public static final String SCAN_MANAGER_CALLBACK_STATUS = "scan_manager_callback_status";
+    public static final String SCAN_MANAGER_SCAN_CONTEXT = "scan_manager_callback_scancontext";
     public static final String SCAN_MANAGER_CALLBACK_LOG = "scan_manager_callback_log";
+    public static final String GET_SCAN_CONTEXT = "scan-context";
     public static final String SCAN_MANAGER_HOST = "SCAN_MANAGER_HOST";
     public static final String SCAN_MANAGER_PORT = "SCAN_MANAGER_PORT";
     public static final String HTTP_PROTOCOL = "http://";

@@ -50,6 +50,13 @@ public interface Scanner {
     public void cancelScan(ScannerScanRequest scanRequest);
 
     /**
+     * Resume the scan.
+     *
+     * @param scanRequest Object that represent the required information for tha scanner operation
+     */
+    public void resumeScan(ScannerScanRequest scanRequest);
+
+    /**
      * Validate the cancel scan request.
      *
      * @param scannerScanRequest cancel scan request

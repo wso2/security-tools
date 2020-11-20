@@ -123,6 +123,11 @@
             <artifactId>scan-manager-common</artifactId>
             <version>${scanmanager.common.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson-dataformat-yaml.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -184,5 +189,6 @@
         <scanmanager.common.version>1.0-SNAPSHOT</scanmanager.common.version>
         <scanmanager.scanner.common.version>1.0-SNAPSHOT</scanmanager.scanner.common.version>
         <scanmanager.scanner.loader.version>1.0-SNAPSHOT</scanmanager.scanner.loader.version>
+        <jackson-dataformat-yaml.version>2.11.0.rc1</jackson-dataformat-yaml.version>
     </properties>
 </project>

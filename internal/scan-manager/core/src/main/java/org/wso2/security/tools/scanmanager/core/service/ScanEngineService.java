@@ -32,6 +32,11 @@ public interface ScanEngineService {
     public void beginPendingScans();
 
     /**
+     *
+     */
+    public void resumeScans();
+
+    /**
      * Cancel a given scan.
      *
      * @param scan scan to be canceled

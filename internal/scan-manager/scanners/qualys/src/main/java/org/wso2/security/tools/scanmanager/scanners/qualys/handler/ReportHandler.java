@@ -31,7 +31,7 @@ import org.wso2.security.tools.scanmanager.scanners.common.util.ErrorProcessingU
 import org.wso2.security.tools.scanmanager.scanners.common.util.FileUtil;
 import org.wso2.security.tools.scanmanager.scanners.qualys.QualysScannerConstants;
 import org.wso2.security.tools.scanmanager.scanners.qualys.config.QualysScannerConfiguration;
-import org.wso2.security.tools.scanmanager.scanners.qualys.model.ScanContext;
+import org.wso2.security.tools.scanmanager.scanners.qualys.model.QualysScanContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,37 +54,39 @@ public class ReportHandler {
     /**
      * This method is responsible for tasks relevant to report.
      *
-     * @param scanContext scanContext
+     * @param qualysScanContext qualysScanContext
      * @return true if report is successfully uploaded
      * @throws ScannerException error occurred while executing report handler
      */
-    public boolean execute(ScanContext scanContext) throws ScannerException {
+    public boolean execute(QualysScanContext qualysScanContext) throws ScannerException {
         boolean isReportUploaded = false;
         String reportFolderPath = QualysScannerConfiguration.getInstance()
                 .getConfigProperty(QualysScannerConstants.QUALYS_REPORT_FOLDER_PATH);
-        String scanScriptLocation = scanContext.getScriptFilesLocation();
+        String scanScriptLocation = qualysScanContext.getScriptFilesLocation();
 
         // Generate report for defined report types.
         for (String type : reportTypes) {
-            String reportId = qualysScanHandler.createReport(scanContext.getWebAppId(), scanContext.getJobID(), type,
-                    scanContext.getReportTemplateId());
-            awaitReportCreation(scanContext.getJobID(), reportId, type);
-            String filepath = qualysScanHandler.downloadReport(scanContext.getJobID(), reportId, reportFolderPath);
-            String logMessage = "Scan report for the application: " + scanContext.getWebAppName() + " is downloaded."
-                    + " Scan Report Type : " + type + " Location : " + filepath;
-            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+            String reportId = qualysScanHandler.createReport(qualysScanContext.getWebAppId(),
+                    qualysScanContext.getJobID(), type,
+                    qualysScanContext.getReportTemplateId());
+            awaitReportCreation(qualysScanContext.getJobID(), reportId, type);
+            String filepath = qualysScanHandler.downloadReport(qualysScanContext.getJobID(), reportId,
+                    reportFolderPath);
+            String logMessage = "Scan report for the application: " + qualysScanContext.getWebAppName() +
+                    " is downloaded. Scan Report Type : " + type + " Location : " + filepath;
+            log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
         }
 
         // Zip all downloaded reports.
         try {
             FileUtil.zipFiles(reportFolderPath, reportFolderPath + ScannerConstants.ZIP_FILE_EXTENSION);
-            log.info(new CallbackLog(scanContext.getJobID(), "Zip file for downloaded report is created."));
+            log.info(new CallbackLog(qualysScanContext.getJobID(), "Zip file for downloaded report is created."));
         } catch (ArchiveException | IOException e) {
             throw new ScannerException("Error occurred while creating the zip files of generated report.");
         }
 
         // Upload created zip file to provided ftp location.
-        if (uploadReportToFtp(scanContext, scanScriptLocation,
+        if (uploadReportToFtp(qualysScanContext, scanScriptLocation,
                 reportFolderPath + ScannerConstants.ZIP_FILE_EXTENSION)) {
             isReportUploaded = true;
         }
@@ -94,13 +96,13 @@ public class ReportHandler {
     /**
      * Upload the scan report to FTP location.
      *
-     * @param scanContext           scan context
+     * @param qualysScanContext           scan context
      * @param scanReportFtpLocation ftp location of scan reports
      * @param reportPath            path that needs to upload
      * @return true if reports are uploaded to ftp location successfully
      */
-    private boolean uploadReportToFtp(ScanContext scanContext, String scanReportFtpLocation, String reportPath)
-            throws ScannerException {
+    private boolean uploadReportToFtp(QualysScanContext qualysScanContext, String scanReportFtpLocation,
+            String reportPath) throws ScannerException {
         boolean isReportUploaded = false;
         try {
             FileUtil.uploadReport(scanReportFtpLocation, new File(reportPath),
@@ -111,8 +113,9 @@ public class ReportHandler {
                     Integer.parseInt(
                             QualysScannerConfiguration.getInstance().getConfigProperty(ScannerConstants.FTP_PORT)));
             String logMessage =
-                    "Scan report is uploaded to the FTP server for the application: " + scanContext.getWebAppName();
-            log.info(new CallbackLog(scanContext.getJobID(), logMessage));
+                    "Scan report is uploaded to the FTP server for the application: " +
+                            qualysScanContext.getWebAppName();
+            log.info(new CallbackLog(qualysScanContext.getJobID(), logMessage));
             isReportUploaded = true;
         } catch (SftpException | JSchException e) {
             int retryInterval = Integer.parseInt(QualysScannerConfiguration.getInstance()
@@ -120,13 +123,13 @@ public class ReportHandler {
             String logMessage =
                     "Report upload will retry after " + retryInterval + " seconds since that operation was failed "
                             + "due to FTP server issue. \n" + ErrorProcessingUtil.getFullErrorMessage(e);
-            log.error(new CallbackLog(scanContext.getJobID(), logMessage));
+            log.error(new CallbackLog(qualysScanContext.getJobID(), logMessage));
             try {
                 TimeUnit.SECONDS.sleep(retryInterval);
             } catch (InterruptedException e1) {
                 throw new ScannerException(" Failed to upload report to FTP location.", e1);
             }
-            uploadReportToFtp(scanContext, scanReportFtpLocation, reportPath);
+            uploadReportToFtp(qualysScanContext, scanReportFtpLocation, reportPath);
         } catch (IOException e) {
             throw new ScannerException(" Failed to upload report to FTP location.", e);
         }

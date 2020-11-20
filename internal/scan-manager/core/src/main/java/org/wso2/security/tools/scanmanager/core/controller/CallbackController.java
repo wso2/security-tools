@@ -22,16 +22,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.wso2.security.tools.scanmanager.common.external.model.Scan;
+import org.wso2.security.tools.scanmanager.common.internal.model.ScanContextUpdateRequest;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScanLogRequest;
 import org.wso2.security.tools.scanmanager.common.internal.model.ScanStatusUpdateRequest;
 import org.wso2.security.tools.scanmanager.common.model.ScanStatus;
 import org.wso2.security.tools.scanmanager.core.exception.InvalidRequestException;
 import org.wso2.security.tools.scanmanager.core.exception.ResourceNotFoundException;
+import org.wso2.security.tools.scanmanager.core.exception.ScanManagerException;
 import org.wso2.security.tools.scanmanager.core.service.CallbackService;
 import org.wso2.security.tools.scanmanager.core.service.LogService;
 import org.wso2.security.tools.scanmanager.core.service.ScanService;
@@ -70,6 +74,46 @@ public class CallbackController {
         logService.insert(new Scan(scanLogRequest.getJobId()), scanLogRequest.getType(), scanLogRequest.getTimestamp(),
                 scanLogRequest.getMessage());
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /**
+     * Update scan context from the scan micro services.
+     *
+     * @param scanContextUpdateRequest scan context request object
+     * @return success response if the scan context is successfully persisted
+     * @throws ScanManagerException error occurred when updating scan contest
+     */
+    @PostMapping(value = "update-scan-context")
+    @ResponseBody public ResponseEntity persistScanContext(
+            @RequestBody ScanContextUpdateRequest scanContextUpdateRequest) throws ScanManagerException {
+        if (StringUtils.isNotEmpty(scanContextUpdateRequest.getJobId())) {
+            scanService.updateScanContext(scanContextUpdateRequest.getJobId(),
+                    scanContextUpdateRequest.getScanContextJsonString());
+        } else {
+            throw new ScanManagerException("Invalid Job Id");
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /**
+     * Get scan context of given job id.
+     *
+     * @param jobId job id
+     * @return scan context
+     * @throws ResourceNotFoundException when requested scan is not found
+     */
+    @GetMapping(value = "scan-context/{id}")
+    public ResponseEntity<String> getScanContext(
+            @PathVariable("id") String jobId) throws ResourceNotFoundException {
+
+        ResponseEntity<String> responseEntity;
+        String scanContextJsonString = scanService.getScanContextByJobId(jobId);
+        if (scanContextJsonString != null) {
+            responseEntity = new ResponseEntity<>(scanContextJsonString, HttpStatus.OK);
+        } else {
+            throw new ResourceNotFoundException("Unable to find a scan context for the given job Id: " + jobId);
+        }
+        return responseEntity;
     }
 
     /**

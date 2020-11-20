@@ -53,6 +53,13 @@ public interface ContainerHandler {
     public void start(String containerId) throws ScanManagerException;
 
     /**
+     * Restart a container
+     * @param containerId Container id
+     * @throws ScanManagerException when an error occurs while restarting the container
+     */
+    public void restart(String containerId) throws ScanManagerException;
+
+    /**
      * Stop and remove a container.
      *
      * @param containerId container id of the container to be cleaned

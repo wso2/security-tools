@@ -17,6 +17,9 @@
  */
 package org.wso2.security.tools.scanmanager.scanners.veracode.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veracode.apiwrapper.cli.VeracodeCommand;
 import com.veracode.apiwrapper.wrappers.UploadAPIWrapper;
 import org.apache.logging.log4j.LogManager;
@@ -64,31 +67,34 @@ public class VeracodeScanner implements Scanner {
     public VeracodeScanner() throws IOException {
         loadConfiguration();
         VeracodeCommand.Options options;
-        scanContext = new ScanContext();
 
         options = new VeracodeCommand.Options();
-        options._output_folderpath = VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                VeracodeScannerConstants.VERACODE_OUTPUT_FOLDER_PATH);
-        options._log_filepath = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
-                .VERACODE_LOG_FILE_PATH);
-        options._vid = VeracodeScannerConfiguration.getInstance().getConfigProperty(VeracodeScannerConstants
-                .VERACODE_API_ID);
-        options._vkey = String.valueOf(VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                VeracodeScannerConstants.VERACODE_API_KEY));
+        options._output_folderpath = VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(VeracodeScannerConstants.VERACODE_OUTPUT_FOLDER_PATH);
+        options._log_filepath = VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(VeracodeScannerConstants.VERACODE_LOG_FILE_PATH);
+        options._vid = VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(VeracodeScannerConstants.VERACODE_API_ID);
+        options._vkey = String.valueOf(VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(VeracodeScannerConstants.VERACODE_API_KEY));
 
         VeracodeAPIUtil.setCredentials(options);
 
-        String callbackUrl = ScannerConstants.HTTP_PROTOCOL + System.getenv(ScannerConstants.SCAN_MANAGER_HOST) + ":"
-                + System.getenv(ScannerConstants.SCAN_MANAGER_PORT) + VeracodeScannerConfiguration.getInstance()
-                .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
-        String logCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                ScannerConstants.SCAN_MANAGER_CALLBACK_LOG);
-        String statusCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS);
-        Long callbackRetryInterval = Long.parseLong(VeracodeScannerConfiguration.getInstance().getConfigProperty(
-                ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
-
-        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval);
+        String callbackUrl =
+                ScannerConstants.HTTP_PROTOCOL + System.getenv(ScannerConstants.SCAN_MANAGER_HOST) + ":" + System
+                        .getenv(ScannerConstants.SCAN_MANAGER_PORT) + VeracodeScannerConfiguration.getInstance()
+                        .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_URL_ENDPOINT);
+        String logCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_LOG);
+        String statusCallbackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_CALLBACK_STATUS);
+        Long callbackRetryInterval = Long.parseLong(VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.CALLBACK_RETRY_INCREASE_SECONDS));
+        String scanContextCallBackUrl = callbackUrl + VeracodeScannerConfiguration.getInstance()
+                .getConfigProperty(ScannerConstants.SCAN_MANAGER_SCAN_CONTEXT);
+        String callbackGetScanContext = callbackUrl + ScannerConstants.GET_SCAN_CONTEXT;
+        CallbackUtil.setCallbackUrls(logCallbackUrl, statusCallbackUrl, callbackRetryInterval, scanContextCallBackUrl,
+                callbackGetScanContext);
     }
 
     /**
@@ -115,21 +121,31 @@ public class VeracodeScanner implements Scanner {
 
         if (scanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT) != null) {
             if (StringUtils.isEmpty(scanContext.getAppId())) {
-                String message = "Error occured while submitting the start scan request since the application " +
-                        "is empty in the request. ";
+                String message = "Error occured while submitting the start scan request since the application "
+                        + "is empty in the request. ";
                 callbackErrorReport(message);
             } else {
                 if (Thread.currentThread().isInterrupted()) {
                     String message = "Current thread is interrupted. ";
                     log.error(new CallbackLog(scanContext.getJobId(), message));
                 } else {
-                    ScanTask scanTask = new ScanTask(scanContext);
+                    try {
+                        // Persist scan context object.
+                        ObjectMapper scanContextObjectMapper = new ObjectMapper();
+                        scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                        String scanContextJsonString = scanContextObjectMapper.writeValueAsString(scanContext);
+                        CallbackUtil.updateScanContext(scanContext.getJobId(), scanContextJsonString, Long.valueOf(0));
+                    } catch (JsonProcessingException e) {
+                        log.error(new CallbackLog(scanContext.getJobId(),
+                                "Error occured while persisting scan context"));
+                    }
+                    ScanTask scanTask = new ScanTask(scanContext, false);
                     scanTask.run();
                 }
             }
         } else {
-            String message = "Error occured while submitting the start scan request since the scan artifacts " +
-                    "are empty in the request. ";
+            String message = "Error occured while submitting the start scan request since the scan artifacts "
+                    + "are empty in the request. ";
             callbackErrorReport(message);
         }
     }
@@ -140,6 +156,7 @@ public class VeracodeScanner implements Scanner {
         if (StringUtils.isEmpty(scannerScanRequest.getFileMap().get(VeracodeScannerConstants.SCAN_ARTIFACT))) {
             return false;
         } else {
+            scanContext = new ScanContext();
             return true;
         }
     }
@@ -168,8 +185,8 @@ public class VeracodeScanner implements Scanner {
 
                     CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.CANCELED, null, null);
                 } else {
-                    String message = "Error occured while deleting the last scan of the application : "
-                            + scanRequest.getAppId();
+                    String message =
+                            "Error occured while deleting the last scan of the application : " + scanRequest.getAppId();
                     callbackErrorReport(message);
                 }
             } else {
@@ -179,10 +196,33 @@ public class VeracodeScanner implements Scanner {
                 CallbackUtil.updateScanStatus(scanContext.getJobId(), ScanStatus.CANCELED, null, null);
             }
         } catch (IOException | ParserConfigurationException | XPathExpressionException | SAXException e) {
-            String message = "Error occured while deleting the last scan of the application : "
-                    + scanRequest.getAppId() + " " + ErrorProcessingUtil.getFullErrorMessage(e);
+            String message =
+                    "Error occured while deleting the last scan of the application : " + scanRequest.getAppId() + " "
+                            + ErrorProcessingUtil.getFullErrorMessage(e);
             callbackErrorReport(message);
         }
+    }
+
+    @Override
+    public void resumeScan(ScannerScanRequest scanRequest) {
+        String scanContextJsonString = CallbackUtil.getScanContext(scanRequest.getJobId());
+        try {
+            if (!StringUtils.isEmpty(scanContextJsonString)) {
+                ObjectMapper scanContextObjectMapper = new ObjectMapper();
+                scanContextObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                scanContext = scanContextObjectMapper.readValue(scanContextJsonString, ScanContext.class);
+            } else {
+                if (!validateStartScan(scanRequest)) {
+                    return;
+                }
+            }
+        } catch (JsonProcessingException e) {
+            callbackErrorReport(ErrorProcessingUtil.getFullErrorMessage(e));
+        }
+
+        ScanTask scanTask = new ScanTask(scanContext, true);
+        log.info(new CallbackLog(scanContext.getJobId(), "Scan is to be resumed"));
+        scanTask.run();
     }
 
     @Override

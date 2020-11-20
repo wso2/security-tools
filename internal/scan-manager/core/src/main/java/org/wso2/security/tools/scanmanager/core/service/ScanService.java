@@ -64,6 +64,21 @@ public interface ScanService {
     public Scan getByJobId(String jobId);
 
     /**
+     * Get scan status by job id.
+     *
+     * @param jobId job id for the scan
+     * @return scan status for the given job id
+     */
+    public ScanStatus getStatusByJobId(String jobId);
+
+    /**
+     * Get scan context by job id.
+     * @param jobId job id for the scan
+     * @return scan context for the given job id
+     */
+    public String getScanContextByJobId(String jobId);
+
+    /**
      * Update the scan status.
      *
      * @param jobId  job id for the scan
@@ -71,6 +86,15 @@ public interface ScanService {
      * @throws ScanManagerException when an error occurs while updating the scan status
      */
     public void updateStatus(String jobId, ScanStatus status) throws ScanManagerException;
+
+    /**
+     * Update the scan context
+     *
+     * @param jobId job id for the scan
+     * @param scanContextString scan context string
+     * @throws ScanManagerException when an error occurs while updating the scan status
+     */
+    public void updateScanContext(String jobId, String scanContextString) throws ScanManagerException;
 
     /**
      * Update scan priority.
@@ -89,6 +113,14 @@ public interface ScanService {
      * @throws ScanManagerException when an error occurs while updating the scanner app id for the scan
      */
     public void updateScannerAppId(String jobId, String scannerAppId) throws ScanManagerException;
+
+    /**
+     * Update containerId of the scan
+     * @param jobId job id of the scan
+     * @param containerID container id of the scna
+     * @throws ScanManagerException when an error occurs while updating the scan container Id.
+     */
+    public void updateContainerID(String jobId, String containerID) throws ScanManagerException;
 
     /**
      * Get scans with a given status.

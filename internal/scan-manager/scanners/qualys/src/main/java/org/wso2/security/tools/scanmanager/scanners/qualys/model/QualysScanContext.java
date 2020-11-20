@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Qualys Scan Context
  */
-public class ScanContext {
+public class QualysScanContext {
 
     // Scan ManagerJobID.
     private String jobID;

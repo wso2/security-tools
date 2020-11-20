@@ -89,9 +89,8 @@ public class ServiceTestDataProvider {
         scanPropertySet.add(scanProperty);
 
         Scan scan = new Scan(TEST_SCAN_ID, "testScan", "testScan", scanner, ScanStatus.SUBMITTED,
-                ScanPriority.MEDIUM.getValue(), TEST_PRODUCT_ID, ScanType.STATIC, 1, null,
-                SCANNER_APP_ID, null, scanFileSet, scanPropertySet,
-                new Timestamp(System.currentTimeMillis()), null);
+                ScanPriority.MEDIUM.getValue(), TEST_PRODUCT_ID, ScanType.STATIC, 1, null, SCANNER_APP_ID, null, null,
+                null, scanFileSet, scanPropertySet, new Timestamp(System.currentTimeMillis()), null);
         return scan;
     }
 
