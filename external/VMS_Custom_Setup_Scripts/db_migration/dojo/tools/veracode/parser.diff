@@ -1,0 +1,40 @@
+diff --git a/dojo/tools/veracode/parser.py b/dojo/tools/veracode/parser.py
+index b0263345..937936fd 100644
+--- a/dojo/tools/veracode/parser.py
++++ b/dojo/tools/veracode/parser.py
+@@ -108,15 +108,12 @@ class VeracodeXMLParser(object):
+                                 line=flaw.attrib['line'],
+                                 static_finding=True,
+                                 sourcefile=flaw.attrib['sourcefile'],
++                                sourcefilepath=flaw.attrib['module'],
+                                 cwe=int(flaw.attrib['cweid']),
+                                 test=test,
+                                 active=False,
+                                 verified=False,
+-                                description=description +
+-                                "\n\nVulnerable Module: " +
+-                                flaw.attrib['module'] + ' Type: ' +
+-                                flaw.attrib['type'] + ' Issue ID: ' +
+-                                flaw.attrib['issueid'],
++                                description=description,
+                                 mitigated=mitigated,
+                                 mitigated_by_id=mitigated_by_id,
+                                 severity=sev,
+@@ -136,15 +133,12 @@ class VeracodeXMLParser(object):
+                                 line=line_number,
+                                 static_finding=True,
+                                 sourcefile=file_path,
++                                sourcefilepath=flaw.attrib['module'],
+                                 cwe=int(flaw.attrib['cweid']),
+                                 test=test,
+                                 active=False,
+                                 verified=False,
+-                                description=description +
+-                                "\n\nVulnerable Module: " +
+-                                flaw.attrib['module'] + ' Type: ' +
+-                                flaw.attrib['type'] + ' Issue ID: ' +
+-                                flaw.attrib['issueid'],
++                                description=description,
+                                 severity=sev,
+                                 numerical_severity=Finding.
+                                 get_numerical_severity(sev),

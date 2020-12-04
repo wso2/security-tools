@@ -1,0 +1,56 @@
+<!--
+  ~ Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+diff --cc dojo/engagement/views.py
+index e32352cd,2240de66..00000000
+--- a/dojo/engagement/views.py
++++ b/dojo/engagement/views.py
+@@@ -593,16 -574,7 +593,17 @@@ def import_scan_results(request, eid=No
+                  return HttpResponseRedirect(reverse('import_scan_results', args=(eid,)))
+  
+              try:
+ +
+++                i = 0
+                  for item in parser.items:
+                      print("item blowup")
+                      print(item)
+@@@ -685,9 -680,37 +686,26 @@@
+                          if notes is not None:
+                              for note in notes:
+                                  item.notes.add(note)
++
++                     if parser.use_case_notes is not None:
++                         if str(parser.use_case_notes[i].entry) != ("nan"):
++                             item.notes.add(parser.use_case_notes[i])
+++
++                     if parser.vul_influence_notes is not None:
++                         if str(parser.vul_influence_notes[i].entry) != "nan":
++                             item.notes.add(parser.vul_influence_notes[i])
+++
+++                    if parser.wso2_resolution_notes is not None:
+++                        if str(parser.wso2_resolution_notes[i].entry) != "nan":
+++                            item.notes.add(parser.wso2_resolution_notes[i])
+++
+++                    if parser.resolution_notes is not None:
+++                        if str(parser.resolution_notes[i].entry) != "nan":
+++                            item.notes.add(parser.resolution_notes[i])
++                     i += 1
++ 
+                      if item.unsaved_tags is not None:
+                          item.tags = item.unsaved_tags
+  

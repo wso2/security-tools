@@ -1,0 +1,55 @@
+diff --git a/dojo/test/views.py b/dojo/test/views.py
+index 5d73b2a2..9a287e70 100644
+--- a/dojo/test/views.py
++++ b/dojo/test/views.py
+@@ -2,12 +2,11 @@
+ 
+ import logging
+ import operator
+-import json
+ import httplib2
+ import base64
++import oauth2client
+ from datetime import datetime
+ import googleapiclient.discovery
+-from google.oauth2 import service_account
+ from django.conf import settings
+ from django.contrib import messages
+ from django.contrib.auth.decorators import user_passes_test
+@@ -22,6 +21,10 @@ from django.contrib.admin.utils import NestedObjects
+ from django.db import DEFAULT_DB_ALIAS
+ from tagging.models import Tag
+ 
++from apiclient import discovery, errors
++from httplib2 import Http
++from oauth2client import client, file, tools
++
+ from dojo.filters import TemplateFindingFilter, OpenFindingFilter
+ from dojo.forms import NoteForm, TestForm, FindingForm, \
+     DeleteTestForm, AddFindingForm, \
+@@ -90,11 +93,21 @@ def view_test(request, tid):
+     if google_sheets_enabled:
+         spreadsheet_name = test.engagement.product.name + "-" + test.engagement.name + "-" + str(test.id)
+         system_settings = get_object_or_404(System_Settings, id=1)
+-        service_account_info = json.loads(system_settings.credentials)
+-        SCOPES = ['https://www.googleapis.com/auth/drive']
+-        credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
++        SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets']
++        credentials_file_path = '/app/dojo/google_sheet/credentials.json'
++        clientsecret_file_path = '/app/dojo/google_sheet/client_secret.json'
++        store = oauth2client.file.Storage(credentials_file_path)
++        credentials = store.get()
++
++        if not credentials or credentials.invalid:
++            flow = client.flow_from_clientsecrets(clientsecret_file_path, SCOPES)
++            credentials = tools.run_flow(flow, store)
++            print(credentials)
++
+         try:
+-            drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials, cache_discovery=False)
++            http = credentials.authorize(Http())
++            drive_service = discovery.build('drive', 'v3', http=http)
++
+             folder_id = system_settings.drive_folder_ID
+             files = drive_service.files().list(q="mimeType='application/vnd.google-apps.spreadsheet' and parents in '%s' and name='%s'" % (folder_id, spreadsheet_name),
+                                                   spaces='drive',

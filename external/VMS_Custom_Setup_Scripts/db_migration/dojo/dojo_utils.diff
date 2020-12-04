@@ -1,0 +1,82 @@
+<!--
+  ~ Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+diff --git a/dojo/utils.py b/dojo/utils.py
+index ef772b21..05ebbeca 100644
+--- a/dojo/utils.py
++++ b/dojo/utils.py
+@@ -468,22 +468,10 @@ def rename_whitesource_finding():
+ 
+ 
+@@ -544,20 +523,12 @@ def deduplication_wso2_custom(new_finding, attributes):
+             similar_findings_product = list(similar_findings_product)
+             original_finding = get_original_finding(new_finding, attributes, similar_findings_product)
+
+             if original_finding is None:
+                 product_name = new_finding.test.engagement.product.name
++                product_name = product_name.rstrip('0123456789.')
+                 similar_findings_product_versions = finding_filtered.filter(
+                     test__engagement__product__name__startswith=product_name).exclude(
+                     test__engagement__product=new_finding.test.engagement.product)
+ 
+@@ -584,68 +555,51 @@ def deduplication_wso2_custom(new_finding, attributes):
+                             original_finding = None
+ 
+             if original_finding is not None:
+                 notes = original_finding.notes.all()
+                 new_notes = new_finding.notes.all()
+
+
++                old_use_case = notes.filter(note_type__name="Use Case")
++                old_vulnerability_influence = notes.filter(note_type__name="Vulnerability Influence")
++                old_wso2_resolution = notes.filter(note_type__name="WSO2 Resolution")
++                old_resolution = notes.filter(note_type__name="Resolution")
++                new_use_case = new_notes.filter(note_type__name="Use Case")
++                new_vulnerability_influence = new_notes.filter(note_type__name="Vulnerability Influence")
++                new_wso2_resolution = new_notes.filter(note_type__name="WSO2 Resolution")
++                new_resolution = new_notes.filter(note_type__name="Resolution")
++
++                if not new_use_case:
++                    print("New Use Case is NULL")
++                else:
++                    if str(new_use_case.values('entry')) == str(old_use_case.values('entry')):
++                        new_finding.notes.remove(new_use_case[0])
++                if not new_vulnerability_influence:
++                    print("New Vulnerability Influence is NULL")
++                else:
++                    if str(new_vulnerability_influence.values('entry')) == str(old_vulnerability_influence.values('entry')):
++                        new_finding.notes.remove(new_vulnerability_influence[0])
++                if not new_wso2_resolution:
++                    print("New WSO2 Resolution is NULL")
++                else:
++                    if str(new_wso2_resolution.values('entry')) == str(old_wso2_resolution.values('entry')):
++                        new_finding.notes.remove(new_wso2_resolution[0])
++                if not new_resolution:
++                    print("New Resolution is NULL")
++                else:
++                    if str(new_resolution.values('entry')) == str(old_resolution.values('entry')):
++                        new_finding.notes.remove(new_resolution[0])
++
+                 deduplicationLogger.debug('New finding ' + str(new_finding.id) + ' is a duplicate of existing finding ' + str(original_finding.id))
+                 new_finding.duplicate = True
+                 new_finding.active = False
+                 new_finding.verified = False
+                 new_finding.duplicate_finding = original_finding
++                original_finding.duplicate_list.add(new_finding)
+                 original_finding.found_by.add(new_finding.test.test_type)
+                 super(Finding, new_finding).save()

@@ -1,0 +1,150 @@
+diff --git a/dojo/settings/settings.dist.py b/dojo/settings/settings.dist.py
+index 65754ac4c..ca20bb25b 100644
+--- a/dojo/settings/settings.dist.py
++++ b/dojo/settings/settings.dist.py
+@@ -657,6 +657,13 @@ def generate_url(scheme, double_slashes, user, password, host, port, path):
+ # unique_id_from_tool or hash_code
+ # Makes it possible to deduplicate on a technical id (same parser) and also on some functional fields (cross-parsers deduplication)
+ DEDUPE_ALGO_UNIQUE_ID_FROM_TOOL_OR_HASH_CODE = 'unique_id_from_tool_or_hash_code'
++# wso2 custom deduplication algorithm
++DEDUPE_ALGO_WSO2_CUSTOM = 'deduplication_wso2_custom'
++# Attributes used to identify duplicate findings
++DEDUPLICATION_ATTRIBUTES = {
++    'static': ['title', 'cwe', 'line', 'offset', 'description'],
++    'dynamic': ['title', 'cwe', 'cve', 'endpoints']
++}
+ 
+ # Choice of deduplication algorithm per parser
+ # Key = the scan_type from factory.py (= the test_type)
+diff --git a/dojo/utils.py b/dojo/utils.py
+index 5bd785a12..9ee901f6b 100644
+--- a/dojo/utils.py
++++ b/dojo/utils.py
+@@ -107,6 +107,15 @@ def sync_dedupe(sender, *args, **kwargs):
+                 deduplicate_hash_code(new_finding)
+             elif(deduplicationAlgorithm == settings.DEDUPE_ALGO_UNIQUE_ID_FROM_TOOL_OR_HASH_CODE):
+                 deduplicate_uid_or_hash_code(new_finding)
++            elif(deduplicationAlgorithm == settings.DEDUPE_ALGO_WSO2_CUSTOM):
++                if hasattr(settings, 'DEDUPLICATION_ATTRIBUTES'):
++                    if new_finding.dynamic_finding == True:
++                        attributes = settings.DEDUPLICATION_ATTRIBUTES['dynamic']
++                    elif new_finding.static_finding == True:
++                        attributes = settings.DEDUPLICATION_ATTRIBUTES['static']
++                    deduplication_wso2_custom(new_finding, attributes)
++                else:
++                    deduplicate_legacy(new_finding)
+             else:
+                 deduplicate_legacy(new_finding)
+         else:
+@@ -386,6 +395,111 @@ def rename_whitesource_finding():
+         finding.save()
+ 
+ 
++def get_original_finding(new_finding, attributes, similar_findings_set):
++    if similar_findings_set:
++        original_findings = []
++        if new_finding.dynamic_finding == True:
++            if 'endpoints' in attributes:
++                for finding in similar_findings_set:
++                    if finding.endpoints.count() != 0 and new_finding.endpoints.count() != 0:
++                        list1 = [e.host_with_port for e in new_finding.endpoints.all()]
++                        list2 = [e.host_with_port for e in finding.endpoints.all()]
++                        if all(x in list1 for x in list2):
++                            original_findings.append(finding)
++                if original_findings:
++                    original_finding = sorted(original_findings , key = lambda x : x.id, reverse=True)[0]
++                else:
++                    original_finding = None
++            else:
++                original_finding = sorted(similar_findings_set , key = lambda x : x.id, reverse=True)[0] # Change to use python sort by
++
++        elif new_finding.static_finding == True:
++            if 'offset' in attributes:
++                for finding in similar_findings_set:
++                    if finding.line == int(new_finding.line):
++                        original_findings.append(finding)
++                if original_findings:
++                    original_finding = sorted(original_findings , key = lambda x : x.id, reverse=True)[0]
++                else:
++                    original_finding = None
++            else:
++                original_finding = sorted(similar_findings_set , key = lambda x : x.id, reverse=True)[0] # Change to use python sort by
++    else:
++        original_finding = None
++    return original_finding
++
++
++def deduplication_wso2_custom(new_finding, attributes):
++    system_settings = System_Settings.objects.get()
++    if system_settings.enable_deduplication:
++        if new_finding.duplicate == False:
++            deduplicationLogger.debug('sync_dedupe for: ' + str(new_finding.id) + ":" + str(new_finding.title))
++            finding_filtered = Finding.objects.all().exclude(id=new_finding.id)
++            if 'offset' in attributes and 'line' in attributes:
++                attributes.remove('line')
++            for attr in attributes:
++                if attr == 'endpoints' or attr == 'offset':
++                    continue
++                my_filter = {}
++                my_filter[attr] = getattr(new_finding, attr)
++                finding_filtered = finding_filtered.filter(**my_filter)
++
++            similar_findings_product = finding_filtered.filter(
++                test__engagement__product=new_finding.test.engagement.product)
++            similar_findings_product = list(similar_findings_product)
++            original_finding = get_original_finding(new_finding, attributes, similar_findings_product)
++
++            if original_finding is None:
++                product_name = new_finding.test.engagement.product.name
++                product_name = product_name.split('-')[0]                       # Has to be changed according to the naming convention used in WSO2
++                similar_findings_product_versions = finding_filtered.filter(
++                    test__engagement__product__name__startswith=product_name).exclude(
++                    test__engagement__product=new_finding.test.engagement.product)
++                similar_findings_product_versions = list(similar_findings_product_versions)
++                original_finding = get_original_finding(new_finding, attributes, similar_findings_product_versions)
++
++                if original_finding is None:
++                    similar_findings_db = finding_filtered.exclude(test__engagement__product__name__startswith=product_name)
++                    similar_findings_db = list(similar_findings_db)
++                    original_finding = get_original_finding(new_finding, attributes, similar_findings_db)
++
++                    if original_finding is None and new_finding.static_finding == True and 'offset' in attributes:
++                        deduplicationLogger.info("duplicate found - not exactly")
++                        original_findings = []
++                        original_with_min_linediff_product = get_original_finding_with_min_line_diff(new_finding, similar_findings_product)
++                        if original_with_min_linediff_product is not None:
++                            original_findings.append(original_with_min_linediff_product)
++                        original_with_min_linediff_product_versions = get_original_finding_with_min_line_diff(new_finding, similar_findings_product_versions)
++                        if original_with_min_linediff_product_versions is not None:
++                            original_findings.append(original_with_min_linediff_product_versions)
++                        original_with_min_linediff_db = get_original_finding_with_min_line_diff(new_finding, similar_findings_db)
++                        if original_with_min_linediff_db is not None:
++                            original_findings.append(original_with_min_linediff_db)
++                        if original_findings:
++                            original_finding = sorted(original_findings , key = lambda x : x.line_diff)[0]
++                        else:
++                            original_finding = None
++
++            if original_finding is not None:
++                deduplicationLogger.debug('New finding ' + str(new_finding.id) + ' is a duplicate of existing finding ' + str(original_finding.id))
++                new_finding.duplicate = True
++                new_finding.active = False
++                new_finding.verified = False
++                new_finding.duplicate_finding = original_finding
++                original_finding.duplicate_list.add(new_finding)
++                original_finding.found_by.add(new_finding.test.test_type)
++                super(Finding, new_finding).save()
++
++def get_original_finding_with_min_line_diff(new_finding, similar_findings):
++    original_finding = None
++    similar_findings_with_offset = list(filter(lambda i: abs(i.line - int(new_finding.line)) <= 100, similar_findings))
++    if similar_findings_with_offset:
++        for finding in similar_findings_with_offset:
++            finding.line_diff = abs(finding.line - int(new_finding.line))
++        original_finding = sorted(similar_findings_with_offset , key = lambda x : (x.line_diff, -(x.id)))[0]
++    return original_finding
++
++
+ def sync_rules(new_finding, *args, **kwargs):
+     rules = Rule.objects.filter(applies_to='Finding', parent_rule=None)
+     for rule in rules:
