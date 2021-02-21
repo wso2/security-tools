@@ -33,7 +33,7 @@
     <groupId>org.wso2.security.tools.scanmanager</groupId>
     <artifactId>scan-manager-core</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>Scan Manager - Core</name>
 
@@ -50,15 +50,21 @@
             <version>${com.spotify.docker.client.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${org.hibernate.core.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>${org.springframework.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
@@ -115,30 +121,21 @@
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.springframework</groupId>-->
+        <!--<artifactId>spring-orm</artifactId>-->
+        <!--<version>${org.springframework.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.connector.java}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${org.springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-jpa</artifactId>
-            <version>${org.springframework.data.jpa}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>${org.springframework.version}</version>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.25.0-GA</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.security.tools.scanmanager</groupId>
@@ -176,13 +173,26 @@
         <finalName>scan-manager</finalName>
         <plugins>
             <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>${maven.tomcat.plugin.version}</version>
-                <configuration>
-                    <port>${tomcat.http.port}</port>
-                    <path>/</path>
-                </configuration>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>spring-boot</classifier>
+                            <mainClass>
+                                org.wso2.security.tools.scanmanager.core.Main
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -211,13 +221,33 @@
                     <failOnWarnings>true</failOnWarnings>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/classes/resources/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.parent.basedir}/src/main/resources/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <properties>
-        <maven.tomcat.plugin.version>2.2</maven.tomcat.plugin.version>
         <junit.version>4.11</junit.version>
         <com.spotify.docker.client.version>8.16.0</com.spotify.docker.client.version>
+        <spring.boot.version>2.3.1.RELEASE</spring.boot.version>
         <org.springframework.version>5.2.5.RELEASE</org.springframework.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.10.3</com.fasterxml.jackson.dataformat.yaml.version>
         <com.fasterxml.jackson.core.version>2.10.0</com.fasterxml.jackson.core.version>
@@ -229,11 +259,10 @@
         <commons.io.version>2.6</commons.io.version>
         <org.apache.httpcomponents.httpmime.version>4.5.12</org.apache.httpcomponents.httpmime.version>
         <log4j.version>1.2.17</log4j.version>
-        <mysql.connector.java>8.0.19</mysql.connector.java>
-        <org.springframework.data.jpa>2.2.6.RELEASE</org.springframework.data.jpa>
+        <mysql.connector.java>8.0.21</mysql.connector.java>
         <org.wso2.security.tools.scanmanager.common.version>1.0-SNAPSHOT
         </org.wso2.security.tools.scanmanager.common.version>
-        <org.hibernate.core.version>5.4.14.Final</org.hibernate.core.version>
+        <!--<org.hibernate.core.version>5.4.14.Final</org.hibernate.core.version>-->
         <tomcat.http.port>8081</tomcat.http.port>
     </properties>
 

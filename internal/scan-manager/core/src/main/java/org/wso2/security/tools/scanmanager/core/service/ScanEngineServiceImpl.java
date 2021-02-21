@@ -65,6 +65,8 @@ public class ScanEngineServiceImpl implements ScanEngineService {
     private ScanService scanService;
     private ScannerService scannerService;
     private LogService logService;
+
+    @Autowired
     private ContainerHandler dockerHandler;
 
     private static final String PROPERTY_MAP_PARAMETER_NAME = "propertyMap";

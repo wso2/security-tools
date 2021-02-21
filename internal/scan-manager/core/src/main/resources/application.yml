@@ -1,0 +1,17 @@
+spring:
+  application:
+    name:
+---
+server:
+  port:
+  ssl:
+    enabled:
+    client-auth:
+    key-store:
+    key-store-password:
+    key-alias:
+    key-store-type:
+    key-store-provider:
+    trust-store:
+    trust-store-password:
+    trust-store-type:

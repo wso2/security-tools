@@ -1,18 +1,35 @@
 spring:
+  application:
+    name:
+
   security:
-    oauth2:
-      client:
-        registration:
-          wso2:
-            client-id: <clienr-id>
-            client-secret: <client-secret>
-            authorization-grant-type: <grant_type>
-            redirect-uri: <redirect_uri>
-            scope: openid
-        provider:
-          wso2:
-            authorization-uri: <authorization_uri>
-            token-uri: <token_uri>
-            user-info-uri: <user-info_uri>
-            user-name-attribute: <username_attribute>
-            jwk-set-uri: <jwk_uri>
+      oauth2:
+        client:
+          registration:
+            wso2:
+              client-id: <clienr-id>
+              client-secret: <client-secret>
+              authorization-grant-type: <grant_type>
+              redirect-uri: <redirect_uri>
+              scope: openid
+          provider:
+            wso2:
+              authorization-uri: <authorization_uri>
+              token-uri: <token_uri>
+              user-info-uri: <user-info_uri>
+              user-name-attribute: <username_attribute>
+              jwk-set-uri: <jwk_uri>
+---
+server:
+  port:
+  ssl:
+    enabled:
+    client-auth:
+    key-store:
+    key-store-password:
+    key-alias:
+    key-store-type:
+    key-store-provider:
+    trust-store:
+    trust-store-password:
+    trust-store-type:
