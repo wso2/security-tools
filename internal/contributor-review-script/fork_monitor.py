@@ -118,6 +118,8 @@ class ForkMonitor:
                                 # get git forks if repo exist
                                 forks_list = {repo['full_name']: dict() for repo in self.get_data(f'repos/{parent_repo}/forks')}
                                 sleep(self.sleep)
+                        except KeyboardInterrupt:
+                                sys.exit("[!] Keyboard Interruption occured. Exiting !")
                         except:
                                 print("[!] Skipping : directory not found")
                                 continue
@@ -171,6 +173,7 @@ class ForkMonitor:
                 for _ in self.build_forks_tree(self.fork_tree) : pass
                 self.tmp_print(self.fork_tree)
 
+
                 print("[!] Checking repos for external users...")
                 for repo, path, diff_colab in self.get_collab(self.fork_tree):
                         self.generate_final_out(repo, path, diff_colab)
@@ -184,3 +187,4 @@ if __name__ == "__main__":
 
         fm = ForkMonitor()
         fm.main()
+
