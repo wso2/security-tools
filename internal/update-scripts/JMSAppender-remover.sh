@@ -13,4 +13,4 @@ do
         zip -d "$JAR_FILE" org/apache/log4j/net/JMSAppender.class >>  "log4j_jms_remover_$TIMESPTAMP.log" 2>&1
     fi
 done
-echo "Execution complete"
+echo "Execution completed"
