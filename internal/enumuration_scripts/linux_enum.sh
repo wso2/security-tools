@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is derived from : https://github.com/rebootuser/LinEnum
+# This is derived from: https://github.com/rebootuser/LinEnum
 
 #last logged on user information
 lastlogedonusrs=`lastlog 2>/dev/null |grep -v "Never" 2>/dev/null`
