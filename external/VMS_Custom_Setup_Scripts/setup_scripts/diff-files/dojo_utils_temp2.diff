@@ -1,0 +1,168 @@
+diff --git a/dojo/utils.py b/dojo/utils.py
+index ef772b21..cd4cea8f 100644
+--- a/dojo/utils.py
++++ b/dojo/utils.py
+@@ -34,6 +34,7 @@ from requests.auth import HTTPBasicAuth
+ from dojo.notifications.helper import create_notification
+ import logging
+ import itertools
++import re
+ 
+ 
+ logger = logging.getLogger(__name__)
+@@ -112,15 +113,23 @@ def sync_dedupe(sender, *args, **kwargs):
+                 if hasattr(settings, 'DEDUPLICATION_ATTRIBUTES'):
+                     if new_finding.dynamic_finding == True:
+                         attributes = settings.DEDUPLICATION_ATTRIBUTES['dynamic']
++                        deduplication_wso2_custom(new_finding, attributes)
+                     elif new_finding.static_finding == True:
+                         attributes = settings.DEDUPLICATION_ATTRIBUTES['static']
+-                    deduplication_wso2_custom(new_finding, attributes)
++                        deduplication_wso2_custom(new_finding, attributes)
++                else:
++                    deduplicate_legacy(new_finding)
++            elif deduplicationAlgorithm == settings.DEDUPE_ALGO_WSO2_SCA_CUSTOM:
++                if hasattr(settings, 'DEDUPLICATION_ATTRIBUTES'):
++                    attributes = settings.DEDUPLICATION_ATTRIBUTES['sca']
++                    deduplication_wso2_sca_custom(new_finding, attributes)
+                 else:
+                     deduplicate_legacy(new_finding)
+             elif (deduplicationAlgorithm == settings.DEDUPE_ALGO_ATTRIBUTE_CONFIG) and hasattr(settings,
+                                                                                                'DEDUPLICATION_ATTRIBUTES') and hasattr(
+                     settings, 'DEDUPLICATION_ALLOWED_ATTRIBUTES'):
+                 configured_attributes = settings.DEDUPLICATION_ATTRIBUTES
++
+                 if (all(elem in settings.DEDUPLICATION_ALLOWED_ATTRIBUTES for elem in configured_attributes)):
+                     deduplication_attr_config(new_finding, configured_attributes)
+                 else:
+@@ -540,11 +549,10 @@ def deduplication_wso2_custom(new_finding, attributes):
+                 finding_filtered = finding_filtered.filter(**my_filter)
+ 
+             similar_findings_product = finding_filtered.filter(
+-                test__engagement__product=new_finding.test.engagement.product)
++                test__engagement__product=new_finding.test.engagement.product).exclude(test=new_finding.test)
+             similar_findings_product = list(similar_findings_product)
+             original_finding = get_original_finding(new_finding, attributes, similar_findings_product)
+ 
+-            print(original_finding.notes)
+             print("+++++++++++++++++++++++++++++++++++")
+             if original_finding is None:
+                 product_name = new_finding.test.engagement.product.name
+@@ -555,7 +563,7 @@ def deduplication_wso2_custom(new_finding, attributes):
+                 print("+++++++++++++++++++++++++++++++++++  2")
+                 similar_findings_product_versions = finding_filtered.filter(
+                     test__engagement__product__name__startswith=product_name).exclude(
+-                    test__engagement__product=new_finding.test.engagement.product)
++                    test__engagement__product=new_finding.test.engagement.product, test=new_finding.test)
+                 print(similar_findings_product_versions)
+                 print("+++++++++++++++++++++++++++++++++++  3")
+                 similar_findings_product_versions = list(similar_findings_product_versions)
+@@ -584,58 +592,63 @@ def deduplication_wso2_custom(new_finding, attributes):
+                             original_finding = None
+ 
+             if original_finding is not None:
+-                print("+++++++++++++++++++++++++++++++++++  4")
+-                print(new_finding.notes.all())
+-                print(original_finding.notes.all())
+-                # print(new_finding.notes[0])
+-                # print(original_finding.notes[0])
+                 notes = original_finding.notes.all()
+                 new_notes = new_finding.notes.all()
+-                print("_______________________________________")
+-
+-                note1 = notes.filter(note_type__name="Use Case")
+-                print(note1)
+-                note2 = notes.filter(note_type__name="Vulnerability Influence")
+-                print(note2)
+-                note3 = new_notes.filter(note_type__name="Use Case")
+-                print(note3)
+-                note4 = new_notes.filter(note_type__name="Vulnerability Influence")
+-                print(note4)
+-                print("_______________________________________")
+-                print(note1.values('entry'))
+-                print(note3.values('entry'))
+-                print(note2.values('entry'))
+-                print(note4.values('entry'))
+-
+-
+-                if not note3:
+-                    print("NOTE 3 IS NULL")
+-                else:
+-                    print(str(note3.values('entry')) == str(note1.values('entry')))
+-                    if (str(note3.values('entry')) == str(note1.values('entry'))):
+-                        print("_______________________________________  1111")
+-                        new_finding.notes.remove(note3[0])
+-                if not note4:
+-                    print("NOTE 4 IS NULL")
++
++                new_finding.duplicate = True
++                new_finding.active = False
++                new_finding.verified = False
++                new_finding.duplicate_finding = original_finding
++                original_finding.duplicate_list.add(new_finding)
++                original_finding.found_by.add(new_finding.test.test_type)
++                super(Finding, new_finding).save()
++
++
++def deduplication_wso2_sca_custom(new_finding, attributes):
++    system_settings = System_Settings.objects.get()
++    if system_settings.enable_deduplication:
++
++        if not new_finding.duplicate:
++            finding_filtered = Finding.objects.all().exclude(id=new_finding.id)
++
++            for attr in attributes:
++                my_filter = {attr: getattr(new_finding, attr)}
++                finding_filtered = finding_filtered.filter(**my_filter)
++
++            similar_findings_product = finding_filtered.filter(
++                test__engagement__product=new_finding.test.engagement.product).exclude(test=new_finding.test)
++            similar_findings_product = list(similar_findings_product)
++
++            if similar_findings_product:
++                original_finding = sorted(similar_findings_product, key=lambda x: x.id, reverse=True)[0]
++            else:
++                original_finding = None
++
++            if original_finding is None:
++                product_name = new_finding.test.engagement.product.name
++                product_name = re.split('( \d+)', product_name)[0]
++
++                similar_findings_product_versions = finding_filtered.filter(
++                    test__engagement__product__name__startswith=product_name).exclude(
++                    test__engagement__product=new_finding.test.engagement.product, test=new_finding.test)
++                if similar_findings_product:
++                    original_finding = sorted(similar_findings_product_versions, key=lambda x: x.id, reverse=True)[0]
+                 else:
+-                    print(str(note4.values('entry')) == str(note2.values('entry')))
+-                    if (str(note4.values('entry')) == str(note2.values('entry'))):
+-                        print("_______________________________________  2222")
+-                        new_finding.notes.remove(note4[0])
+-                # for note in notes:
+-                #     print("________________________________________ 1")
+-                #     print(note)
+-                #     new_finding.notes.add(note)
+-                #     if(note.note_type.name == "Use Case"):
+-                #         Notes.
+-                #         new_finding.notes.add()
+-                print("+++++++++++++++++++++++++++++++++++  5")
+-                deduplicationLogger.debug('New finding ' + str(new_finding.id) + ' is a duplicate of existing finding ' + str(original_finding.id))
++                    original_finding = None
++
++                if original_finding is None:
++                    similar_findings_db = finding_filtered.exclude(test__engagement__product__name__startswith=product_name)
++                    similar_findings_db = list(similar_findings_db)
++                    if similar_findings_db:
++                        original_finding = sorted(similar_findings_db, key=lambda x: x.id, reverse=True)[0]
++
++            if original_finding is not None:
++                deduplicationLogger.debug('New finding ' + str(new_finding.id) + ' is a duplicate of existing finding '
++                                          + str(original_finding.id))
+                 new_finding.duplicate = True
+                 new_finding.active = False
+                 new_finding.verified = False
+                 new_finding.duplicate_finding = original_finding
+-                # original_finding.duplicate_list.add(new_finding)
+                 original_finding.found_by.add(new_finding.test.test_type)
+                 super(Finding, new_finding).save()
+ 
