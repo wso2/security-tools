@@ -30,15 +30,12 @@ def check_cloudflare(url):
     
     req = requests.get(url)
 
-    opt = ["Yes","yes","Y","y"]
     try:
         if req.headers["server"] == "cloudflare":
-            print("[!] The Server is Behind a CloudFlare Server")
-            ex = input("[!] Exit y/n: ")
-            if ex in opt:
-                exit()
+            print("[!] The server is behind a CloudFlare server")
+            return True
     except:
-        pass
+        return False
 
 # Checks whether the requested website is vulnerable to XSS by using a predefined set of payloads
 def check_xss(url):
@@ -60,7 +57,7 @@ def check_xss(url):
     if len(xssResults) == 0:
         print("[!] Was not possible to exploit XSS")
     else:
-        print("[+]",len(xssResults),"Payloads were found")
+        print("[+]",len(xssResults)," payloads were found")
         for p in xssResults:
             print("\n[*] Payload found!")
             print("[!] Payload:",p)
@@ -71,5 +68,15 @@ filePath = input("Enter domains file path: ")
 
 with open(filePath) as file:
     for domainUrl in file:
-        check_cloudflare(domainUrl)
-        check_xss(domainUrl)
+        res = check_cloudflare(domainUrl)
+
+        if res:
+            opt = ["Yes","yes","Y","y"]
+
+            ex = input("[!] Exit y/n: ")
+            if ex in opt:
+                exit()
+            else:
+                check_xss(domainUrl)
+        else:
+            check_xss(domainUrl)
