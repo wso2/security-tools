@@ -40,7 +40,8 @@ def check_cloudflare(url):
 # Checks whether the requested website is vulnerable to XSS by using a predefined set of payloads
 def check_xss(url):
     xssResults = []
-    payloads = ['"-prompt(8)-"','";a=prompt,a()//','"onclick=prompt(8)>"@x.y"','\'-alert(1)//','</script><svg onload=alert(1)>','<script>alert("inject")</script>', '<image/src/onerror=prompt(8)>', '<x onclick=alert(1)>click this!']
+    payloads = ['"-prompt(8)-"','";a=prompt,a()//','"onclick=prompt(8)>"@x.y"','\'-alert(1)//','</script><svg onload=alert(1)>',
+        '<script>alert("inject")</script>', '<image/src/onerror=prompt(8)>', '<x onclick=alert(1)>click this!']
 
     print("[!] Testing XSS started")
 
@@ -64,7 +65,7 @@ def check_xss(url):
             print("[!] POC:",newUrl+p)
 
 
-filePath = input("Enter domains file path: ")
+filePath = input("Enter domain file path: ")
 
 with open(filePath) as file:
     for domainUrl in file:
