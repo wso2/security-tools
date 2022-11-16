@@ -98,33 +98,28 @@ CNAME_list=[]
 MXRecord_list=[]
 #dmarc_list=[]
 
-def main():
-    SCOPES = [
-        'https://www.googleapis.com/auth/drive',
-        'https://www.googleapis.com/auth/drive.file'
-        ]
-    creds = None
 
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+SCOPES = [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.file'
+    ]
+creds = None
 
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+if os.path.exists('token.json'):
+    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    else:
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+        creds = flow.run_local_server(port=0)
 
-    gc = gspread.authorize(creds)
+    with open('token.json', 'w') as token:
+        token.write(creds.to_json())
 
-    # Read CSV file contents
-    content = open(r'file.csv').read()
-
-    gc.import_csv('<1f2voEeVmq_McHAfD_Y08rIJGcY44EbNkLN2Ni8io6zI>', content)
+gc = gspread.authorize(creds)
 
 
 csvfile= open('file.csv', 'w')
@@ -145,6 +140,6 @@ for url in list:
 writer = csv.writer(csvfile, dialect='excel')
 writer.writerows(zip(url_list, A_list, AAAA_list, NS_list, CNAME_list, MXRecord_list))
 
-if __name__ == '__main__':
-    main()
-
+# Read CSV file contents
+content = open(r'file.csv').read()
+gc.import_csv('1f2voEeVmq_McHAfD_Y08rIJGcY44EbNkLN2Ni8io6zI', content)
