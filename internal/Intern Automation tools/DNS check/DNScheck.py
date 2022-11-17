@@ -68,7 +68,7 @@ def CNAME(url):
 
 def MXRecord(url):
     try:
-        answer5 = dns.resolver.resolve(url,'TXT')
+        answer5 = dns.resolver.resolve(url,'MX')
         for server5 in answer5:
             print(str(server5))
             return server5
@@ -112,18 +112,17 @@ if not creds or not creds.valid:
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(Request())
     else:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            'credentials.json', SCOPES)
+        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
         creds = flow.run_local_server(port=0)
 
-    with open('token.json', 'w') as token:
+    with open('token.json', 'w') as token: 
         token.write(creds.to_json())
 
 gc = gspread.authorize(creds)
 
 
 csvfile= open('file.csv', 'w')
-list = open(r"C:\Users\WSO2\Desktop\csv\Subdomain.txt").read().splitlines()
+list = open(r"C:\Users\WSO2\Desktop\security-tools\internal\Intern Automation tools\DNS check\Subdomain.txt").read().splitlines()
 for url in list:
     print ((url), Arecord(url), AAAArecord(url),NSrecord(url),CNAME(url),MXRecord(url))
     data = [url,Arecord(url),AAAArecord(url),NSrecord(url),CNAME(url),MXRecord(url)]
@@ -139,7 +138,9 @@ for url in list:
 #print data_list
 writer = csv.writer(csvfile, dialect='excel')
 writer.writerows(zip(url_list, A_list, AAAA_list, NS_list, CNAME_list, MXRecord_list))
+csvfile.close()
 
-# Read CSV file contents
+#Read CSV file contents
 content = open(r'file.csv').read()
-gc.import_csv('1f2voEeVmq_McHAfD_Y08rIJGcY44EbNkLN2Ni8io6zI', content)
+gc.open_by_url('https://docs.google.com/spreadsheets/d/1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg/edit#gid=0')
+gc.import_csv('1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg', content)
