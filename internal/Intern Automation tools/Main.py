@@ -22,7 +22,7 @@ try:
 except KeyboardInterrupt:
     pass
 try:
-    print("#" *30)
+    print("#" *30) 
     print("PortScan Informations")
     print("#" *30)
     os.system('python port-scan.py')
@@ -55,4 +55,4 @@ try:
     print("#" *30)
     os.system('python RCE')
 except KeyboardInterrupt:
-    pass
+    quit()

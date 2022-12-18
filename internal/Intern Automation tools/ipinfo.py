@@ -1,5 +1,5 @@
 import urllib.request as urllib2
-import json
+import json 
 import csv
 import gspread
 from google.auth.transport.requests import Request
@@ -8,15 +8,15 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 import requests
 import os
 
-domain = open(r'C:\User\WSO2\Desktop\security-tools\intrnal\Intern Automation\subdomain.csv').read().splitlines()
+domain = open(r'C:\Users\WSO2\Desktop\security-tools\internal\Intern Automation tools\subdomain.csv').read().splitlines()
 url = 'http://ip-api.com/json/'
 with open ('IP.csv','w',newline='') as f:
-    row = 'IP Address' , 'Status' , 'Status Code' , 'City' , 'Country'
+    row = 'Subdomains' , 'IP Address' , 'Status' , 'Status Code' , 'City' , 'Country'
     writer = csv.writer(f)
     writer.writerow(row)
 
     for PS in domain:
-        response = urllib2.urlopen(url+PS)
+        response = urllib2.urlopen(url+PS,timeout=10)
         name = response.read()
         labs = json.loads(name)
         try:
@@ -29,7 +29,7 @@ with open ('IP.csv','w',newline='') as f:
             row = PS,"Can't Resolve"
 
         else:
-            row = labs['query'] , labs['status'] , sat , labs['city'] , labs['country']
+            row = PS , labs['query'] , labs['status'] , sat , labs['city'] , labs['country']
             print ('[+] ',PS,' :- ', row)
             writer = csv.writer(f)
             writer.writerow(row)
