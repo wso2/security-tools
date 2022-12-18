@@ -11,7 +11,6 @@ os.system('python dirsearch.py -e php -l '+path+ ' --exclude-status 201-999 --ou
 
 
 X = open('out.txt','r').read().splitlines()
-
 for i in X:
     payloads = open('payload_rce.txt').read().splitlines()
     csvfile= open('RCE.csv', 'w',newline='')

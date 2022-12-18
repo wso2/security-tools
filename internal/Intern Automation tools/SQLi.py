@@ -1,5 +1,5 @@
 import subprocess
-import csv
+
 
 domain = open(r"C:\Users\WSO2\Desktop\security-tools\internal\Intern Automation tools\login_portals.txt").read().splitlines()
 
