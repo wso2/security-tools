@@ -53,6 +53,6 @@ try:
     print("#" *30)
     print("PHP code injection attack")
     print("#" *30)
-    os.system('python RCE')
+    os.system('python RCE.py')
 except KeyboardInterrupt:
     quit()

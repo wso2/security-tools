@@ -16,7 +16,7 @@ with open ('IP.csv','w',newline='') as f:
     writer.writerow(row)
 
     for PS in domain:
-        response = urllib2.urlopen(url+PS,timeout=10)
+        response = urllib2.urlopen(url+PS)
         name = response.read()
         labs = json.loads(name)
         try:

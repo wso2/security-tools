@@ -7,7 +7,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 domain = input("Enter the domain name : ")
 with open('subdomain.csv','a') as output:
+    print('Scanning for :- '+domain)
     subprocess.run(['docker', 'run', 'caffix/amass', 'enum' , '-max-dns-queries', '200' ,'-d', domain], shell=True, stdout=output)
+    
 
 SCOPES = [
     'https://www.googleapis.com/auth/drive',

@@ -6,9 +6,11 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-path = ('subdomain.csv')
-os.system('python dirsearch.py -e php -l '+path+ ' --exclude-status 201-999 --output=out.txt --format=plain')
-
+try:
+    path = ('subdomain.csv')
+    os.system('python dirsearch.py -e php -l '+path+ ' --exclude-status 201-999 --output=out.txt --format=plain')
+except KeyboardInterrupt:
+    pass
 
 X = open('out.txt','r').read().splitlines()
 for i in X:
