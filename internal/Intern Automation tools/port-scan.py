@@ -1,7 +1,6 @@
 import os.path
 import nmap
 import datetime
-
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -13,7 +12,7 @@ SCOPES = [
     'https://www.googleapis.com/auth/drive.file'
     ]
 SPREADSHEET_ID = '1_Q2_Bjnm8ERDYcggsMVCPPWCDGB-s4fCUDejJvIqnc8'
-GET_IP_RANGE = 'results!A2:A160'
+GET_IP_RANGE = 'results!A2:A6'
 GET_DATE_RANGE = 'date!A1'
 
 scanDateTime = datetime.datetime.now()

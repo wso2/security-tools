@@ -4,44 +4,90 @@ import csv
 import gspread
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-try:
-    path = ('subdomain.csv')
-    os.system('python dirsearch.py -e php -l '+path+ ' --exclude-status 201-999 --output=out.txt --format=plain')
-except KeyboardInterrupt:
-    pass
+SCOPES = [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.file'
+    ]
+SPREADSHEET_ID = '1EckNrafKPr6TMTnLorrqjIkwgwtFjAMT396pbvBLKAo'
+GET_SUBDOMAIN_RANGE = 'results!A2:A174'
 
-X = open('out.txt','r').read().splitlines()
-for i in X:
-    payloads = open('payload_rce.txt').read().splitlines()
-    csvfile= open('RCE.csv', 'w',newline='')
-    row1 = 'File extention' , 'Payload' , 'Status Code' , 'Vulnerable or Not'
-    writer = csv.writer(csvfile)
-    writer.writerow(row1)
+# Retrieves data from Google Sheet with any given range
+def getData(service, range):
+    sheet = service.spreadsheets()
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
+                                range=range,
+                                valueRenderOption='FORMATTED_VALUE').execute()
+    values = result.get('values', [])
 
-    for payload in payloads:
-        request = requests.get(i+payload)
-        print("The domain name : ",i)
-        print("payload used : ",payload)
-        r = request.status_code
+    if not values:
+        print('Cannot retreive data. No data found.')
+        quit()
 
-        if r == 200:
-            print("The subdomain is Vulnerable to the Remote code execution attack !!!!!")
-            print("#"*30)
-            row2 = i , payload , r , 'Vulnerable!!!'
-            writer = csv.writer(csvfile)
-            writer.writerow(row2)
+    return values
 
+creds = None
+
+def value(SCOPES, GET_SUBDOMAIN_RANGE, getData):
+    if os.path.exists('token.json'):
+            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
         else:
-            print("The domain is not vulnerable!")
-            print("#"*30)
+            flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
 
-    row3 = i , 'All' , '404' ,'Not Vulnerable'
-    writer = csv.writer(csvfile)
-    writer.writerow(row3)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
 
-csvfile.close()
+    service = build('sheets', 'v4', credentials=creds)
+    values = getData(service, GET_SUBDOMAIN_RANGE)
+    return values
+
+values = value(SCOPES, GET_SUBDOMAIN_RANGE, getData)
+
+try:
+    for i in range(4):
+        url = str(*values[i])
+        os.system('python dirsearch.py -e php -u '+url+ ' --exclude-status 201-999 --output=out.txt --format=plain')
+    X = open('out.txt','r').read().splitlines()
+    for i in X:
+        payloads = open('payload_rce.txt').read().splitlines()
+        csvfile= open('RCE.csv', 'w',newline='')
+        row1 = 'File extention' , 'Payload' , 'Status Code' , 'Vulnerable or Not'
+        writer = csv.writer(csvfile)
+        writer.writerow(row1)
+
+        for payload in payloads:
+            request = requests.get(i+payload)
+            print("The domain name : ",i)
+            print("payload used : ",payload)
+            r = request.status_code
+
+            if r == 200:
+                print("The subdomain is Vulnerable to the Remote code execution attack !!!!!")
+                print("#"*30)
+                row2 = i , payload , r , 'Vulnerable!!!'
+                writer = csv.writer(csvfile)
+                writer.writerow(row2)
+
+            else:
+                print("The domain is not vulnerable!")
+                print("#"*30)
+
+        row3 = i , 'All' , '404' ,'Not Vulnerable'
+        writer = csv.writer(csvfile)
+        writer.writerow(row3)
+
+    csvfile.close()
+except KeyboardInterrupt:
+    print('Quiting')
+    quit()
 
 SCOPES = [
     'https://www.googleapis.com/auth/drive',
