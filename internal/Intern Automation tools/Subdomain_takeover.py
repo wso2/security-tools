@@ -52,40 +52,31 @@ def value(SCOPES, GET_SUBDOMAIN_RANGE, getData):
 
 domain = value(SCOPES, GET_SUBDOMAIN_RANGE, getData)
 
-with open("subtake.csv","a") as output:
-    for i in range(4):
-        url = str(*domain[i])
-        print("[+] Scanning for the domain : https://"+url)
-        try:
-            subprocess.call("docker run --rm -it secsi/subzy --target=https://"+url, stdout=output) 
-        except:
-            print('User stoped the scan')
-            quit()
-
-
-SCOPES = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.file'
-    ]
-creds = None
-
-if os.path.exists('token.json'):
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+for i in range(174):
+    url = str(*domain[i])
+    print("[+] Scanning for the domain : https://"+url)
+    x = subprocess.call("docker run --rm -it secsi/subzy --target=https://"+url) 
+    if x == 0:
+        ans = "Subdomain is not Vulnerable"
+        print(ans)
     else:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            'credentials.json', SCOPES)
-        creds = flow.run_local_server(port=0)
+        ans = "Subdomain is Vulnerable"
+        print(ans)
 
-    with open('token.json', 'w') as token:
-        token.write(creds.to_json())
+    # Set up the Sheets API client
+    scopes = ['https://www.googleapis.com/auth/spreadsheets']
+    creds = Credentials.from_authorized_user_file('token.json', scopes)
+    service = build('sheets', 'v4', credentials=creds)
 
-gc = gspread.authorize(creds)
+    # Define the data to be inserted
+    values = [url , ans]
 
-# Read CSV file contents
-content = open('subtake.csv', 'r').read()
+    # Insert the data into the sheet
+    result = service.spreadsheets().values().append(
+        spreadsheetId='1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg',
+        range='Subdomain takeover!A1',
+        valueInputOption='RAW',
+        insertDataOption='INSERT_ROWS',
+        body={'values': values}
+    ).execute()
 
-gc.import_csv('16tTozWZ9w8hKzo_awHK9qeup-NezIvNeitbTuSg_LYc', content)

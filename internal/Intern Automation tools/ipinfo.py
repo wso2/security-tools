@@ -30,78 +30,64 @@ def getData(service, range):
 
     return values
 
-creds = None
+def values(SCOPES):
+    creds = None
 
-if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists('token.json'):
+            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
-        flow = InstalledAppFlow.from_client_secrets_file(
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
             'credentials.json', SCOPES)
-        creds = flow.run_local_server(port=0)
+            creds = flow.run_local_server(port=0)
 
-    with open('token.json', 'w') as token:
-        token.write(creds.to_json())
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
 
-service = build('sheets', 'v4', credentials=creds)
+    service = build('sheets', 'v4', credentials=creds)
+    return service
+
+service = values(SCOPES)
+
 values = getData(service, GET_SUBDOMAIN_RANGE)
-
-
-
 domain = values
 url = 'http://ip-api.com/json/'
-with open ('IP.csv','w',newline='') as f:
-    row = 'Subdomains' , 'IP Address' , 'Status' , 'Status Code' , 'City' , 'Country'
-    writer = csv.writer(f)
-    writer.writerow(row)
 
-    for i in range(4):
-        PS = str(*domain[i])
-        response = urllib2.urlopen(url+PS)
-        name = response.read()
-        labs = json.loads(name)
-        try:
-            r = requests.get('https://'+PS)
-            sat = r.status_code
+for i in range(174):
+    PS = str(*domain[i])
+    response = urllib2.urlopen(url+PS)
+    name = response.read()
+    labs = json.loads(name)
+    try:
+        r = requests.get('https://'+PS)
+        sat = r.status_code
 
-        except:
-            sat = ('Not Reachable')
+    except:
+        sat = ('Not Reachable')
 
-        if labs['query'] == PS:
-            row = PS,"Can't Resolve"
+    if labs['query'] == PS:
+        row = PS,"Can't Resolve"
 
-        else:
-            row = PS , labs['query'] , labs['status'] , sat , labs['city'] , labs['country']
-            print ('[+] ',PS,' :- ', row)
-            writer = csv.writer(f)
-            writer.writerow(row)
-
-SCOPES = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.file'
-    ]
-creds = None
-
-if os.path.exists('token.json'):
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
     else:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            'credentials.json', SCOPES)
-        creds = flow.run_local_server(port=0)
+        row = PS , labs['query'] , labs['status'] , sat , labs['city'] , labs['country']
+        print ('[+] ',PS,' :- ', row)
 
-    with open('token.json', 'w') as token:
-        token.write(creds.to_json())
+        # Set up the Sheets API client
+        scopes = ['https://www.googleapis.com/auth/spreadsheets']
+        creds = Credentials.from_authorized_user_file('token.json', scopes)
+        service = build('sheets', 'v4', credentials=creds)
 
-gc = gspread.authorize(creds)
+        # Define the data to be inserted
+        values = [row]
 
-#Read CSV file contents
-content = open(r'C:\Users\WSO2\Desktop\security-tools\internal\Intern Automation tools\IP.csv').read()
-
-gc.import_csv('1FxMFtcNpvaDSFv_LUMoNoKG2LD0hUhBivpkeaLMxoCI', content)
+        # Insert the data into the sheet
+        result = service.spreadsheets().values().append(
+            spreadsheetId='1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg',
+            range='Whois!A2',
+            valueInputOption='RAW',
+            insertDataOption='INSERT_ROWS',
+            body={'values': values}
+        ).execute()

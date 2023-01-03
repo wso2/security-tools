@@ -156,14 +156,6 @@ def value(SCOPES, GET_SUBDOMAIN_RANGE, getData):
 
 values = value(SCOPES, GET_SUBDOMAIN_RANGE, getData)
 
-filename = open(r"C:\Users\WSO2\Desktop\security-tools\internal\Intern Automation tools\IP.csv")
-file = csv.DictReader(filename)
-
-IP = []
-status = []
-status_code = []
-city = []
-country = []
 url_list = []
 A_list = []
 AAAA_list=[]
@@ -172,14 +164,6 @@ CNAME_list=[]
 MXRecord_list=[]
 TXTRecord_list=[]
 dmarc_list=[]
-
-for col in file:
-    IP.append(col['IP Address'])
-    status.append(col['Status'])
-    status_code.append(col['Status Code'])
-    city.append(col['City'])
-    country.append(col['Country'])
-
 
 SCOPES = [
     'https://www.googleapis.com/auth/drive',
@@ -202,15 +186,11 @@ if not creds or not creds.valid:
 
 gc = gspread.authorize(creds)
 
-csvfile= open('file.csv', 'w',newline='')
-row  = 'Subdomain' , 'IP Address' , 'Status' , 'Status Code' , 'City' , 'Country' , 'A Records' , 'AAAA Records' , 'NS Record' , 'CNAME' , 'MX Record' , 'TXT Record' , 'DMARC Record'
-writer = csv.writer(csvfile)
-writer.writerow(row)
 list = values
-for i in range(4):
+for i in range(174):
     url=str(*list[i])
-    data = [Arecord(url),AAAArecord(url),NSrecord(url),CNAME(url),MXRecord(url),TXTRecord(url),dmarcRecord(url)]
-    print('[+] Scanning for the domain ',url, ':- ',data)
+    data = [url , Arecord(url),AAAArecord(url),NSrecord(url),CNAME(url),MXRecord(url),TXTRecord(url),dmarcRecord(url)]
+    print('[+] Scanning for the domain :- ',data)
     #data_list.append(data)
     url_list.append(url)
     A_list.append(Arecord(url))
@@ -221,12 +201,22 @@ for i in range(4):
     TXTRecord_list.append(TXTRecord(url))
     dmarc_list.append(dmarcRecord(url))
 
-#print data_list
-writer = csv.writer(csvfile, dialect='excel')
-writer.writerows(zip(url_list, IP , status , status_code , city , country , A_list, AAAA_list, NS_list, CNAME_list, MXRecord_list , TXTRecord_list , dmarc_list))
-csvfile.close()
+    # Set up the Sheets API client
+    scopes = ['https://www.googleapis.com/auth/spreadsheets']
+    creds = Credentials.from_authorized_user_file('token.json', scopes)
+    service = build('sheets', 'v4', credentials=creds)
 
-#Read CSV file contents
-content = open(r'file.csv').read()
-gc.open_by_url('https://docs.google.com/spreadsheets/d/1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg/edit#gid=0')
-gc.import_csv('1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg', content)
+    # Define the data to be inserted
+    values = [data]
+
+    # Insert the data into the sheet
+    result = service.spreadsheets().values().append(
+        spreadsheetId='1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg',
+        range='DNS!A1',
+        valueInputOption='RAW',
+        insertDataOption='INSERT_ROWS',
+        body={'values': values}
+    ).execute()
+
+
+

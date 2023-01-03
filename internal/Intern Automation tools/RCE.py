@@ -52,9 +52,10 @@ def value(SCOPES, GET_SUBDOMAIN_RANGE, getData):
 values = value(SCOPES, GET_SUBDOMAIN_RANGE, getData)
 
 try:
-    for i in range(4):
+    for i in range(174):
         url = str(*values[i])
         os.system('python dirsearch.py -e php -u '+url+ ' --exclude-status 201-999 --output=out.txt --format=plain')
+    
     X = open('out.txt','r').read().splitlines()
     for i in X:
         payloads = open('payload_rce.txt').read().splitlines()

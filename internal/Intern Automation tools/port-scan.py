@@ -11,8 +11,8 @@ SCOPES = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file'
     ]
-SPREADSHEET_ID = '1_Q2_Bjnm8ERDYcggsMVCPPWCDGB-s4fCUDejJvIqnc8'
-GET_IP_RANGE = 'results!A2:A6'
+SPREADSHEET_ID = '1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg'
+GET_IP_RANGE = 'port scan!A2:A161'
 GET_DATE_RANGE = 'date!A1'
 
 scanDateTime = datetime.datetime.now()
@@ -76,7 +76,7 @@ def formatArray(arr):
 # Checks for prevously scanned ports and compare with current scanned ports results
 def checkIfExist(service, arr, i, lastScanDate):
     status = "Changed since " + lastScanDate + " scan"
-    sheetRange = "'results'!B"+str(i+2)
+    sheetRange = "'port scan'!B"+str(i+2)
     sheet = service.spreadsheets()
     result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
                                 range=sheetRange,
@@ -94,7 +94,7 @@ def checkIfExist(service, arr, i, lastScanDate):
 
 # Update Google sheets with given range and data
 def updateData(service, response, i, clm):
-    sheetRange = "'results'!" + clm + str(i)
+    sheetRange = "'port scan'!" + clm + str(i)
     values =[[response]]
     body = {
         'range': sheetRange,
