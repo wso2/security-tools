@@ -1,7 +1,5 @@
 import emailprotectionslib.dmarc as dmarclib
-import csv
 import dns.resolver
-import gspread
 import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -165,27 +163,6 @@ MXRecord_list=[]
 TXTRecord_list=[]
 dmarc_list=[]
 
-SCOPES = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/drive.file'
-    ]
-creds = None
-
-if os.path.exists('token.json'):
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
-        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-        creds = flow.run_local_server(port=0)
-
-    with open('token.json', 'w') as token: 
-        token.write(creds.to_json())
-
-gc = gspread.authorize(creds)
-
 list = values
 for i in range(174):
     url=str(*list[i])
@@ -212,7 +189,7 @@ for i in range(174):
     # Insert the data into the sheet
     result = service.spreadsheets().values().append(
         spreadsheetId='1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg',
-        range='DNS!A1',
+        range='DNS!A2',
         valueInputOption='RAW',
         insertDataOption='INSERT_ROWS',
         body={'values': values}

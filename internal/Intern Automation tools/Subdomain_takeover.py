@@ -67,9 +67,9 @@ for i in range(174):
     scopes = ['https://www.googleapis.com/auth/spreadsheets']
     creds = Credentials.from_authorized_user_file('token.json', scopes)
     service = build('sheets', 'v4', credentials=creds)
-
+    data = (url , ans)
     # Define the data to be inserted
-    values = [url , ans]
+    values = [data]
 
     # Insert the data into the sheet
     result = service.spreadsheets().values().append(
