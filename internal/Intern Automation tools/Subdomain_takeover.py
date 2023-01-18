@@ -7,6 +7,23 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+# setup the Sheets API
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+creds = Credentials.from_authorized_user_file('token.json', scopes=SCOPES)
+
+# setup the Sheets API
+
+service = build('sheets', 'v4', credentials=creds)
+
+# Delete all the data from the sheet
+spreadsheet_id = '1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg'
+sheet_name = 'subdomain takeover'
+range_ = sheet_name + '!A2:Z'
+request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_)
+request.execute()
+
+print(f'All data from {sheet_name} sheet has been deleted.')
 
 SCOPES = [
     'https://www.googleapis.com/auth/drive',

@@ -49,14 +49,14 @@ def value(SCOPES, GET_SUBDOMAIN_RANGE, getData):
 
 values = value(SCOPES, GET_SUBDOMAIN_RANGE, getData)
 domain = values
-for i in range(4):
+for i in range(174):
     url = str(*domain[i])
     print("Scanning for the XSS in domain : "+url)
     try:
-        os.system('python pwnxss.py -u https://'+url)
-    except KeyboardInterrupt:
+        x = os.system('python xsstrike.py -u http://'+url+" --crawl --file-log-level VULN --log-file LOG_FILE.txt")
+        print("!!!!!!!",x)
+    except:
         print("Unable to scan the domain")
         quit()
     print("Scan completed for the domain : "+url)
-    print("*"*70)
     print("*"*70)

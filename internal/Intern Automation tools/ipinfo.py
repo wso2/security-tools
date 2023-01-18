@@ -9,6 +9,24 @@ from googleapiclient.discovery import build
 import requests
 import os
 
+# setup the Sheets API
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+creds = Credentials.from_authorized_user_file('token.json', scopes=SCOPES)
+
+# setup the Sheets API
+
+service = build('sheets', 'v4', credentials=creds)
+
+# Delete all the data from the sheet
+spreadsheet_id = '1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg'
+sheet_name = 'Whois'
+range_ = sheet_name + '!A2:Z'
+request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_)
+request.execute()
+
+print(f'Previous scan results from {sheet_name} sheet has been deleted.')
+
 SCOPES = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file'

@@ -1,12 +1,11 @@
-import urllib.request as urllib2
-import json
+from __future__ import print_function
+import requests
 import os
 from datetime import datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-import requests
 
 CHAIN_ISSUES = {
     "0": "none",
@@ -23,6 +22,170 @@ FORWARD_SECRECY = {
     "2": "With modern browsers",
     "4": "Yes (with most browsers) ROBUST",
 }
+
+PROTOCOLS = [
+    "TLS 1.3", "TLS 1.2", "TLS 1.1", "TLS 1.0", "SSL 3.0 INSECURE", "SSL 2.0 INSECURE"
+]
+
+def retry(func, retries=3):
+    for i in range(retries):
+        try:
+            return func()
+        except Exception as e:
+            print(f"Attempt {i+1} failed: {e}. Retrying...")
+    raise Exception("All retries failed.")
+ 
+def exp(url):
+  try:
+    expDate = str(dets["certs"][0]["notAfter"])
+    exp_date = datetime.utcfromtimestamp(float(str(expDate)[:10])).strftime("%Y-%m-%d") 
+    return exp_date
+  except:
+    return ("can't resolve")
+
+def grade(url):
+  try:
+    grade = (dets['endpoints'][0]["grade"])
+    return grade
+  except:
+    pass
+
+def hasWarning(url):
+  try:
+    hasWarnins = (dets['endpoints'][0]["hasWarnings"])
+    return hasWarnins
+  except:
+    pass
+
+def Chain_issues(url):
+  try:
+    for data in dets["endpoints"]:
+      chainIss = CHAIN_ISSUES[str(data["details"]["certChains"][0]["issues"])]
+      return chainIss
+  except:
+    pass
+
+def Forward_secrecy(url):
+  try:
+    for data in dets["endpoints"]:
+      forSec = FORWARD_SECRECY[str(data["details"]["forwardSecrecy"])]
+      return forSec
+  except:
+    pass
+
+def heartbeat(url):
+  try:
+    for data in dets["endpoints"]:
+      heartbeat = (data["details"]["heartbeat"])
+      return heartbeat
+  except:
+    pass
+
+def vulnBeat(url):
+  try:
+    for data in dets["endpoints"]:
+      vulnBeast = (data["details"]["vulnBeast"])
+      return vulnBeast
+  except:
+    pass
+
+def drownVulnerable(url):
+  try:
+    for data in dets["endpoints"]:
+      drownVulnerable = (data["details"]["drownVulnerable"])
+      return drownVulnerable
+  except:
+    pass
+
+def heartbleed(url):
+  try:
+    for data in dets["endpoints"]:
+      heartbleed = (data["details"]["heartbleed"])
+      return heartbleed
+  except:
+    pass
+
+def freak(url):
+  try:
+    for data in dets["endpoints"]:
+      freak = (data["details"]["freak"])
+      return freak
+  except:
+      pass
+
+def openSSLCCS(url):
+  try:
+    for data in dets["endpoints"]:
+      openSslCcs = (False if data["details"]["openSslCcs"] == 1 else True)
+      return openSslCcs
+  except:
+    pass
+    
+def openSSLLuckyMinus20(url):
+  try:
+    for data in dets["endpoints"]:
+      openSSLLuckyMinus20 = (False if data["details"]["openSSLLuckyMinus20"] == 1 else True)
+      return openSSLLuckyMinus20
+  except:
+    pass
+
+def poodle(url):
+  try:
+    for data in dets["endpoints"]:
+      poodle = (data["details"]["poodle"])
+      return poodle
+  except:
+      pass
+
+def poodleTls(url):
+  try:
+    for data in dets["endpoints"]:
+      poodleTls = (False if data["details"]["poodleTls"] == 1 else True)
+      return poodleTls
+  except:
+    pass
+
+def supportRc4(url):
+  try:
+    for data in dets["endpoints"]:
+      supportsRc4 = (data["details"]["supportsRc4"])
+      return supportsRc4
+  except:
+    pass
+
+def rc4withModern(url):
+  try:
+    for data in dets["endpoints"]:
+      rc4WithModern = (data["details"]["rc4WithModern"])
+      return rc4WithModern
+  except:
+    pass
+
+def rc4only(url):
+    try:
+        for data in dets["endpoints"]:
+            rc4Only = (data["details"]["rc4Only"])
+            return rc4Only
+    except:
+        return ("Can't resolve")
+
+
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+creds = Credentials.from_authorized_user_file('token.json', scopes=SCOPES)
+
+# setup the Sheets API
+
+service = build('sheets', 'v4', credentials=creds)
+
+# Delete all the data from the sheet
+spreadsheet_id = '1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg'
+sheet_name = 'SSL healthcheck'
+range_ = sheet_name + '!A2:Z'
+request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_)
+request.execute()
+
+print(f'All data from {sheet_name} sheet has been deleted.')
 
 SCOPES = [
     'https://www.googleapis.com/auth/drive',
@@ -70,41 +233,16 @@ values = value(SCOPES, GET_SUBDOMAIN_RANGE, getData)
 
 list = values
 for i in range(174):
-  host=str(*list[i])
-  ana = requests.get("https://api.ssllabs.com/api/v3/analyze?host="+host+"&publish=off&startNew=off&all=on&ignoreMismatch=on",timeout=25)
-  with open ('ssl.csv','w',newline='') as f:
-    if ana.status_code == 200:
-      # Parse the JSON response
-      #rsp = ana.read()
-      dets = ana.json()
-      # Access the desired information from the response object
-      try:
-        expDate = str(dets["certs"][0]["notAfter"]) 
-        expiration_date = datetime.utcfromtimestamp(float(str(expDate)[:10])).strftime("%Y/%m/%d")
-        grade = (dets['endpoints'][0]["grade"])
-        hasWarnins = (dets['endpoints'][0]["hasWarnings"])
-        for data in dets["endpoints"]:
-          chainIss = CHAIN_ISSUES[str(data["details"]["certChains"][0]["issues"])]
-          forSec = FORWARD_SECRECY[str(data["details"]["forwardSecrecy"])]
-          heartbeat = (data["details"]["heartbeat"])
-          vulnBeast = (data["details"]["vulnBeast"])
-          drownVulnerable = (data["details"]["drownVulnerable"])
-          heartbleed = (data["details"]["heartbleed"])
-          freak = (data["details"]["freak"])
-          openSslCcs = (False if data["details"]["openSslCcs"] == 1 else True)
-          openSSLLuckyMinus20 = (False if data["details"]["openSSLLuckyMinus20"] == 1 else True)
-          poodle = (data["details"]["poodle"])
-          poodleTls = (False if data["details"]["poodleTls"] == 1 else True)
-          supportsRc4 = (data["details"]["supportsRc4"])
-          rc4WithModern = (data["details"]["rc4WithModern"])
-          rc4Only = (data["details"]["rc4Only"])
-          #protocols = ["details"][0]["protocols"]
-          #for protocol in protocols:
-            #pro = ("TLS",protocol["version"])
+    host=str(*list[i])
+    url = requests.get("https://api.ssllabs.com/api/v3/analyze?host="+host+"&publish=off&startNew=off&all=on&ignoreMismatch=on",timeout=30)
+    if url.status_code == 200:
+        # Parse the JSON response
+        #rsp = ana.read()
+        dets = url.json()
+        # Access the desired information from the response object
+        row = host,exp(url),grade(url),hasWarning(url),Chain_issues(url),Forward_secrecy(url),heartbeat(url),vulnBeat(url),drownVulnerable(url),heartbleed(url),freak(url),openSSLCCS(url),openSSLLuckyMinus20(url),poodle(url),poodleTls(url),supportRc4(url),rc4withModern(url),rc4only(url)
+        print(row)
 
-        
-        row = host,grade,hasWarnins,expiration_date,chainIss,forSec,heartbeat,vulnBeast,drownVulnerable,heartbleed,freak,openSslCcs,openSSLLuckyMinus20,poodle,poodleTls,supportsRc4,rc4WithModern,rc4Only
-        print("[+] ",row)
         # Set up the Sheets API client
         scopes = ['https://www.googleapis.com/auth/spreadsheets']
         creds = Credentials.from_authorized_user_file('token.json', scopes)
@@ -118,7 +256,8 @@ for i in range(174):
         insertDataOption='INSERT_ROWS',
         body={'values': values}
         ).execute()
-      except:
-        print("[+] ",host, 'error')
-    else:  
-      print("[+]",host,": An error occurred:", ana.status_code)
+    elif url.status_code == 429:
+      result = retry(row, 3)
+
+    else:
+        print("[+]",host,": An error occurred:", url.status_code)
