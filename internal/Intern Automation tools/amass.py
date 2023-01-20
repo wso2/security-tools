@@ -4,6 +4,7 @@ import gspread
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+import csv
 
 domain = input("Enter the domain name : ")
 with open('subdomain.csv','a') as output:
@@ -34,6 +35,10 @@ if not creds or not creds.valid:
 gc = gspread.authorize(creds)
 
 # Read CSV file contents
-content = open('subdomain.csv', 'r').read()
+with open(r'Subdomain.csv') as csv_file:
+    reader = csv.reader(csv_file)
+    data = list(reader)
 
-gc.import_csv('1EckNrafKPr6TMTnLorrqjIkwgwtFjAMT396pbvBLKAo', content)
+# Open the sheet and update the tab with the CSV data
+sheet = gc.open_by_key("Enter the google sheet ID").worksheet("Enter the Tab Name")
+sheet.update("A2:Z", data)

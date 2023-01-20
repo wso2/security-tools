@@ -6,6 +6,23 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+creds = Credentials.from_authorized_user_file('token.json', scopes=SCOPES)
+
+# setup the Sheets API
+
+service = build('sheets', 'v4', credentials=creds)
+
+# Delete all the data from the sheet
+spreadsheet_id = '1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg'
+sheet_name = 'DNS'
+range_ = sheet_name + '!A2:Z'
+request = service.spreadsheets().values().clear(spreadsheetId=spreadsheet_id, range=range_)
+request.execute()
+
+print(f'All data from {sheet_name} sheet has been deleted.')
+
 def Arecord(url):
     try:
         ARec = dns.resolver.resolve(url,'A')
@@ -154,29 +171,11 @@ def value(SCOPES, GET_SUBDOMAIN_RANGE, getData):
 
 values = value(SCOPES, GET_SUBDOMAIN_RANGE, getData)
 
-url_list = []
-A_list = []
-AAAA_list=[]
-NS_list=[]
-CNAME_list=[]
-MXRecord_list=[]
-TXTRecord_list=[]
-dmarc_list=[]
-
 list = values
 for i in range(174):
     url=str(*list[i])
     data = [url , Arecord(url),AAAArecord(url),NSrecord(url),CNAME(url),MXRecord(url),TXTRecord(url),dmarcRecord(url)]
     print('[+] Scanning for the domain :- ',data)
-    #data_list.append(data)
-    url_list.append(url)
-    A_list.append(Arecord(url))
-    AAAA_list.append(AAAArecord(url))
-    NS_list.append(NSrecord(url))
-    CNAME_list.append(CNAME(url))
-    MXRecord_list.append(MXRecord(url))
-    TXTRecord_list.append(TXTRecord(url))
-    dmarc_list.append(dmarcRecord(url))
 
     # Set up the Sheets API client
     scopes = ['https://www.googleapis.com/auth/spreadsheets']

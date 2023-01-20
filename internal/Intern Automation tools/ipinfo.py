@@ -1,7 +1,4 @@
-import urllib.request as urllib2
-import json 
-import csv
-import gspread
+import requests
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -68,44 +65,40 @@ def values(SCOPES):
     service = build('sheets', 'v4', credentials=creds)
     return service
 
-service = values(SCOPES)
-
 values = getData(service, GET_SUBDOMAIN_RANGE)
 domain = values
 url = 'http://ip-api.com/json/'
+try:
+    for i in range(174):
+        PS = str(*domain[i])
+        response = requests.get(url+PS,timeout=20)
+        labs = response.json()
+        sat = response.status_code
 
-for i in range(174):
-    PS = str(*domain[i])
-    response = urllib2.urlopen(url+PS)
-    name = response.read()
-    labs = json.loads(name)
-    try:
-        r = requests.get('https://'+PS)
-        sat = r.status_code
+        if labs['query'] == PS:
+            row = PS,"Can't Resolve"
 
-    except:
-        sat = ('Not Reachable')
+        else:
+            row = PS , labs['query'] , labs['status'] , sat , labs['city'] , labs['country']
+            print ('[+] ',PS,' :- ', row)
 
-    if labs['query'] == PS:
-        row = PS,"Can't Resolve"
+            # Set up the Sheets API client
+            scopes = ['https://www.googleapis.com/auth/spreadsheets']
+            creds = Credentials.from_authorized_user_file('token.json', scopes)
+            service = build('sheets', 'v4', credentials=creds)
 
-    else:
-        row = PS , labs['query'] , labs['status'] , sat , labs['city'] , labs['country']
-        print ('[+] ',PS,' :- ', row)
+            # Define the data to be inserted
+            value = [row]
 
-        # Set up the Sheets API client
-        scopes = ['https://www.googleapis.com/auth/spreadsheets']
-        creds = Credentials.from_authorized_user_file('token.json', scopes)
-        service = build('sheets', 'v4', credentials=creds)
-
-        # Define the data to be inserted
-        values = [row]
-
-        # Insert the data into the sheet
-        result = service.spreadsheets().values().append(
+            # Insert the data into the sheet
+            result = service.spreadsheets().values().append(
             spreadsheetId='1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg',
             range='Whois!A2',
             valueInputOption='RAW',
             insertDataOption='INSERT_ROWS',
-            body={'values': values}
-        ).execute()
+            body={'values': value}
+            ).execute()
+except KeyError:
+    print(KeyError)
+except KeyboardInterrupt:
+    print("Quitting")

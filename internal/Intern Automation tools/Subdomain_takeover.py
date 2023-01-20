@@ -1,7 +1,5 @@
 import subprocess
 import os
-import gspread
-import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -77,7 +75,7 @@ for i in range(174):
         ans = "Subdomain is not Vulnerable"
         print(ans)
     else:
-        ans = "Subdomain is Vulnerable"
+        ans = "Subdomain is Vulnerable" 
         print(ans)
 
     # Set up the Sheets API client
@@ -91,7 +89,7 @@ for i in range(174):
     # Insert the data into the sheet
     result = service.spreadsheets().values().append(
         spreadsheetId='1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg',
-        range='Subdomain takeover!A1',
+        range='Subdomain takeover!A2',
         valueInputOption='RAW',
         insertDataOption='INSERT_ROWS',
         body={'values': values}

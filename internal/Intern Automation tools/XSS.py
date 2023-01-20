@@ -1,9 +1,10 @@
-import urllib.request as urllib2
+import csv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import os
+import gspread
 
 SCOPES = [
     'https://www.googleapis.com/auth/drive',
@@ -53,10 +54,40 @@ for i in range(174):
     url = str(*domain[i])
     print("Scanning for the XSS in domain : "+url)
     try:
-        x = os.system('python xsstrike.py -u http://'+url+" --crawl --file-log-level VULN --log-file LOG_FILE.txt")
-        print("!!!!!!!",x)
+        os.system('python xsstrike.py -u http://'+url+" --crawl --file-log-level VULN --log-file LOG_FILE.csv")
     except:
         print("Unable to scan the domain")
         quit()
     print("Scan completed for the domain : "+url)
     print("*"*70)
+
+SCOPES = [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.file'
+    ]
+creds = None
+
+if os.path.exists('token.json'):
+    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+
+if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+    else:
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+        creds = flow.run_local_server(port=0)
+
+    with open('token.json', 'w') as token:
+        token.write(creds.to_json())
+
+gc = gspread.authorize(creds)
+
+# Read CSV file contents
+with open(r'LOG_FILE.csv') as csv_file:
+    reader = csv.reader(csv_file)
+    data = list(reader)
+
+# Open the sheet and update the tab with the CSV data
+sheet = gc.open_by_key("1vcKk2KQ6zAJFblxmht78QFIQu77KkV4Bpug765P-EWg").worksheet("XSS")
+sheet.update("A:Z", data)

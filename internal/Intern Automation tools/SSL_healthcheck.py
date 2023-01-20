@@ -1,4 +1,3 @@
-from __future__ import print_function
 import requests
 import os
 from datetime import datetime
@@ -23,17 +22,7 @@ FORWARD_SECRECY = {
     "4": "Yes (with most browsers) ROBUST",
 }
 
-PROTOCOLS = [
-    "TLS 1.3", "TLS 1.2", "TLS 1.1", "TLS 1.0", "SSL 3.0 INSECURE", "SSL 2.0 INSECURE"
-]
 
-def retry(func, retries=3):
-    for i in range(retries):
-        try:
-            return func()
-        except Exception as e:
-            print(f"Attempt {i+1} failed: {e}. Retrying...")
-    raise Exception("All retries failed.")
  
 def exp(url):
   try:
@@ -167,7 +156,7 @@ def rc4only(url):
             rc4Only = (data["details"]["rc4Only"])
             return rc4Only
     except:
-        return ("Can't resolve")
+        quit()
 
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -256,8 +245,6 @@ for i in range(174):
         insertDataOption='INSERT_ROWS',
         body={'values': values}
         ).execute()
-    elif url.status_code == 429:
-      result = retry(row, 3)
 
     else:
         print("[+]",host,": An error occurred:", url.status_code)

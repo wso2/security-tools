@@ -4,7 +4,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-domain = open(r"C:\Users\WSO2\Desktop\security-tools\internal\Intern Automation tools\login_portals.txt").read().splitlines()
+domain = open(r"ENTER THE FILE NAME THAT CONTAINS THE LOGIN PAGES").read().splitlines()
 
 for url in domain:
     print("[+] Scanning for the login page :",url)
