@@ -213,3 +213,7 @@ $RECYCLE.BIN/
 .project
 .settings
 .vscode
+
+# Environments
+*.env
+
