@@ -1,0 +1,32 @@
+diff --git a/dojo/engagement/views.py b/dojo/engagement/views.py
+index a86a49a2..41d966d9 100644
+--- a/dojo/engagement/views.py
++++ b/dojo/engagement/views.py
+@@ -689,21 +689,14 @@ def import_scan_results(request, eid=None, pid=None):
+ 
+                     item.save(false_history=True, push_to_jira=push_to_jira)
+ 
+-                    if parser.note1 is not None:
+-                        if str(parser.note1[i].entry) != ("nan"):
+-                            item.notes.add(parser.note1[i])
++                    if parser.vul_influence_notes is not None:
++                        if str(parser.vul_influence_notes[i].entry) != "nan":
++                            item.notes.add(parser.vul_influence_notes[i])
+ 
+-                    if parser.note2 is not None:
+-                        if str(parser.note2[i].entry) != "nan":
+-                            item.notes.add(parser.note2[i])
++                    if parser.wso2_resolution_notes is not None:
++                        if str(parser.wso2_resolution_notes[i].entry) != "nan":
++                            item.notes.add(parser.wso2_resolution_notes[i])
+ 
+-                    if parser.note5 is not None:
+-                        if str(parser.note5[i].entry) != "nan":
+-                            item.notes.add(parser.note5[i])
+-
+-                    if parser.note6 is not None:
+-                        if str(parser.note6[i].entry) != "nan":
+-                            item.notes.add(parser.note6[i])
+                     i += 1
+ 
+                     if item.unsaved_tags is not None:
