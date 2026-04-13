@@ -1,0 +1,5 @@
+https://identity.cloud.wso2.com/authenticationendpoint/login.do?
+https://ciam.sandbox.wso2.com/carbon/admin/login.jsp
+https://com-staging.private.wso2.com/
+https://identity-internal.cloud.wso2.com/authenticationendpoint/login.do?
+https://supportbuild-wilkes-upgrade.wso2.com/jenkins/login?from=%2Fjenkins
