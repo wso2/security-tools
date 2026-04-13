@@ -1,0 +1,40 @@
+diff --git a/dojo/google_sheet/views.py b/dojo/google_sheet/views.py
+index 819b40bd..b193cb88 100644
+--- a/dojo/google_sheet/views.py
++++ b/dojo/google_sheet/views.py
+@@ -897,7 +921,7 @@ def get_findings_list(tid):
+             for note_type in active_note_types:
+                 findings_list[0].append('[duplicate] ' + note_type.name)
+             for f in range(findings.count()):
+-                original_finding = findings[f].duplicate_finding
++                original_finding = get_original_find_with_note(findings[f])
+                 for note_type in active_note_types:
+                     try:
+                         note = original_finding.notes.filter(note_type=note_type).latest('date')
+@@ -907,7 +931,7 @@ def get_findings_list(tid):
+         else:
+             findings_list[0].append('[duplicate] note')
+             for f in range(findings.count()):
+-                original_finding = findings[f].duplicate_finding
++                original_finding = get_original_find_with_note(findings[f])
+                 try:
+                     note = original_finding.notes.latest('date')
+                     findings_list[f + 1].append(note.entry)
+@@ -917,4 +941,15 @@ def get_findings_list(tid):
+     findings_list[0].append('Last column')
+     for f in range(findings.count()):
+         findings_list[f + 1].append('-')
+-    return findings_list
+\ No newline at end of file
++    return findings_list
++
++
++def get_original_find_with_note(finding):
++    if finding.duplicate_finding:
++        if finding.duplicate_finding.notes.all():
++            return finding.duplicate_finding
++        else:
++            if finding.duplicate_finding.duplicate_finding:
++                return get_original_find_with_note(finding.duplicate_finding)
++            else:
++                return None
